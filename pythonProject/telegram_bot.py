@@ -1287,7 +1287,7 @@ def main_menu_kb() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"),KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="▶️ Старт"),[mini_app_reply_button()], KeyboardButton(text=upd_label), ],
+            [KeyboardButton(text="▶️ Старт"),mini_app_reply_button(), KeyboardButton(text=upd_label), ],
         ],
         resize_keyboard=True
     )

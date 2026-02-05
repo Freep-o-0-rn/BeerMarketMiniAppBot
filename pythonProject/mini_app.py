@@ -16,7 +16,7 @@ from aiogram.types import (
 
 log = logging.getLogger(__name__)
 
-MINI_APP_URL = os.getenv("MINI_APP_URL", "https://freep-o-0-rn.github.io/BeerMarketBot/")
+MINI_APP_URL = os.getenv("MINI_APP_URL", "https://freep0rndeveloper.website/")
 MINI_APP_BTN_TEXT = os.getenv("MINI_APP_BTN_TEXT", "📱 Mini App")
 
 router = Router(name="mini_app")

@@ -8998,3 +8998,264 @@ TypeError: read_excel() got an unexpected keyword argument 'engine_kwargs'
 2025-10-31 17:12:56 | INFO | aiogram.event | Update id=104055738 is handled. Duration 2647 ms by bot id=8304099970
 2025-10-31 17:14:05 | INFO | aiogram.dispatcher | Polling stopped
 2025-10-31 17:14:05 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:11:22 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-06 00:11:23 | ERROR | __main__ | Ошибка fetch: 'NoneType' object has no attribute 'replace'
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\main.py", line 142, in cmd_fetch
+    path = fetch_latest_file(subject)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\mail_agent.py", line 82, in fetch_latest_file
+    mail = connect_mail()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\mail_agent.py", line 54, in connect_mail
+    mail.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\imaplib.py", line 619, in login
+    typ, dat = self._simple_command('LOGIN', user, self._quote(password))
+                                                   ~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\imaplib.py", line 1231, in _quote
+    arg = arg.replace('\\', '\\\\')
+          ^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'replace'
+2026-02-06 00:11:43 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-06 00:11:44 | ERROR | __main__ | Ошибка fetch: 'NoneType' object has no attribute 'replace'
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\main.py", line 142, in cmd_fetch
+    path = fetch_latest_file(subject)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\mail_agent.py", line 82, in fetch_latest_file
+    mail = connect_mail()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\mail_agent.py", line 54, in connect_mail
+    mail.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\imaplib.py", line 619, in login
+    typ, dat = self._simple_command('LOGIN', user, self._quote(password))
+                                                   ~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\imaplib.py", line 1231, in _quote
+    arg = arg.replace('\\', '\\\\')
+          ^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'replace'
+2026-02-06 00:13:35 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-06 00:13:38 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:13:38 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:13:39 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-02-06 00:13:39 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-06 00:13:39 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-06 00:13:39 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-06 00:13:39 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-06 00:13:39 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-06 00:13:39 | INFO | root | Собрано клиентов: 117
+2026-02-06 00:13:39 | INFO | __main__ | Отчёт на 05.02.2026 | клиентов: 117
+2026-02-06 00:13:39 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 194986.84 | проср: 122791.84 | наш долг: 0.00 | доков: 6
+2026-02-06 00:13:39 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 187562.00 | проср: 140405.00 | наш долг: 0.00 | доков: 7
+2026-02-06 00:13:39 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 185803.48 | проср: 138628.48 | наш долг: 0.00 | доков: 7
+2026-02-06 00:13:39 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 182817.32 | проср: 127752.32 | наш долг: 0.00 | доков: 7
+2026-02-06 00:13:39 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 171176.56 | проср: 126656.56 | наш долг: 0.00 | доков: 6
+2026-02-06 00:13:39 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 127368.00 | проср: 127368.00 | наш долг: 0.00 | доков: 6
+2026-02-06 00:13:39 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 126749.24 | проср: 126749.24 | наш долг: 0.00 | доков: 4
+2026-02-06 00:13:39 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 115209.68 | проср: 115209.68 | наш долг: 0.00 | доков: 6
+2026-02-06 00:13:39 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 111625.64 | проср: 111625.64 | наш долг: 0.00 | доков: 5
+2026-02-06 00:13:39 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 109142.08 | проср: 94367.88 | наш долг: 0.00 | доков: 7
+2026-02-06 00:13:39 | INFO | telegram_bot | Daily fetch: next run in 37040 sec (now 2026-02-06 00:13:39, tz Asia/Novosibirsk)
+2026-02-06 00:13:40 | INFO | mini_app | Mini App menu button set: https://freep-o-0-rn.github.io/BeerMarketBot/
+2026-02-06 00:13:40 | INFO | aiogram.dispatcher | Start polling
+2026-02-06 00:13:40 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:13:48 | ERROR | telegram_bot | Unhandled exception (req_id=8b67a5c5)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 675, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 2369, in btn_start
+    await on_start(m, state)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 2053, in on_start
+    await m.answer(help_text_admin(), reply_markup=main_menu_kb())
+                                                   ~~~~~~~~~~~~^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 1282, in main_menu_kb
+    return ReplyKeyboardMarkup(
+        keyboard=[
+    ...<8 lines>...
+        resize_keyboard=True
+    )
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for ReplyKeyboardMarkup
+keyboard.6.1
+  Input should be a valid dictionary or instance of KeyboardButton [type=model_type, input_value=[KeyboardButton(text='.../'), request_user=None)], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/model_type
+2026-02-06 00:13:48 | INFO | audit | {'t': 'msg', 'ok': False, 'ms': 2, 'req': '8b67a5c5', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 358, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-06 00:13:48 | INFO | audit | {'t': 'error', 'req': '8b67a5c5', 'exc': "ValidationError: 1 validation error for ReplyKeyboardMarkup\nkeyboard.6.1\n  Input should be a valid dictionary or instance of KeyboardButton [type=model_type, input_value=[KeyboardButton(text='.../'), request_user=None)], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type"}
+2026-02-06 00:13:48 | INFO | aiogram.event | Update id=104055928 is not handled. Duration 5 ms by bot id=8304099970
+2026-02-06 00:13:48 | ERROR | aiogram.event | Cause exception while process update id=104055928 by bot id=8304099970
+ValidationError: 1 validation error for ReplyKeyboardMarkup
+keyboard.6.1
+  Input should be a valid dictionary or instance of KeyboardButton [type=model_type, input_value=[KeyboardButton(text='.../'), request_user=None)], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/model_type
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 675, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 2369, in btn_start
+    await on_start(m, state)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 2053, in on_start
+    await m.answer(help_text_admin(), reply_markup=main_menu_kb())
+                                                   ~~~~~~~~~~~~^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 1282, in main_menu_kb
+    return ReplyKeyboardMarkup(
+        keyboard=[
+    ...<8 lines>...
+        resize_keyboard=True
+    )
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for ReplyKeyboardMarkup
+keyboard.6.1
+  Input should be a valid dictionary or instance of KeyboardButton [type=model_type, input_value=[KeyboardButton(text='.../'), request_user=None)], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/model_type
+2026-02-06 00:14:28 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-06 00:14:28 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:14:31 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-06 00:14:34 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:14:34 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:14:35 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-02-06 00:14:35 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-06 00:14:35 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-06 00:14:35 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-06 00:14:35 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-06 00:14:35 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-06 00:14:35 | INFO | root | Собрано клиентов: 117
+2026-02-06 00:14:35 | INFO | __main__ | Отчёт на 05.02.2026 | клиентов: 117
+2026-02-06 00:14:35 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 194986.84 | проср: 122791.84 | наш долг: 0.00 | доков: 6
+2026-02-06 00:14:35 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 187562.00 | проср: 140405.00 | наш долг: 0.00 | доков: 7
+2026-02-06 00:14:35 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 185803.48 | проср: 138628.48 | наш долг: 0.00 | доков: 7
+2026-02-06 00:14:35 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 182817.32 | проср: 127752.32 | наш долг: 0.00 | доков: 7
+2026-02-06 00:14:35 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 171176.56 | проср: 126656.56 | наш долг: 0.00 | доков: 6
+2026-02-06 00:14:35 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 127368.00 | проср: 127368.00 | наш долг: 0.00 | доков: 6
+2026-02-06 00:14:35 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 126749.24 | проср: 126749.24 | наш долг: 0.00 | доков: 4
+2026-02-06 00:14:35 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 115209.68 | проср: 115209.68 | наш долг: 0.00 | доков: 6
+2026-02-06 00:14:35 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 111625.64 | проср: 111625.64 | наш долг: 0.00 | доков: 5
+2026-02-06 00:14:35 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 109142.08 | проср: 94367.88 | наш долг: 0.00 | доков: 7
+2026-02-06 00:14:35 | INFO | telegram_bot | Daily fetch: next run in 36984 sec (now 2026-02-06 00:14:35, tz Asia/Novosibirsk)
+2026-02-06 00:14:36 | INFO | mini_app | Mini App menu button set: https://freep-o-0-rn.github.io/BeerMarketBot/
+2026-02-06 00:14:36 | INFO | aiogram.dispatcher | Start polling
+2026-02-06 00:14:36 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:14:38 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 383, 'req': '3b2a0dcf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 359, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-06 00:14:38 | INFO | aiogram.event | Update id=104055929 is handled. Duration 385 ms by bot id=8304099970
+2026-02-06 00:15:38 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-06 00:15:38 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-02-06 00:15:38 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-02-06 00:15:39 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:15:41 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-06 00:15:44 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:15:44 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:15:45 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-02-06 00:15:45 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-06 00:15:45 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-06 00:15:45 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-06 00:15:45 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-06 00:15:45 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-06 00:15:45 | INFO | root | Собрано клиентов: 117
+2026-02-06 00:15:45 | INFO | __main__ | Отчёт на 05.02.2026 | клиентов: 117
+2026-02-06 00:15:45 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 194986.84 | проср: 122791.84 | наш долг: 0.00 | доков: 6
+2026-02-06 00:15:45 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 187562.00 | проср: 140405.00 | наш долг: 0.00 | доков: 7
+2026-02-06 00:15:45 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 185803.48 | проср: 138628.48 | наш долг: 0.00 | доков: 7
+2026-02-06 00:15:45 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 182817.32 | проср: 127752.32 | наш долг: 0.00 | доков: 7
+2026-02-06 00:15:45 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 171176.56 | проср: 126656.56 | наш долг: 0.00 | доков: 6
+2026-02-06 00:15:45 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 127368.00 | проср: 127368.00 | наш долг: 0.00 | доков: 6
+2026-02-06 00:15:45 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 126749.24 | проср: 126749.24 | наш долг: 0.00 | доков: 4
+2026-02-06 00:15:45 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 115209.68 | проср: 115209.68 | наш долг: 0.00 | доков: 6
+2026-02-06 00:15:45 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 111625.64 | проср: 111625.64 | наш долг: 0.00 | доков: 5
+2026-02-06 00:15:45 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 109142.08 | проср: 94367.88 | наш долг: 0.00 | доков: 7
+2026-02-06 00:15:45 | INFO | telegram_bot | Daily fetch: next run in 36915 sec (now 2026-02-06 00:15:45, tz Asia/Novosibirsk)
+2026-02-06 00:15:45 | INFO | mini_app | Mini App menu button set: https://freep-o-0-rn.github.io/BeerMarketBot/
+2026-02-06 00:15:45 | INFO | aiogram.dispatcher | Start polling
+2026-02-06 00:15:45 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:16:26 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-06 00:16:26 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:16:28 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-06 00:16:31 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:16:31 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-06 00:16:32 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-02-06 00:16:32 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-06 00:16:32 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-06 00:16:32 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-06 00:16:32 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-06 00:16:32 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-06 00:16:32 | INFO | root | Собрано клиентов: 117
+2026-02-06 00:16:32 | INFO | __main__ | Отчёт на 05.02.2026 | клиентов: 117
+2026-02-06 00:16:32 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 194986.84 | проср: 122791.84 | наш долг: 0.00 | доков: 6
+2026-02-06 00:16:32 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 187562.00 | проср: 140405.00 | наш долг: 0.00 | доков: 7
+2026-02-06 00:16:32 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 185803.48 | проср: 138628.48 | наш долг: 0.00 | доков: 7
+2026-02-06 00:16:32 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 182817.32 | проср: 127752.32 | наш долг: 0.00 | доков: 7
+2026-02-06 00:16:32 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 171176.56 | проср: 126656.56 | наш долг: 0.00 | доков: 6
+2026-02-06 00:16:32 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 127368.00 | проср: 127368.00 | наш долг: 0.00 | доков: 6
+2026-02-06 00:16:32 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 126749.24 | проср: 126749.24 | наш долг: 0.00 | доков: 4
+2026-02-06 00:16:32 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 115209.68 | проср: 115209.68 | наш долг: 0.00 | доков: 6
+2026-02-06 00:16:32 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 111625.64 | проср: 111625.64 | наш долг: 0.00 | доков: 5
+2026-02-06 00:16:32 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 109142.08 | проср: 94367.88 | наш долг: 0.00 | доков: 7
+2026-02-06 00:16:32 | INFO | telegram_bot | Daily fetch: next run in 36867 sec (now 2026-02-06 00:16:32, tz Asia/Novosibirsk)
+2026-02-06 00:16:32 | INFO | mini_app | Mini App menu button set: https://freep0rndeveloper.website/
+2026-02-06 00:16:32 | INFO | aiogram.dispatcher | Start polling
+2026-02-06 00:16:32 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-06 00:20:50 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-06 00:20:50 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-02-06 00:20:50 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-02-06 00:20:51 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
