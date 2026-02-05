@@ -4898,13 +4898,6 @@ async def on_contact(m: Message):
 
     phone = normalize_phone(m.contact.phone_number)
 
-    # TODO: сохранить в users.json / БД
-    # пример:
-    # user = get_or_create_user(m.from_user)
-    # user["phone"] = phone
-    # user["status"] = "pending_role" или "active"
-    # save_user(user)
-
     await m.answer(
         f"✅ Номер сохранён: <code>{phone}</code>\n"
         f"Дальше: назначение роли (админ/клиент/ТП).",
