@@ -12,6 +12,7 @@
       --bottomSafe: env(safe-area-inset-bottom, 0px);
       --tgTop: 0px;
       --tgBottom: 0px;
+
       --bg: #0b0b0c;
       --card: #151518;
       --text: #f2f2f2;
@@ -53,14 +54,16 @@
 
     .title{
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 800;
       margin: 0 0 6px 0;
     }
     .muted{ color: var(--muted); font-size: 13px; }
 
-    .grid{
+    .tiles{
       display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
+      margin-top: 10px;
     }
 
     button{
@@ -70,25 +73,32 @@
       border: 0;
       background: var(--btn);
       color: white;
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 700;
     }
     button.secondary{
       background: transparent;
       border: 1px solid var(--line);
       color: var(--text);
+      font-weight: 700;
     }
 
-    textarea{
+    input, textarea{
       width: 100%;
-      padding: 10px;
+      padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid var(--line);
       background: transparent;
       color: var(--text);
       font-size: 14px;
-      resize: vertical;
-      min-height: 110px;
+      outline: none;
+    }
+    textarea{ resize: vertical; min-height: 110px; }
+
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
     }
 
     .bottomBar{
@@ -97,79 +107,171 @@
       background: linear-gradient(to bottom, rgba(11,11,12,0), rgba(11,11,12,1));
     }
 
-    .row2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
+    .hidden{ display:none; }
+    .small{ font-size:12px; opacity:.85; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="content">
-      <div class="card">
-        <div class="title">BeerMarket</div>
-        <div id="user" class="muted">Загрузка…</div>
+<div class="app">
+  <div class="content">
+
+    <div class="card">
+      <div class="title">BeerMarket</div>
+      <div id="user" class="muted">Загрузка…</div>
+      <div id="env" class="muted small"></div>
+    </div>
+
+    <div class="card">
+      <div class="muted">Быстрые действия</div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+
+    <div class="card">
+      <div class="muted">Проверка ТТН</div>
+      <div style="margin-top:10px; display:grid; gap:10px;">
+        <input id="ttn" placeholder="Введите номер ТТН (цифры)" inputmode="numeric" />
+        <button id="btnTtn">Проверить</button>
+      </div>
+      <div class="muted small" style="margin-top:8px;">
+        Сейчас работает через бота: mini app отправит запрос, бот продолжит проверку в чате.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row2">
+        <button id="btnDebug" class="secondary">Debug</button>
+        <button id="btnStart" class="secondary">Старт</button>
       </div>
 
-      <div class="card grid">
-        <div class="muted">Тест обмена mini app → бот</div>
-        <button id="btnPing">Отправить PING</button>
+      <div id="debugBox" class="hidden" style="margin-top:10px; display:grid; gap:10px;">
+        <div class="muted">Тестовый JSON → bot</div>
         <textarea id="payload" placeholder='{"action":"ping"}'></textarea>
         <button id="btnSendJson" class="secondary">Отправить JSON</button>
       </div>
     </div>
 
-    <div class="bottomBar">
-      <div class="row2">
-        <button id="btnRefresh" class="secondary">Обновить</button>
-        <button id="btnClose" class="secondary">Закрыть</button>
-      </div>
-    </div>
   </div>
 
-  <script>
-    const tg = window.Telegram?.WebApp;
+  <div class="bottomBar">
+    <div class="row2">
+      <button id="btnRefresh" class="secondary">Обновить</button>
+      <button id="btnClose" class="secondary">Закрыть</button>
+    </div>
+  </div>
+</div>
 
-    function setSafeInsets() {
-      // iOS/Android вырезы: env() уже работает, но Telegram может дать свои inset'ы
-      // В некоторых версиях есть safeAreaInset / contentSafeAreaInset
-      const top = tg?.safeAreaInset?.top ?? tg?.contentSafeAreaInset?.top ?? 0;
-      const bottom = tg?.safeAreaInset?.bottom ?? tg?.contentSafeAreaInset?.bottom ?? 0;
-      document.documentElement.style.setProperty('--tgTop', top + 'px');
-      document.documentElement.style.setProperty('--tgBottom', bottom + 'px');
-    }
+<script>
+  const tg = window.Telegram?.WebApp;
 
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      setSafeInsets();
+  function setSafeInsets() {
+    const top = tg?.safeAreaInset?.top ?? tg?.contentSafeAreaInset?.top ?? 0;
+    const bottom = tg?.safeAreaInset?.bottom ?? tg?.contentSafeAreaInset?.bottom ?? 0;
+    document.documentElement.style.setProperty('--tgTop', top + 'px');
+    document.documentElement.style.setProperty('--tgBottom', bottom + 'px');
+  }
 
-      // если Telegram пересчитает безопасную область
-      tg.onEvent?.('safeAreaChanged', setSafeInsets);
-      tg.onEvent?.('contentSafeAreaChanged', setSafeInsets);
+  function applyTgTheme() {
+    const p = tg?.themeParams || {};
+    const css = document.documentElement.style;
+    if (p.bg_color) css.setProperty('--bg', p.bg_color);
+    if (p.secondary_bg_color) css.setProperty('--card', p.secondary_bg_color);
+    if (p.text_color) css.setProperty('--text', p.text_color);
+    if (p.hint_color) css.setProperty('--muted', p.hint_color);
+    if (p.button_color) css.setProperty('--btn', p.button_color);
+  }
 
-      const u = tg.initDataUnsafe?.user;
-      document.getElementById("user").textContent = u
-        ? `@${u.username ?? "без_юзернейма"} • id ${u.id}`
-        : "Пользователь не передан";
-    } else {
-      document.getElementById("user").textContent = "Открыто не в Telegram WebApp";
-    }
+  function popupOk(title, msg) {
+    if (!tg?.showPopup) return;
+    tg.showPopup({
+      title: title || "BeerMarket",
+      message: msg || "Отправлено",
+      buttons: [{type:"ok"}]
+    });
+  }
 
-    document.getElementById("btnClose").onclick = () => tg?.close?.();
-    document.getElementById("btnRefresh").onclick = () => location.reload();
-
-    document.getElementById("btnPing").onclick = () => {
-      const data = { action: "ping", ts: Date.now() };
-      tg?.sendData?.(JSON.stringify(data));
-    };
-
-    document.getElementById("btnSendJson").onclick = () => {
-      const raw = document.getElementById("payload").value.trim();
-      if (!raw) return;
+  function sendAction(action, extra = {}) {
+    const payload = { action, ts: Date.now(), ...extra };
+    const raw = JSON.stringify(payload);
+    try {
       tg?.sendData?.(raw);
-    };
-  </script>
+      tg?.HapticFeedback?.impactOccurred?.("light");
+      popupOk("BeerMarket", "Отправлено в бот");
+    } catch (e) {
+      alert("sendData error: " + (e?.message || e));
+    }
+  }
+
+  const ACTIONS = [
+    { text: "📑 Прайсы", action: "prices.open" },
+    { text: "🎁 Акции", action: "promo.open" },
+    { text: "🚚 График", action: "schedule.show" },
+    { text: "🔎 Поиск", action: "search.open" },
+    { text: "🔄 Обновить", action: "refresh.open" },
+    { text: "🏠 Меню", action: "menu.start" },
+  ];
+
+  function renderTiles() {
+    const box = document.getElementById("tiles");
+    box.innerHTML = "";
+    for (const a of ACTIONS) {
+      const b = document.createElement("button");
+      b.textContent = a.text;
+      b.onclick = () => sendAction(a.action);
+      box.appendChild(b);
+    }
+  }
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    setSafeInsets();
+    applyTgTheme();
+
+    tg.onEvent?.("safeAreaChanged", setSafeInsets);
+    tg.onEvent?.("contentSafeAreaChanged", setSafeInsets);
+    tg.onEvent?.("themeChanged", applyTgTheme);
+
+    const u = tg.initDataUnsafe?.user;
+    document.getElementById("user").textContent = u
+      ? `@${u.username ?? "без_юзернейма"} • id ${u.id}`
+      : "Пользователь не передан";
+
+    const ver = new URLSearchParams(location.search).get("v");
+    document.getElementById("env").textContent =
+      `platform: ${tg.platform || "-"} • ver: ${tg.version || "-"}${ver ? " • v=" + ver : ""}`;
+  } else {
+    document.getElementById("user").textContent = "Открыто не в Telegram WebApp";
+  }
+
+  renderTiles();
+
+  document.getElementById("btnClose").onclick = () => tg?.close?.();
+  document.getElementById("btnRefresh").onclick = () => location.reload();
+
+  document.getElementById("btnStart").onclick = () => sendAction("menu.start");
+
+  document.getElementById("btnTtn").onclick = () => {
+    const ttn = (document.getElementById("ttn").value || "").trim();
+    if (!ttn) return popupOk("ТТН", "Введите номер ТТН");
+    // пока просто отправляем запрос; бот решит, как обработать
+    sendAction("ttn.check", { ttn });
+  };
+
+  document.getElementById("btnDebug").onclick = () => {
+    const box = document.getElementById("debugBox");
+    box.classList.toggle("hidden");
+  };
+
+  document.getElementById("btnSendJson").onclick = () => {
+    const raw = document.getElementById("payload").value.trim();
+    if (!raw) return;
+    try {
+      tg?.sendData?.(raw);
+      popupOk("Debug", "Отправлено");
+    } catch (e) {
+      alert("sendData error: " + (e?.message || e));
+    }
+  };
+</script>
 </body>
 </html>

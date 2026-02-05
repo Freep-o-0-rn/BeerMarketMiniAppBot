@@ -2,7 +2,7 @@ import asyncio
 import logging
 import html as _html
 import ssl
-from mini_app import router as mini_app_router, mini_app_reply_button, setup_menu_button
+from mini_app import router as mini_app_router, mini_app_reply_button, setup_menu_button, set_webapp_handler
 from aiogram.types import FSInputFile  # aiogram v3
 import uuid
 import io
@@ -4859,7 +4859,48 @@ async def block_misc_uploads(m: Message):
 
 #акции конец
 
+#--------------------------------
+#--------МИНИ АПП----------------
+async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
+    action = (payload.get("action") or "").strip()
 
+    if action in ("ping", "raw"):
+        await m.answer("pong")
+        return
+
+    if action == "menu.start":
+        await on_start(m, state)
+        return
+
+    if action == "prices.open":
+        await btn_prices(m)
+        return
+
+    if action == "promo.open":
+        await btn_promos(m)
+        return
+
+    if action == "schedule.show":
+        await schedule_show_button(m)
+        return
+
+    if action == "search.open":
+        await btn_search(m, state)
+        return
+
+    if action == "refresh.open":
+        await btn_refresh(m)
+        return
+
+    # MVP: ТТН пока начинаем через стандартный сценарий в чате
+    if action in ("ttn.open", "ttn.check"):
+        await btn_ttn(m, state)
+        ttn = (payload.get("ttn") or "").strip()
+        if ttn:
+            await m.answer(f"Номер получен из Mini App: <code>{esc(ttn)}</code>\nТеперь просто отправь его в чат одним сообщением.")
+        return
+
+    await m.answer(f"Неизвестная команда Mini App: <code>{esc(action)}</code>")
 
 
 
@@ -4867,6 +4908,12 @@ async def block_misc_uploads(m: Message):
 @router.callback_query()
 async def fallback_cb(cq: CallbackQuery):
     await cq.answer()
+
+
+try:
+    set_webapp_handler(_miniapp_dispatch)
+except Exception as e:
+    logger.warning("set_webapp_handler failed: %s", e)
 
 
 
