@@ -4859,6 +4859,58 @@ async def block_misc_uploads(m: Message):
 
 #акции конец
 
+
+##УТИЛИТЫ МИНИ АПП
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+def phone_request_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="📱 Отправить номер телефона", request_contact=True)]],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+
+async def send_phone_request(m: Message):
+    await m.answer(
+        "Для авторизации отправьте номер телефона кнопкой ниже.",
+        reply_markup=phone_request_kb()
+    )
+import re
+
+PHONE_RE = re.compile(r"[^\d+]")
+
+def normalize_phone(raw: str) -> str:
+    if not raw:
+        return ""
+    s = raw.strip()
+    s = PHONE_RE.sub("", s)
+    # если без +, можно привести к +7 (по желанию). Пока оставим как пришло.
+    return s
+
+@router.message(F.contact)
+async def on_contact(m: Message):
+    # Важно: контакт должен быть самого пользователя
+    if not m.from_user or not m.contact:
+        return
+    if m.contact.user_id and m.contact.user_id != m.from_user.id:
+        await m.answer("Нужен ваш номер. Нажмите кнопку и отправьте свой контакт.")
+        return
+
+    phone = normalize_phone(m.contact.phone_number)
+
+    # TODO: сохранить в users.json / БД
+    # пример:
+    # user = get_or_create_user(m.from_user)
+    # user["phone"] = phone
+    # user["status"] = "pending_role" или "active"
+    # save_user(user)
+
+    await m.answer(
+        f"✅ Номер сохранён: <code>{phone}</code>\n"
+        f"Дальше: назначение роли (админ/клиент/ТП).",
+        reply_markup=main_menu_kb()  # или убрать клавиатуру
+    )
+
 #--------------------------------
 #--------МИНИ АПП----------------
 async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
@@ -4898,6 +4950,10 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
         ttn = (payload.get("ttn") or "").strip()
         if ttn:
             await m.answer(f"Номер получен из Mini App: <code>{esc(ttn)}</code>\nТеперь просто отправь его в чат одним сообщением.")
+        return
+
+    if action == "auth.phone":
+        await send_phone_request(m)
         return
 
     if action == "refresh.all":
