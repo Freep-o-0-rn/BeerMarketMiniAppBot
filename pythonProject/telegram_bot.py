@@ -4900,6 +4900,31 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
             await m.answer(f"Номер получен из Mini App: <code>{esc(ttn)}</code>\nТеперь просто отправь его в чат одним сообщением.")
         return
 
+    if action == "refresh.all":
+        if _is_client(m):
+            await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+            return
+
+        await m.answer("Обновляю отчёт(ы) из почты…")
+        msgs = []
+        ok = False
+        for t in ("ДЕБИТОРКА", "ТАРА"):
+            try:
+                path = fetch_latest_file(t)
+                if path:
+                    ok = True
+                    msgs.append(f"✅ {t}: <code>{esc(path)}</code>")
+                else:
+                    msgs.append(f"⚠️ {t}: письмо/вложение не найдено")
+            except Exception as e:
+                logger.exception("Refresh failed for %s", t)
+                msgs.append(f"❌ {t}: {e}")
+        if ok:
+            set_last_update("manual")
+
+        await m.answer("\n".join(msgs), reply_markup=main_menu_kb())
+        return
+
     await m.answer(f"Неизвестная команда Mini App: <code>{esc(action)}</code>")
 
 
