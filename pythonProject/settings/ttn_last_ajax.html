@@ -1,0 +1,432 @@
+<html>
+<head>
+    <style>
+        #tabs, #tabs-title {
+            padding: 0px;
+            margin: 0px;
+            clear: both;
+            width: 100%;
+            border: none /*1px solid #000*/;
+            height: 120px;
+        }
+
+        #tabs-title {
+            background: #FFFFFF;
+            height: 20px;
+            
+        }
+
+        .tab-title {
+            cursor: pointer;
+            background: #FFFFFF;
+            margin-right: 10px;
+            padding: 7px;
+            list-style: none;
+            float: left;
+            border: 2px solid #E3E7E8;
+        }
+
+        .selected-li, #tabs-title li:hover {
+            background: #E3E7E8;
+            /*font-weight:bold;*/
+        }
+
+        .tab {
+            padding: 10px;
+            display: none;
+            background: #FFFFFF;
+            text-align: justify;
+        }
+
+        .selected {
+            display: block;
+        }
+    </style>
+
+
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <title>Проверка информации из документооборота ЕГАИС</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/pre.link.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/site.css" media="screen, projection" />
+    <script>
+        var tabCount = 4; //Всего вкладок
+        var tabs = 1;
+        function SelectTab(idx) { //idx - выбранная вкладка
+            for (var i = 1; i <= tabCount; ++i) {
+                var _tab = document.getElementById("tab" + i); //Div - содержимое вкладки i
+                var _tabTitle = document.getElementById("tab-title" + i); //Li - вкладка i
+                if (idx != i) { //Если это не выбранна я вкладка
+                    _tab.setAttribute("class", "tab");
+                    _tabTitle.setAttribute("class", "tab-title");
+                    tabs = idx;
+
+                }
+                else { //Если это выбранная вкладка
+                    _tab.setAttribute("class", "tab selected");
+                    _tabTitle.setAttribute("class", "tab-title selected-li");
+                    tabs = i;
+                }
+            }
+        }
+    </script>
+
+    <script>
+ 
+        jQuery(document).ready(function () {
+          $('input:radio[name="radio"]').change(
+              function () {
+                  if (this.checked && this.value == '1') {
+
+                      document.getElementById("owner_r1").disabled = false;
+                      document.getElementById("owner_r2").disabled = true;
+                      document.getElementById("owner_r2").value = "";
+
+                  }
+
+                  if (this.checked && this.value == '2') {
+
+                      document.getElementById("owner_r1").disabled = true;
+                      document.getElementById("owner_r1").value = "";
+                      document.getElementById("owner_r2").disabled = false;
+
+                  }
+
+              });
+
+});
+
+
+
+    </script>
+    <script>
+        $(function () {
+
+    $("#get1").click(function () {
+       
+
+
+        document.getElementById("content").innerHTML = "";
+
+        $("#loading").show();
+
+        var captchaObj = $("#CaptchaCode").get(0).Captcha;
+        var id = $("#code").val();
+        var owner_id = $("#owner").val(); //= $("#code").val();
+        var capcha = $("#capcha").val();
+        var CaptchaId = captchaObj.Id;
+        var InstanceId = captchaObj.InstanceId;
+        var UserInput = $("#CaptchaCode").val();
+
+
+
+        var code_wb = $("#code_wb").val();
+        var owner_r1 = $("#owner_r1").val();
+        var owner_r2 = $("#owner_r2").val();
+
+        var wbold = $("#code_wbold").val();
+        var owner_old = $("#owner_old").val();
+
+        var bk = $("#bk").val();
+
+
+
+        var data = {
+            id: id,
+            owner_id: owner_id,
+            CaptchaId: CaptchaId,
+            InstanceId: InstanceId,
+            UserInput: UserInput
+
+        };
+
+        var data_wb = {
+            id: code_wb,
+            owner_id: owner_r1,
+            owner_receiver:  owner_r2,
+            CaptchaId: CaptchaId,
+            InstanceId: InstanceId,
+            UserInput: UserInput
+
+        };
+
+
+        var data_wbold = {
+            id: wbold,
+            owner_id: owner_old,
+            CaptchaId: CaptchaId,
+            InstanceId: InstanceId,
+            UserInput: UserInput
+
+        };
+
+
+        var data_bk = {
+         
+            id: bk,
+            CaptchaId: CaptchaId,
+            InstanceId: InstanceId,
+            UserInput: UserInput
+
+        };
+
+
+
+
+
+
+
+        if (jQuery.isEmptyObject(UserInput) == false)
+
+            // if (UserInput.text != "")
+        {
+          //  alert(UserInput);
+
+
+            if (tabs == 1) {
+                $.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    //url: "https://check1.fsrar.ru/MobileApi/transport",
+                    url: "/MobileApi/transport",
+                    data: data,
+                    success: function (data) {
+
+                        $("#loading").hide();
+                        var text = JSON.stringify(data);
+                        var text = data;
+                        document.getElementById("content").innerHTML = text;
+                        captchaObj.ReloadImage();
+                        //  $("#content").innerHTML(text);
+                    }
+                })
+                .fail(function () {
+                    $("#loading").hide();
+                    captchaObj.ReloadImage();
+                    alert("ошибка");
+                });
+            }
+
+
+
+            if (tabs == 2) {
+
+                $.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: "/MobileApi/transportwb",
+                    data: data_wb,
+                    success: function (data) {
+
+                        $("#loading").hide();
+                        var text = JSON.stringify(data);
+                        var text = data;
+                        document.getElementById("content").innerHTML = text;
+                        captchaObj.ReloadImage();
+                        //  $("#content").innerHTML(text);
+                    }
+                            })
+                    .fail(function () {
+                    $("#loading").hide();
+                    captchaObj.ReloadImage();
+                    alert("ошибка");
+                    });
+
+            }
+
+
+
+            if (tabs == 3) {
+                $.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: "/MobileApi/transportwbold",
+                    data: data_wbold,
+                    success: function (data) {
+
+                        $("#loading").hide();
+                        var text = JSON.stringify(data);
+                        var text = data;
+                        document.getElementById("content").innerHTML = text;
+                        captchaObj.ReloadImage();
+                       
+                    }
+                })
+                .fail(function () {
+                    $("#loading").hide();
+                    captchaObj.ReloadImage();
+                    alert("ошибка");
+                });
+            }
+
+
+            if (tabs == 4) {
+                $.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: "/MobileApi/transportbk",
+                    data: data_bk,
+                    success: function (data) {
+
+                        $("#loading").hide();
+                        var text = JSON.stringify(data);
+                        var text = data;
+                        document.getElementById("content").innerHTML = text;
+                        captchaObj.ReloadImage();
+
+                    }
+                })
+                .fail(function () {
+                    $("#loading").hide();
+                    captchaObj.ReloadImage();
+                    alert("ошибка");
+                });
+            }
+
+
+
+        }
+
+        else {
+            document.getElementById("content").innerHTML = "<h2>введите код с картинки</h2>";
+            $("#loading").hide();
+        }
+
+
+        ;
+
+    });
+        });
+    </script>
+    
+
+    <script src="js/fsCheck.js"></script>
+
+
+    <script src="js/bootstrap.min.js"></script>
+    <link href="/BotDetectCaptcha.ashx?get=layoutStyleSheet"
+          rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+    <div class="div_top_menu">
+    </div>
+    <div class="document">
+        <div class="wrapper">
+            <div class="header ca">
+                <a class="logo" href="/">
+                    <img src="img/eagle.png" class="" alt="Федеральная служба по контролю за алкогольным и табачным рынками" />
+                </a>
+                <h1>Федеральная служба по контролю за алкогольным и табачным рынками</h1>
+                <h2>Проверка информации из базы транспорта</h2>
+   
+            </div>
+            <div class="container">
+
+                <a href="http://egais.ru/files/check1.pdf" target="_blank">Инструкция по работе в формате pdf</a>
+
+                    <h2>Запрос (Поиск происходит по продуктивному контуру)</h2>
+                    <ul id="tabs-title">
+                        <li id="tab-title1" onclick="SelectTab(1);" class="tab-title selected-li">Поиск по Идентификатору транспортного пакета</li>
+                        <li id="tab-title2" onclick="SelectTab(2);" class="tab-title">Поиск по Идентификатору накладной</li>
+                        <li id="tab-title3" onclick="SelectTab(3);" class="tab-title">Поиск накладной из ЕГАИС-производитель</li>
+                        <li id="tab-title4" onclick="SelectTab(4);" class="tab-title">Проверка статуса штрихкода</li>
+                    </ul>
+                    <div id="tabs">
+                        <div class="tab selected" id="tab1">
+
+                            <label><input type="text" id="code" style="width:250px">   id пакета (Идентификатор возвращает УТМ в ответ на любой документ, который в него отправлен.)</label>
+                            <p></p>
+                            <label><input type="text" id="owner">   fsrar ID отправителя</label>
+
+                        </div>
+                        <div class="tab" id="tab2">
+                            TTN- <label><input type="text" id="code_wb" min="10" maxlength="10" style="margin-left:2px">    идентификатор накладной (WBRegId вида TTN-0000000000)</label>
+                            <p></p>
+                            <input type="radio" id="r1" value="1" name="radio" checked>   <label><input type="text" id="owner_r1" style="margin-left:10px">   fsrar ID отправителя</label>
+                            <p></p>
+                            <input type="radio" id="r2" value="2" name="radio"><label>   <input type="text" id="owner_r2" style="margin-left:10px" disabled>   fsrar ID получателя</label>
+                        </div>
+
+                        <div class="tab" id="tab3">
+
+                            <label><input type="text" id="code_wbold" maxlength="14">   номер фиксации накладной в ЕГАИС</label>
+                            <p></p>
+                            <label><input type="text" id="owner_old">   fsrar ID получателя</label>
+
+                        </div>
+
+                        <div class="tab" id="tab4">
+
+
+                            <label>
+                                <span>Штрих код (150 либо 68 символов)</span><br>
+                                <textarea id="bk" style="width:500px" cols="40" rows="5"></textarea>
+                            </label>
+                        </div>
+
+
+                    </div>
+
+
+
+
+                    <div>
+                        <br />
+                        
+
+                        
+
+
+  <div class="LBD_CaptchaDiv" id="SampleCaptcha_CaptchaDiv" style="width: 280px !important; height: 50px !important;"><!--
+ --><div class="LBD_CaptchaImageDiv" id="SampleCaptcha_CaptchaImageDiv" style="width: 250px !important; height: 50px !important;"><!--
+   --><a target="_blank" href="//captcha.com/captcha.html?asp.net" title="BotDetect CAPTCHA ASP.NET Form Validation" onclick="SampleCaptcha.OnHelpLinkClick(); return SampleCaptcha.FollowHelpLink;"><img class="LBD_CaptchaImage" id="SampleCaptcha_CaptchaImage" src="/BotDetectCaptcha.ashx?get=image&amp;c=SampleCaptcha&amp;t=ce6e028618884a26a28505a1f1f6e23e" alt="CAPTCHA" /></a><!-- --></div><!--
+ --><div class="LBD_CaptchaIconsDiv" id="SampleCaptcha_CaptchaIconsDiv" style="width: 24px !important;"><!--
+   --><a class="LBD_ReloadLink" id="SampleCaptcha_ReloadLink" href="#" onclick="SampleCaptcha.ReloadImage(); this.blur(); return false;" title="Change the CAPTCHA code"><img class="LBD_ReloadIcon" id="SampleCaptcha_ReloadIcon" src="/BotDetectCaptcha.ashx?get=ReloadIcon" alt="Change the CAPTCHA code" /></a><!--
+   --><a class="LBD_SoundLink" id="SampleCaptcha_SoundLink" href="/BotDetectCaptcha.ashx?get=sound&amp;c=SampleCaptcha&amp;t=ce6e028618884a26a28505a1f1f6e23e&amp;s=GkHjkMuxdCCef8Gv4WC2tbe0Akj2hyy2K5TJUbeMjSqQyd0eEaPxKKCuAFBOJi3yyJ33VI40JfaBRZNKx3Bb1Q%3d%3d" onclick="SampleCaptcha.PlaySound(); this.blur(); return false;" title="Speak the CAPTCHA code"><img class="LBD_SoundIcon" id="SampleCaptcha_SoundIcon" src="/BotDetectCaptcha.ashx?get=SoundIcon" alt="Speak the CAPTCHA code" /></a><!--
+   --><div class="LBD_Placeholder" id="SampleCaptcha_AudioPlaceholder">&nbsp;</div><!--
+ --></div>
+    <script src="/BotDetectCaptcha.ashx?get=clientScriptInclude" type="text/javascript"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+      BotDetect.Init('SampleCaptcha', 'ce6e028618884a26a28505a1f1f6e23e', 'CaptchaCode', true, true, true, true, 1200, 7200, 0, true);
+    //]]>
+    </script>
+    <script type="text/javascript">
+    //<![CDATA[
+      try{(function(){var bdrsn = document.createElement('script'); bdrsn.type = 'text/javascript'; bdrsn.async = true; bdrsn.src = document.location.protocol + '//remote.captcha.com/include.js?i=ATABMAEwATMBMAIxOBS0lS7YsvV-fS67HspOCQs5zxvo5w'; var fsn = document.getElementsByTagName('script')[0]; fsn.parentNode.insertBefore(bdrsn, fsn);})();} catch(err){}
+    //]]>
+    </script>
+    <input type="hidden" name="LBD_VCID_SampleCaptcha" id="LBD_VCID_SampleCaptcha" value="ce6e028618884a26a28505a1f1f6e23e" />
+    <input type="hidden" name="LBD_BackWorkaround_SampleCaptcha" id="LBD_BackWorkaround_SampleCaptcha" value="0" />
+  </div>
+
+
+                        <br />
+                        <input id="CaptchaCode" name="CaptchaCode" type="text" value="" /> <label>Код с картинки</label>
+                    </div>
+
+                    <p></p>
+                    <input type="button" id="get1" value="Запрос">
+
+                    <div id="content"></div>
+
+                    <div id="loading" style="display:none">
+                        <center>
+                            <img align="middle" src="img/giphy.gif" />
+                        </center>
+                    </div>
+
+</div>
+        </div>
+    </div>
+    
+</body>
+
+</html>
+<script id="f5_cspm">(function(){var f5_cspm={f5_p:'LGCPIKJIJHPJAGCNCOEEBBFPCFMBEFHGCLIGHMOAIPNHNMGPPJJBLHDPKLHHKMNABIMLCFDMJCFBAPCEJAFKDLKODGKAIIAGAALOLJOEFOKLEOKCAAHPPJOKJMDCGEBI',setCharAt:function(str,index,chr){if(index>str.length-1)return str;return str.substr(0,index)+chr+str.substr(index+1);},get_byte:function(str,i){var s=(i/16)|0;i=(i&15);s=s*32;return((str.charCodeAt(i+16+s)-65)<<4)|(str.charCodeAt(i+s)-65);},set_byte:function(str,i,b){var s=(i/16)|0;i=(i&15);s=s*32;str=f5_cspm.setCharAt(str,(i+16+s),String.fromCharCode((b>>4)+65));str=f5_cspm.setCharAt(str,(i+s),String.fromCharCode((b&15)+65));return str;},set_latency:function(str,latency){latency=latency&0xffff;str=f5_cspm.set_byte(str,48,(latency>>8));str=f5_cspm.set_byte(str,49,(latency&0xff));str=f5_cspm.set_byte(str,43,2);return str;},wait_perf_data:function(){try{var wp=window.performance.timing;if(wp.loadEventEnd>0){var res=wp.loadEventEnd-wp.navigationStart;if(res<60001){var cookie_val=f5_cspm.set_latency(f5_cspm.f5_p,res);window.document.cookie='f5avr0978009451aaaaaaaaaaaaaaaa='+encodeURIComponent(cookie_val)+';path=/';}
+return;}}
+catch(err){return;}
+setTimeout(f5_cspm.wait_perf_data,100);return;},go:function(){var chunk=window.document.cookie.split(/\s*;\s*/);for(var i=0;i<chunk.length;++i){var pair=chunk[i].split(/\s*=\s*/);if(pair[0]=='f5_cspm'&&pair[1]=='1234')
+{var d=new Date();d.setTime(d.getTime()-1000);window.document.cookie='f5_cspm=;expires='+d.toUTCString()+';path=/;';setTimeout(f5_cspm.wait_perf_data,100);}}}}
+f5_cspm.go();}());</script>
