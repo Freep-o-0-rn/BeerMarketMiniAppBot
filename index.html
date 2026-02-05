@@ -2,40 +2,174 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>BeerMarket Mini App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: system-ui, Arial; padding: 16px; }
-    button { padding: 12px 14px; margin: 6px 0; width: 100%; }
-    .hint { opacity: .75; font-size: 14px; }
+    :root{
+      --pad: 14px;
+      --topSafe: env(safe-area-inset-top, 0px);
+      --bottomSafe: env(safe-area-inset-bottom, 0px);
+      --tgTop: 0px;
+      --tgBottom: 0px;
+      --bg: #0b0b0c;
+      --card: #151518;
+      --text: #f2f2f2;
+      --muted: rgba(242,242,242,.7);
+      --line: rgba(255,255,255,.08);
+      --btn: #2a7cff;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body { height:100%; margin:0; }
+    body{
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      overflow: hidden;
+    }
+
+    .app{
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: calc(var(--pad) + var(--topSafe) + var(--tgTop));
+      padding-bottom: calc(var(--pad) + var(--bottomSafe) + var(--tgBottom));
+    }
+
+    .content{
+      flex: 1;
+      overflow: auto;
+      padding: 0 var(--pad);
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .title{
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+    }
+    .muted{ color: var(--muted); font-size: 13px; }
+
+    .grid{
+      display: grid;
+      gap: 10px;
+    }
+
+    button{
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 0;
+      background: var(--btn);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    button.secondary{
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    textarea{
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .bottomBar{
+      padding: 10px var(--pad) 0 var(--pad);
+      border-top: 1px solid var(--line);
+      background: linear-gradient(to bottom, rgba(11,11,12,0), rgba(11,11,12,1));
+    }
+
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
   </style>
 </head>
 <body>
-  <h3>BeerMarket Mini App</h3>
-  <div id="status" class="hint"></div>
+  <div class="app">
+    <div class="content">
+      <div class="card">
+        <div class="title">BeerMarket</div>
+        <div id="user" class="muted">Загрузка…</div>
+      </div>
 
-  <button onclick="send('prices')">Прайсы</button>
-  <button onclick="send('promos')">Акции</button>
-  <button onclick="send('ping')">Ping</button>
+      <div class="card grid">
+        <div class="muted">Тест обмена mini app → бот</div>
+        <button id="btnPing">Отправить PING</button>
+        <textarea id="payload" placeholder='{"action":"ping"}'></textarea>
+        <button id="btnSendJson" class="secondary">Отправить JSON</button>
+      </div>
+    </div>
+
+    <div class="bottomBar">
+      <div class="row2">
+        <button id="btnRefresh" class="secondary">Обновить</button>
+        <button id="btnClose" class="secondary">Закрыть</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const tg = window.Telegram?.WebApp;
 
-    if (!tg) {
-      document.getElementById('status').textContent =
-        'Открой это внутри Telegram (кнопка Mini App в боте).';
-    } else {
-      tg.ready();
-      document.getElementById('status').textContent =
-        'Telegram OK. user_id=' + (tg.initDataUnsafe?.user?.id ?? 'unknown');
+    function setSafeInsets() {
+      // iOS/Android вырезы: env() уже работает, но Telegram может дать свои inset'ы
+      // В некоторых версиях есть safeAreaInset / contentSafeAreaInset
+      const top = tg?.safeAreaInset?.top ?? tg?.contentSafeAreaInset?.top ?? 0;
+      const bottom = tg?.safeAreaInset?.bottom ?? tg?.contentSafeAreaInset?.bottom ?? 0;
+      document.documentElement.style.setProperty('--tgTop', top + 'px');
+      document.documentElement.style.setProperty('--tgBottom', bottom + 'px');
     }
 
-    function send(action) {
-      if (!tg) return;
-      tg.sendData(JSON.stringify({ action }));
-      tg.close();
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      setSafeInsets();
+
+      // если Telegram пересчитает безопасную область
+      tg.onEvent?.('safeAreaChanged', setSafeInsets);
+      tg.onEvent?.('contentSafeAreaChanged', setSafeInsets);
+
+      const u = tg.initDataUnsafe?.user;
+      document.getElementById("user").textContent = u
+        ? `@${u.username ?? "без_юзернейма"} • id ${u.id}`
+        : "Пользователь не передан";
+    } else {
+      document.getElementById("user").textContent = "Открыто не в Telegram WebApp";
     }
+
+    document.getElementById("btnClose").onclick = () => tg?.close?.();
+    document.getElementById("btnRefresh").onclick = () => location.reload();
+
+    document.getElementById("btnPing").onclick = () => {
+      const data = { action: "ping", ts: Date.now() };
+      tg?.sendData?.(JSON.stringify(data));
+    };
+
+    document.getElementById("btnSendJson").onclick = () => {
+      const raw = document.getElementById("payload").value.trim();
+      if (!raw) return;
+      tg?.sendData?.(raw);
+    };
   </script>
 </body>
 </html>
