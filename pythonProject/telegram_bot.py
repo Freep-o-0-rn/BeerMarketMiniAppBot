@@ -1044,6 +1044,13 @@ def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     cur.update(patch or {})
     _roles_merge_and_save({uid: cur})
 
+def is_user_blocked(user_id: Optional[int]) -> bool:
+    if not user_id:
+        return False
+    uid = str(user_id)
+    rec = _roles_load().get(uid, {})
+    return bool((rec or {}).get("blocked"))
+
 def set_client_name(user_id: int, name: str) -> None:
     uid = str(user_id)
     cur = _roles_load().get(uid, {})
@@ -1503,6 +1510,7 @@ def client_menu_kb() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True
     )
+
 def _user_sort_key(item: Tuple[str, Dict[str, Any]]) -> Tuple[int, str]:
     uid, rec = item
     name = (rec.get("name") or "").strip().casefold()
@@ -1547,6 +1555,10 @@ def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
             InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"usr:editphone:{uid}"),
+        ],
+        [
+            InlineKeyboardButton(text="⛔ Заблокировать", callback_data=f"usr:block:{uid}"),
+            InlineKeyboardButton(text="✅ Разблокировать", callback_data=f"usr:unblock:{uid}"),
         ],
         [InlineKeyboardButton(text="⬅️ К списку", callback_data=f"usr:list:{page}")],
     ])
@@ -2146,6 +2158,9 @@ async def on_start(m: Message, state: FSMContext):
     _USER_ROLES = _roles_load()
     rec = (_USER_ROLES.get(key) if key else {}) or {}
     role = (rec.get("role") or "").strip().lower()
+    if rec.get("blocked"):
+        await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
+        return
 
     # Админ по whitelist (_ADMIN_IDS) — фиксируем и сохраняем, чтобы не спрашивать снова.
     if uid is not None and _ADMIN_IDS and uid in _ADMIN_IDS:
@@ -2175,6 +2190,9 @@ async def on_start(m: Message, state: FSMContext):
 
 @router.message(Command("help"))
 async def on_help(m: Message):
+    if is_user_blocked(getattr(m.from_user, "id", None)):
+        await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
+        return
     role = get_user_role(getattr(m.from_user, "id", None))
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb())
@@ -4058,12 +4076,14 @@ async def admin_users_select(cq: CallbackQuery):
     role = (rec.get("role") or "client").strip()
     phone = (rec.get("phone") or "—").strip()
     verified = "✅" if rec.get("phone_verified") else "❌"
+    blocked = "⛔" if rec.get("blocked") else "✅"
     text = (
         f"<b>Пользователь</b>\n"
         f"ID: <code>{esc(uid)}</code>\n"
         f"Роль: <b>{esc(role)}</b>\n"
         f"Имя: <b>{esc(name)}</b>\n"
-        f"Телефон: <b>{esc(phone)}</b> ({verified})"
+        f"Телефон: <b>{esc(phone)}</b> ({verified})\n"
+        f"Доступ: {blocked}"
     )
     await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page))
     await cq.answer()
@@ -4081,6 +4101,32 @@ async def admin_users_set_role(cq: CallbackQuery):
         return
     update_user_record(uid, {"role": "admin" if role == "admin" else "client"})
     await cq.answer("Роль обновлена.")
+    await admin_users_select(cq)
+
+@router.callback_query(F.data.startswith("usr:block:"))
+async def admin_users_block(cq: CallbackQuery):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    uid = cq.data.split(":")[2] if len(cq.data.split(":")) > 2 else ""
+    if not uid:
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    update_user_record(uid, {"blocked": True})
+    await cq.answer("Пользователь заблокирован.")
+    await admin_users_select(cq)
+
+@router.callback_query(F.data.startswith("usr:unblock:"))
+async def admin_users_unblock(cq: CallbackQuery):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    uid = cq.data.split(":")[2] if len(cq.data.split(":")) > 2 else ""
+    if not uid:
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    update_user_record(uid, {"blocked": False})
+    await cq.answer("Пользователь разблокирован.")
     await admin_users_select(cq)
 
 @router.callback_query(F.data.startswith("usr:editname:"))
@@ -5151,6 +5197,9 @@ async def cmd_bakalar(m: Message):
 #--------------------------------
 #--------МИНИ АПП----------------
 async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
+    if is_user_blocked(getattr(m.from_user, "id", None)):
+        await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
+        return
     action = (payload.get("action") or "").strip()
 
     if action in ("ping", "raw"):
