@@ -102,6 +102,13 @@
       gap:6px;
     }
 
+    .newsMeta{
+      display:flex;
+      justify-content:flex-end;
+      font-size:11px;
+      opacity:.65;
+    }
+
     .newsHeader{
       display:flex;
       justify-content:space-between;
@@ -292,6 +299,10 @@
 
   let activeFilter = "Все";
   let editingId = null;
+  let localDirty = false;
+
+  const LOCAL_NEWS_KEY = "beerMarketNews";
+  const LOCAL_META_KEY = "beerMarketNewsMeta";
 
   function setSafeInsets() {
     const top = tg?.safeAreaInset?.top ?? tg?.contentSafeAreaInset?.top ?? 0;
@@ -322,12 +333,19 @@
   function sendAction(action, extra = {}) {
     const payload = { action, ts: Date.now(), ...extra };
     const raw = JSON.stringify(payload);
+    let sent = false;
     try {
-      tg?.sendData?.(raw);
-      tg?.HapticFeedback?.impactOccurred?.("light");
-      popupOk("BeerMarket", "Отправлено в бот");
+      if (tg?.sendData) {
+        tg.sendData(raw);
+        sent = true;
+        tg?.HapticFeedback?.impactOccurred?.("light");
+        popupOk("BeerMarket", "Отправлено в бот");
+      }
     } catch (e) {
       alert("sendData error: " + (e?.message || e));
+    }
+    if (!sent) {
+      popupOk("BeerMarket", "Изменения сохранены локально");
     }
   }
 
@@ -336,18 +354,75 @@
   function computeNewsSignature(items) {
     if (!Array.isArray(items)) return "";
     return items
-      .map(item => `${item.id}:${item.title}:${item.category}:${item.date}:${item.text}`)
+      .map(item => `${item.id}:${item.title}:${item.category}:${item.date}:${item.text}:${item.updatedAt || ""}`)
       .join("|");
   }
 
+  function formatDateInput(value) {
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    if (typeof value === "string" && value) return value;
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function formatDisplayDate(value, fallback) {
+    const raw = value || fallback;
+    if (!raw) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      const [y, m, d] = raw.split("-");
+      return `${d}.${m}.${y}`;
+    }
+    return raw;
+  }
+
+  function loadLocalNews() {
+    try {
+      const itemsRaw = localStorage.getItem(LOCAL_NEWS_KEY);
+      const metaRaw = localStorage.getItem(LOCAL_META_KEY);
+      const items = itemsRaw ? JSON.parse(itemsRaw) : [];
+      const meta = metaRaw ? JSON.parse(metaRaw) : {};
+      localDirty = Boolean(meta?.dirty);
+      return Array.isArray(items) ? items : [];
+    } catch (e) {
+      console.warn("local news load failed", e);
+      return [];
+    }
+  }
+
+  function saveLocalNews(items, dirty) {
+    try {
+      localDirty = Boolean(dirty);
+      localStorage.setItem(LOCAL_NEWS_KEY, JSON.stringify(items));
+      localStorage.setItem(
+        LOCAL_META_KEY,
+        JSON.stringify({
+          dirty: localDirty,
+          signature: computeNewsSignature(items),
+          updatedAt: Date.now()
+        })
+      );
+    } catch (e) {
+      console.warn("local news save failed", e);
+    }
+  }
+
   async function loadNews() {
+    const localItems = loadLocalNews();
+    if (localItems.length) {
+      NEWS.splice(0, NEWS.length, ...localItems);
+      newsSignature = computeNewsSignature(localItems);
+    }
     try {
       const res = await fetch("pythonProject/news.json", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (Array.isArray(data) && data.length) {
-        NEWS.splice(0, NEWS.length, ...data);
-        newsSignature = computeNewsSignature(data);
+        const signature = computeNewsSignature(data);
+        const shouldUseServer = !localItems.length || !localDirty || signature === newsSignature;
+        if (shouldUseServer) {
+          NEWS.splice(0, NEWS.length, ...data);
+          newsSignature = signature;
+          saveLocalNews(data, false);
+        }
         return;
       }
     } catch (e) {
@@ -355,6 +430,7 @@
     }
     NEWS.splice(0, NEWS.length, ...NEWS_SEED);
     newsSignature = computeNewsSignature(NEWS_SEED);
+    saveLocalNews(NEWS, false);
   }
 
   function resolveUserLabel(tgUser, params) {
@@ -408,19 +484,20 @@
       return;
     }
 
-    for (const item of items) {
+    items.forEach((item, index) => {
       const el = document.createElement("div");
       el.className = "newsItem";
+      const displayDate = formatDisplayDate(item.date, item.createdAt);
       el.innerHTML = `
         <div class="newsHeader">
           <div><strong>${item.title}</strong></div>
           <span class="badge">${item.category}</span>
         </div>
-        <div class="muted small">${item.date}</div>
         <div>${item.text}</div>
+        <div class="newsMeta">№${index + 1}${displayDate ? ` • ${displayDate}` : ""}</div>
       `;
       list.appendChild(el);
-    }
+    });
   }
 
   async function refreshNews() {
@@ -431,10 +508,16 @@
       if (!Array.isArray(data) || !data.length) return;
       const signature = computeNewsSignature(data);
       if (signature && signature !== newsSignature) {
-        newsSignature = signature;
-        NEWS.splice(0, NEWS.length, ...data);
-        renderNews();
-        renderAdminList();
+      if (!localDirty || signature === newsSignature) {
+          newsSignature = signature;
+          NEWS.splice(0, NEWS.length, ...data);
+          saveLocalNews(NEWS, false);
+          renderNews();
+          renderAdminList();
+        }
+      } else if (localDirty && signature === newsSignature) {
+        localDirty = false;
+        saveLocalNews(NEWS, false);
       }
     } catch (e) {
       console.warn("news refresh failed", e);
@@ -456,23 +539,24 @@
     const list = document.getElementById("adminList");
     list.innerHTML = "";
 
-    for (const item of NEWS) {
+    NEWS.forEach((item, index) => {
       const el = document.createElement("div");
       el.className = "newsItem";
+      const displayDate = formatDisplayDate(item.date, item.createdAt);
       el.innerHTML = `
         <div class="newsHeader">
           <div><strong>${item.title}</strong></div>
           <span class="badge">${item.category}</span>
         </div>
-        <div class="muted small">${item.date}</div>
         <div>${item.text}</div>
+        <div class="newsMeta">№${index + 1}${displayDate ? ` • ${displayDate}` : ""}</div>
         <div class="row2" style="margin-top:8px;">
           <button class="secondary" data-edit="${item.id}">Редактировать</button>
           <button class="danger" data-delete="${item.id}">Удалить</button>
         </div>
       `;
       list.appendChild(el);
-    }
+    });
 
     list.querySelectorAll("button[data-edit]").forEach(btn => {
       btn.onclick = () => {
@@ -493,6 +577,7 @@
         const idx = NEWS.findIndex(n => n.id === id);
         if (idx === -1) return;
         const removed = NEWS.splice(idx, 1)[0];
+        saveLocalNews(NEWS, true);
         sendAction("news.delete", { id: removed.id, title: removed.title });
         renderNews();
         renderAdminList();
@@ -504,7 +589,7 @@
     editingId = null;
     document.getElementById("newsTitle").value = "";
     document.getElementById("newsCategory").value = "Новость";
-    document.getElementById("newsDate").valueAsDate = new Date();
+    document.getElementById("newsDate").value = formatDateInput();
     document.getElementById("newsText").value = "";
   }
 
@@ -577,7 +662,7 @@
   document.getElementById("btnPublish").onclick = () => {
     const title = document.getElementById("newsTitle").value.trim();
     const category = document.getElementById("newsCategory").value;
-    const date = document.getElementById("newsDate").value;
+    const date = formatDateInput(document.getElementById("newsDate").value);
     const text = document.getElementById("newsText").value.trim();
     if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
 
@@ -588,14 +673,16 @@
         item.category = category;
         item.date = date;
         item.text = text;
+        item.updatedAt = new Date().toISOString();
         sendAction("news.update", { id: item.id, title, category, date, text });
       }
     } else {
       const id = Date.now();
-      NEWS.unshift({ id, title, category, date, text });
-      sendAction("news.create", { id, title, category, date, text });
+      const nowIso = new Date().toISOString();
+      NEWS.unshift({ id, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
+      sendAction("news.create", { id, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
     }
-
+    saveLocalNews(NEWS, true);
     renderNews();
     renderAdminList();
     resetForm();
