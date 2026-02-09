@@ -4861,188 +4861,40 @@ async def block_misc_uploads(m: Message):
 
 #Команда бакалар генерация картинки
 # --- BAKALAR: напоминалка по этикеткам ---
-BAKALAR_IMG_PATH = Path("settings/bakalar_reminder.png")
+BAKALAR_IMG_CANDIDATES = (
+    "bakalar.png",
+    "bakalar.jpg",
+    "bakalar.jpeg",
+    "bakalar.webp",
+)
 
-def _bakalar_load_font(size: int):
-    try:
-        from PIL import ImageFont
-    except Exception:
-        return None
-
-    # чтобы кириллица работала и на Windows, и на Linux
-    candidates = [
-        str(ROOT_DIR / "assets" / "DejaVuSans.ttf"),
-        "DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "C:\\Windows\\Fonts\\arial.ttf",
-        "C:\\Windows\\Fonts\\calibri.ttf",
-    ]
-    for p in candidates:
-        try:
-            return ImageFont.truetype(p, size=size)
-        except Exception:
-            pass
-
-    try:
-        return ImageFont.load_default()
-    except Exception:
-        return None
-
-
-def ensure_bakalar_reminder_image() -> Path:
-    # если уже есть — не пересоздаём
-    try:
-        if BAKALAR_IMG_PATH.exists() and BAKALAR_IMG_PATH.stat().st_size > 10_000:
-            return BAKALAR_IMG_PATH
-    except Exception:
-        pass
-
-    try:
-        from PIL import Image, ImageDraw
-    except Exception:
-        # Pillow не установлен/сломался
-        return BAKALAR_IMG_PATH
-
-    W, H = 1080, 1350
-    bg     = (11, 11, 12)
-    card   = (21, 21, 24)
-    border = (45, 45, 50)
-    text   = (242, 242, 242)
-    muted  = (180, 180, 180)
-
-    im = Image.new("RGB", (W, H), bg)
-    d = ImageDraw.Draw(im)
-
-    f_title = _bakalar_load_font(64)
-    f_sub   = _bakalar_load_font(34)
-    f_name  = _bakalar_load_font(44)
-    f_lbl   = _bakalar_load_font(34)
-    f_foot  = _bakalar_load_font(26)
-
-    pad = 72
-    y = 72
-
-    if f_title:
-        d.text((pad, y), "BAKALAR", font=f_title, fill=text)
-        y += 78
-    if f_sub:
-        d.text((pad, y), "Напоминалка по этикеткам", font=f_sub, fill=muted)
-        y += 70
-
-    items = [
-        ("Бакалар Оригинальное Светлое", "Красная этикетка", (220, 53, 69)),
-        ("Бакалар Оригинальное Лагер",   "Зелёная этикетка", (40, 167, 69)),
-        ("Бакалар XO",                  "Белая этикетка",   (245, 245, 245)),
-    ]
-
-    card_h = 250
-    gap = 44
-
-    for i, (name, lbl, col) in enumerate(items):
-        top = y + i * (card_h + gap)
-        left = pad
-        right = W - pad
-        bottom = top + card_h
-
-        try:
-            d.rounded_rectangle([left, top, right, bottom], radius=36, fill=card, outline=border, width=3)
-        except Exception:
-            d.rectangle([left, top, right, bottom], fill=card, outline=border, width=3)
-
-        # цветной блок-этикетка
-        box = [left + 36, top + 45, left + 36 + 160, top + 45 + 160]
-        if "Белая" in lbl:
-            fill = col
-            outline = (200, 200, 200)
-            w = 5
-        else:
-            fill = col
-            outline = col
-            w = 1
-
-        try:
-            d.rounded_rectangle(box, radius=28, fill=fill, outline=outline, width=w)
-        except Exception:
-            d.rectangle(box, fill=fill, outline=outline, width=w)
-
-        tx = box[2] + 36
-        if f_name:
-            d.text((tx, top + 64), name, font=f_name, fill=text)
-        if f_lbl:
-            d.text((tx, top + 140), lbl, font=f_lbl, fill=muted)
-
-    if f_foot:
-        d.text((pad, H - 88), "Проверка: цвет этикетки на бутылке/банке должен совпадать.",
-               font=f_foot, fill=muted)
-
-    BAKALAR_IMG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    im.save(BAKALAR_IMG_PATH, "PNG")
-    return BAKALAR_IMG_PATH
+def find_bakalar_image() -> Path | None:
+    for name in BAKALAR_IMG_CANDIDATES:
+        p = ROOT_DIR / name
+        if p.exists():
+            return p
+    return None
 
 @router.message(Command("bakalar"))
 async def cmd_bakalar(m: Message):
-    # если хочешь, чтобы команда была только для админов — оставь так
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
-        return
-
-    p = ensure_bakalar_reminder_image()
-    if p.exists():
-        await m.answer_photo(
-            FSInputFile(p),
-            caption="<b>Bakalar — напоминалка по этикеткам</b>\n"
-                    "• Оригинальное Светлое — красная\n"
-                    "• Оригинальное Лагер — зелёная\n"
-                    "• XO — белая"
+    p = find_bakalar_image()
+    if not p:
+        await m.answer(
+            "Не нашёл картинку напоминалки.\n"
+            "В корне. Не найден bakalar.png (или .jpg/.jpeg/.webp)."
         )
-    else:
-        await m.answer("Не удалось сформировать картинку (Pillow не установлен или ошибка записи в settings/).")
-
-##конец бакалара bakalar end
-
-##УТИЛИТЫ МИНИ АПП
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-
-def phone_request_kb() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📱 Отправить номер телефона", request_contact=True)]],
-        resize_keyboard=True,
-        one_time_keyboard=True,
-    )
-
-async def send_phone_request(m: Message):
-    await m.answer(
-        "Для авторизации отправьте номер телефона кнопкой ниже.",
-        reply_markup=phone_request_kb()
-    )
-import re
-
-PHONE_RE = re.compile(r"[^\d+]")
-
-def normalize_phone(raw: str) -> str:
-    if not raw:
-        return ""
-    s = raw.strip()
-    s = PHONE_RE.sub("", s)
-    # если без +, можно привести к +7 (по желанию). Пока оставим как пришло.
-    return s
-
-@router.message(F.contact)
-async def on_contact(m: Message):
-    # Важно: контакт должен быть самого пользователя
-    if not m.from_user or not m.contact:
-        return
-    if m.contact.user_id and m.contact.user_id != m.from_user.id:
-        await m.answer("Нужен ваш номер. Нажмите кнопку и отправьте свой контакт.")
         return
 
-    phone = normalize_phone(m.contact.phone_number)
-
-    await m.answer(
-        f"✅ Номер сохранён: <code>{phone}</code>\n"
-        f"Дальше: назначение роли (админ/клиент/ТП).",
-        reply_markup=main_menu_kb()  # или убрать клавиатуру
+    await m.answer_photo(
+        FSInputFile(p),
+        caption=(
+            "<b>Bakalar — напоминалка по этикеткам</b>\n"
+            "• Бакалар Оригинальное Светлое — <b>красная</b> этикетка\n"
+            "• Бакалар Оригинальное Лагер — <b>зелёная</b> этикетка\n"
+            "• Бакалар XO — <b>белая</b> этикетка"
+        ),
     )
+
 
 #--------------------------------
 #--------МИНИ АПП----------------
