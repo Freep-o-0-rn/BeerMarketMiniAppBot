@@ -2264,6 +2264,9 @@ def is_admin(user_id: Optional[int]) -> bool:
 def _is_client(msg: Message) -> bool:
     return get_user_role(getattr(msg.from_user, "id", None)) in {"client", "sales_rep"}
 
+def _is_client_only(msg: Message) -> bool:
+    return get_user_role(getattr(msg.from_user, "id", None)) == "client"
+
 def menu_for_role(role: str) -> ReplyKeyboardMarkup:
     role = (role or "").strip().lower()
     if role == "admin":
@@ -2730,7 +2733,7 @@ async def btn_overpaid(m: Message):
 
 @router.message(F.text == "🔎 Поиск")
 async def btn_search(m: Message, state: FSMContext):
-    if _is_client(m):
+    if _is_client_only(m):
         cname = get_client_name(getattr(m.from_user, "id", None))
         if cname:
             await run_client_search(m, cname)
@@ -2747,8 +2750,6 @@ async def btn_search(m: Message, state: FSMContext):
         reply_markup=back_only_kb()
     )
 
-
-
 @router.message(SearchStates.waiting_query)
 async def search_flow(m: Message, state: FSMContext):
     q = (m.text or "").strip()
@@ -2757,7 +2758,7 @@ async def search_flow(m: Message, state: FSMContext):
         await m.answer("Поиск отменён.", reply_markup=menu_for_message(m))
         return
 
-    if _is_client(m):
+    if _is_client_only(m):
         await run_client_search(m, q)
         await state.clear()
         return
@@ -2838,7 +2839,7 @@ async def render_tara_search(chat: Message, keywords: List[str]):
 @router.message(F.text == "🔎 Поиск тары")
 async def btn_search_tara(m: Message, state: FSMContext):
     # Клиент: ищем по сохранённому названию клиента
-    if _is_client(m):
+    if _is_client_only(m):
         cname = get_client_name(getattr(m.from_user, "id", None))
         if not cname:
             await m.answer("Сначала укажите название: кнопка «✏️ Изменить название».", reply_markup=client_menu_kb())
