@@ -331,6 +331,15 @@
     }
   }
 
+  let newsSignature = "";
+
+  function computeNewsSignature(items) {
+    if (!Array.isArray(items)) return "";
+    return items
+      .map(item => `${item.id}:${item.title}:${item.category}:${item.date}:${item.text}`)
+      .join("|");
+  }
+
   async function loadNews() {
     try {
       const res = await fetch("pythonProject/news.json", { cache: "no-store" });
@@ -338,12 +347,14 @@
       const data = await res.json();
       if (Array.isArray(data) && data.length) {
         NEWS.splice(0, NEWS.length, ...data);
+        newsSignature = computeNewsSignature(data);
         return;
       }
     } catch (e) {
       console.warn("news load failed, using seed", e);
     }
     NEWS.splice(0, NEWS.length, ...NEWS_SEED);
+    newsSignature = computeNewsSignature(NEWS_SEED);
   }
 
   function resolveUserLabel(tgUser, params) {
@@ -409,6 +420,24 @@
         <div>${item.text}</div>
       `;
       list.appendChild(el);
+    }
+  }
+
+  async function refreshNews() {
+    try {
+      const res = await fetch("pythonProject/news.json", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!Array.isArray(data) || !data.length) return;
+      const signature = computeNewsSignature(data);
+      if (signature && signature !== newsSignature) {
+        newsSignature = signature;
+        NEWS.splice(0, NEWS.length, ...data);
+        renderNews();
+        renderAdminList();
+      }
+    } catch (e) {
+      console.warn("news refresh failed", e);
     }
   }
 
@@ -534,6 +563,7 @@
     renderAdminList();
     resetForm();
     setupAccess();
+    setInterval(refreshNews, 5000);
   }
 
   initApp();
