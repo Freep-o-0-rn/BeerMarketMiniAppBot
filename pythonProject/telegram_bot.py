@@ -81,6 +81,7 @@ PROMO_PAGE_SIZE = 8
 ALLOWED_PROMO_IMG = {"jpg","jpeg","png","webp"}
 ALLOWED_PROMO_DOC = {"pdf"}  # документ (отправим как файл)
 NEWS_INDEX = ROOT_DIR / "news.json"
+NEWS_PUBLIC_INDEX = ROOT_DIR.parent / "news.json"
 NEWS_CATEGORIES = {"Новость", "Обновление", "Акция", "Сервис"}
 #календарь
 _RU_MONTHS = ["", "Январь","Февраль","Март","Апрель","Май","Июнь",
@@ -4580,9 +4581,14 @@ def _news_load() -> List[Dict[str, Any]]:
         return []
 
 def _news_save(items: List[Dict[str, Any]]) -> None:
-    tmp = NEWS_INDEX.with_suffix(NEWS_INDEX.suffix + ".tmp")
-    tmp.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
-    os.replace(tmp, NEWS_INDEX)
+    payload = json.dumps(items, ensure_ascii=False, indent=2)
+    for target in (NEWS_INDEX, NEWS_PUBLIC_INDEX):
+        try:
+            tmp = target.with_suffix(target.suffix + ".tmp")
+            tmp.write_text(payload, encoding="utf-8")
+            os.replace(tmp, target)
+        except Exception:
+            logger.exception("news: failed to write %s", target)
 
 def _news_next_seq(items: List[Dict[str, Any]]) -> int:
     seqs = []
