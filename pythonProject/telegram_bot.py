@@ -1105,7 +1105,6 @@ def help_text_sales_rep() -> str:
         "• 📦 <b>Проверить ТТН</b> — проверка статуса фактуры в ЕГАИС\n\n"
         "🧰 <b>Команды</b>:\n"
         "• /help — эта справка\n"
-        "• /reset_role — сброс своей роли\n"
     )
 
 
@@ -2739,7 +2738,7 @@ async def btn_search(m: Message, state: FSMContext):
             await run_client_search(m, cname)
             return
         await state.set_state(SearchStates.waiting_query)
-        await m.answer("Введите часть названия/адреса для поиска:", reply_markup=client_menu_kb())
+        await m.answer("Введите часть названия/адреса для поиска:", reply_markup=menu_for_message(m))
         return
 
     # админ: старое поведение
@@ -2766,7 +2765,7 @@ async def search_flow(m: Message, state: FSMContext):
     keywords = [t.casefold() for t in _tokenize_query(q)]
     await render_report(m, mode="all", keywords=keywords)
     await state.clear()
-    await m.answer("Готово.", reply_markup=main_menu_kb())
+    await m.answer("Готово.", reply_markup=menu_for_message(m))
 
 # --- Поиск по возвратной таре ---
 async def render_tara_search(chat: Message, keywords: List[str]):
@@ -2842,7 +2841,7 @@ async def btn_search_tara(m: Message, state: FSMContext):
     if _is_client_only(m):
         cname = get_client_name(getattr(m.from_user, "id", None))
         if not cname:
-            await m.answer("Сначала укажите название: кнопка «✏️ Изменить название».", reply_markup=client_menu_kb())
+            await m.answer("Сначала укажите название: кнопка «✏️ Изменить название».", reply_markup=menu_for_message(m))
             return
         keywords = [t.casefold() for t in _tokenize_query(cname)]
         await render_tara_search(m, keywords)
@@ -2860,12 +2859,12 @@ async def search_tara_flow(m: Message, state: FSMContext):
     q = (m.text or "").strip()
     if not q or q.startswith("/"):
         await state.clear()
-        await m.answer("Поиск отменён.", reply_markup=main_menu_kb())
+        await m.answer("Поиск отменён.", reply_markup=menu_for_message(m))
         return
     keywords = [t.casefold() for t in _tokenize_query(q)]
     await render_tara_search(m, keywords)
     await state.clear()
-    await m.answer("Готово.", reply_markup=main_menu_kb())
+    await m.answer("Готово.", reply_markup=menu_for_message(m))
 
 
 # --- Клиент: изменить название ---
