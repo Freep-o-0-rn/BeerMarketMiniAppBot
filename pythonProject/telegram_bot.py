@@ -1683,6 +1683,8 @@ def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
             InlineKeyboardButton(text="👤 Сделать клиентом", callback_data=f"usr:setrole:{uid}:client"),
+        ],
+        [
             InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
         ],
         [
