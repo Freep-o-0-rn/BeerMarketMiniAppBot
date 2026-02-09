@@ -3910,7 +3910,7 @@ async def od_set_key(m: Message, state: FSMContext):
     await state.update_data(key=key)
     await state.set_state(OverdueSetStates.waiting_days)
     await m.answer(
-        f"Ок. Сколько дней отсрочки назначить для ключа <code>{esc(key)}</code>? Введите число.",
+        f"Сколько дней отсрочки назначить для клиента <code>{esc(key)}</code>? Введите число.",
         reply_markup=back_only_kb()
     )
 
