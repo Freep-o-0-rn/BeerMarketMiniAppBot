@@ -38,10 +38,11 @@ def set_webapp_url_builder(fn: Callable[[Message], str]) -> None:
     _WEBAPP_URL_BUILDER = fn
 
 
-def build_webapp_url(message: Optional[Message] = None) -> str:
-    if message and _WEBAPP_URL_BUILDER:
+def build_webapp_url(message: Optional[Message] = None, chat_id: Optional[int] = None) -> str:
+    subject = message if message is not None else chat_id
+    if subject is not None and _WEBAPP_URL_BUILDER:
         try:
-            return _WEBAPP_URL_BUILDER(message)
+            return _WEBAPP_URL_BUILDER(subject)
         except Exception:
             log.exception("webapp url builder failed")
     return MINI_APP_URL
@@ -58,7 +59,7 @@ def mini_app_inline_kb(url: Optional[str] = None) -> InlineKeyboardMarkup:
 
 async def setup_menu_button(bot, message: Optional[Message] = None, chat_id: Optional[int] = None) -> None:
     target_chat_id = chat_id or getattr(getattr(message, "chat", None), "id", None)
-    url = build_webapp_url(message)
+    url = build_webapp_url(message, chat_id=target_chat_id)
     try:
         await bot.set_chat_menu_button(
             chat_id=target_chat_id,

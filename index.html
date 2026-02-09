@@ -303,6 +303,7 @@
 
   const LOCAL_NEWS_KEY = "beerMarketNews";
   const LOCAL_META_KEY = "beerMarketNewsMeta";
+  const ACCESS_STATE_KEY = "beerMarketAccessState";
 
   function setSafeInsets() {
     const top = tg?.safeAreaInset?.top ?? tg?.contentSafeAreaInset?.top ?? 0;
@@ -408,6 +409,31 @@
       );
     } catch (e) {
       console.warn("local news save failed", e);
+    }
+  }
+
+  function loadAccessState() {
+    try {
+      const raw = localStorage.getItem(ACCESS_STATE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      console.warn("access state load failed", e);
+      return {};
+    }
+  }
+
+  function saveAccessState(role, authorized) {
+    try {
+      localStorage.setItem(
+        ACCESS_STATE_KEY,
+        JSON.stringify({
+          role,
+          authorized: Boolean(authorized),
+          updatedAt: Date.now()
+        })
+      );
+    } catch (e) {
+      console.warn("access state save failed", e);
     }
   }
 
@@ -603,8 +629,20 @@
 
   function setupAccess() {
     const params = new URLSearchParams(location.search);
-    const role = params.get("role") || "client";
-    const isAuthorized = params.get("auth") === "1";
+    const storedAccess = loadAccessState();
+    const authParam = params.get("auth");
+    const hasAuthParam = authParam !== null;
+    const paramRole = params.get("role");
+    const tgUser = tg?.initDataUnsafe?.user;
+
+    let role = paramRole || storedAccess.role || "client";
+    let isAuthorized = hasAuthParam ? authParam === "1" : Boolean(storedAccess.authorized || tgUser);
+
+    if (paramRole || hasAuthParam) {
+      saveAccessState(role, isAuthorized);
+    } else if (tgUser && !storedAccess.authorized) {
+      saveAccessState(role, true);
+    }
     const isAdmin = isAuthorized && role === "admin";
     const canSuggest = isAuthorized && role === "sales_rep";
 

@@ -5607,9 +5607,6 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
             except Exception:
                 logger.exception("miniapp: failed to notify admin %s", admin_id)
 
-    if action in ("ping", "raw"):
-        await m.answer("pong")
-        return
 
     if action in {"access.request", "manager.contact"}:
         await m.answer("Запрос отправлен. Менеджер свяжется с вами в ближайшее время.")
@@ -5669,7 +5666,7 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
                 "updatedAt": payload.get("updatedAt") or now_iso,
             }
             _news_upsert(item)
-            await m.answer("✅ Изменение по новости сохранено.")
+            #await m.answer("✅ Изменение по новости сохранено.")
         await notify_admins(
             f"🛠 Админ {uid} выполнил действие {action} в Mini App."
         )
