@@ -2,7 +2,13 @@ import asyncio
 import logging
 import html as _html
 import ssl
-from mini_app import router as mini_app_router, mini_app_reply_button, setup_menu_button, set_webapp_handler
+from mini_app import (
+    router as mini_app_router,
+    mini_app_reply_button,
+    setup_menu_button,
+    set_webapp_handler,
+    set_webapp_url_builder,
+)
 from aiogram.types import FSInputFile  # aiogram v3
 import uuid
 import io
@@ -11,7 +17,7 @@ import contextlib
 from aiogram.types import InputMediaPhoto
 import aiohttp, asyncio, time,os, re, json
 from io import BytesIO
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import BaseMiddleware
 from pathlib import Path
@@ -61,6 +67,8 @@ ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
 
 logger = logging.getLogger(__name__)
+
+MINI_APP_URL = os.getenv("MINI_APP_URL", "https://freep0rndeveloper.website/")
 
 #Прайсы: сортировка по алфавиту ---
 PRICES_SORT_ALPHA = True   # вырубить — поставьте False
@@ -953,15 +961,15 @@ async def on_phone_input(m: Message, state: FSMContext):
     await state.clear()
 
     if not base:
-        await m.answer("Не удалось определить клиента. Повторите из отчёта.", reply_markup=main_menu_kb())
+        await m.answer("Не удалось определить клиента. Повторите из отчёта.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
 
     if not ok:
-        await m.answer("Неверный номер. Пример: +7 999 123-45-67 или 8XXXXXXXXXX.", reply_markup=main_menu_kb())
+        await m.answer("Неверный номер. Пример: +7 999 123-45-67 или 8XXXXXXXXXX.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
 
     set_client_phone(base, e164)
-    await m.answer(f"Телефон для «{base}» сохранён: {disp}", reply_markup=main_menu_kb())
+    await m.answer(f"Телефон для «{base}» сохранён: {disp}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 
 
@@ -1101,7 +1109,6 @@ def help_text_client(current_name: str) -> str:
         "• 📊 <b>Дебиторская задолженность</b> — ежедневно в <b>10:30</b> и <b>15:30</b>\n"
         "• 📦 <b>Отчёт по таре</b> — по средам в <b>12:00</b> (еженедельно).\n\n\n"
         "• ✉️ <a href='https://t.me/Re1ze_r'>Написать администратору в Telegram</a>\n"
-        "• 💬 <a href='https://wa.me/79965440806'>Написать администратору в WhatsApp</a>\n"
     )
 
 def help_text_sales_rep() -> str:
@@ -1136,6 +1143,19 @@ def get_user_role(user_id: Optional[int]) -> str:
         return "admin"
     rec = (_USER_ROLES.get(uid) or {})
     return normalize_role(rec.get("role") or "client")
+
+def build_mini_app_url(user_id: Optional[int]) -> str:
+    if not user_id:
+        role = "guest"
+        is_authorized = False
+    else:
+        role = get_user_role(user_id)
+        is_authorized = role in {"client", "admin", "sales_rep"}
+    parsed = urlparse(MINI_APP_URL)
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    query["auth"] = ["1" if is_authorized else "0"]
+    query["role"] = [role]
+    return urlunparse(parsed._replace(query=urlencode(query, doseq=True)))
 
 def set_user_role(user_id: int, role: str) -> None:
     uid = str(user_id)
@@ -1448,12 +1468,13 @@ DEFAULT_SCHEDULE_NOTE = "Заявки за день понедельник-пя�
 
 
 #main_menu_kb() КЛАВИАТУРА АДМИНА
-def main_menu_kb() -> ReplyKeyboardMarkup:
+def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     last_dt, _ = get_last_update()
     upd_label = "🔄 Обновить"
     hhmm = fmt_hhmm(last_dt)
     if hhmm:
         upd_label = f"{upd_label} ({hhmm})"
+    mini_app_url = build_mini_app_url(user_id)
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
@@ -1463,7 +1484,7 @@ def main_menu_kb() -> ReplyKeyboardMarkup:
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
             [KeyboardButton(text="👥 Пользователи")],
-            [KeyboardButton(text="▶️ Старт"),mini_app_reply_button(), KeyboardButton(text=upd_label), ],
+            [KeyboardButton(text="▶️ Старт"), mini_app_reply_button(mini_app_url), KeyboardButton(text=upd_label), ],
         ],
         resize_keyboard=True
     )
@@ -2290,10 +2311,10 @@ def _is_client(msg: Message) -> bool:
 def _is_client_only(msg: Message) -> bool:
     return get_user_role(getattr(msg.from_user, "id", None)) == "client"
 
-def menu_for_role(role: str) -> ReplyKeyboardMarkup:
+def menu_for_role(role: str, user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     role = (role or "").strip().lower()
     if role == "admin":
-        return main_menu_kb()
+        return main_menu_kb(user_id)
     if role == "sales_rep":
         return sales_rep_menu_kb()
     return client_menu_kb()
@@ -2302,7 +2323,7 @@ def menu_for_message(msg: Message) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(msg.from_user, "id", None))
 
 def menu_for_user_id(user_id: Optional[int]) -> ReplyKeyboardMarkup:
-    return menu_for_role(get_user_role(user_id))
+    return menu_for_role(get_user_role(user_id), user_id=user_id)
 
 def menu_for_callback(cq: CallbackQuery) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(cq.from_user, "id", None))
@@ -2326,7 +2347,7 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
         return
 
     if role == "admin":
-        await m.answer(help_text_admin(), reply_markup=main_menu_kb())
+        await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
@@ -2373,7 +2394,7 @@ async def on_start(m: Message, state: FSMContext):
 
     # Известная роль — показываем соответствующее меню.
     if role == "admin":
-        await m.answer(help_text_admin(), reply_markup=main_menu_kb())
+        await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
@@ -2393,7 +2414,7 @@ async def on_help(m: Message):
         return
     role = get_user_role(getattr(m.from_user, "id", None))
     if role == "admin":
-        await m.answer(help_text_admin(), reply_markup=main_menu_kb())
+        await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
@@ -2446,7 +2467,7 @@ async def ob_admin_pwd(m: Message, state: FSMContext):
     if (m.text or "").strip() == ADMIN_ONBOARD_PASSWORD:
         set_user_role(m.from_user.id, "admin")
         await state.clear()
-        await m.answer("✅ Админ доступ выдан.", reply_markup=main_menu_kb())
+        await m.answer("✅ Админ доступ выдан.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         await on_start(m, state)
     else:
         await m.answer("❌ Неверный пароль. Попробуйте снова или выберите «Я клиент».",
@@ -2571,7 +2592,7 @@ async def price_new_file(m: Message, state: FSMContext):
         "created_at": now, "updated_at": now
     })
     await state.clear()
-    await m.answer(f"✅ Прайс «{esc(title)}» добавлен.", reply_markup=main_menu_kb())
+    await m.answer(f"✅ Прайс «{esc(title)}» добавлен.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 # Админ: заменить файл
 @router.callback_query(F.data.startswith("pr:replace:"))
@@ -2610,7 +2631,7 @@ async def price_do_replace(m: Message, state: FSMContext):
     it["updated_at"] = datetime.now(TZ).isoformat()
     _price_set(it)
     await state.clear()
-    await m.answer("✅ Файл обновлён.", reply_markup=main_menu_kb())
+    await m.answer("✅ Файл обновлён.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 # Админ: переименовать
 @router.callback_query(F.data.startswith("pr:rename:"))
@@ -2642,7 +2663,7 @@ async def price_do_rename(m: Message, state: FSMContext):
     it["updated_at"] = datetime.now(TZ).isoformat()
     _price_set(it)
     await state.clear()
-    await m.answer("✅ Название обновлено.", reply_markup=main_menu_kb())
+    await m.answer("✅ Название обновлено.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 # Админ: удалить
 @router.callback_query(F.data.startswith("pr:del:"))
@@ -2806,7 +2827,7 @@ async def search_flow(m: Message, state: FSMContext):
 # --- Поиск по возвратной таре ---
 async def render_tara_search(chat: Message, keywords: List[str]):
     role = get_user_role(getattr(chat.from_user, 'id', None))
-    kb = menu_for_role(role)
+    kb = menu_for_role(role, getattr(chat.from_user, "id", None))
     paths = find_latest_downloads(report_type="tara", max_count=5)
     if not paths:
         await chat.answer(
@@ -2907,7 +2928,7 @@ async def search_tara_flow(m: Message, state: FSMContext):
 @router.message(F.text == "✏️ Изменить название")
 async def client_change_name(m: Message, state: FSMContext):
     if not _is_client(m):
-        await m.answer("Эта команда для клиента.", reply_markup=main_menu_kb())
+        await m.answer("Эта команда для клиента.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     await state.set_state(ClientEditStates.waiting_new_name)
     await m.answer("Введите новое название вашей организации:", reply_markup=client_menu_kb())
@@ -2938,7 +2959,7 @@ async def _do_mail_refresh(m: Message):
     except Exception as e:
         logger.exception("Manual refresh failed")
         await m.answer(f"Не удалось обновить: {e}",
-                       reply_markup=main_menu_kb() if not _is_client(m) else client_menu_kb())
+                       reply_markup=main_menu_kb(getattr(m.from_user, "id", None)) if not _is_client(m) else client_menu_kb())
 
 @router.message(F.text.func(lambda t: isinstance(t, str) and t.startswith("🔄 Обновить")))
 async def btn_refresh(m: Message):
@@ -3785,7 +3806,7 @@ async def flt_set_value(m: Message, state: FSMContext):
         return
     set_min_debt(val)
     await state.clear()
-    await m.answer(f"Порог сохранён: ≥ {fmt_money(val)} ₽", reply_markup=main_menu_kb())
+    await m.answer(f"Порог сохранён: ≥ {fmt_money(val)} ₽", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data == "flt:reset")
 async def cb_flt_reset(cq: CallbackQuery):
@@ -3799,7 +3820,7 @@ async def cb_back(cq: CallbackQuery):
     await cq.message.edit_text("Главное меню. Выберите действие:", reply_markup=None)
     # показываем правильную клавиатуру по роли
     role = get_user_role(getattr(cq.from_user, "id", None))
-    kb = menu_for_role(role)
+    kb = menu_for_role(role, getattr(cq.from_user, "id", None))
     await cq.message.answer("Выберите действие:", reply_markup=kb)
     await cq.answer()
 
@@ -3893,19 +3914,19 @@ async def od_edit_days(m: Message, state: FSMContext):
         _CLIENT_OD_MAP.pop(key, None)
         _save_overdue_map(_CLIENT_OD_MAP)
         await state.clear()
-        await m.answer(f"Отсрочка для «{esc(client)}» <b>сброшена</b> до общего значения.", reply_markup=main_menu_kb())
+        await m.answer(f"Отсрочка для «{esc(client)}» <b>сброшена</b> до общего значения.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     else:
         _CLIENT_OD_MAP[key] = days
         _save_overdue_map(_CLIENT_OD_MAP)
         await state.clear()
-        await m.answer(f"Отсрочка для «{esc(client)}» установлена: <b>{days} дн.</b>", reply_markup=main_menu_kb())
+        await m.answer(f"Отсрочка для «{esc(client)}» установлена: <b>{days} дн.</b>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(OverdueSetStates.waiting_key)
 async def od_set_key(m: Message, state: FSMContext):
     key = (m.text or "").strip().casefold()
     if not key:
         await state.clear()
-        await m.answer("Добавление отменено.", reply_markup=main_menu_kb())
+        await m.answer("Добавление отменено.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     await state.update_data(key=key)
     await state.set_state(OverdueSetStates.waiting_days)
@@ -3925,12 +3946,12 @@ async def od_set_days(m: Message, state: FSMContext):
     key = data.get("key")
     if not key:
         await state.clear()
-        await m.answer("Внутренняя ошибка, попробуйте снова.", reply_markup=main_menu_kb())
+        await m.answer("Внутренняя ошибка, попробуйте снова.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     _CLIENT_OD_MAP[key] = days
     _save_overdue_map(_CLIENT_OD_MAP)
     await state.clear()
-    await m.answer(f"Сохранено: <code>{esc(key)}</code> → {days} дн.", reply_markup=main_menu_kb())
+    await m.answer(f"Сохранено: <code>{esc(key)}</code> → {days} дн.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data == "od:del")
 async def cb_od_del(cq: CallbackQuery, state: FSMContext):
@@ -3947,14 +3968,14 @@ async def od_del_key(m: Message, state: FSMContext):
     key = (m.text or "").strip().casefold()
     if not key:
         await state.clear()
-        await m.answer("Удаление отменено.", reply_markup=main_menu_kb())
+        await m.answer("Удаление отменено.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if key in _CLIENT_OD_MAP:
         _CLIENT_OD_MAP.pop(key)
         _save_overdue_map(_CLIENT_OD_MAP)
-        await m.answer(f"Удалено правило: <code>{esc(key)}</code>", reply_markup=main_menu_kb())
+        await m.answer(f"Удалено правило: <code>{esc(key)}</code>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     else:
-        await m.answer("Такого ключа нет в списке.", reply_markup=main_menu_kb())
+        await m.answer("Такого ключа нет в списке.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     await state.clear()
 
 # --- Команды ---
@@ -4004,7 +4025,7 @@ async def cmd_refresh(m: Message):
     if ok:
         set_last_update("manual")
 
-    await m.answer("\n".join(msgs), reply_markup=main_menu_kb())
+    await m.answer("\n".join(msgs), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 
 @router.message(Command("tara"))
@@ -4041,13 +4062,12 @@ async def cmd_refresh_tara(m: Message):
         path = fetch_latest_file("ТАРА")
         if path:
             set_last_update("manual")
-            await m.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=main_menu_kb())
+            await m.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         else:
-            await m.answer("Письмо не найдено или подходящих вложений нет.", reply_markup=main_menu_kb())
+            await m.answer("Письмо не найдено или подходящих вложений нет.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     except Exception as e:
         logger.exception("Manual refresh (tara) failed")
-        await m.answer(f"Не удалось обновить: {e}", reply_markup=main_menu_kb())
-
+        await m.answer(f"Не удалось обновить: {e}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data == "upd:debt")
 async def cb_upd_debt(cq: CallbackQuery):
@@ -4191,7 +4211,7 @@ async def set_bot_token(m: Message, state: FSMContext):
         pass
 
     await state.clear()
-    await m.answer("✅ BOT_TOKEN сохранён. Перезапусти бота, чтобы применить.", reply_markup=main_menu_kb())
+    await m.answer("✅ BOT_TOKEN сохранён. Перезапусти бота, чтобы применить.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(ConfigStates.waiting_imap_server)
 async def set_imap_server(m: Message, state: FSMContext):
@@ -4201,7 +4221,7 @@ async def set_imap_server(m: Message, state: FSMContext):
         return
     update_setting("IMAP_SERVER", host)
     await state.clear()
-    await m.answer("✅ IMAP_SERVER сохранён.", reply_markup=main_menu_kb())
+    await m.answer("✅ IMAP_SERVER сохранён.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(ConfigStates.waiting_email_account)
 async def set_email_account(m: Message, state: FSMContext):
@@ -4211,7 +4231,7 @@ async def set_email_account(m: Message, state: FSMContext):
         return
     update_setting("EMAIL_ACCOUNT", acc)
     await state.clear()
-    await m.answer("✅ EMAIL_ACCOUNT сохранён.", reply_markup=main_menu_kb())
+    await m.answer("✅ EMAIL_ACCOUNT сохранён.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(ConfigStates.waiting_email_password)
 async def set_email_password(m: Message, state: FSMContext):
@@ -4225,7 +4245,7 @@ async def set_email_password(m: Message, state: FSMContext):
     except Exception:
         pass
     await state.clear()
-    await m.answer("✅ EMAIL_PASSWORD сохранён.", reply_markup=main_menu_kb())
+    await m.answer("✅ EMAIL_PASSWORD сохранён.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(Command("reset_role"))
 async def reset_role_cmd(m: Message, state: FSMContext):
@@ -4905,7 +4925,7 @@ async def _promo_finish_create(
 
     await state.clear()
     period_human = " — ".join(filter(None, [_ru_from_iso(starts_at), _ru_from_iso(ends_at)])) or "без даты"
-    await m.answer(f"✅ Акция «{esc(title)}» добавлена.\n<i>Период: {period_human}</i>", reply_markup=main_menu_kb())
+    await m.answer(f"✅ Акция «{esc(title)}» добавлена.\n<i>Период: {period_human}</i>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(F.text == "🎁 Акции", StateFilter(None))
 async def btn_promos(m: Message):
@@ -5155,7 +5175,7 @@ async def promo_do_rename(m: Message, state: FSMContext):
         await m.answer("Слишком коротко. Введите ещё раз."); return
     it["title"] = title; it["updated_at"] = datetime.now(TZ).isoformat()
     _promo_set(it); await state.clear()
-    await m.answer("✅ Название обновлено.", reply_markup=main_menu_kb())
+    wait m.answer("✅ Название обновлено.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data.startswith("promo:edittext:"))
 async def promo_edit_text(cq: CallbackQuery, state: FSMContext):
@@ -5178,7 +5198,7 @@ async def promo_do_edit_text(m: Message, state: FSMContext):
     it["text"] = (m.html_text or m.text or "").strip()
     it["updated_at"] = datetime.now(TZ).isoformat()
     _promo_set(it); await state.clear()
-    await m.answer("✅ Текст обновлён.", reply_markup=main_menu_kb())
+    await m.answer("✅ Текст обновлён.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data.startswith("promo:replaceimg:"))
 async def promo_replace_img(cq: CallbackQuery, state: FSMContext):
@@ -5225,7 +5245,7 @@ async def promo_replace_img_upload(m: Message, state: FSMContext):
     it["updated_at"] = datetime.now(TZ).isoformat()
     _promo_set(it)
     await state.clear()
-    await m.answer("✅ Картинка обновлена.", reply_markup=main_menu_kb())
+    await m.answer("✅ Картинка обновлена.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     try:
         await _send_promo_preview(m, it, admin=True)
     except Exception:
@@ -5271,7 +5291,7 @@ async def promo_dates_clear(m: Message, state: FSMContext):
     it["ends_at"] = None
     it["updated_at"] = datetime.now(TZ).isoformat()
     _promo_set(it); await state.clear()
-    await m.answer("✅ Дата окончания очищена.", reply_markup=main_menu_kb())
+    await m.answer("✅ Дата окончания очищена.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 async def _promo_apply_dates_edit(
     m: Message, state: FSMContext,
@@ -5287,7 +5307,7 @@ async def _promo_apply_dates_edit(
     it = _promo_find(pid)
     if not it:
         await state.clear()
-        await m.answer("Элемент не найден.", reply_markup=main_menu_kb()); return
+        await m.answer("Элемент не найден.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None))); return
 
     if starts_at is not None:
         it["starts_at"] = starts_at
@@ -5507,18 +5527,19 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
     await m.answer(f"Неизвестная команда Mini App: <code>{esc(action)}</code>")
 
 
-
 # --- Fallback для неизвестных callback'ов ---
 @router.callback_query()
 async def fallback_cb(cq: CallbackQuery):
     await cq.answer()
 
-
 try:
     set_webapp_handler(_miniapp_dispatch)
 except Exception as e:
     logger.warning("set_webapp_handler failed: %s", e)
-
+try:
+    set_webapp_url_builder(lambda msg: build_mini_app_url(getattr(msg.from_user, "id", None)))
+except Exception as e:
+    logger.warning("set_webapp_url_builder failed: %s", e)
 
 
 # --- Старт бота ---
