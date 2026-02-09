@@ -15,11 +15,15 @@
     "name": "Колядина"
   },
   "1188061961": {
-    "role": "client",
-    "name": "Виса"
+    "role": "sales_rep",
+    "name": "Worker",
+    "phone": "+79965440806",
+    "phone_verified": true
   },
   "237087423": {
-    "role": "admin"
+    "role": "admin",
+    "phone": "+79994680011",
+    "phone_verified": true
   },
   "405433712": {
     "role": "client",
@@ -30,4 +34,3 @@
     "name": "Данилок"
   }
 }
-

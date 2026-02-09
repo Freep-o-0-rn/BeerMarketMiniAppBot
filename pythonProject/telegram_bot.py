@@ -1093,7 +1093,20 @@ def help_text_client(current_name: str) -> str:
         "• 💬 <a href='https://wa.me/79965440806'>Написать администратору в WhatsApp</a>\n"
     )
 
-
+def help_text_sales_rep() -> str:
+    return (
+        "<b>BeerMarket🍺 — справка (торговый представитель)</b>\n\n"
+        "📌 <b>Кнопки</b>:\n"
+        "• 🔎 <b>Поиск</b> — поиск по части названия/адреса\n"
+        "• 🔎 <b>Поиск тары</b> — поиск по ведомости тары\n"
+        "• 📑 <b>Прайсы</b> — просмотр прайсов\n"
+        "• 🎁 <b>Акции</b> — просмотр акций\n"
+        "• 🚚 <b>График развоза</b> — фото и правила приёма заявок\n"
+        "• 📦 <b>Проверить ТТН</b> — проверка статуса фактуры в ЕГАИС\n\n"
+        "🧰 <b>Команды</b>:\n"
+        "• /help — эта справка\n"
+        "• /reset_role — сброс своей роли\n"
+    )
 
 
 # --- Хранилище ролей/названий клиентов ---
@@ -1436,6 +1449,18 @@ def main_menu_kb() -> ReplyKeyboardMarkup:
         resize_keyboard=True
     )
 
+def sales_rep_menu_kb() -> ReplyKeyboardMarkup:
+    """Клавиатура торгового представителя: поиск, прайсы, акции, график, ТТН."""
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
+            [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
+            [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
+            [KeyboardButton(text="▶️ Старт")],
+        ],
+        resize_keyboard=True
+    )
+
 #первый запуск.
 def onboard_role_kb() -> InlineKeyboardMarkup:
     """Инлайн-кнопки для выбора роли при первом запуске."""
@@ -1658,10 +1683,7 @@ def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
             InlineKeyboardButton(text="👤 Сделать клиентом", callback_data=f"usr:setrole:{uid}:client"),
-        ],
-        [
-            InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем",
-                                 callback_data=f"usr:setrole:{uid}:sales_rep"),
+            InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
         ],
         [
             InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
@@ -2238,7 +2260,24 @@ def is_admin(user_id: Optional[int]) -> bool:
   # если список пуст — разрешаем всем
 
 def _is_client(msg: Message) -> bool:
-    return get_user_role(getattr(msg.from_user, "id", None)) == "client"
+    return get_user_role(getattr(msg.from_user, "id", None)) in {"client", "sales_rep"}
+
+def menu_for_role(role: str) -> ReplyKeyboardMarkup:
+    role = (role or "").strip().lower()
+    if role == "admin":
+        return main_menu_kb()
+    if role == "sales_rep":
+        return sales_rep_menu_kb()
+    return client_menu_kb()
+
+def menu_for_message(msg: Message) -> ReplyKeyboardMarkup:
+    return menu_for_user_id(getattr(msg.from_user, "id", None))
+
+def menu_for_user_id(user_id: Optional[int]) -> ReplyKeyboardMarkup:
+    return menu_for_role(get_user_role(user_id))
+
+def menu_for_callback(cq: CallbackQuery) -> ReplyKeyboardMarkup:
+    return menu_for_user_id(getattr(cq.from_user, "id", None))
 
 async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     uid = getattr(m.from_user, "id", None)
@@ -2254,9 +2293,12 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
 
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb())
-    else:
-        cname = rec.get("name") or get_client_name(uid)
-        await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+        return
+    if role == "sales_rep":
+        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
+        return
+    cname = rec.get("name") or get_client_name(uid)
+    await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
 
 # --- Хендлеры ---
 @router.message(CommandStart())
@@ -2294,9 +2336,12 @@ async def on_start(m: Message, state: FSMContext):
     # Известная роль — показываем соответствующее меню.
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb())
-    else:
-        cname = rec.get("name") or get_client_name(uid)
-        await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+        return
+    if role == "sales_rep":
+        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
+        return
+    cname = rec.get("name") or get_client_name(uid)
+    await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
 
 
 @router.message(Command("help"))
@@ -2307,9 +2352,12 @@ async def on_help(m: Message):
     role = get_user_role(getattr(m.from_user, "id", None))
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb())
-    else:
-        cname = get_client_name(getattr(m.from_user, "id", None))
-        await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+        return
+    if role == "sales_rep":
+        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
+        return
+    cname = get_client_name(getattr(m.from_user, "id", None))
+    await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
 
 
 # --- Онбординг роли/пароля/названия ---
@@ -2643,14 +2691,14 @@ async def btn_start(m: Message, state: FSMContext):
 @router.message(F.text.func(lambda t: _has(t, "общий отчет", "общий отчёт") or (t or "").startswith("🧾")))
 async def btn_all(m: Message):
     if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
         return
     await render_report(m, mode="all", keywords=[], min_debt=None)
 
 @router.message(F.text == TARE_BTN)
 async def btn_tara(m: Message):
     if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
         return
     await render_tara_report(m)
 
@@ -2667,14 +2715,14 @@ async def btn_ttn(m: Message, state: FSMContext):
 @router.message(F.text.func(lambda t: _has(t, "просрочено") or (t or "").startswith("⏰")))
 async def btn_overdue(m: Message):
     if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
         return
     await render_report(m, mode="overdue", keywords=[], min_debt=None)
 
 @router.message(F.text.func(lambda t: _has(t, "переплат") or (t or "").startswith("💰")))
 async def btn_overpaid(m: Message):
     if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
         return
     await render_report(m, mode="overpaid", keywords=[], min_debt=None)
 
@@ -2704,7 +2752,7 @@ async def search_flow(m: Message, state: FSMContext):
     q = (m.text or "").strip()
     if not q or q.startswith("/"):
         await state.clear()
-        await m.answer("Поиск отменён.", reply_markup=main_menu_kb() if not _is_client(m) else client_menu_kb())
+        await m.answer("Поиск отменён.", reply_markup=menu_for_message(m))
         return
 
     if _is_client(m):
@@ -2720,7 +2768,7 @@ async def search_flow(m: Message, state: FSMContext):
 # --- Поиск по возвратной таре ---
 async def render_tara_search(chat: Message, keywords: List[str]):
     role = get_user_role(getattr(chat.from_user, 'id', None))
-    kb = client_menu_kb() if role == 'client' else main_menu_kb()
+    kb = menu_for_role(role)
     paths = find_latest_downloads(report_type="tara", max_count=5)
     if not paths:
         await chat.answer(
@@ -2844,10 +2892,10 @@ async def _do_mail_refresh(m: Message):
         if path:
             set_last_update("manual")
             await m.answer(f"Готово. Файл: <code>{esc(path)}</code>",
-                           reply_markup=main_menu_kb() if not _is_client(m) else client_menu_kb())
+                           reply_markup=menu_for_message(m))
         else:
             await m.answer("Письмо не найдено или подходящих вложений нет.",
-                           reply_markup=main_menu_kb() if not _is_client(m) else client_menu_kb())
+                           reply_markup=menu_for_message(m))
     except Exception as e:
         logger.exception("Manual refresh failed")
         await m.answer(f"Не удалось обновить: {e}",
@@ -2863,7 +2911,7 @@ async def btn_overdue_menu(m: Message):
     if _is_client(m):
         await m.answer("Доступно только для админов.", reply_markup=client_menu_kb())
         return
-    await m.answer("Настройки отсрочек:", reply_markup=overdue_menu_kb())
+    await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
 
 @router.message(F.text.in_({"⚙️ Фильтры", "⚙️ Фильтры отображения"}))
 async def filters_entry(m: Message, state: FSMContext):
@@ -3709,7 +3757,7 @@ async def cb_back(cq: CallbackQuery):
     await cq.message.edit_text("Главное меню. Выберите действие:", reply_markup=None)
     # показываем правильную клавиатуру по роли
     role = get_user_role(getattr(cq.from_user, "id", None))
-    kb = main_menu_kb() if role == "admin" else client_menu_kb()
+    kb = menu_for_role(role)
     await cq.message.answer("Выберите действие:", reply_markup=kb)
     await cq.answer()
 
@@ -3871,7 +3919,7 @@ async def od_del_key(m: Message, state: FSMContext):
 @router.message(Command("report"))
 async def on_report(m: Message):
     if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
         return
     mode, keywords, min_override = parse_report_args(m.text or "")
     await render_report(m, mode=mode, keywords=keywords, min_debt=min_override)
@@ -3880,7 +3928,7 @@ async def on_report(m: Message):
 @router.message(Command("refresh"))
 async def cmd_refresh(m: Message):
     if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
         return
 
     text = (m.text or "")
@@ -3920,7 +3968,7 @@ async def cmd_refresh(m: Message):
 @router.message(Command("tara"))
 async def on_tara(m: Message):
     if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
         return
     await render_tara_report(m)
 
@@ -3930,21 +3978,21 @@ async def _refresh_and_reply_cb(cq: CallbackQuery, mail_type: str):
         path = fetch_latest_file(mail_type)  # 'ДЕБИТОРКА' или 'ТАРА'
         if path:
             set_last_update("manual")
-            kb = client_menu_kb() if _is_client(cq) else main_menu_kb()
+            kb = menu_for_callback(cq)
             await cq.message.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=kb)
         else:
-            kb = client_menu_kb() if _is_client(cq) else main_menu_kb()
+            kb = menu_for_callback(cq)
             await cq.message.answer("Письмо не найдено или подходящих вложений нет.", reply_markup=kb)
     except Exception as e:
         logger.exception("Refresh failed")
-        kb = client_menu_kb() if _is_client(cq) else main_menu_kb()
+        kb = menu_for_callback(cq)
         await cq.message.answer(f"Не удалось обновить: {e}", reply_markup=kb)
     await cq.answer()
 
 @router.message(Command("refresh_tara"))
 async def cmd_refresh_tara(m: Message):
     if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
         return
     await m.answer("Обновляю отчёт из почты (Тара)…")
     try:
@@ -4043,7 +4091,7 @@ async def flt_change_apply(m: Message, state: FSMContext):
 @router.message(Command("settings"))
 async def on_settings(m: Message):
     if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Недостаточно прав.", reply_markup=client_menu_kb() if _is_client(m) else main_menu_kb())
+        await m.answer("Недостаточно прав.", reply_markup=menu_for_message(m))
         return
     await m.answer("⚙️ Настройки (хранятся в settings/config.json):", reply_markup=settings_menu_kb())
 
@@ -4157,7 +4205,7 @@ async def reset_role_cmd(m: Message, state: FSMContext):
 @router.message(F.text == "👥 Пользователи")
 async def admin_users_list(m: Message):
     if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
         return
     await m.answer("Список пользователей:", reply_markup=users_list_kb())
 
@@ -4265,7 +4313,7 @@ async def admin_users_edit_phone(cq: CallbackQuery, state: FSMContext):
 @router.message(AdminUserEditStates.waiting_name)
 async def admin_users_save_name(m: Message, state: FSMContext):
     if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Недостаточно прав.", reply_markup=client_menu_kb())
+        await m.answer("Недостаточно прав.", reply_markup=menu_for_message(m))
         return
     data = await state.get_data()
     uid = data.get("admin_edit_uid")
@@ -4280,7 +4328,7 @@ async def admin_users_save_name(m: Message, state: FSMContext):
 @router.message(AdminUserEditStates.waiting_phone)
 async def admin_users_save_phone(m: Message, state: FSMContext):
     if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Недостаточно прав.", reply_markup=client_menu_kb())
+        await m.answer("Недостаточно прав.", reply_markup=menu_for_message(m))
         return
     data = await state.get_data()
     uid = data.get("admin_edit_uid")
@@ -5355,7 +5403,7 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
 
     if action == "refresh.all":
         if _is_client(m):
-            await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+            await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
             return
 
         await m.answer("Обновляю отчёт(ы) из почты…")
@@ -5407,6 +5455,3 @@ async def run_bot():
     except Exception:
         pass
     await dp.start_polling(bot)
-
-
-
