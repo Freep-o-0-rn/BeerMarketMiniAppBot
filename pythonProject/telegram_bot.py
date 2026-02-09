@@ -155,6 +155,7 @@ LAST_UPDATE_FILE = os.getenv("LAST_UPDATE_FILE", os.path.join("downloads", ".las
 
 # Роли/онбординг
 USER_ROLES_JSON = os.getenv("USER_ROLES_JSON", "settings/user_roles.json")
+ROLE_DEFS_JSON = os.getenv("ROLE_DEFS_JSON", "settings/roles.json")
 ADMIN_ONBOARD_PASSWORD = os.getenv("ADMIN_ONBOARD_PASSWORD", "99654511")
 LEGACY_USER_ROLES_JSON = os.path.join(os.getcwd(), "user_roles.json")
 
@@ -377,9 +378,95 @@ from typing import Optional, Tuple, Dict, Any, List
 
 # используем единый файл ролей/имен/телефонов
 USER_ROLES_PATH = Path(USER_ROLES_JSON)
+ROLE_DEFS_PATH = Path(ROLE_DEFS_JSON)
+
+DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
+    "admin": {
+        "label": "Администратор",
+        "description": "Полный доступ к управлению ботом, пользователями, прайсами и акциями.",
+        "permissions": [
+            "admin",
+            "manage_users",
+            "manage_prices",
+            "manage_promos",
+            "manage_schedule",
+            "manage_settings",
+            "refresh_data",
+            "view_reports",
+            "view_ttn",
+        ],
+    },
+    "client": {
+        "label": "Клиент",
+        "description": "Доступ к просмотру своих данных, прайсов и графика.",
+        "permissions": [
+            "view_prices",
+            "view_promos",
+            "view_schedule",
+            "view_reports",
+        ],
+    },
+}
+
 
 def _ensure_file_parent(p: Path):
     p.parent.mkdir(parents=True, exist_ok=True)
+
+def _normalize_role_defs(data: dict) -> Dict[str, Dict[str, Any]]:
+    data = data if isinstance(data, dict) else {}
+    merged: Dict[str, Dict[str, Any]] = {}
+    for role, defaults in DEFAULT_ROLE_DEFS.items():
+        merged[role] = dict(defaults)
+    for role, payload in data.items():
+        if not isinstance(role, str) or not isinstance(payload, dict):
+            continue
+        current = merged.get(role, {})
+        merged[role] = {
+            "label": payload.get("label") or current.get("label") or role,
+            "description": payload.get("description") or current.get("description") or "",
+            "permissions": list(payload.get("permissions") or current.get("permissions") or []),
+        }
+    return merged
+
+def _role_defs_load() -> Dict[str, Dict[str, Any]]:
+    _ensure_file_parent(ROLE_DEFS_PATH)
+    try:
+        raw = ROLE_DEFS_PATH.read_text(encoding="utf-8")
+        data = json.loads(raw) if raw else {}
+    except FileNotFoundError:
+        data = {}
+    except Exception:
+        data = {}
+    merged = _normalize_role_defs(data)
+    if not ROLE_DEFS_PATH.exists():
+        ROLE_DEFS_PATH.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
+    return merged
+
+_ROLE_DEFS = _role_defs_load()
+
+def _role_defs_reload() -> Dict[str, Dict[str, Any]]:
+    global _ROLE_DEFS
+    _ROLE_DEFS = _role_defs_load()
+    return _ROLE_DEFS
+
+def get_role_def(role: Optional[str]) -> Dict[str, Any]:
+    key = (role or "client").strip().lower()
+    return _ROLE_DEFS.get(key) or _ROLE_DEFS.get("client", {})
+
+def get_role_permissions(role: Optional[str]) -> set:
+    return set(get_role_def(role).get("permissions") or [])
+
+def normalize_role(role: Optional[str]) -> str:
+    key = (role or "client").strip().lower()
+    if key in _ROLE_DEFS:
+        return key
+    return "client"
+
+def role_label(role: Optional[str]) -> str:
+    return str(get_role_def(role).get("label") or role or "client")
+
+def user_has_permission(user_id: Optional[int], permission: str) -> bool:
+    return permission in get_role_permissions(get_user_role(user_id))
 
 def _normalize_user_roles_schema(data: dict) -> dict:
     """Гарантируем структуру и не трогаем неизвестные ключи."""
@@ -393,6 +480,8 @@ def _normalize_user_roles_schema(data: dict) -> dict:
             continue
         if not isinstance(v, dict):
             data[k] = {"role": "client", "name": str(v)}
+        else:
+            v["role"] = normalize_role(v.get("role"))
     return data
 
 def _roles_load() -> dict:
@@ -1006,11 +1095,11 @@ def get_user_role(user_id: Optional[int]) -> str:
     if _ADMIN_IDS and user_id in _ADMIN_IDS:
         return "admin"
     rec = (_USER_ROLES.get(uid) or {})
-    return (rec.get("role") or "client").strip().lower()
+    return normalize_role(rec.get("role") or "client")
 
 def set_user_role(user_id: int, role: str) -> None:
     uid = str(user_id)
-    role_val = "admin" if role == "admin" else "client"
+    role_val = normalize_role(role)
     # merge с тем, что уже на диске
     cur = _roles_load().get(uid, {})
     cur["role"] = role_val
@@ -1041,7 +1130,10 @@ def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     cur = _roles_load().get(uid, {})
     if not isinstance(cur, dict):
         cur = {"role": "client", "name": str(cur)}
-    cur.update(patch or {})
+    patch = dict(patch or {})
+    if "role" in patch:
+        patch["role"] = normalize_role(patch.get("role"))
+    cur.update(patch)
     _roles_merge_and_save({uid: cur})
 
 def is_user_blocked(user_id: Optional[int]) -> bool:
@@ -1533,9 +1625,9 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
     end = min(total, start + page_size)
     rows: List[List[InlineKeyboardButton]] = []
     for uid, rec in items[start:end]:
-        name = (rec.get("name") or "—").strip()
-        role = (rec.get("role") or "client").strip()
-        rows.append([InlineKeyboardButton(text=f"{name} · {role}", callback_data=f"usr:sel:{uid}:{page}")])
+        name = (rec.get("name") or "unknown").strip()
+        role = normalize_role(rec.get("role") or "client")
+        rows.append([InlineKeyboardButton(text=f"{name} · {role_label(role)}", callback_data=f"usr:sel:{uid}:{page}")])
     nav: List[InlineKeyboardButton] = []
     if start > 0:
         nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"usr:list:{page-1}"))
@@ -2123,7 +2215,7 @@ def is_admin(user_id: Optional[int]) -> bool:
     if _ADMIN_IDS and int(user_id) in _ADMIN_IDS:
         return True
     # 2) иначе по сохранённой роли онбординга
-    return get_user_role(user_id) == "admin"
+    return user_has_permission(user_id, "admin")
   # если список пуст — разрешаем всем
 
 def _is_client(msg: Message) -> bool:
@@ -4072,8 +4164,8 @@ async def admin_users_select(cq: CallbackQuery):
     page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
     data = _roles_load()
     rec = data.get(uid, {}) if uid else {}
-    name = (rec.get("name") or "—").strip()
-    role = (rec.get("role") or "client").strip()
+    name = (rec.get("name") or "unknown").strip()
+    role = normalize_role(rec.get("role") or "client")
     phone = (rec.get("phone") or "—").strip()
     verified = "✅" if rec.get("phone_verified") else "❌"
     blocked = "⛔" if rec.get("blocked") else "✅"
@@ -4099,7 +4191,7 @@ async def admin_users_set_role(cq: CallbackQuery):
     if not uid:
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
-    update_user_record(uid, {"role": "admin" if role == "admin" else "client"})
+    update_user_record(uid, {"role": normalize_role(role)})
     await cq.answer("Роль обновлена.")
     await admin_users_select(cq)
 

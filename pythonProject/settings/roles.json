@@ -1,0 +1,27 @@
+{
+  "admin": {
+    "label": "Администратор",
+    "description": "Полный доступ к управлению ботом, пользователями, прайсами и акциями.",
+    "permissions": [
+      "admin",
+      "manage_users",
+      "manage_prices",
+      "manage_promos",
+      "manage_schedule",
+      "manage_settings",
+      "refresh_data",
+      "view_reports",
+      "view_ttn"
+    ]
+  },
+  "client": {
+    "label": "Клиент",
+    "description": "Доступ к просмотру своих данных, прайсов и графика.",
+    "permissions": [
+      "view_prices",
+      "view_promos",
+      "view_schedule",
+      "view_reports"
+    ]
+  }
+}
