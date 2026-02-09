@@ -4859,6 +4859,146 @@ async def block_misc_uploads(m: Message):
 
 #акции конец
 
+#Команда бакалар генерация картинки
+# --- BAKALAR: напоминалка по этикеткам ---
+BAKALAR_IMG_PATH = Path("settings/bakalar_reminder.png")
+
+def _bakalar_load_font(size: int):
+    try:
+        from PIL import ImageFont
+    except Exception:
+        return None
+
+    # чтобы кириллица работала и на Windows, и на Linux
+    candidates = [
+        str(ROOT_DIR / "assets" / "DejaVuSans.ttf"),
+        "DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "C:\\Windows\\Fonts\\arial.ttf",
+        "C:\\Windows\\Fonts\\calibri.ttf",
+    ]
+    for p in candidates:
+        try:
+            return ImageFont.truetype(p, size=size)
+        except Exception:
+            pass
+
+    try:
+        return ImageFont.load_default()
+    except Exception:
+        return None
+
+
+def ensure_bakalar_reminder_image() -> Path:
+    # если уже есть — не пересоздаём
+    try:
+        if BAKALAR_IMG_PATH.exists() and BAKALAR_IMG_PATH.stat().st_size > 10_000:
+            return BAKALAR_IMG_PATH
+    except Exception:
+        pass
+
+    try:
+        from PIL import Image, ImageDraw
+    except Exception:
+        # Pillow не установлен/сломался
+        return BAKALAR_IMG_PATH
+
+    W, H = 1080, 1350
+    bg     = (11, 11, 12)
+    card   = (21, 21, 24)
+    border = (45, 45, 50)
+    text   = (242, 242, 242)
+    muted  = (180, 180, 180)
+
+    im = Image.new("RGB", (W, H), bg)
+    d = ImageDraw.Draw(im)
+
+    f_title = _bakalar_load_font(64)
+    f_sub   = _bakalar_load_font(34)
+    f_name  = _bakalar_load_font(44)
+    f_lbl   = _bakalar_load_font(34)
+    f_foot  = _bakalar_load_font(26)
+
+    pad = 72
+    y = 72
+
+    if f_title:
+        d.text((pad, y), "BAKALAR", font=f_title, fill=text)
+        y += 78
+    if f_sub:
+        d.text((pad, y), "Напоминалка по этикеткам", font=f_sub, fill=muted)
+        y += 70
+
+    items = [
+        ("Бакалар Оригинальное Светлое", "Красная этикетка", (220, 53, 69)),
+        ("Бакалар Оригинальное Лагер",   "Зелёная этикетка", (40, 167, 69)),
+        ("Бакалар XO",                  "Белая этикетка",   (245, 245, 245)),
+    ]
+
+    card_h = 250
+    gap = 44
+
+    for i, (name, lbl, col) in enumerate(items):
+        top = y + i * (card_h + gap)
+        left = pad
+        right = W - pad
+        bottom = top + card_h
+
+        try:
+            d.rounded_rectangle([left, top, right, bottom], radius=36, fill=card, outline=border, width=3)
+        except Exception:
+            d.rectangle([left, top, right, bottom], fill=card, outline=border, width=3)
+
+        # цветной блок-этикетка
+        box = [left + 36, top + 45, left + 36 + 160, top + 45 + 160]
+        if "Белая" in lbl:
+            fill = col
+            outline = (200, 200, 200)
+            w = 5
+        else:
+            fill = col
+            outline = col
+            w = 1
+
+        try:
+            d.rounded_rectangle(box, radius=28, fill=fill, outline=outline, width=w)
+        except Exception:
+            d.rectangle(box, fill=fill, outline=outline, width=w)
+
+        tx = box[2] + 36
+        if f_name:
+            d.text((tx, top + 64), name, font=f_name, fill=text)
+        if f_lbl:
+            d.text((tx, top + 140), lbl, font=f_lbl, fill=muted)
+
+    if f_foot:
+        d.text((pad, H - 88), "Проверка: цвет этикетки на бутылке/банке должен совпадать.",
+               font=f_foot, fill=muted)
+
+    BAKALAR_IMG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    im.save(BAKALAR_IMG_PATH, "PNG")
+    return BAKALAR_IMG_PATH
+
+@router.message(Command("bakalar"))
+async def cmd_bakalar(m: Message):
+    # если хочешь, чтобы команда была только для админов — оставь так
+    if _is_client(m):
+        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        return
+
+    p = ensure_bakalar_reminder_image()
+    if p.exists():
+        await m.answer_photo(
+            FSInputFile(p),
+            caption="<b>Bakalar — напоминалка по этикеткам</b>\n"
+                    "• Оригинальное Светлое — красная\n"
+                    "• Оригинальное Лагер — зелёная\n"
+                    "• XO — белая"
+        )
+    else:
+        await m.answer("Не удалось сформировать картинку (Pillow не установлен или ошибка записи в settings/).")
+
+##конец бакалара bakalar end
 
 ##УТИЛИТЫ МИНИ АПП
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
