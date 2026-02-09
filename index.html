@@ -256,7 +256,7 @@
 <script>
   const tg = window.Telegram?.WebApp;
 
-  const NEWS = [
+  const NEWS_SEED = [
     {
       id: 101,
       title: "Обновили прайс и доступность",
@@ -279,6 +279,7 @@
       text: "Доставка переносится на день раньше, подтверждение до 16:00."
     }
   ];
+  const NEWS = [];
 
   const QUICK_IDEAS = [
     { text: "📰 Новости", action: "feed.news" },
@@ -328,6 +329,21 @@
     } catch (e) {
       alert("sendData error: " + (e?.message || e));
     }
+  }
+
+  async function loadNews() {
+    try {
+      const res = await fetch("pythonProject/news.json", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        NEWS.splice(0, NEWS.length, ...data);
+        return;
+      }
+    } catch (e) {
+      console.warn("news load failed, using seed", e);
+    }
+    NEWS.splice(0, NEWS.length, ...NEWS_SEED);
   }
 
   function resolveUserLabel(tgUser, params) {
@@ -510,12 +526,17 @@
     document.getElementById("user").textContent = resolveUserLabel(null, params);
   }
 
-  renderChips();
-  renderNews();
-  renderTiles();
-  renderAdminList();
-  resetForm();
-  setupAccess();
+  async function initApp() {
+    await loadNews();
+    renderChips();
+    renderNews();
+    renderTiles();
+    renderAdminList();
+    resetForm();
+    setupAccess();
+  }
+
+  initApp();
 
   document.getElementById("btnClose").onclick = () => tg?.close?.();
   document.getElementById("btnRefresh").onclick = () => location.reload();

@@ -17,7 +17,10 @@
   "237087423": {
     "role": "admin",
     "phone": "+79994680011",
-    "phone_verified": true
+    "phone_verified": true,
+    "username": "Freep_o_0_rn",
+    "first_name": "Freep_o_0_rn",
+    "language_code": "ru"
   },
   "405433712": {
     "role": "client",
@@ -39,9 +42,13 @@
     "phone": "+79965440806",
     "phone_verified": true,
     "role": "client",
-    "name": "Морозова"
+    "name": "Морозова",
+    "username": "Re1ze_r",
+    "first_name": "Vadim BeerMarket",
+    "language_code": "ru",
+    "is_premium": true
   },
-    "1153611285": {
+  "1153611285": {
     "phone": "+79994642108",
     "phone_verified": true,
     "name": "Цветкова",

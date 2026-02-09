@@ -79,7 +79,9 @@ PROMO_DIR.mkdir(parents=True, exist_ok=True)
 PROMO_INDEX = PROMO_DIR / "promos.json"
 PROMO_PAGE_SIZE = 8
 ALLOWED_PROMO_IMG = {"jpg","jpeg","png","webp"}
-ALLOWED_PROMO_DOC = {"pdf"}                         # документ (отправим как файл)
+ALLOWED_PROMO_DOC = {"pdf"}  # документ (отправим как файл)
+NEWS_INDEX = ROOT_DIR / "news.json"
+NEWS_CATEGORIES = {"Новость", "Обновление", "Акция", "Сервис"}
 #календарь
 _RU_MONTHS = ["", "Январь","Февраль","Март","Апрель","Май","Июнь",
               "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]
@@ -4567,6 +4569,40 @@ def actor_id(obj):
 def is_admin_event(obj) -> bool:
     return is_admin(actor_id(obj))
 
+def _news_load() -> List[Dict[str, Any]]:
+    if not NEWS_INDEX.exists():
+        return []
+    try:
+        data = json.loads(NEWS_INDEX.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception:
+        logger.exception("news: index parse error, fallback empty")
+        return []
+
+def _news_save(items: List[Dict[str, Any]]) -> None:
+    tmp = NEWS_INDEX.with_suffix(NEWS_INDEX.suffix + ".tmp")
+    tmp.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(tmp, NEWS_INDEX)
+
+def _news_upsert(item: Dict[str, Any]) -> None:
+    items = _news_load()
+    for i, existing in enumerate(items):
+        if str(existing.get("id")) == str(item.get("id")):
+            items[i] = item
+            break
+    else:
+        items.insert(0, item)
+    _news_save(items)
+
+def _news_delete(news_id: str | int) -> bool:
+    items = _news_load()
+    before = len(items)
+    items = [it for it in items if str(it.get("id")) != str(news_id)]
+    if len(items) == before:
+        return False
+    _news_save(items)
+    return True
+
 def _promos_load() -> List[Dict[str, Any]]:
     if not PROMO_INDEX.exists():
         return []
@@ -5581,7 +5617,34 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
         if not is_admin:
             await m.answer("У вас нет прав для управления новостями.")
             return
-        await m.answer("Изменение по новости зафиксировано.")
+        news_id = payload.get("id")
+        try:
+            news_id = int(news_id)
+        except (TypeError, ValueError):
+            news_id = int(time.time() * 1000)
+
+        if action == "news.delete":
+            removed = _news_delete(news_id)
+            await m.answer("✅ Новость удалена." if removed else "⚠️ Новость не найдена.")
+        else:
+            title = (payload.get("title") or "").strip()
+            text = (payload.get("text") or "").strip()
+            date_value = (payload.get("date") or "").strip()
+            category = (payload.get("category") or "Новость").strip()
+            if category not in NEWS_CATEGORIES:
+                category = "Новость"
+            if not title or not text or not date_value:
+                await m.answer("⚠️ Новость не сохранена: проверьте заголовок, дату и текст.")
+                return
+            item = {
+                "id": news_id,
+                "title": title,
+                "category": category,
+                "date": date_value,
+                "text": text,
+            }
+            _news_upsert(item)
+            await m.answer("✅ Изменение по новости сохранено.")
         await notify_admins(
             f"🛠 Админ {uid} выполнил действие {action} в Mini App."
         )
