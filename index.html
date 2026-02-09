@@ -354,8 +354,14 @@
   function computeNewsSignature(items) {
     if (!Array.isArray(items)) return "";
     return items
-      .map(item => `${item.id}:${item.title}:${item.category}:${item.date}:${item.text}:${item.updatedAt || ""}`)
+      .map(item => `${item.id}:${item.seq || ""}:${item.title}:${item.category}:${item.date}:${item.text}:${item.updatedAt || ""}`)
       .join("|");
+  }
+
+  function nextNewsSeq() {
+    const seqs = NEWS.map(item => Number(item.seq)).filter(Number.isFinite);
+    if (seqs.length) return Math.max(...seqs) + 1;
+    return NEWS.length + 1;
   }
 
   function formatDateInput(value) {
@@ -488,13 +494,14 @@
       const el = document.createElement("div");
       el.className = "newsItem";
       const displayDate = formatDisplayDate(item.date, item.createdAt);
+      const displayNumber = Number.isFinite(Number(item.seq)) ? item.seq : index + 1;
       el.innerHTML = `
         <div class="newsHeader">
           <div><strong>${item.title}</strong></div>
           <span class="badge">${item.category}</span>
         </div>
         <div>${item.text}</div>
-        <div class="newsMeta">№${index + 1}${displayDate ? ` • ${displayDate}` : ""}</div>
+        <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
       `;
       list.appendChild(el);
     });
@@ -543,13 +550,14 @@
       const el = document.createElement("div");
       el.className = "newsItem";
       const displayDate = formatDisplayDate(item.date, item.createdAt);
+      const displayNumber = Number.isFinite(Number(item.seq)) ? item.seq : index + 1;
       el.innerHTML = `
         <div class="newsHeader">
           <div><strong>${item.title}</strong></div>
           <span class="badge">${item.category}</span>
         </div>
         <div>${item.text}</div>
-        <div class="newsMeta">№${index + 1}${displayDate ? ` • ${displayDate}` : ""}</div>
+        <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
         <div class="row2" style="margin-top:8px;">
           <button class="secondary" data-edit="${item.id}">Редактировать</button>
           <button class="danger" data-delete="${item.id}">Удалить</button>
@@ -674,13 +682,14 @@
         item.date = date;
         item.text = text;
         item.updatedAt = new Date().toISOString();
-        sendAction("news.update", { id: item.id, title, category, date, text });
+        sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text });
       }
     } else {
       const id = Date.now();
+      const seq = nextNewsSeq();
       const nowIso = new Date().toISOString();
-      NEWS.unshift({ id, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
-      sendAction("news.create", { id, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
+      NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
+      sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
     }
     saveLocalNews(NEWS, true);
     renderNews();

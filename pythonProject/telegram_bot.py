@@ -4584,13 +4584,33 @@ def _news_save(items: List[Dict[str, Any]]) -> None:
     tmp.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
     os.replace(tmp, NEWS_INDEX)
 
+def _news_next_seq(items: List[Dict[str, Any]]) -> int:
+    seqs = []
+    for it in items:
+        try:
+            seqs.append(int(it.get("seq")))
+        except (TypeError, ValueError):
+            continue
+    return max(seqs) if seqs else 0
+
+def _news_find(news_id: str | int) -> Optional[Dict[str, Any]]:
+    for it in _news_load():
+        if str(it.get("id")) == str(news_id):
+            return it
+    return None
+
 def _news_upsert(item: Dict[str, Any]) -> None:
     items = _news_load()
+    next_seq = _news_next_seq(items)
     for i, existing in enumerate(items):
         if str(existing.get("id")) == str(item.get("id")):
+            if not item.get("seq") and existing.get("seq"):
+                item["seq"] = existing["seq"]
             items[i] = item
             break
     else:
+        if not item.get("seq"):
+            item["seq"] = next_seq + 1
         items.insert(0, item)
     _news_save(items)
 
@@ -5627,6 +5647,7 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
             removed = _news_delete(news_id)
             await m.answer("✅ Новость удалена." if removed else "⚠️ Новость не найдена.")
         else:
+            existing = _news_find(news_id)
             title = (payload.get("title") or "").strip()
             text = (payload.get("text") or "").strip()
             date_value = (payload.get("date") or "").strip()
@@ -5636,12 +5657,16 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
             if not title or not text or not date_value:
                 await m.answer("⚠️ Новость не сохранена: проверьте заголовок, дату и текст.")
                 return
+            now_iso = datetime.now(TZ).isoformat()
             item = {
                 "id": news_id,
+                "seq": payload.get("seq") or (existing.get("seq") if existing else None),
                 "title": title,
                 "category": category,
                 "date": date_value,
                 "text": text,
+                "createdAt": payload.get("createdAt") or (existing.get("createdAt") if existing else now_iso),
+                "updatedAt": payload.get("updatedAt") or now_iso,
             }
             _news_upsert(item)
             await m.answer("✅ Изменение по новости сохранено.")
