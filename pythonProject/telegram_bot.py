@@ -5447,75 +5447,61 @@ async def cmd_bakalar(m: Message):
 
 #--------------------------------
 #--------МИНИ АПП----------------
+#--------------------------------
+#--------МИНИ АПП----------------
 async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
     if is_user_blocked(getattr(m.from_user, "id", None)):
         await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
         return
     action = (payload.get("action") or "").strip()
+    uid = getattr(m.from_user, "id", None)
+    role = get_user_role(uid)
+    is_authorized = role in {"client", "admin", "sales_rep"}
+    is_admin = role == "admin"
+
+    async def notify_admins(text: str) -> None:
+        if not _ADMIN_IDS:
+            return
+        for admin_id in _ADMIN_IDS:
+            try:
+                await m.bot.send_message(admin_id, text)
+            except Exception:
+                logger.exception("miniapp: failed to notify admin %s", admin_id)
 
     if action in ("ping", "raw"):
         await m.answer("pong")
         return
 
-    if action == "menu.start":
-        await on_start(m, state)
+    if action in {"access.request", "manager.contact"}:
+        await m.answer("Запрос отправлен. Менеджер свяжется с вами в ближайшее время.")
+        await notify_admins(
+            f"🔐 Запрос доступа Mini App от пользователя {uid} ({role})."
+        )
         return
 
-    if action == "prices.open":
-        await btn_prices(m)
+    if not is_authorized:
+        await m.answer("Доступ к ленте доступен только авторизованным пользователям.")
         return
 
-    if action == "promo.open":
-        await btn_promos(m)
+    if action.startswith("feed."):
+        await m.answer("Лента обновлена. Выберите новость в приложении.")
         return
 
-    if action == "schedule.show":
-        await schedule_show_button(m)
+    if action == "news.suggest":
+        await m.answer("Напишите предложение новости в чат, мы передадим администратору.")
+        await notify_admins(
+            f"📰 Предложение новости от пользователя {uid} ({role})."
+        )
         return
 
-    if action == "search.open":
-        await btn_search(m, state)
-        return
-
-    if action == "refresh.open":
-        await btn_refresh(m)
-        return
-
-    # MVP: ТТН пока начинаем через стандартный сценарий в чате
-    if action in ("ttn.open", "ttn.check"):
-        await btn_ttn(m, state)
-        ttn = (payload.get("ttn") or "").strip()
-        if ttn:
-            await m.answer(f"Номер получен из Mini App: <code>{esc(ttn)}</code>\nТеперь просто отправь его в чат одним сообщением.")
-        return
-
-    if action == "auth.phone":
-        await send_phone_request(m)
-        return
-
-    if action == "refresh.all":
-        if _is_client(m):
-            await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+    if action in {"news.create", "news.update", "news.delete"}:
+        if not is_admin:
+            await m.answer("У вас нет прав для управления новостями.")
             return
-
-        await m.answer("Обновляю отчёт(ы) из почты…")
-        msgs = []
-        ok = False
-        for t in ("ДЕБИТОРКА", "ТАРА"):
-            try:
-                path = fetch_latest_file(t)
-                if path:
-                    ok = True
-                    msgs.append(f"✅ {t}: <code>{esc(path)}</code>")
-                else:
-                    msgs.append(f"⚠️ {t}: письмо/вложение не найдено")
-            except Exception as e:
-                logger.exception("Refresh failed for %s", t)
-                msgs.append(f"❌ {t}: {e}")
-        if ok:
-            set_last_update("manual")
-
-        await m.answer("\n".join(msgs), reply_markup=main_menu_kb())
+        await m.answer("Изменение по новости зафиксировано.")
+        await notify_admins(
+            f"🛠 Админ {uid} выполнил действие {action} в Mini App."
+        )
         return
 
     await m.answer(f"Неизвестная команда Mini App: <code>{esc(action)}</code>")

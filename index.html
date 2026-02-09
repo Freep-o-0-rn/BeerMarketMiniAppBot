@@ -125,6 +125,7 @@
       gap: 10px;
       margin-top: 10px;
     }
+
     button{
       width: 100%;
       padding: 12px 14px;
@@ -145,6 +146,7 @@
     button.danger{
       background: var(--danger);
     }
+
     input, textarea, select{
       width: 100%;
       padding: 10px 12px;
@@ -176,6 +178,7 @@
 <body>
 <div class="app">
   <div class="content">
+
     <div class="card">
       <div class="title">Лента BeerMarket</div>
       <div id="user" class="muted">Загрузка…</div>
@@ -217,6 +220,7 @@
         </div>
         <span class="badge warn">Admin</span>
       </div>
+
       <div style="margin-top:10px; display:grid; gap:10px;">
         <input id="newsTitle" placeholder="Заголовок" />
         <div class="row2">
@@ -325,7 +329,8 @@
       alert("sendData error: " + (e?.message || e));
     }
   }
-function renderChips() {
+
+  function renderChips() {
     const box = document.getElementById("chips");
     box.innerHTML = "";
     for (const f of FILTERS) {
@@ -369,7 +374,8 @@ function renderChips() {
   function renderTiles() {
     const box = document.getElementById("tiles");
     box.innerHTML = "";
-    const b = document.createElement("button");
+    for (const a of QUICK_IDEAS) {
+      const b = document.createElement("button");
       b.textContent = a.text;
       b.onclick = () => sendAction(a.action);
       box.appendChild(b);
@@ -484,6 +490,7 @@ function renderChips() {
 
   document.getElementById("btnClose").onclick = () => tg?.close?.();
   document.getElementById("btnRefresh").onclick = () => location.reload();
+
   document.getElementById("btnSuggest").onclick = () =>
     sendAction("news.suggest");
 
@@ -508,10 +515,12 @@ function renderChips() {
       NEWS.unshift({ id, title, category, date, text });
       sendAction("news.create", { id, title, category, date, text });
     }
+
     renderNews();
     renderAdminList();
     resetForm();
   };
+
   document.getElementById("btnReset").onclick = resetForm;
 </script>
 </body>
