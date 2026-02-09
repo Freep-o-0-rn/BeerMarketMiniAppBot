@@ -56,15 +56,17 @@ def mini_app_inline_kb(url: Optional[str] = None) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="Открыть мини-приложение", web_app=WebAppInfo(url=url or MINI_APP_URL))]
     ])
 
-
-async def setup_menu_button(bot) -> None:
+async def setup_menu_button(bot, message: Optional[Message] = None, chat_id: Optional[int] = None) -> None:
+    target_chat_id = chat_id or getattr(getattr(message, "chat", None), "id", None)
+    url = build_webapp_url(message)
     try:
         await bot.set_chat_menu_button(
-            menu_button=MenuButtonWebApp(text="BeerMarket", web_app=WebAppInfo(url=MINI_APP_URL))
+            chat_id=target_chat_id,
+            menu_button=MenuButtonWebApp(text="BeerMarket", web_app=WebAppInfo(url=url))
         )
-        log.info("Mini App menu button set: %s", MINI_APP_URL)
+        log.info("Mini App menu button set%s: %s", f" for chat {target_chat_id}" if target_chat_id else "", url)
     except Exception as e:
-        log.warning("Mini App menu button not set: %s", e)
+        log.warning("Mini App menu button not set%s: %s", f" for chat {target_chat_id}" if target_chat_id else "", e)
 
 
 @router.message(Command("app"))

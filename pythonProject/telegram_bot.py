@@ -43,6 +43,7 @@ from aiogram.types import (
     InlineKeyboardButton,
     CallbackQuery,
     ReplyKeyboardRemove,
+    User,
 )
 from aiogram.client.default import DefaultBotProperties
 from aiogram.utils.token import validate_token, TokenValidationError
@@ -1144,7 +1145,31 @@ def get_user_role(user_id: Optional[int]) -> str:
     rec = (_USER_ROLES.get(uid) or {})
     return normalize_role(rec.get("role") or "client")
 
-def build_mini_app_url(user_id: Optional[int]) -> str:
+def _user_record(user_id: Optional[int]) -> Dict[str, Any]:
+    if not user_id:
+        return {}
+    return (_roles_load().get(str(user_id)) or {})
+
+def _query_set(query: Dict[str, List[str]], key: str, value: Optional[Any]) -> None:
+    if value is None:
+        return
+    text = str(value).strip()
+    if not text:
+        return
+    query[key] = [text]
+
+def _extract_user(source: Optional[Any]) -> Tuple[Optional[int], Optional[User]]:
+    if isinstance(source, Message):
+        return getattr(source.from_user, "id", None), source.from_user
+    if isinstance(source, User):
+        return getattr(source, "id", None), source
+    if isinstance(source, int):
+        return source, None
+    return None, None
+
+def build_mini_app_url(source: Optional[Any]) -> str:
+    user_id, user = _extract_user(source)
+    rec = _user_record(user_id)
     if not user_id:
         role = "guest"
         is_authorized = False
@@ -1155,7 +1180,32 @@ def build_mini_app_url(user_id: Optional[int]) -> str:
     query = parse_qs(parsed.query, keep_blank_values=True)
     query["auth"] = ["1" if is_authorized else "0"]
     query["role"] = [role]
+    _query_set(query, "uid", user_id)
+    _query_set(query, "username", getattr(user, "username", None) or rec.get("username"))
+    _query_set(query, "first_name", getattr(user, "first_name", None) or rec.get("first_name"))
+    _query_set(query, "last_name", getattr(user, "last_name", None) or rec.get("last_name"))
+    _query_set(query, "name", rec.get("name"))
+    _query_set(query, "phone", rec.get("phone"))
+    _query_set(query, "phone_verified", "1" if rec.get("phone_verified") else "0")
     return urlunparse(parsed._replace(query=urlencode(query, doseq=True)))
+
+def update_user_profile_from_message(m: Message) -> None:
+    user = getattr(m, "from_user", None)
+    if not user:
+        return
+    patch: Dict[str, Any] = {}
+    if user.username:
+        patch["username"] = user.username
+    if user.first_name:
+        patch["first_name"] = user.first_name
+    if user.last_name:
+        patch["last_name"] = user.last_name
+    if user.language_code:
+        patch["language_code"] = user.language_code
+    if getattr(user, "is_premium", None) is not None:
+        patch["is_premium"] = bool(user.is_premium)
+    if patch:
+        update_user_record(user.id, patch)
 
 def set_user_role(user_id: int, role: str) -> None:
     uid = str(user_id)
@@ -1489,8 +1539,9 @@ def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
         resize_keyboard=True
     )
 
-def sales_rep_menu_kb() -> ReplyKeyboardMarkup:
+def sales_rep_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     """Клавиатура торгового представителя: поиск, прайсы, акции, график, ТТН."""
+    mini_app_url = build_mini_app_url(user_id)
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
@@ -1498,7 +1549,7 @@ def sales_rep_menu_kb() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="▶️ Старт")],
+            [KeyboardButton(text="▶️ Старт"), mini_app_reply_button(mini_app_url)],
         ],
         resize_keyboard=True
     )
@@ -1667,20 +1718,21 @@ async def sch_expect_text_only(m: Message, state: FSMContext):
 #----------------------------------------------
 #------------UI Интерфейс клиента--------------
 #----------------------------------------------
-def client_menu_kb() -> ReplyKeyboardMarkup:
+def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     """Клавиатура клиента: обновление, смена названия, поиск + старт."""
     last_dt, _ = get_last_update()
     upd_label = "🔄 Обновить"
     hhmm = fmt_hhmm(last_dt)
     if hhmm:
         upd_label = f"{upd_label} ({hhmm})"
+        mini_app_url = build_mini_app_url(user_id)
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN)],
-            [KeyboardButton(text="▶️ Старт"),KeyboardButton(text="✏️ Изменить название")],
-            #[KeyboardButton(text=upd_label)],  обновить, не нужен клиенту.
+            [KeyboardButton(text="▶️ Старт"), mini_app_reply_button(mini_app_url)],
+            [KeyboardButton(text="✏️ Изменить название")],
         ],
         resize_keyboard=True
     )
@@ -2316,8 +2368,8 @@ def menu_for_role(role: str, user_id: Optional[int] = None) -> ReplyKeyboardMark
     if role == "admin":
         return main_menu_kb(user_id)
     if role == "sales_rep":
-        return sales_rep_menu_kb()
-    return client_menu_kb()
+        return sales_rep_menu_kb(user_id)
+    return client_menu_kb(user_id)
 
 def menu_for_message(msg: Message) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(msg.from_user, "id", None))
@@ -2335,6 +2387,7 @@ def client_name_prompt_text() -> str:
     )
 
 async def _continue_after_phone(m: Message, state: FSMContext) -> None:
+    update_user_profile_from_message(m)
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
     data = _roles_load()
@@ -2350,19 +2403,24 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
-        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
+        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
         await state.set_state(OnboardStates.waiting_client_name)
         await m.answer(client_name_prompt_text())
         return
-    await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+    await m.answer(help_text_client(cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 # --- Хендлеры ---
 @router.message(CommandStart())
 async def on_start(m: Message, state: FSMContext):
     await state.clear()
+    update_user_profile_from_message(m)
+    try:
+        await setup_menu_button(bot, m)
+    except Exception:
+        pass
 
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
@@ -2397,14 +2455,14 @@ async def on_start(m: Message, state: FSMContext):
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
-        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
+        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
         await state.set_state(OnboardStates.waiting_client_name)
         await m.answer(client_name_prompt_text())
         return
-    await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+    await m.answer(help_text_client(cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 
 @router.message(Command("help"))
@@ -2412,15 +2470,20 @@ async def on_help(m: Message):
     if is_user_blocked(getattr(m.from_user, "id", None)):
         await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
         return
+    update_user_profile_from_message(m)
+    try:
+        await setup_menu_button(bot, m)
+    except Exception:
+        pass
     role = get_user_role(getattr(m.from_user, "id", None))
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
-        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
+        await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = get_client_name(getattr(m.from_user, "id", None))
-    await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+    await m.answer(help_text_client(cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 
 # --- Онбординг роли/пароля/названия ---
@@ -2490,7 +2553,7 @@ async def ob_client_name(m: Message, state: FSMContext):
     # Сообщение + клиентское меню
     await m.answer(
         f"✅ Сохранено: «{esc(name)}». Режим клиента активирован.",
-        reply_markup=client_menu_kb()
+        reply_markup=client_menu_kb(getattr(m.from_user, "id", None))
     )
 
     # Автоматически показать стартовый экран/хелп клиента
@@ -2931,18 +2994,18 @@ async def client_change_name(m: Message, state: FSMContext):
         await m.answer("Эта команда для клиента.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     await state.set_state(ClientEditStates.waiting_new_name)
-    await m.answer("Введите новое название вашей организации:", reply_markup=client_menu_kb())
+    await m.answer("Введите новое название вашей организации:", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(ClientEditStates.waiting_new_name)
 async def client_set_new_name(m: Message, state: FSMContext):
     raw_name = (m.text or "").strip()
     name = normalize_client_name(raw_name)
     if not name or len(name) < 2:
-        await m.answer("Введите корректное название (минимум 2 символа).", reply_markup=client_menu_kb())
+        await m.answer("Введите корректное название (минимум 2 символа).", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
     set_client_name(m.from_user.id, name)
     await state.clear()
-    await m.answer(f"✅ Обновлено. Название: «{esc(name)}».", reply_markup=client_menu_kb())
+    await m.answer(f"✅ Обновлено. Название: «{esc(name)}».", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 # --- Обновить (кнопка всегда разрешена), /refresh — только админ ---
 async def _do_mail_refresh(m: Message):
@@ -2959,7 +3022,7 @@ async def _do_mail_refresh(m: Message):
     except Exception as e:
         logger.exception("Manual refresh failed")
         await m.answer(f"Не удалось обновить: {e}",
-                       reply_markup=main_menu_kb(getattr(m.from_user, "id", None)) if not _is_client(m) else client_menu_kb())
+                       reply_markup=main_menu_kb(getattr(m.from_user, "id", None)) if not _is_client(m) else client_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(F.text.func(lambda t: isinstance(t, str) and t.startswith("🔄 Обновить")))
 async def btn_refresh(m: Message):
@@ -2969,7 +3032,7 @@ async def btn_refresh(m: Message):
 @router.message(F.text == "⚙️ Отсрочки")
 async def btn_overdue_menu(m: Message):
     if _is_client_only(m):
-        await m.answer("Доступно только для админов или торговых.", reply_markup=client_menu_kb())
+        await m.answer("Доступно только для админов или торговых.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
     await m.answer("Меню отсрочек:", reply_markup=overdue_menu_kb())
 
@@ -4456,19 +4519,19 @@ async def admin_users_save_phone(m: Message, state: FSMContext):
 async def run_client_search(m: Message, raw_query: str):
     q = (raw_query or "").strip().casefold()
     if not q:
-        await m.answer("Пустой запрос.", reply_markup=client_menu_kb())
+        await m.answer("Пустой запрос.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
 
     path = find_latest_download()
     if not path:
-        await m.answer("Файл отчёта не найден. Сначала обновите его.", reply_markup=client_menu_kb())
+        await m.answer("Файл отчёта не найден. Сначала обновите его.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
 
     try:
         res = process_file(path)
     except Exception as e:
         logger.exception("Ошибка при разборе файла")
-        await m.answer(f"Не удалось разобрать файл: {e}", reply_markup=client_menu_kb())
+        await m.answer(f"Не удалось разобрать файл: {e}", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
 
     items: List[Dict[str, Any]] = (res or {}).get("items") or []
@@ -4481,14 +4544,14 @@ async def run_client_search(m: Message, raw_query: str):
 
     filtered = [it for it in items if _match(it)]
     if not filtered:
-        await m.answer("Ничего не найдено.", reply_markup=client_menu_kb())
+        await m.answer("Ничего не найдено.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
 
     await m.answer(
         f"<b>Результаты по «{esc(raw_query)}»</b>"
         f"{(' на '+esc(report_date)) if report_date else ''}",
         disable_web_page_preview=True,
-        reply_markup=client_menu_kb()
+        reply_markup=client_menu_kb(getattr(m.from_user, "id", None))
     )
     for i, it in enumerate(filtered, 1):
         text = build_client_text(it, i, report_date)
@@ -5537,7 +5600,7 @@ try:
 except Exception as e:
     logger.warning("set_webapp_handler failed: %s", e)
 try:
-    set_webapp_url_builder(lambda msg: build_mini_app_url(getattr(msg.from_user, "id", None)))
+    set_webapp_url_builder(lambda msg: build_mini_app_url(msg))
 except Exception as e:
     logger.warning("set_webapp_url_builder failed: %s", e)
 

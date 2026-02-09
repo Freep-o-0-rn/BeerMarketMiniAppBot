@@ -206,7 +206,7 @@
       <div id="newsList" class="newsList"></div>
     </div>
 
-    <div class="card">
+    <div id="ideasSection" class="card">
       <div class="muted">Быстрые варианты ленты</div>
       <div class="tiles" id="tiles"></div>
       <div class="muted small" style="margin-top:8px;">Идеи: релизы каталога, акции недели, изменения графика, напоминания об оплате.</div>
@@ -330,6 +330,31 @@
     }
   }
 
+  function resolveUserLabel(tgUser, params) {
+    const queryUser = {
+      id: params.get("uid"),
+      username: params.get("username"),
+      firstName: params.get("first_name"),
+      lastName: params.get("last_name"),
+      name: params.get("name")
+    };
+    const parts = [];
+    const username = tgUser?.username || queryUser.username;
+    const fullName = `${tgUser?.first_name || queryUser.firstName || ""} ${tgUser?.last_name || queryUser.lastName || ""}`.trim();
+    if (username) {
+      parts.push(`@${username}`);
+    } else if (fullName) {
+      parts.push(fullName);
+    } else if (queryUser.name) {
+      parts.push(queryUser.name);
+    }
+    const id = tgUser?.id || queryUser.id;
+    if (id) {
+      parts.push(`id ${id}`);
+    }
+    return parts.length ? parts.join(" • ") : "Пользователь не передан";
+  }
+
   function renderChips() {
     const box = document.getElementById("chips");
     box.innerHTML = "";
@@ -442,6 +467,8 @@
     const params = new URLSearchParams(location.search);
     const role = params.get("role") || "client";
     const isAuthorized = params.get("auth") === "1";
+    const isAdmin = isAuthorized && role === "admin";
+    const canSuggest = isAuthorized && role === "sales_rep";
 
     document.getElementById("accessBadge").textContent = isAuthorized
       ? `Доступ: открыт (${role})`
@@ -451,7 +478,9 @@
 
     document.getElementById("accessGate").classList.toggle("hidden", isAuthorized);
     document.getElementById("feedSection").classList.toggle("hidden", !isAuthorized);
-    document.getElementById("adminSection").classList.toggle("hidden", !(isAuthorized && role === "admin"));
+    document.getElementById("adminSection").classList.toggle("hidden", !isAdmin);
+    document.getElementById("ideasSection").classList.toggle("hidden", !isAdmin);
+    document.getElementById("btnSuggest").classList.toggle("hidden", !canSuggest);
 
     document.getElementById("btnRequestAccess").onclick = () =>
       sendAction("access.request", { role });
@@ -469,16 +498,16 @@
     tg.onEvent?.("contentSafeAreaChanged", setSafeInsets);
     tg.onEvent?.("themeChanged", applyTgTheme);
 
+    const params = new URLSearchParams(location.search);
     const u = tg.initDataUnsafe?.user;
-    document.getElementById("user").textContent = u
-      ? `@${u.username ?? "без_юзернейма"} • id ${u.id}`
-      : "Пользователь не передан";
+    document.getElementById("user").textContent = resolveUserLabel(u, params);
 
-    const ver = new URLSearchParams(location.search).get("v");
+    const ver = params.get("v");
     document.getElementById("env").textContent =
       `platform: ${tg.platform || "-"} • ver: ${tg.version || "-"}${ver ? " • v=" + ver : ""}`;
   } else {
-    document.getElementById("user").textContent = "Открыто не в Telegram WebApp";
+    const params = new URLSearchParams(location.search);
+    document.getElementById("user").textContent = resolveUserLabel(null, params);
   }
 
   renderChips();

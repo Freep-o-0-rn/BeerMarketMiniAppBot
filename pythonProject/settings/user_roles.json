@@ -14,12 +14,6 @@
     "role": "client",
     "name": "Колядина"
   },
-  "1188061961": {
-    "role": "sales_rep",
-    "name": "Worker",
-    "phone": "+79965440806",
-    "phone_verified": true
-  },
   "237087423": {
     "role": "admin",
     "phone": "+79994680011",
@@ -30,6 +24,8 @@
     "name": "Демидов"
   },
   "727411283": {
+    "phone": "+79964550715",
+    "phone_verified": true,
     "role": "admin",
     "name": "Данилок"
   },
@@ -38,5 +34,21 @@
     "phone_verified": true,
     "role": "sales_rep",
     "name": "Заечка"
+  },
+  "1188061961": {
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "role": "client",
+    "name": "Морозова"
+  },
+    "1153611285": {
+    "phone": "+79994642108",
+    "phone_verified": true,
+    "name": "Цветкова",
+    "role": "client"
+  },
+  "750420118": {
+    "role": "client",
+    "name": "Вобла"
   }
 }
