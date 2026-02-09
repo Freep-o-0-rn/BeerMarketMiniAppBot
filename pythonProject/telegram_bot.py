@@ -1453,8 +1453,10 @@ def sales_rep_menu_kb() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
+            [KeyboardButton(text="⏰ Просрочено"), KeyboardButton(text="💰 Переплаты")],
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
+            [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
             [KeyboardButton(text="▶️ Старт")],
         ],
         resize_keyboard=True
@@ -2718,15 +2720,15 @@ async def btn_ttn(m: Message, state: FSMContext):
 
 @router.message(F.text.func(lambda t: _has(t, "просрочено") or (t or "").startswith("⏰")))
 async def btn_overdue(m: Message):
-    if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+    if _is_client_only(m):
+        await m.answer("Доступно только для админов или торговых.", reply_markup=menu_for_message(m))
         return
     await render_report(m, mode="overdue", keywords=[], min_debt=None)
 
 @router.message(F.text.func(lambda t: _has(t, "переплат") or (t or "").startswith("💰")))
 async def btn_overpaid(m: Message):
-    if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+    if _is_client_only(m):
+        await m.answer("Доступно только для админов или торговых.", reply_markup=menu_for_message(m))
         return
     await render_report(m, mode="overpaid", keywords=[], min_debt=None)
 
@@ -2910,13 +2912,16 @@ async def btn_refresh(m: Message):
 
 @router.message(F.text == "⚙️ Отсрочки")
 async def btn_overdue_menu(m: Message):
-    if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=client_menu_kb())
+    if _is_client_only(m):
+        await m.answer("Доступно только для админов или торговых.", reply_markup=client_menu_kb())
         return
-    await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+    await m.answer("Меню отсрочек:", reply_markup=overdue_menu_kb())
 
 @router.message(F.text.in_({"⚙️ Фильтры", "⚙️ Фильтры отображения"}))
 async def filters_entry(m: Message, state: FSMContext):
+    if _is_client_only(m):
+        await m.answer("Доступно только для админов или торговых.", reply_markup=menu_for_message(m))
+        return
     logger.info("filters: entry by %s (%s)", m.from_user.id, m.from_user.username)
     await state.clear()
     idx = 0
