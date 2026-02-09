@@ -59,7 +59,6 @@ from typing import Optional, Tuple, Dict, Any
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
-USER_ROLES_JSON = SETTINGS_DIR / "user_roles.json"
 
 logger = logging.getLogger(__name__)
 
@@ -486,9 +485,21 @@ def _normalize_user_roles_schema(data: dict) -> dict:
 
 def _roles_load() -> dict:
     _ensure_file_parent(USER_ROLES_PATH)
+    candidates = [USER_ROLES_PATH]
+    legacy_path = Path(LEGACY_USER_ROLES_JSON)
+    if legacy_path != USER_ROLES_PATH:
+        candidates.append(legacy_path)
+    backup_path = USER_ROLES_PATH.with_suffix(USER_ROLES_PATH.suffix + ".bak")
+    candidates.append(backup_path)
     try:
-        raw = USER_ROLES_PATH.read_text(encoding="utf-8")
-        data = json.loads(raw) if raw else {}
+        data = {}
+        for path in candidates:
+            if not path.exists():
+                continue
+            raw = path.read_text(encoding="utf-8")
+            data = json.loads(raw) if raw else {}
+            if data:
+                break
     except FileNotFoundError:
         data = {}
     except Exception:
@@ -498,6 +509,12 @@ def _roles_load() -> dict:
 def _roles_save_atomic(data: dict) -> None:
     """Атомарная запись + синхронизация кэша."""
     _ensure_file_parent(USER_ROLES_PATH)
+    if USER_ROLES_PATH.exists():
+        try:
+            backup_path = USER_ROLES_PATH.with_suffix(USER_ROLES_PATH.suffix + ".bak")
+            backup_path.write_text(USER_ROLES_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+        except Exception:
+            logger.exception("roles: backup failed")
     tmp = USER_ROLES_PATH.with_suffix(USER_ROLES_PATH.suffix + ".tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     os.replace(tmp, USER_ROLES_PATH)
@@ -1150,9 +1167,7 @@ def set_client_name(user_id: int, name: str) -> None:
     _roles_merge_and_save({uid: cur})
 
 def _save_user_roles(data: Dict[str, Any]) -> None:
-    _ensure_dir(USER_ROLES_JSON)
-    with open(USER_ROLES_JSON, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    _roles_save_atomic(_normalize_user_roles_schema(data or {}))
 
 
 # ---------------- Фильтры  -----------------
