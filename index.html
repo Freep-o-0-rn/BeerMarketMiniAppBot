@@ -300,6 +300,9 @@
   let activeFilter = "Все";
   let editingId = null;
   let localDirty = false;
+  let currentRole = "client";
+  let isAdminUser = false;
+  let isAuthorizedUser = false;
 
   const LOCAL_NEWS_KEY = "beerMarketNews";
   const LOCAL_META_KEY = "beerMarketNewsMeta";
@@ -437,6 +440,11 @@
     }
   }
 
+  function newsFetchUrl() {
+    const stamp = Date.now();
+    return `pythonProject/news.json?v=${stamp}`;
+  }
+
   async function loadNews() {
     const localItems = loadLocalNews();
     if (localItems.length) {
@@ -444,12 +452,12 @@
       newsSignature = computeNewsSignature(localItems);
     }
     try {
-      const res = await fetch("pythonProject/news.json", { cache: "no-store" });
+      const res = await fetch(newsFetchUrl(), { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (Array.isArray(data) && data.length) {
         const signature = computeNewsSignature(data);
-        const shouldUseServer = !localItems.length || !localDirty || signature === newsSignature;
+        const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
         if (shouldUseServer) {
           NEWS.splice(0, NEWS.length, ...data);
           newsSignature = signature;
@@ -535,13 +543,14 @@
 
   async function refreshNews() {
     try {
-      const res = await fetch("pythonProject/news.json", { cache: "no-store" });
+      const res = await fetch(newsFetchUrl(), { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data) || !data.length) return;
       const signature = computeNewsSignature(data);
       if (signature && signature !== newsSignature) {
-      if (!localDirty || signature === newsSignature) {
+      const allowOverwrite = !isAdminUser || !localDirty;
+        if (allowOverwrite) {
           newsSignature = signature;
           NEWS.splice(0, NEWS.length, ...data);
           saveLocalNews(NEWS, false);
@@ -643,7 +652,13 @@
     } else if (tgUser && !storedAccess.authorized) {
       saveAccessState(role, true);
     }
-    const isAdmin = isAuthorized && role === "admin";
+    isAdminUser = isAuthorized && role === "admin";
+    currentRole = role;
+    isAuthorizedUser = isAuthorized;
+    if (!isAdminUser) {
+      localDirty = false;
+    }
+    const isAdmin = isAdminUser;
     const canSuggest = isAuthorized && role === "sales_rep";
 
     document.getElementById("accessBadge").textContent = isAuthorized
@@ -687,13 +702,13 @@
   }
 
   async function initApp() {
+    setupAccess();
     await loadNews();
     renderChips();
     renderNews();
     renderTiles();
     renderAdminList();
     resetForm();
-    setupAccess();
     setInterval(refreshNews, 5000);
   }
 
