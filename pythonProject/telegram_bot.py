@@ -241,6 +241,7 @@ class ScheduleStates(StatesGroup):
 class AdminUserEditStates(StatesGroup):
     waiting_name = State()
     waiting_phone = State()
+    waiting_delete_confirm = State()
 
 @dataclass
 class Promo:
@@ -554,6 +555,16 @@ def _base_client_name_for_debt(full: str) -> str:
     s = re.sub(r"\(([^)]*)\)", "", s)              # убрать (адрес)
     s = re.sub(r"\s+", " ", s).strip(" -\u00A0")
     return s
+
+def normalize_client_name(raw: str) -> str:
+    name = (raw or "").strip()
+    name = re.sub(r"\s+", " ", name)
+    name = re.sub(r"^(ооо|ип)\.?\s+", "", name, flags=re.IGNORECASE)
+    name = name.strip()
+    if name:
+        name = re.sub(r'^[«"“”„\']+|[»"“”„\']+$', "", name).strip()
+    name = re.sub(r"\s+", " ", name)
+    return name
 
 def client_key(full_client_name: str) -> str:
     base = _base_client_name_for_debt(full_client_name)
@@ -1165,6 +1176,15 @@ def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     cur.update(patch)
     _roles_merge_and_save({uid: cur})
 
+def delete_user_record(user_id: Any) -> bool:
+    uid = str(user_id)
+    data = _roles_load()
+    if uid not in data:
+        return False
+    data.pop(uid, None)
+    _save_user_roles(data)
+    return True
+
 def is_user_blocked(user_id: Optional[int]) -> bool:
     if not user_id:
         return False
@@ -1687,6 +1707,7 @@ def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
         ],
         [
             InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
+            InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
         ],
         [
             InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
@@ -2285,6 +2306,12 @@ def menu_for_user_id(user_id: Optional[int]) -> ReplyKeyboardMarkup:
 def menu_for_callback(cq: CallbackQuery) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(cq.from_user, "id", None))
 
+def client_name_prompt_text() -> str:
+    return (
+        "Введите название вашей организации (без «ИП»/«ООО»), например: "
+        "<code>себекин</code> или <code>большая рыба</code>."
+    )
+
 async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
@@ -2304,6 +2331,10 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
         return
     cname = rec.get("name") or get_client_name(uid)
+    if not cname:
+        await state.set_state(OnboardStates.waiting_client_name)
+        await m.answer(client_name_prompt_text())
+        return
     await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
 
 # --- Хендлеры ---
@@ -2347,6 +2378,10 @@ async def on_start(m: Message, state: FSMContext):
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb())
         return
     cname = rec.get("name") or get_client_name(uid)
+    if not cname:
+        await state.set_state(OnboardStates.waiting_client_name)
+        await m.answer(client_name_prompt_text())
+        return
     await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
 
 
@@ -2376,10 +2411,7 @@ async def ob_admin(cq: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "ob:client")
 async def ob_client(cq: CallbackQuery, state: FSMContext):
     await state.set_state(OnboardStates.waiting_client_name)
-    await cq.message.edit_text(
-        "Введите название вашей организации (без «ИП»/«ООО»), например: "
-        "<code>себекин</code> или <code>большая рыба</code>."
-    )
+    await cq.message.edit_text(client_name_prompt_text())
     await cq.answer()
 
 @router.message(OnboardStates.waiting_phone_contact, F.contact)
@@ -2421,7 +2453,8 @@ async def ob_admin_pwd(m: Message, state: FSMContext):
 
 @router.message(OnboardStates.waiting_client_name)
 async def ob_client_name(m: Message, state: FSMContext):
-    name = (m.text or "").strip()
+    raw_name = (m.text or "").strip()
+    name = normalize_client_name(raw_name)
     if not name or len(name) < 2:
         await m.answer("Введите корректное название (минимум 2 символа).")
         return
@@ -2880,7 +2913,8 @@ async def client_change_name(m: Message, state: FSMContext):
 
 @router.message(ClientEditStates.waiting_new_name)
 async def client_set_new_name(m: Message, state: FSMContext):
-    name = (m.text or "").strip()
+    raw_name = (m.text or "").strip()
+    name = normalize_client_name(raw_name)
     if not name or len(name) < 2:
         await m.answer("Введите корректное название (минимум 2 символа).", reply_markup=client_menu_kb())
         return
@@ -3433,7 +3467,7 @@ async def ttn_step_number(m: Message, state: FSMContext):
     raw = (m.text or "").strip()
     ttns = extract_ttns(raw)
     if not ttns:
-        await m.answer("Не нашёл номера. Пришлите ещё раз.")
+        await m.answer("Не нашёл номера. Пришлите ещё раз. Для отмены нажмите /start")
         return
 
     fr_id = (os.getenv("FRARAR_ID") or "").strip()
@@ -4294,6 +4328,56 @@ async def admin_users_unblock(cq: CallbackQuery):
     update_user_record(uid, {"blocked": False})
     await cq.answer("Пользователь разблокирован.")
     await admin_users_select(cq)
+
+@router.callback_query(F.data.startswith("usr:del:"))
+async def admin_users_delete(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    if not uid:
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    await state.update_data(admin_del_uid=uid, admin_del_page=page)
+    await state.set_state(AdminUserEditStates.waiting_delete_confirm)
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="✅ Да, удалить", callback_data="usr:confirm_del:yes"),
+                InlineKeyboardButton(text="❌ Отмена", callback_data="usr:confirm_del:no"),
+            ]
+        ]
+    )
+    await cq.message.answer("Точно удалить пользователя?", reply_markup=kb)
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:confirm_del:"))
+async def admin_users_delete_confirm(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    action = cq.data.split(":")[-1]
+    data = await state.get_data()
+    uid = data.get("admin_del_uid")
+    page = data.get("admin_del_page", 0)
+    await state.clear()
+    if action == "no":
+        await cq.message.answer("❎ Отменено.")
+        await cq.answer()
+        return
+    if not uid:
+        await cq.message.answer("Пользователь не найден.")
+        await cq.answer()
+        return
+    deleted = delete_user_record(uid)
+    if not deleted:
+        await cq.message.answer("⚠️ Пользователь не найден.")
+        await cq.answer()
+        return
+    await cq.message.answer("✅ Пользователь удалён.", reply_markup=users_list_kb(page=page))
+    await cq.answer()
 
 @router.callback_query(F.data.startswith("usr:editname:"))
 async def admin_users_edit_name(cq: CallbackQuery, state: FSMContext):
