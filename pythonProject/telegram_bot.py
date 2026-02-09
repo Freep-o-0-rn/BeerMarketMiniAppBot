@@ -2069,20 +2069,21 @@ async def daily_fetch_worker():
 # --- Универсальный рендер отчёта ---
 async def render_report(chat: Message, *, mode: str, keywords: List[str], min_debt: Optional[float] = None):
     path = find_latest_download()
+    menu_kb = menu_for_message(chat)
     if not path:
-        await chat.answer("Файл отчёта не найден. Сначала загрузите его (например, /refresh).", reply_markup=main_menu_kb())
+        await chat.answer("Файл отчёта не найден. Сначала загрузите его (например, /refresh).", reply_markup=menu_kb)
         return
 
     try:
         res = process_file(path)
     except Exception as e:
         logger.exception("Ошибка при разборе файла")
-        await chat.answer(f"Не удалось разобрать файл: {e}", reply_markup=main_menu_kb())
+        await chat.answer(f"Не удалось разобрать файл: {e}", reply_markup=menu_kb)
         return
 
     items: List[Dict[str, Any]] = (res or {}).get("items") or []
     if not items:
-        await chat.answer("В отчёте нет данных.", reply_markup=main_menu_kb())
+        await chat.answer("В отчёте нет данных.", reply_markup=menu_kb)
         return
 
     report_date = (res or {}).get("report_date")
@@ -2106,7 +2107,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
     if not filtered:
         last_dt, last_kind = get_last_update()
         last_line = f"\n<i>Последнее обновление: {fmt_dt_local(last_dt)}{(' ('+last_kind+')') if last_kind else ''}</i>"
-        await chat.answer("Ничего не найдено.\nПроверьте фильтры (⚙️ Фильтры) и ключевые слова" + last_line, reply_markup=main_menu_kb())
+        await chat.answer("Ничего не найдено.\nПроверьте фильтры (⚙️ Фильтры) и ключевые слова" + last_line, reply_markup=menu_kb)
         return
 
     chips = []
@@ -2129,7 +2130,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
         f"{' на ' + esc(report_date) if report_date else ''}{title_suffix}. Клиентов: {len(filtered)}"
         f"{last_line}",
         disable_web_page_preview=True,
-        reply_markup=main_menu_kb(),
+        reply_markup=menu_kb,
     )
 
     # Внутри render_report(...) в конце, в цикле по filtered:
