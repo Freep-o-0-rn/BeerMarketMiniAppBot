@@ -205,6 +205,7 @@ class OnboardStates(StatesGroup):
     waiting_role = State()
     waiting_admin_password = State()
     waiting_client_name = State()
+    waiting_phone_contact = State()
 
 class ClientEditStates(StatesGroup):
     waiting_new_name = State()
@@ -237,6 +238,9 @@ class ScheduleStates(StatesGroup):
     waiting_photo = State()
     waiting_text = State()
 
+class AdminUserEditStates(StatesGroup):
+    waiting_name = State()
+    waiting_phone = State()
 
 @dataclass
 class Promo:
@@ -917,6 +921,8 @@ def compute_days(doc_date_str: Optional[str], report_date_str: Optional[str], fa
 def is_overdue(days: Optional[int], threshold: int) -> bool:
     return (days is not None) and (days > threshold)
 
+
+
 #--------------------------Меню админа /start /help
 def help_text_admin() -> str:
     return (
@@ -1015,6 +1021,28 @@ def get_client_name(user_id: Optional[int]) -> str:
         return ""
     uid = str(user_id)
     return str(((_USER_ROLES.get(uid) or {}).get("name")) or "").strip()
+
+def set_user_phone(user_id: int, phone_e164: str, *, verified: bool = False) -> None:
+    uid = str(user_id)
+    cur = _roles_load().get(uid, {})
+    cur["phone"] = (phone_e164 or "").strip()
+    cur["phone_verified"] = bool(verified)
+    _roles_merge_and_save({uid: cur})
+
+def get_user_phone(user_id: Optional[int]) -> str:
+    if not user_id:
+        return ""
+    uid = str(user_id)
+    rec = _roles_load().get(uid, {})
+    return str((rec or {}).get("phone") or "").strip()
+
+def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
+    uid = str(user_id)
+    cur = _roles_load().get(uid, {})
+    if not isinstance(cur, dict):
+        cur = {"role": "client", "name": str(cur)}
+    cur.update(patch or {})
+    _roles_merge_and_save({uid: cur})
 
 def set_client_name(user_id: int, name: str) -> None:
     uid = str(user_id)
@@ -1273,6 +1301,7 @@ SCHEDULE_NOTE_PATH = Path("settings/schedule_note.txt")     # сюда сохр�
 DEFAULT_SCHEDULE_NOTE = "Заявки за день понедельник-пятница до 15:00. Вс до 13:00."
 
 
+#main_menu_kb() КЛАВИАТУРА АДМИНА
 def main_menu_kb() -> ReplyKeyboardMarkup:
     last_dt, _ = get_last_update()
     upd_label = "🔄 Обновить"
@@ -1287,18 +1316,33 @@ def main_menu_kb() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"),KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
+            [KeyboardButton(text="👥 Пользователи")],
             [KeyboardButton(text="▶️ Старт"),mini_app_reply_button(), KeyboardButton(text=upd_label), ],
         ],
         resize_keyboard=True
     )
 
-
+#первый запуск.
 def onboard_role_kb() -> InlineKeyboardMarkup:
     """Инлайн-кнопки для выбора роли при первом запуске."""
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Я админ", callback_data="ob:admin")],
         [InlineKeyboardButton(text="Я клиент", callback_data="ob:client")]
     ])
+
+def phone_request_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="📱 Отправить контакт", request_contact=True)]],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+
+async def send_phone_request(m: Message) -> None:
+    await m.answer(
+        "Для продолжения нужна авторизация по номеру телефона.\n"
+        "Нажмите кнопку «📱 Отправить контакт».",
+        reply_markup=phone_request_kb(),
+    )
 
 #меню обновить
 def update_menu_kb() -> InlineKeyboardMarkup:
@@ -1459,6 +1503,55 @@ def client_menu_kb() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True
     )
+def _user_sort_key(item: Tuple[str, Dict[str, Any]]) -> Tuple[int, str]:
+    uid, rec = item
+    name = (rec.get("name") or "").strip().casefold()
+    return (0 if name else 1, name or uid)
+
+def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+    data = _roles_load()
+    items: List[Tuple[str, Dict[str, Any]]] = []
+    for k, v in data.items():
+        if k == "client_phones":
+            continue
+        if not isinstance(v, dict):
+            v = {"role": "client", "name": str(v)}
+        items.append((k, v))
+    items.sort(key=_user_sort_key)
+
+    total = len(items)
+    page = max(0, page)
+    start = page * page_size
+    end = min(total, start + page_size)
+    rows: List[List[InlineKeyboardButton]] = []
+    for uid, rec in items[start:end]:
+        name = (rec.get("name") or "—").strip()
+        role = (rec.get("role") or "client").strip()
+        rows.append([InlineKeyboardButton(text=f"{name} · {role}", callback_data=f"usr:sel:{uid}:{page}")])
+    nav: List[InlineKeyboardButton] = []
+    if start > 0:
+        nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"usr:list:{page-1}"))
+    if end < total:
+        nav.append(InlineKeyboardButton(text="➡️", callback_data=f"usr:list:{page+1}"))
+    if nav:
+        rows.append(nav)
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
+            InlineKeyboardButton(text="👤 Сделать клиентом", callback_data=f"usr:setrole:{uid}:client"),
+        ],
+        [
+            InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
+            InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"usr:editphone:{uid}"),
+        ],
+        [InlineKeyboardButton(text="⬅️ К списку", callback_data=f"usr:list:{page}")],
+    ])
+
+
 
 def overdue_menu_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
@@ -2024,6 +2117,24 @@ def is_admin(user_id: Optional[int]) -> bool:
 def _is_client(msg: Message) -> bool:
     return get_user_role(getattr(msg.from_user, "id", None)) == "client"
 
+async def _continue_after_phone(m: Message, state: FSMContext) -> None:
+    uid = getattr(m.from_user, "id", None)
+    key = str(uid) if uid is not None else None
+    data = _roles_load()
+    rec = (data.get(key) if key else {}) or {}
+    role = (rec.get("role") or "").strip().lower()
+
+    if not role:
+        await state.set_state(OnboardStates.waiting_role)
+        await m.answer("Выберите роль:", reply_markup=onboard_role_kb())
+        return
+
+    if role == "admin":
+        await m.answer(help_text_admin(), reply_markup=main_menu_kb())
+    else:
+        cname = rec.get("name") or get_client_name(uid)
+        await m.answer(help_text_client(cname), reply_markup=client_menu_kb())
+
 # --- Хендлеры ---
 @router.message(CommandStart())
 async def on_start(m: Message, state: FSMContext):
@@ -2031,6 +2142,8 @@ async def on_start(m: Message, state: FSMContext):
 
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
+    global _USER_ROLES
+    _USER_ROLES = _roles_load()
     rec = (_USER_ROLES.get(key) if key else {}) or {}
     role = (rec.get("role") or "").strip().lower()
 
@@ -2041,7 +2154,11 @@ async def on_start(m: Message, state: FSMContext):
             _USER_ROLES[key] = rec
             _save_user_roles(_USER_ROLES)
         role = "admin"
-
+    # Первый визит: запрос номера телефона
+    if uid is not None and not rec.get("phone"):
+        await state.set_state(OnboardStates.waiting_phone_contact)
+        await send_phone_request(m)
+        return
     # Первый визит: НЕТ записи или НЕТ поля role -> спрашиваем 1 раз.
     if not role:
         await state.set_state(OnboardStates.waiting_role)
@@ -2081,6 +2198,32 @@ async def ob_client(cq: CallbackQuery, state: FSMContext):
         "<code>себекин</code> или <code>большая рыба</code>."
     )
     await cq.answer()
+
+@router.message(OnboardStates.waiting_phone_contact, F.contact)
+async def ob_phone_contact(m: Message, state: FSMContext):
+    contact = m.contact
+    if contact.user_id and contact.user_id != m.from_user.id:
+        await m.answer("Пожалуйста, отправьте <b>ваш</b> контакт через кнопку.")
+        return
+    ok, e164, disp = normalize_phone_ru(contact.phone_number or "")
+    if not ok:
+        await m.answer("Не удалось распознать номер. Попробуйте ещё раз.")
+        return
+    set_user_phone(m.from_user.id, e164, verified=True)
+    await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
+    await state.clear()
+    await _continue_after_phone(m, state)
+
+@router.message(OnboardStates.waiting_phone_contact)
+async def ob_phone_contact_text(m: Message, state: FSMContext):
+    ok, e164, disp = normalize_phone_ru(m.text or "")
+    if not ok:
+        await m.answer("Нужно отправить контакт кнопкой или введите номер в формате +7XXXXXXXXXX.")
+        return
+    set_user_phone(m.from_user.id, e164, verified=False)
+    await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
+    await state.clear()
+    await _continue_after_phone(m, state)
 
 @router.message(OnboardStates.waiting_admin_password)
 async def ob_admin_pwd(m: Message, state: FSMContext):
@@ -3881,7 +4024,116 @@ async def reset_role_cmd(m: Message, state: FSMContext):
     await state.set_state(OnboardStates.waiting_role)
     await m.answer("Вы админ или клиент?", reply_markup=onboard_role_kb())
 
+@router.message(Command("users"))
+@router.message(F.text == "👥 Пользователи")
+async def admin_users_list(m: Message):
+    if not is_admin(getattr(m.from_user, "id", None)):
+        await m.answer("Команда доступна только для админов.", reply_markup=client_menu_kb())
+        return
+    await m.answer("Список пользователей:", reply_markup=users_list_kb())
 
+@router.callback_query(F.data.startswith("usr:list:"))
+async def admin_users_list_page(cq: CallbackQuery):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    try:
+        page = int(cq.data.split(":")[2])
+    except Exception:
+        page = 0
+    await cq.message.edit_text("Список пользователей:", reply_markup=users_list_kb(page=page))
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:sel:"))
+async def admin_users_select(cq: CallbackQuery):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    data = _roles_load()
+    rec = data.get(uid, {}) if uid else {}
+    name = (rec.get("name") or "—").strip()
+    role = (rec.get("role") or "client").strip()
+    phone = (rec.get("phone") or "—").strip()
+    verified = "✅" if rec.get("phone_verified") else "❌"
+    text = (
+        f"<b>Пользователь</b>\n"
+        f"ID: <code>{esc(uid)}</code>\n"
+        f"Роль: <b>{esc(role)}</b>\n"
+        f"Имя: <b>{esc(name)}</b>\n"
+        f"Телефон: <b>{esc(phone)}</b> ({verified})"
+    )
+    await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page))
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:setrole:"))
+async def admin_users_set_role(cq: CallbackQuery):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    role = parts[3] if len(parts) > 3 else "client"
+    if not uid:
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    update_user_record(uid, {"role": "admin" if role == "admin" else "client"})
+    await cq.answer("Роль обновлена.")
+    await admin_users_select(cq)
+
+@router.callback_query(F.data.startswith("usr:editname:"))
+async def admin_users_edit_name(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    uid = cq.data.split(":")[2]
+    await state.update_data(admin_edit_uid=uid)
+    await state.set_state(AdminUserEditStates.waiting_name)
+    await cq.message.answer("Введите новое имя пользователя:")
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:editphone:"))
+async def admin_users_edit_phone(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    uid = cq.data.split(":")[2]
+    await state.update_data(admin_edit_uid=uid)
+    await state.set_state(AdminUserEditStates.waiting_phone)
+    await cq.message.answer("Введите новый телефон (например, +7XXXXXXXXXX):")
+    await cq.answer()
+
+@router.message(AdminUserEditStates.waiting_name)
+async def admin_users_save_name(m: Message, state: FSMContext):
+    if not is_admin(getattr(m.from_user, "id", None)):
+        await m.answer("Недостаточно прав.", reply_markup=client_menu_kb())
+        return
+    data = await state.get_data()
+    uid = data.get("admin_edit_uid")
+    name = (m.text or "").strip()
+    if not uid or not name:
+        await m.answer("Некорректные данные. Попробуйте снова.")
+        return
+    update_user_record(uid, {"name": name})
+    await state.clear()
+    await m.answer("✅ Имя обновлено.")
+
+@router.message(AdminUserEditStates.waiting_phone)
+async def admin_users_save_phone(m: Message, state: FSMContext):
+    if not is_admin(getattr(m.from_user, "id", None)):
+        await m.answer("Недостаточно прав.", reply_markup=client_menu_kb())
+        return
+    data = await state.get_data()
+    uid = data.get("admin_edit_uid")
+    ok, e164, disp = normalize_phone_ru(m.text or "")
+    if not uid or not ok:
+        await m.answer("Некорректный телефон. Пример: +7XXXXXXXXXX.")
+        return
+    update_user_record(uid, {"phone": e164, "phone_verified": False})
+    await state.clear()
+    await m.answer(f"✅ Телефон обновлён: {disp}")
 
 # --- Клиентский узкий поиск ---
 async def run_client_search(m: Message, raw_query: str):

@@ -23,9 +23,13 @@
   },
   "727411283": {
     "role": "admin",
-    "name": "Данилок"
+    "name": "Данилок",
+    "phone": "+79964550715",
+    "phone_verified": false
   },
   "1188061961": {
-    "role": "admin"
+    "role": "admin",
+    "phone": "+79965440806",
+    "phone_verified": true
   }
 }
