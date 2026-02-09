@@ -5175,7 +5175,7 @@ async def promo_do_rename(m: Message, state: FSMContext):
         await m.answer("Слишком коротко. Введите ещё раз."); return
     it["title"] = title; it["updated_at"] = datetime.now(TZ).isoformat()
     _promo_set(it); await state.clear()
-    wait m.answer("✅ Название обновлено.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+    await m.answer("✅ Название обновлено.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data.startswith("promo:edittext:"))
 async def promo_edit_text(cq: CallbackQuery, state: FSMContext):

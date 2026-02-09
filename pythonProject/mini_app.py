@@ -24,6 +24,7 @@ MINI_APP_BTN_TEXT = os.getenv("MINI_APP_BTN_TEXT", "📱 Mini App")
 router = Router(name="mini_app")
 
 _WEBAPP_HANDLER: Optional[Callable[[Message, FSMContext, Dict[str, Any]], Any]] = None
+_WEBAPP_URL_BUILDER: Optional[Callable[[Message], str]] = None
 
 def set_webapp_handler(fn: Callable[[Message, FSMContext, Dict[str, Any]], Any]) -> None:
     """Telegram_bot.py может сюда подложить роутер действий Mini App."""
@@ -31,13 +32,28 @@ def set_webapp_handler(fn: Callable[[Message, FSMContext, Dict[str, Any]], Any])
     _WEBAPP_HANDLER = fn
 
 
-def mini_app_reply_button() -> KeyboardButton:
-    return KeyboardButton(text=MINI_APP_BTN_TEXT, web_app=WebAppInfo(url=MINI_APP_URL))
+def set_webapp_url_builder(fn: Callable[[Message], str]) -> None:
+    """Telegram_bot.py может передать сборщик URL для WebApp с параметрами авторизации."""
+    global _WEBAPP_URL_BUILDER
+    _WEBAPP_URL_BUILDER = fn
 
 
-def mini_app_inline_kb() -> InlineKeyboardMarkup:
+def build_webapp_url(message: Optional[Message] = None) -> str:
+    if message and _WEBAPP_URL_BUILDER:
+        try:
+            return _WEBAPP_URL_BUILDER(message)
+        except Exception:
+            log.exception("webapp url builder failed")
+    return MINI_APP_URL
+
+
+def mini_app_reply_button(url: Optional[str] = None) -> KeyboardButton:
+    return KeyboardButton(text=MINI_APP_BTN_TEXT, web_app=WebAppInfo(url=url or MINI_APP_URL))
+
+
+def mini_app_inline_kb(url: Optional[str] = None) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Открыть мини-приложение", web_app=WebAppInfo(url=MINI_APP_URL))]
+        [InlineKeyboardButton(text="Открыть мини-приложение", web_app=WebAppInfo(url=url or MINI_APP_URL))]
     ])
 
 
@@ -53,7 +69,7 @@ async def setup_menu_button(bot) -> None:
 
 @router.message(Command("app"))
 async def cmd_app(m: Message):
-    await m.answer("Mini App BeerMarket:", reply_markup=mini_app_inline_kb())
+    await m.answer("Mini App BeerMarket:", reply_markup=mini_app_inline_kb(build_webapp_url(m)))
 
 
 @router.message(StateFilter(None), F.web_app_data)
