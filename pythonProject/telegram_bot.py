@@ -1502,8 +1502,13 @@ async def miniapp_news_action_handler(request: web.Request) -> web.Response:
     if not isinstance(payload, dict):
         payload = {}
     init_data = (body.get("initData") if isinstance(body, dict) else None) or ""
+    debug_query = {
+        "auth": request.query.get("auth") or (body.get("auth") if isinstance(body, dict) else None),
+        "role": request.query.get("role") or (body.get("role") if isinstance(body, dict) else None),
+        "uid": request.query.get("uid") or (body.get("uid") if isinstance(body, dict) else None),
+    }
 
-    resolved = _resolve_miniapp_profile(init_data)
+    resolved = _resolve_miniapp_profile(init_data, debug_query=debug_query)
     role = resolved.get("role") or "client"
     uid = resolved.get("uid")
 
