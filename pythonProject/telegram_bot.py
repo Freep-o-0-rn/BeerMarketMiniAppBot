@@ -1513,6 +1513,7 @@ async def miniapp_news_action_handler(request: web.Request) -> web.Response:
         "id": result.get("id"),
     }, status=status)
 
+
 async def _run_miniapp_auth_server() -> None:
     app = web.Application()
     app.router.add_route("OPTIONS", "/miniapp/auth", miniapp_auth_options)
@@ -4838,7 +4839,16 @@ def _news_load() -> List[Dict[str, Any]]:
         logger.exception("news: index parse error, fallback empty")
         return []
 
+def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for idx, it in enumerate(items, 1):
+        row = dict(it)
+        row["seq"] = idx
+        out.append(row)
+    return out
+
 def _news_save(items: List[Dict[str, Any]]) -> None:
+    items = _news_reindex(items)
     payload = json.dumps(items, ensure_ascii=False, indent=2)
     for target in (NEWS_INDEX, NEWS_PUBLIC_INDEX):
         try:
@@ -4865,17 +4875,15 @@ def _news_find(news_id: str | int) -> Optional[Dict[str, Any]]:
 
 def _news_upsert(item: Dict[str, Any]) -> None:
     items = _news_load()
-    next_seq = _news_next_seq(items)
     for i, existing in enumerate(items):
         if str(existing.get("id")) == str(item.get("id")):
-            if not item.get("seq") and existing.get("seq"):
-                item["seq"] = existing["seq"]
+            if not item.get("createdAt") and existing.get("createdAt"):
+                item["createdAt"] = existing.get("createdAt")
             items[i] = item
             break
-    else:
-        if not item.get("seq"):
-            item["seq"] = next_seq + 1
-        items.insert(0, item)
+            _news_save(items)
+            return
+    items.insert(0, item)
     _news_save(items)
 
 def _news_delete(news_id: str | int) -> bool:

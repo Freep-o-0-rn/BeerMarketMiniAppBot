@@ -244,7 +244,7 @@
           <button id="btnPublish">Опубликовать</button>
           <button id="btnReset" class="secondary">Сбросить форму</button>
         </div>
-        <div id="publishStatus" class="muted small">Черновик не опубликован.</div>
+        <div id="publishStatus" class="muted small">Новости хранятся локально на ПК.</div>
       </div>
 
       <div style="margin-top:14px;" class="muted">Последние новости</div>
@@ -360,6 +360,25 @@
     };
   }
 
+  function newsSortStamp(item) {
+    const raw = item?.updatedAt || item?.createdAt || item?.date || "";
+    const ts = Date.parse(raw);
+    return Number.isFinite(ts) ? ts : 0;
+  }
+
+  function normalizeNewsOrder(items) {
+    if (!Array.isArray(items)) return [];
+    items.sort((a, b) => {
+      const diff = newsSortStamp(b) - newsSortStamp(a);
+      if (diff !== 0) return diff;
+      return Number(b?.id || 0) - Number(a?.id || 0);
+    });
+    items.forEach((item, index) => {
+      item.seq = index + 1;
+    });
+    return items;
+  }
+
   function getActionAckEndpoints() {
     const params = new URLSearchParams(location.search);
     const explicit = (params.get("action_api") || "").trim();
@@ -383,13 +402,14 @@
     const payload = { action, ts: Date.now(), ...extra };
     const needsAck = Boolean(options?.requireAck);
 
-    if (!needsAck) {
-      if (tg?.sendData) {
+    if (tg?.sendData) {
+      try {
         tg.sendData(JSON.stringify(payload));
         tg?.HapticFeedback?.impactOccurred?.("light");
-        return { ok: true, applied: true, transport: "telegram" };
+      }catch (e) {
+        console.warn("sendData error", e);
       }
-      return { ok: true, applied: false, transport: "local" };
+      return payload;
     }
 
     const endpoints = getActionAckEndpoints();
@@ -436,12 +456,6 @@
       .join("|");
   }
 
-  function nextNewsSeq() {
-    const seqs = NEWS.map(item => Number(item.seq)).filter(Number.isFinite);
-    if (seqs.length) return Math.max(...seqs) + 1;
-    return NEWS.length + 1;
-  }
-
   function formatDateInput(value) {
     if (value instanceof Date) return value.toISOString().slice(0, 10);
     if (typeof value === "string" && value) return value;
@@ -465,7 +479,7 @@
       const items = itemsRaw ? JSON.parse(itemsRaw) : [];
       const meta = metaRaw ? JSON.parse(metaRaw) : {};
       localDirty = Boolean(meta?.dirty);
-      return Array.isArray(items) ? items.map(normalizeLocalItem) : [];
+      return Array.isArray(items) ? normalizeNewsOrder(items.map(normalizeLocalItem)) : [];
     } catch (e) {
       console.warn("local news load failed", e);
       return [];
@@ -519,7 +533,7 @@
      return `news.json?v=${stamp}`;
   }
 
-  async function loadNews() {
+   async function loadNews() {
     const localItems = loadLocalNews();
     if (localItems.length) {
       NEWS.splice(0, NEWS.length, ...localItems);
@@ -530,7 +544,8 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (Array.isArray(data) && data.length) {
-        const signature = computeNewsSignature(data);
+        const serverItems = normalizeNewsOrder(data.map(normalizeLocalItem));
+        const signature = computeNewsSignature(serverItems);
         const serverItems = data.map(item => normalizeLocalItem({ ...item, publishState: "published" }));
         const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
         if (shouldUseServer) {
@@ -543,8 +558,9 @@
     } catch (e) {
       console.warn("news load failed, using seed", e);
     }
-    NEWS.splice(0, NEWS.length, ...NEWS_SEED);
-    newsSignature = computeNewsSignature(NEWS_SEED);
+    const seedItems = normalizeNewsOrder(NEWS_SEED.map(normalizeLocalItem));
+    NEWS.splice(0, NEWS.length, ...seedItems);
+    newsSignature = computeNewsSignature(seedItems);
     saveLocalNews(NEWS, false);
   }
 
@@ -603,7 +619,7 @@
       const el = document.createElement("div");
       el.className = "newsItem";
       const displayDate = formatDisplayDate(item.date, item.createdAt);
-      const displayNumber = Number.isFinite(Number(item.seq)) ? item.seq : index + 1;
+      const displayNumber = index + 1;
       el.innerHTML = `
         <div class="newsHeader">
           <div><strong>${item.title}</strong></div>
@@ -623,7 +639,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data) || !data.length) return;
-      const serverItems = data.map(item => normalizeLocalItem({ ...item, publishState: "published" }));
+      const serverItems = normalizeNewsOrder(data.map(normalizeLocalItem));
       const signature = computeNewsSignature(serverItems);
       if (signature && signature !== newsSignature) {
       const allowOverwrite = !isAdminUser || !localDirty;
@@ -662,7 +678,7 @@
       const el = document.createElement("div");
       el.className = "newsItem";
       const displayDate = formatDisplayDate(item.date, item.createdAt);
-      const displayNumber = Number.isFinite(Number(item.seq)) ? item.seq : index + 1;
+      const displayNumber = index + 1;
       el.innerHTML = `
         <div class="newsHeader">
           <div><strong>${item.title}</strong></div>
@@ -693,33 +709,23 @@
     });
 
     list.querySelectorAll("button[data-delete]").forEach(btn => {
-      btn.onclick = async () => {
-        if (publishInFlight) return;
+      btn.onclick = () => {
         const id = Number(btn.getAttribute("data-delete"));
         const idx = NEWS.findIndex(n => n.id === id);
         if (idx === -1) return;
         const removed = NEWS[idx];
-        setPublishBusyState(true);
-        showPublishStatus("Отправка...", "muted");
-        try {
-          await sendAction("news.delete", { id: removed.id, title: removed.title }, { requireAck: true });
-          NEWS.splice(idx, 1);
-          saveLocalNews(NEWS, false);
-          renderNews();
-          renderAdminList();
-          showPublishStatus("Удаление подтверждено сервером.", "success");
-        } catch (e) {
-          saveLocalNews(NEWS, true);
-          showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
-          popupOk("Ошибка", `Не удалось удалить: ${e.message}`);
-        } finally {
-          setPublishBusyState(false);
-        }
+        NEWS.splice(idx, 1);
+        normalizeNewsOrder(NEWS);
+        saveLocalNews(NEWS, true);
+        sendAction("news.delete", { id: removed.id, title: removed.title, seq: removed.seq });
+        renderNews();
+        renderAdminList();
+        showPublishStatus("Удалено. Обновление стенда выполняется...", "muted");
       };
     });
   }
 
-  function resetForm() {
+ function resetForm() {
     editingId = null;
     document.getElementById("newsTitle").value = "";
     document.getElementById("newsCategory").value = "Новость";
@@ -854,66 +860,39 @@
   document.getElementById("btnSuggest").onclick = () =>
     sendAction("news.suggest");
 
-  document.getElementById("btnPublish").onclick = async () => {
-    if (publishInFlight) return;
+  document.getElementById("btnPublish").onclick = () => {
     const title = document.getElementById("newsTitle").value.trim();
     const category = document.getElementById("newsCategory").value;
     const date = formatDateInput(document.getElementById("newsDate").value);
     const text = document.getElementById("newsText").value.trim();
     if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
 
-    setPublishBusyState(true);
-    showPublishStatus("Отправка...", "muted");
-    let prevSnapshot = JSON.stringify(NEWS);
-    try {
-      if (editingId) {
-        const item = NEWS.find(n => n.id === editingId);
-        if (item) {
-          item.title = title;
-          item.category = category;
-          item.date = date;
-          item.text = text;
-          item.updatedAt = new Date().toISOString();
-          item.publishState = "draft";
-          saveLocalNews(NEWS, true);
-          renderNews();
-          renderAdminList();
-          await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text }, { requireAck: true });
-          item.publishState = "published";
-        }
-      } else {
-        const id = Date.now();
-        const seq = nextNewsSeq();
-        const nowIso = new Date().toISOString();
-        NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "draft" });
-        saveLocalNews(NEWS, true);
-        renderNews();
-        renderAdminList();
-        await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso }, { requireAck: true });
-        const created = NEWS.find(n => n.id === id);
-        if (created) created.publishState = "published";
-      }
-      saveLocalNews(NEWS, false);
-      renderNews();
-      renderAdminList();
-      resetForm();
-      showPublishStatus("Публикация подтверждена сервером.", "success");
-      popupOk("BeerMarket", "Изменения опубликованы");
-    } catch (e) {
-      try {
-        const parsed = JSON.parse(prevSnapshot);
-        NEWS.splice(0, NEWS.length, ...parsed.map(normalizeLocalItem));
-      } catch (_) {}
-      saveLocalNews(NEWS, true);
-      renderNews();
-      renderAdminList();
-      showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
-      popupOk("Ошибка", `Сервер не подтвердил публикацию: ${e.message}`);
-    } finally {
-      setPublishBusyState(false);
+    const nowIso = new Date().toISOString();
+    if (editingId) {
+      const item = NEWS.find(n => n.id === editingId);
+      if (!item) return;
+      item.title = title;
+      item.category = category;
+      item.date = date;
+      item.text = text;
+      item.updatedAt = nowIso;
+      sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text, updatedAt: nowIso });
+      showPublishStatus("Изменения отправлены. Обновление стенда выполняется...", "muted");
+      }else {
+      const id = Date.now();
+      NEWS.unshift({ id, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
+      normalizeNewsOrder(NEWS);
+      const created = NEWS.find(n => n.id === id);
+      sendAction("news.create", { id, seq: created?.seq || 1, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
+      showPublishStatus("Новость отправлена. Обновление стенда выполняется...", "muted");
     }
-  };
 
+    normalizeNewsOrder(NEWS);
+    saveLocalNews(NEWS, true);
+    renderNews();
+    renderAdminList();
+    resetForm();
+  };
 
   document.getElementById("btnReset").onclick = resetForm;
 </script>
