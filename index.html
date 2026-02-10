@@ -554,12 +554,34 @@
     }
   }
 
-  function newsFetchUrl() {
+  function newsFetchCandidates() {
     const stamp = Date.now();
-     return `news.json?v=${stamp}`;
+    const params = new URLSearchParams(location.search);
+    const explicit = (params.get("news_api") || "").trim();
+    const base = [`news.json?v=${stamp}`, `pythonProject/news.json?v=${stamp}`];
+    if (!explicit) return base;
+    if (explicit.includes("?")) return [explicit, ...base];
+    return [`${explicit}?v=${stamp}`, ...base];
   }
 
-  async function loadNews() {
+  async function fetchNewsFromAnySource() {
+    const candidates = newsFetchCandidates();
+    let lastError = null;
+    for (const url of candidates) {
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("invalid payload");
+        return data;
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    throw (lastError || new Error("Не удалось загрузить новости"));
+  }
+
+    async function loadNews() {
     const localItems = loadLocalNews();
     if (localItems.length) {
       NEWS.splice(0, NEWS.length, ...localItems);
@@ -568,25 +590,26 @@
     try {
       const res = await fetch(newsFetchUrl(), { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (Array.isArray(data) && data.length) {
-        const signature = computeNewsSignature(data);
-        const serverItems = data.map(item => normalizeNewsItem({ ...item, publishState: "published" }));
-        const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
-        if (shouldUseServer) {
-          NEWS.splice(0, NEWS.length, ...serverItems);
-          newsSignature = signature;
-          saveLocalNews(serverItems, false);
-        }
-        return;
+      const data = await fetchNewsFromAnySource();
+      const signature = computeNewsSignature(data);
+      const serverItems = data.map(item => normalizeNewsItem({ ...item, publishState: "published" }));
+      const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
+      if (shouldUseServer) {
+        NEWS.splice(0, NEWS.length, ...serverItems);
+        newsSignature = signature;
+        saveLocalNews(serverItems, false);
       }
+      return;
     } catch (e) {
       console.warn("news load failed, using seed", e);
     }
-    NEWS.splice(0, NEWS.length, ...NEWS_SEED);
-    newsSignature = computeNewsSignature(NEWS_SEED);
-    saveLocalNews(NEWS, false);
+    if (!localItems.length) {
+      NEWS.splice(0, NEWS.length, ...NEWS_SEED);
+      newsSignature = computeNewsSignature(NEWS_SEED);
+      saveLocalNews(NEWS, false);
+    }
   }
+
 
   function resolveUserLabel(tgUser, params) {
     const queryUser = {
@@ -659,15 +682,13 @@
 
   async function refreshNews() {
     try {
-      const res = await fetch(newsFetchUrl(), { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!Array.isArray(data) || !data.length) return;
+      const data = await fetchNewsFromAnySource();
+      if (!Array.isArray(data)) return;
       const serverItems = data.map(item => normalizeNewsItem({ ...item, publishState: "published" }));
       const signature = computeNewsSignature(serverItems);
       const hasDrafts = NEWS.some(item => item.publishState === "draft");
 
-      if (signature && signature !== newsSignature) {
+      if (signature !== newsSignature) {
         const allowOverwrite = !isAdminUser || !localDirty;
         newsSignature = signature;
         if (allowOverwrite) {
@@ -682,7 +703,7 @@
         }
         renderNews();
         renderAdminList();
-      } else if (localDirty && signature === newsSignature && !hasDrafts) {
+      } else if (localDirty && !hasDrafts) {
         localDirty = false;
         saveLocalNews(NEWS, false);
         showPublishStatus("Локальные изменения подтверждены сервером.", "success");

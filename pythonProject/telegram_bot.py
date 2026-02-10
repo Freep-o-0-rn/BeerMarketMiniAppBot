@@ -81,8 +81,9 @@ PROMO_INDEX = PROMO_DIR / "promos.json"
 PROMO_PAGE_SIZE = 8
 ALLOWED_PROMO_IMG = {"jpg","jpeg","png","webp"}
 ALLOWED_PROMO_DOC = {"pdf"}  # документ (отправим как файл)
-NEWS_INDEX = ROOT_DIR.parent / "news.json"
-NEWS_LEGACY_INDEX = ROOT_DIR / "news.json"
+NEWS_INDEX = ROOT_DIR / "news.json"
+NEWS_PUBLIC_INDEX = ROOT_DIR.parent / "news.json"
+NEWS_LEGACY_INDEXES = (NEWS_PUBLIC_INDEX,)
 NEWS_CATEGORIES = {"Новость", "Обновление", "Акция", "Сервис"}
 #календарь
 _RU_MONTHS = ["", "Январь","Февраль","Март","Апрель","Май","Июнь",
@@ -4851,20 +4852,27 @@ def _read_news_index(path: Path) -> List[Dict[str, Any]]:
         logger.exception("news: failed to parse %s", path)
         return []
 
+def _news_index_targets() -> List[Path]:
+    targets: List[Path] = []
+    for path in (NEWS_INDEX, *NEWS_LEGACY_INDEXES):
+        if path not in targets:
+            targets.append(path)
+    return targets
+
 def _news_load() -> List[Dict[str, Any]]:
-    candidates = [path for path in (NEWS_INDEX, NEWS_LEGACY_INDEX) if path.exists()]
+    candidates = [path for path in _news_index_targets() if path.exists()]
     if not candidates:
         return []
 
     candidates.sort(key=lambda path: path.stat().st_mtime, reverse=True)
     for source in candidates:
         items = _read_news_index(source)
-        if not items:
+        if not isinstance(items, list):
             continue
         if source != NEWS_INDEX:
             _news_save(items)
             logger.info("news: migrated index from %s to %s", source, NEWS_INDEX)
-        return items
+        return [dict(it) for it in items]
     return []
 
 def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -4876,13 +4884,27 @@ def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return out
 
 def _news_save(items: List[Dict[str, Any]]) -> None:
-    payload = json.dumps(items, ensure_ascii=False, indent=2)
+    normalized = _news_reindex(list(items))
+    payload = json.dumps(normalized, ensure_ascii=False, indent=2)
+
+    targets = _news_index_targets()
+    primary = targets[0]
     try:
-        tmp = NEWS_INDEX.with_suffix(NEWS_INDEX.suffix + ".tmp")
+        primary.parent.mkdir(parents=True, exist_ok=True)
+        tmp = primary.with_suffix(primary.suffix + ".tmp")
         tmp.write_text(payload, encoding="utf-8")
-        os.replace(tmp, NEWS_INDEX)
+        os.replace(tmp, primary)
     except Exception:
-        logger.exception("news: failed to write %s", NEWS_INDEX)
+        logger.exception("news: failed to write %s", primary)
+        return
+
+    for mirror in targets[1:]:
+        try:
+            mirror.parent.mkdir(parents=True, exist_ok=True)
+            mirror.write_text(payload, encoding="utf-8")
+        except Exception:
+            logger.exception("news: failed to mirror index to %s", mirror)
+
 
 def _news_next_seq(items: List[Dict[str, Any]]) -> int:
     seqs = []
@@ -4905,11 +4927,16 @@ def _news_upsert(item: Dict[str, Any]) -> None:
         if str(existing.get("id")) == str(item.get("id")):
             if not item.get("createdAt") and existing.get("createdAt"):
                 item["createdAt"] = existing.get("createdAt")
+            if not item.get("seq") and existing.get("seq"):
+                item["seq"] = existing.get("seq")
             items[i] = item
             _news_save(items)
             return
-        items.insert(0, item)
-        _news_save(items)
+    if not item.get("seq"):
+        item["seq"] = _news_next_seq(items) + 1
+    items.insert(0, item)
+    _news_save(items)
+
 
 def _news_delete(news_id: str | int) -> bool:
     items = _news_load()
