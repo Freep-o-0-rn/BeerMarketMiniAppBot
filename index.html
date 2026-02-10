@@ -336,7 +336,7 @@
     });
   }
 
-    function showPublishStatus(message, kind = "muted") {
+  function showPublishStatus(message, kind = "muted") {
     const node = document.getElementById("publishStatus");
     if (!node) return;
     node.textContent = message;
@@ -360,29 +360,71 @@
     };
   }
 
-  async function sendAction(action, extra = {}) {
-    const payload = { action, ts: Date.now(), ...extra };
-    const endpoint = new URLSearchParams(location.search).get("action_api") || "/miniapp/news-action";
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          initData: tg?.initData || "",
-          payload
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!data?.ok || !data?.applied) {
-        throw new Error(data?.message || "Сервер не подтвердил применение изменений");
-      }
-      tg?.HapticFeedback?.impactOccurred?.("light");
-      if (tg?.sendData) tg.sendData(JSON.stringify(payload));
-      return data;
-    } catch (e) {
-        throw new Error(e?.message || "Ошибка отправки действия");
+  function getActionAckEndpoints() {
+    const params = new URLSearchParams(location.search);
+    const explicit = (params.get("action_api") || "").trim();
+    const authApi = (params.get("auth_api") || "").trim();
+    const out = [];
+
+    const add = (url) => {
+      if (!url || out.includes(url)) return;
+      out.push(url);
+    };
+
+    add(explicit);
+    if (authApi) {
+      add(authApi.replace(/\/miniapp\/auth\/?$/, "/miniapp/news-action"));
     }
+    add("/miniapp/news-action");
+    return out;
+  }
+
+  async function sendAction(action, extra = {}, options = {}) {
+    const payload = { action, ts: Date.now(), ...extra };
+    const needsAck = Boolean(options?.requireAck);
+
+    if (!needsAck) {
+      if (tg?.sendData) {
+        tg.sendData(JSON.stringify(payload));
+        tg?.HapticFeedback?.impactOccurred?.("light");
+        return { ok: true, applied: true, transport: "telegram" };
+      }
+      return { ok: true, applied: false, transport: "local" };
+    }
+
+    const endpoints = getActionAckEndpoints();
+    let lastError = new Error("Сервер подтверждения недоступен");
+
+    for (const endpoint of endpoints) {
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            initData: tg?.initData || "",
+            payload
+          })
+        });
+        if (!res.ok) {
+          if ((res.status === 404 || res.status === 405) && endpoint !== endpoints[endpoints.length - 1]) {
+            lastError = new Error(`HTTP ${res.status}`);
+            continue;
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (!data?.ok || !data?.applied) {
+          throw new Error(data?.message || "Сервер не подтвердил применение изменений");
+        }
+        tg?.HapticFeedback?.impactOccurred?.("light");
+        if (tg?.sendData) tg.sendData(JSON.stringify(payload));
+        return data;
+      } catch (e) {
+        lastError = new Error(e?.message || "Ошибка отправки действия");
+      }
+    }
+    throw lastError;
   }
 
   let newsSignature = "";
@@ -660,7 +702,7 @@
         setPublishBusyState(true);
         showPublishStatus("Отправка...", "muted");
         try {
-          await sendAction("news.delete", { id: removed.id, title: removed.title });
+          await sendAction("news.delete", { id: removed.id, title: removed.title }, { requireAck: true });
           NEWS.splice(idx, 1);
           saveLocalNews(NEWS, false);
           renderNews();
@@ -818,9 +860,9 @@
     const category = document.getElementById("newsCategory").value;
     const date = formatDateInput(document.getElementById("newsDate").value);
     const text = document.getElementById("newsText").value.trim();
-
     if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
-        setPublishBusyState(true);
+
+    setPublishBusyState(true);
     showPublishStatus("Отправка...", "muted");
     let prevSnapshot = JSON.stringify(NEWS);
     try {
@@ -836,28 +878,18 @@
           saveLocalNews(NEWS, true);
           renderNews();
           renderAdminList();
-          await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text });
+          await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text }, { requireAck: true });
           item.publishState = "published";
         }
       } else {
         const id = Date.now();
         const seq = nextNewsSeq();
         const nowIso = new Date().toISOString();
-        NEWS.unshift({
-          id,
-          seq,
-          title,
-          category,
-          date,
-          text,
-          createdAt: nowIso,
-          updatedAt: nowIso,
-          publishState: "draft"
-        });
+        NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "draft" });
         saveLocalNews(NEWS, true);
         renderNews();
         renderAdminList();
-        await sendAction("news.create", {id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso});
+        await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso }, { requireAck: true });
         const created = NEWS.find(n => n.id === id);
         if (created) created.publishState = "published";
       }

@@ -1475,7 +1475,6 @@ def _apply_miniapp_news_action(payload: Dict[str, Any], uid: Optional[int], role
     _news_upsert(item)
     return {"ok": True, "applied": True, "message": "Изменения сохранены.", "id": news_id, "item": item}
 
-
 async def miniapp_news_action_handler(request: web.Request) -> web.Response:
     body: Dict[str, Any] = {}
     try:
