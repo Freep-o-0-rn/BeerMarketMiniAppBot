@@ -370,6 +370,29 @@ const tg = window.Telegram?.WebApp;
     return query.toString();
   }
 
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 6000) {
+    const timeout = Number(timeoutMs);
+    if (!Number.isFinite(timeout) || timeout <= 0) {
+      return fetch(url, options);
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      return await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        throw new Error(`timeout:${timeout}`);
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   function newsFetchCandidates() {
     const stamp = Date.now();
     const params = new URLSearchParams(location.search);
@@ -672,11 +695,11 @@ const tg = window.Telegram?.WebApp;
     };
 
     try {
-      const res = await fetch(authApi, {
+      const res = await fetchWithTimeout(authApi, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
-      });
+      }, 5000);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const profile = await res.json();
       const role = profile?.role || fallbackRole;
