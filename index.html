@@ -431,12 +431,16 @@
         }
 
         const data = await res.json();
-        if (!data?.ok || !data?.applied) {
-          throw new Error(data?.message || "Сервер не подтвердил применение изменений");
+        if (!data?.ok) {
+          throw new Error(data?.message || "Сервер отклонил применение изменений");
         }
         tg?.HapticFeedback?.impactOccurred?.("light");
         if (tg?.sendData) tg.sendData(JSON.stringify(payload));
-        return data;
+        return {
+          ...data,
+          applied: data?.applied !== false,
+          pending: data?.applied === false
+        };
       } catch (e) {
         lastError = new Error(e?.message || "Ошибка отправки действия");
       }
@@ -956,6 +960,7 @@
     showPublishStatus("Отправка...", "muted");
     let prevSnapshot = JSON.stringify(NEWS);
     try {
+      let publishResult = null;
       if (editingId) {
         const item = NEWS.find(n => idsEqual(n.id, editingId));
         if (item) {
@@ -968,8 +973,10 @@
           saveLocalNews(NEWS, true);
           renderNews();
           renderAdminList();
-          await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text }, { requireAck: true });
-          item.publishState = "published";
+           publishResult = await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text }, { requireAck: true });
+          if (publishResult?.applied) {
+            item.publishState = "published";
+          }
         }
       } else {
         const id = Date.now();
@@ -979,16 +986,24 @@
         saveLocalNews(NEWS, true);
         renderNews();
         renderAdminList();
-        await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso }, { requireAck: true });
-        const created = NEWS.find(n => idsEqual(n.id, id));
-        if (created) created.publishState = "published";
+        publishResult = await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso }, { requireAck: true });
+        if (publishResult?.applied) {
+          const created = NEWS.find(n => idsEqual(n.id, id));
+          if (created) created.publishState = "published";
+        }
       }
-      saveLocalNews(NEWS, false);
+      const confirmed = publishResult?.applied !== false;
+      saveLocalNews(NEWS, !confirmed);
       renderNews();
       renderAdminList();
       resetForm();
-      showPublishStatus("Публикация подтверждена сервером.", "success");
-      popupOk("BeerMarket", "Изменения опубликованы");
+      if (confirmed) {
+        showPublishStatus("Публикация подтверждена сервером.", "success");
+        popupOk("BeerMarket", "Изменения опубликованы");
+      } else {
+        showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
+        popupOk("BeerMarket", "Изменения отправлены. Подтверждение придёт с обновлением ленты.");
+      }
     } catch (e) {
       try {
         const parsed = JSON.parse(prevSnapshot);
