@@ -1428,11 +1428,99 @@ async def miniapp_auth_handler(request: web.Request) -> web.Response:
     })
 
 
+def _apply_miniapp_news_action(payload: Dict[str, Any], uid: Optional[int], role: str) -> Dict[str, Any]:
+    action = (payload.get("action") or "").strip()
+    is_authorized = role in {"client", "admin", "sales_rep"}
+    is_admin = role == "admin"
+    if not is_authorized:
+        return {"ok": False, "applied": False, "message": "Доступ к ленте только для авторизованных пользователей."}
+    if action not in {"news.create", "news.update", "news.delete"}:
+        return {"ok": False, "applied": False, "message": "Неподдерживаемое действие."}
+    if not is_admin:
+        return {"ok": False, "applied": False, "message": "Недостаточно прав для управления новостями."}
+
+    news_id = payload.get("id")
+    try:
+        news_id = int(news_id)
+    except (TypeError, ValueError):
+        news_id = int(time.time() * 1000)
+
+    if action == "news.delete":
+        removed = _news_delete(news_id)
+        if not removed:
+            return {"ok": False, "applied": False, "message": "Новость не найдена.", "id": news_id}
+        return {"ok": True, "applied": True, "message": "Новость удалена.", "id": news_id}
+
+    existing = _news_find(news_id)
+    title = (payload.get("title") or "").strip()
+    text = (payload.get("text") or "").strip()
+    date_value = (payload.get("date") or "").strip()
+    category = (payload.get("category") or "Новость").strip()
+    if category not in NEWS_CATEGORIES:
+        category = "Новость"
+    if not title or not text or not date_value:
+        return {"ok": False, "applied": False, "message": "Заполните заголовок, дату и текст.", "id": news_id}
+
+    now_iso = datetime.now(TZ).isoformat()
+    item = {
+        "id": news_id,
+        "seq": payload.get("seq") or (existing.get("seq") if existing else None),
+        "title": title,
+        "category": category,
+        "date": date_value,
+        "text": text,
+        "createdAt": payload.get("createdAt") or (existing.get("createdAt") if existing else now_iso),
+        "updatedAt": payload.get("updatedAt") or now_iso,
+    }
+    _news_upsert(item)
+    return {"ok": True, "applied": True, "message": "Изменения сохранены.", "id": news_id, "item": item}
+
+
+async def miniapp_news_action_handler(request: web.Request) -> web.Response:
+    body: Dict[str, Any] = {}
+    try:
+        if request.method == "POST":
+            body = await request.json()
+    except Exception:
+        body = {}
+
+    payload = body.get("payload") if isinstance(body, dict) else {}
+    if not isinstance(payload, dict):
+        payload = {}
+    init_data = (body.get("initData") if isinstance(body, dict) else None) or ""
+
+    resolved = _resolve_miniapp_profile(init_data)
+    role = resolved.get("role") or "client"
+    uid = resolved.get("uid")
+
+    result = _apply_miniapp_news_action(payload, uid, role)
+    status = 200 if result.get("ok") and result.get("applied") else 400
+    AUDIT.info({
+        "event": "miniapp_news_action_ack",
+        "uid": uid,
+        "role": role,
+        "action": payload.get("action"),
+        "ok": result.get("ok"),
+        "applied": result.get("applied"),
+        "message": result.get("message"),
+    })
+    return _json_with_cors({
+        "ok": bool(result.get("ok")),
+        "applied": bool(result.get("applied")),
+        "message": result.get("message"),
+        "uid": uid,
+        "role": role,
+        "action": payload.get("action"),
+        "id": result.get("id"),
+    }, status=status)
+
 async def _run_miniapp_auth_server() -> None:
     app = web.Application()
     app.router.add_route("OPTIONS", "/miniapp/auth", miniapp_auth_options)
     app.router.add_route("GET", "/miniapp/auth", miniapp_auth_handler)
     app.router.add_route("POST", "/miniapp/auth", miniapp_auth_handler)
+    app.router.add_route("OPTIONS", "/miniapp/news-action", miniapp_auth_options)
+    app.router.add_route("POST", "/miniapp/news-action", miniapp_news_action_handler)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, MINIAPP_AUTH_HOST, MINIAPP_AUTH_PORT)

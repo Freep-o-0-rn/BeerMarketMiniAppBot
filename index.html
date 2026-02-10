@@ -244,6 +244,7 @@
           <button id="btnPublish">Опубликовать</button>
           <button id="btnReset" class="secondary">Сбросить форму</button>
         </div>
+        <div id="publishStatus" class="muted small">Черновик не опубликован.</div>
       </div>
 
       <div style="margin-top:14px;" class="muted">Последние новости</div>
@@ -303,6 +304,7 @@
   let currentRole = "client";
   let isAdminUser = false;
   let isAuthorizedUser = false;
+  let publishInFlight = false;
 
   const LOCAL_NEWS_KEY = "beerMarketNews";
   const LOCAL_META_KEY = "beerMarketNewsMeta";
@@ -334,22 +336,52 @@
     });
   }
 
-  function sendAction(action, extra = {}) {
+    function showPublishStatus(message, kind = "muted") {
+    const node = document.getElementById("publishStatus");
+    if (!node) return;
+    node.textContent = message;
+    node.style.color = kind === "error"
+      ? "var(--danger)"
+      : (kind === "success" ? "var(--accent)" : "var(--muted)");
+  }
+
+  function setPublishBusyState(busy, text) {
+    publishInFlight = Boolean(busy);
+    const btn = document.getElementById("btnPublish");
+    if (!btn) return;
+    btn.disabled = publishInFlight;
+    btn.textContent = publishInFlight ? (text || "Отправка...") : "Опубликовать";
+  }
+
+  function normalizeLocalItem(item) {
+    return {
+      ...item,
+      publishState: item?.publishState === "draft" ? "draft" : "published"
+    };
+  }
+
+  async function sendAction(action, extra = {}) {
     const payload = { action, ts: Date.now(), ...extra };
-    const raw = JSON.stringify(payload);
-    let sent = false;
+    const endpoint = new URLSearchParams(location.search).get("action_api") || "/miniapp/news-action";
     try {
-      if (tg?.sendData) {
-        tg.sendData(raw);
-        sent = true;
-        tg?.HapticFeedback?.impactOccurred?.("light");
-        popupOk("BeerMarket", "Отправлено в бот");
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          initData: tg?.initData || "",
+          payload
+        })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data?.ok || !data?.applied) {
+        throw new Error(data?.message || "Сервер не подтвердил применение изменений");
       }
+      tg?.HapticFeedback?.impactOccurred?.("light");
+      if (tg?.sendData) tg.sendData(JSON.stringify(payload));
+      return data;
     } catch (e) {
-      alert("sendData error: " + (e?.message || e));
-    }
-    if (!sent) {
-      popupOk("BeerMarket", "Изменения сохранены локально");
+        throw new Error(e?.message || "Ошибка отправки действия");
     }
   }
 
@@ -391,7 +423,7 @@
       const items = itemsRaw ? JSON.parse(itemsRaw) : [];
       const meta = metaRaw ? JSON.parse(metaRaw) : {};
       localDirty = Boolean(meta?.dirty);
-      return Array.isArray(items) ? items : [];
+      return Array.isArray(items) ? items.map(normalizeLocalItem) : [];
     } catch (e) {
       console.warn("local news load failed", e);
       return [];
@@ -457,11 +489,12 @@
       const data = await res.json();
       if (Array.isArray(data) && data.length) {
         const signature = computeNewsSignature(data);
+        const serverItems = data.map(item => normalizeLocalItem({ ...item, publishState: "published" }));
         const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
         if (shouldUseServer) {
-          NEWS.splice(0, NEWS.length, ...data);
+          NEWS.splice(0, NEWS.length, ...serverItems);
           newsSignature = signature;
-          saveLocalNews(data, false);
+          saveLocalNews(serverItems, false);
         }
         return;
       }
@@ -534,6 +567,7 @@
           <div><strong>${item.title}</strong></div>
           <span class="badge">${item.category}</span>
         </div>
+        ${item.publishState === "draft" ? '<div class="small" style="color:var(--warning)">Черновик • не опубликовано</div>' : ''}
         <div>${item.text}</div>
         <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
       `;
@@ -547,12 +581,13 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data) || !data.length) return;
-      const signature = computeNewsSignature(data);
+      const serverItems = data.map(item => normalizeLocalItem({ ...item, publishState: "published" }));
+      const signature = computeNewsSignature(serverItems);
       if (signature && signature !== newsSignature) {
       const allowOverwrite = !isAdminUser || !localDirty;
         if (allowOverwrite) {
           newsSignature = signature;
-          NEWS.splice(0, NEWS.length, ...data);
+          NEWS.splice(0, NEWS.length, ...serverItems);
           saveLocalNews(NEWS, false);
           renderNews();
           renderAdminList();
@@ -591,6 +626,7 @@
           <div><strong>${item.title}</strong></div>
           <span class="badge">${item.category}</span>
         </div>
+        ${item.publishState === "draft" ? '<div class="small" style="color:var(--warning)">Черновик • не опубликовано</div>' : ''}
         <div>${item.text}</div>
         <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
         <div class="row2" style="margin-top:8px;">
@@ -615,15 +651,28 @@
     });
 
     list.querySelectorAll("button[data-delete]").forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = async () => {
+        if (publishInFlight) return;
         const id = Number(btn.getAttribute("data-delete"));
         const idx = NEWS.findIndex(n => n.id === id);
         if (idx === -1) return;
-        const removed = NEWS.splice(idx, 1)[0];
-        saveLocalNews(NEWS, true);
-        sendAction("news.delete", { id: removed.id, title: removed.title });
-        renderNews();
-        renderAdminList();
+        const removed = NEWS[idx];
+        setPublishBusyState(true);
+        showPublishStatus("Отправка...", "muted");
+        try {
+          await sendAction("news.delete", { id: removed.id, title: removed.title });
+          NEWS.splice(idx, 1);
+          saveLocalNews(NEWS, false);
+          renderNews();
+          renderAdminList();
+          showPublishStatus("Удаление подтверждено сервером.", "success");
+        } catch (e) {
+          saveLocalNews(NEWS, true);
+          showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
+          popupOk("Ошибка", `Не удалось удалить: ${e.message}`);
+        } finally {
+          setPublishBusyState(false);
+        }
       };
     });
   }
@@ -763,35 +812,76 @@
   document.getElementById("btnSuggest").onclick = () =>
     sendAction("news.suggest");
 
-  document.getElementById("btnPublish").onclick = () => {
+  document.getElementById("btnPublish").onclick = async () => {
+    if (publishInFlight) return;
     const title = document.getElementById("newsTitle").value.trim();
     const category = document.getElementById("newsCategory").value;
     const date = formatDateInput(document.getElementById("newsDate").value);
     const text = document.getElementById("newsText").value.trim();
-    if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
 
-    if (editingId) {
-      const item = NEWS.find(n => n.id === editingId);
-      if (item) {
-        item.title = title;
-        item.category = category;
-        item.date = date;
-        item.text = text;
-        item.updatedAt = new Date().toISOString();
-        sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text });
+    if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
+        setPublishBusyState(true);
+    showPublishStatus("Отправка...", "muted");
+    let prevSnapshot = JSON.stringify(NEWS);
+    try {
+      if (editingId) {
+        const item = NEWS.find(n => n.id === editingId);
+        if (item) {
+          item.title = title;
+          item.category = category;
+          item.date = date;
+          item.text = text;
+          item.updatedAt = new Date().toISOString();
+          item.publishState = "draft";
+          saveLocalNews(NEWS, true);
+          renderNews();
+          renderAdminList();
+          await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text });
+          item.publishState = "published";
+        }
+      } else {
+        const id = Date.now();
+        const seq = nextNewsSeq();
+        const nowIso = new Date().toISOString();
+        NEWS.unshift({
+          id,
+          seq,
+          title,
+          category,
+          date,
+          text,
+          createdAt: nowIso,
+          updatedAt: nowIso,
+          publishState: "draft"
+        });
+        saveLocalNews(NEWS, true);
+        renderNews();
+        renderAdminList();
+        await sendAction("news.create", {id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso});
+        const created = NEWS.find(n => n.id === id);
+        if (created) created.publishState = "published";
       }
-    } else {
-      const id = Date.now();
-      const seq = nextNewsSeq();
-      const nowIso = new Date().toISOString();
-      NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
-      sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
+      saveLocalNews(NEWS, false);
+      renderNews();
+      renderAdminList();
+      resetForm();
+      showPublishStatus("Публикация подтверждена сервером.", "success");
+      popupOk("BeerMarket", "Изменения опубликованы");
+    } catch (e) {
+      try {
+        const parsed = JSON.parse(prevSnapshot);
+        NEWS.splice(0, NEWS.length, ...parsed.map(normalizeLocalItem));
+      } catch (_) {}
+      saveLocalNews(NEWS, true);
+      renderNews();
+      renderAdminList();
+      showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
+      popupOk("Ошибка", `Сервер не подтвердил публикацию: ${e.message}`);
+    } finally {
+      setPublishBusyState(false);
     }
-    saveLocalNews(NEWS, true);
-    renderNews();
-    renderAdminList();
-    resetForm();
   };
+
 
   document.getElementById("btnReset").onclick = resetForm;
 </script>
