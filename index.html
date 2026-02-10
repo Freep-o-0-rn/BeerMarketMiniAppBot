@@ -350,7 +350,24 @@
     const btn = document.getElementById("btnPublish");
     if (!btn) return;
     btn.disabled = publishInFlight;
-    btn.textContent = publishInFlight ? (text || "Отправка...") : "Опубликовать";
+    btn.textContent = publishInFlight ? (text || "Отправка...") : (editingId ? "Сохранить изменения" : "Опубликовать");
+  }
+
+  function idsEqual(a, b) {
+    return String(a) === String(b);
+  }
+
+  function applyEditorState() {
+    const btn = document.getElementById("btnPublish");
+    if (btn && !publishInFlight) {
+      btn.textContent = editingId ? "Сохранить изменения" : "Опубликовать";
+    }
+    showPublishStatus(
+      editingId
+        ? "Режим редактирования: после сохранения обновится существующая новость."
+        : "Черновик не опубликован.",
+      "muted"
+    );
   }
 
   function normalizeLocalItem(item) {
@@ -581,15 +598,13 @@
     throw (lastError || new Error("Не удалось загрузить новости"));
   }
 
-    async function loadNews() {
+  async function loadNews() {
     const localItems = loadLocalNews();
     if (localItems.length) {
       NEWS.splice(0, NEWS.length, ...localItems);
       newsSignature = computeNewsSignature(localItems);
     }
     try {
-      const res = await fetch(newsFetchUrl(), { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await fetchNewsFromAnySource();
       const signature = computeNewsSignature(data);
       const serverItems = data.map(item => normalizeNewsItem({ ...item, publishState: "published" }));
@@ -751,22 +766,23 @@
 
     list.querySelectorAll("button[data-edit]").forEach(btn => {
       btn.onclick = () => {
-        const id = Number(btn.getAttribute("data-edit"));
-        const item = NEWS.find(n => n.id === id);
+        const id = btn.getAttribute("data-edit");
+        const item = NEWS.find(n => idsEqual(n.id, id));
         if (!item) return;
-        editingId = id;
+        editingId = item.id;
         document.getElementById("newsTitle").value = item.title;
         document.getElementById("newsCategory").value = item.category;
         document.getElementById("newsDate").value = toIsoDate(item.date || item.createdAt);
         document.getElementById("newsText").value = item.text;
+        applyEditorState();
       };
     });
 
     list.querySelectorAll("button[data-delete]").forEach(btn => {
       btn.onclick = async () => {
         if (publishInFlight) return;
-        const id = Number(btn.getAttribute("data-delete"));
-        const idx = NEWS.findIndex(n => n.id === id);
+        const id = btn.getAttribute("data-delete");
+        const idx = NEWS.findIndex(n => idsEqual(n.id, id));
         if (idx === -1) return;
         const removed = NEWS[idx];
         setPublishBusyState(true);
@@ -774,6 +790,9 @@
         try {
           await sendAction("news.delete", { id: removed.id, title: removed.title }, { requireAck: true });
           NEWS.splice(idx, 1);
+          if (editingId && idsEqual(editingId, removed.id)) {
+            resetForm();
+          }
           saveLocalNews(NEWS, false);
           renderNews();
           renderAdminList();
@@ -795,6 +814,7 @@
     document.getElementById("newsCategory").value = "Новость";
     document.getElementById("newsDate").value = formatDateInput();
     document.getElementById("newsText").value = "";
+    applyEditorState();
   }
 
   function applyAccessUi(role, isAuthorized, loading = false) {
@@ -937,7 +957,7 @@
     let prevSnapshot = JSON.stringify(NEWS);
     try {
       if (editingId) {
-        const item = NEWS.find(n => n.id === editingId);
+        const item = NEWS.find(n => idsEqual(n.id, editingId));
         if (item) {
           item.title = title;
           item.category = category;
@@ -960,7 +980,7 @@
         renderNews();
         renderAdminList();
         await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso }, { requireAck: true });
-        const created = NEWS.find(n => n.id === id);
+        const created = NEWS.find(n => idsEqual(n.id, id));
         if (created) created.publishState = "published";
       }
       saveLocalNews(NEWS, false);
