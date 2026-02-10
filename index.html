@@ -101,21 +101,18 @@
       display:grid;
       gap:6px;
     }
-
     .newsMeta{
       display:flex;
       justify-content:flex-end;
       font-size:11px;
       opacity:.65;
     }
-
     .newsHeader{
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:8px;
     }
-
     .badge{
       font-size:11px;
       padding:4px 8px;
@@ -125,14 +122,12 @@
     .badge.success{ background: rgba(70,194,111,0.2); color: var(--accent); }
     .badge.warn{ background: rgba(255,181,71,0.2); color: var(--warning); }
     .badge.danger{ background: rgba(255,95,109,0.2); color: var(--danger); }
-
     .tiles{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 10px;
       margin-top: 10px;
     }
-
     button{
       width: 100%;
       padding: 12px 14px;
@@ -153,7 +148,6 @@
     button.danger{
       background: var(--danger);
     }
-
     input, textarea, select{
       width: 100%;
       padding: 10px 12px;
@@ -165,19 +159,16 @@
       outline: none;
     }
     textarea{ resize: vertical; min-height: 110px; }
-
     .row2{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
     }
-
     .bottomBar{
       padding: 10px var(--pad) 0 var(--pad);
       border-top: 1px solid var(--line);
       background: linear-gradient(to bottom, rgba(11,11,12,0), rgba(11,11,12,1));
     }
-
     .hidden{ display:none; }
     .small{ font-size:12px; opacity:.85; }
   </style>
@@ -185,7 +176,6 @@
 <body>
 <div class="app">
   <div class="content">
-
     <div class="card">
       <div class="title">Лента BeerMarket</div>
       <div id="user" class="muted">Загрузка…</div>
@@ -194,7 +184,6 @@
         <span id="accessBadge" class="badge">Проверка доступа…</span>
       </div>
     </div>
-
     <div id="accessGate" class="card hidden">
       <div class="title">Доступ только для авторизованных</div>
       <div class="muted">Только клиенты, администраторы и торговые представители могут просматривать ленту.</div>
@@ -203,7 +192,6 @@
         <button id="btnContact" class="secondary">Связаться с менеджером</button>
       </div>
     </div>
-
     <div id="feedSection" class="card">
       <div class="row">
         <div class="muted">Новости и обновления</div>
@@ -212,13 +200,11 @@
       <div id="chips" class="chips"></div>
       <div id="newsList" class="newsList"></div>
     </div>
-
     <div id="ideasSection" class="card">
       <div class="muted">Быстрые варианты ленты</div>
       <div class="tiles" id="tiles"></div>
       <div class="muted small" style="margin-top:8px;">Идеи: релизы каталога, акции недели, изменения графика, напоминания об оплате.</div>
     </div>
-
     <div id="adminSection" class="card hidden">
       <div class="row">
         <div>
@@ -227,7 +213,6 @@
         </div>
         <span class="badge warn">Admin</span>
       </div>
-
       <div style="margin-top:10px; display:grid; gap:10px;">
         <input id="newsTitle" placeholder="Заголовок" />
         <div class="row2">
@@ -246,11 +231,9 @@
         </div>
         <div id="publishStatus" class="muted small">Новости хранятся локально на ПК.</div>
       </div>
-
       <div style="margin-top:14px;" class="muted">Последние новости</div>
       <div id="adminList" class="newsList"></div>
     </div>
-
   </div>
 
   <div class="bottomBar">
@@ -340,9 +323,7 @@
     const node = document.getElementById("publishStatus");
     if (!node) return;
     node.textContent = message;
-    node.style.color = kind === "error"
-      ? "var(--danger)"
-      : (kind === "success" ? "var(--accent)" : "var(--muted)");
+    node.style.color = kind === "error" ? "var(--danger)" : (kind === "success" ? "var(--accent)" : "var(--muted)");
   }
 
   function setPublishBusyState(busy, text) {
@@ -384,12 +365,10 @@
     const explicit = (params.get("action_api") || "").trim();
     const authApi = (params.get("auth_api") || "").trim();
     const out = [];
-
     const add = (url) => {
       if (!url || out.includes(url)) return;
       out.push(url);
     };
-
     add(explicit);
     if (authApi) {
       add(authApi.replace(/\/miniapp\/auth\/?$/, "/miniapp/news-action"));
@@ -401,7 +380,6 @@
   async function sendAction(action, extra = {}, options = {}) {
     const payload = { action, ts: Date.now(), ...extra };
     const needsAck = Boolean(options?.requireAck);
-
     if (tg?.sendData) {
       try {
         tg.sendData(JSON.stringify(payload));
@@ -411,10 +389,8 @@
       }
       return payload;
     }
-
     const endpoints = getActionAckEndpoints();
     let lastError = new Error("Сервер подтверждения недоступен");
-
     for (const endpoint of endpoints) {
       try {
         const res = await fetch(endpoint, {
@@ -432,7 +408,6 @@
           }
           throw new Error(`HTTP ${res.status}`);
         }
-
         const data = await res.json();
         if (!data?.ok || !data?.applied) {
           throw new Error(data?.message || "Сервер не подтвердил применение изменений");
@@ -451,9 +426,7 @@
 
   function computeNewsSignature(items) {
     if (!Array.isArray(items)) return "";
-    return items
-      .map(item => `${item.id}:${item.seq || ""}:${item.title}:${item.category}:${item.date}:${item.text}:${item.updatedAt || ""}`)
-      .join("|");
+    return items.map(item => `${item.id}:${item.seq || ""}:${item.title}:${item.category}:${item.date}:${item.text}:${item.updatedAt || ""}`).join("|");
   }
 
   function formatDateInput(value) {
@@ -490,13 +463,7 @@
     try {
       localDirty = Boolean(dirty);
       localStorage.setItem(LOCAL_NEWS_KEY, JSON.stringify(items));
-      localStorage.setItem(
-        LOCAL_META_KEY,
-        JSON.stringify({
-          dirty: localDirty,
-          signature: computeNewsSignature(items),
-          updatedAt: Date.now()
-        })
+      localStorage.setItem(LOCAL_META_KEY, JSON.stringify({dirty: localDirty, signature: computeNewsSignature(items), updatedAt: Date.now()})
       );
     } catch (e) {
       console.warn("local news save failed", e);
@@ -515,38 +482,58 @@
 
   function saveAccessState(role, authorized) {
     try {
-      localStorage.setItem(
-        ACCESS_STATE_KEY,
-        JSON.stringify({
-          role,
-          authorized: Boolean(authorized),
-          updatedAt: Date.now()
-        })
+      localStorage.setItem(ACCESS_STATE_KEY, JSON.stringify({role, authorized: Boolean(authorized), updatedAt: Date.now()})
       );
     } catch (e) {
       console.warn("access state save failed", e);
     }
   }
 
-  function newsFetchUrl() {
-    const stamp = Date.now();
-     return `news.json?v=${stamp}`;
+
+  async function fetchJsonWithTimeout(url, options = {}, timeoutMs = 5000) {
+    const canAbort = typeof AbortController !== "undefined";
+    const controller = canAbort ? new AbortController() : null;
+    let timer = null;
+    let timeoutReject = null;
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutReject = () => reject(new Error("Request timeout"));
+      timer = setTimeout(() => {
+        if (controller) controller.abort();
+        timeoutReject();
+      }, timeoutMs);
+    });
+    const fetchPromise = fetch(url, {
+      ...options,
+      ...(controller ? { signal: controller.signal } : {})
+    }).then(async (res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    });
+    try {
+      return await Promise.race([fetchPromise, timeoutPromise]);
+    } finally {
+      clearTimeout(timer);
+      timeoutReject = null;
+    }
   }
 
-   async function loadNews() {
+  function newsFetchUrl() {
+    const stamp = Date.now();
+    return `news.json?v=${stamp}`;
+  }
+
+  async function loadNews() {
     const localItems = loadLocalNews();
     if (localItems.length) {
       NEWS.splice(0, NEWS.length, ...localItems);
       newsSignature = computeNewsSignature(localItems);
     }
     try {
-      const res = await fetch(newsFetchUrl(), { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const data = await fetchJsonWithTimeout(newsFetchUrl(), { cache: "no-store" }, 5000);
       if (Array.isArray(data) && data.length) {
-        const serverItems = normalizeNewsOrder(data.map(normalizeLocalItem));
+        const serverItems = normalizeNewsOrder(data.map(item => normalizeLocalItem({ ...item, publishState: "published" }))
+        );
         const signature = computeNewsSignature(serverItems);
-        const serverItems = data.map(item => normalizeLocalItem({ ...item, publishState: "published" }));
         const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
         if (shouldUseServer) {
           NEWS.splice(0, NEWS.length, ...serverItems);
@@ -609,40 +596,36 @@
     const list = document.getElementById("newsList");
     list.innerHTML = "";
     const items = NEWS.filter(item => activeFilter === "Все" || item.category === activeFilter);
-
     if (!items.length) {
       list.innerHTML = `<div class="muted">Пока нет новостей по выбранной теме.</div>`;
       return;
     }
-
     items.forEach((item, index) => {
       const el = document.createElement("div");
       el.className = "newsItem";
       const displayDate = formatDisplayDate(item.date, item.createdAt);
       const displayNumber = index + 1;
       el.innerHTML = `
-        <div class="newsHeader">
-          <div><strong>${item.title}</strong></div>
-          <span class="badge">${item.category}</span>
-        </div>
-        ${item.publishState === "draft" ? '<div class="small" style="color:var(--warning)">Черновик • не опубликовано</div>' : ''}
-        <div>${item.text}</div>
-        <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
-      `;
+  	        <div class="newsHeader">
+  	          <div><strong>${item.title}</strong></div>
+  	          <span class="badge">${item.category}</span>
+  	        </div>
+  	        ${item.publishState === "draft" ? '<div class="small" style="color:var(--warning)">Черновик • не опубликовано</div>' : ''}
+  	        <div>${item.text}</div>
+  	        <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
+  	      `;
       list.appendChild(el);
     });
   }
 
   async function refreshNews() {
     try {
-      const res = await fetch(newsFetchUrl(), { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const data = await fetchJsonWithTimeout(newsFetchUrl(), { cache: "no-store" }, 5000);
       if (!Array.isArray(data) || !data.length) return;
       const serverItems = normalizeNewsOrder(data.map(normalizeLocalItem));
       const signature = computeNewsSignature(serverItems);
       if (signature && signature !== newsSignature) {
-      const allowOverwrite = !isAdminUser || !localDirty;
+        const allowOverwrite = !isAdminUser || !localDirty;
         if (allowOverwrite) {
           newsSignature = signature;
           NEWS.splice(0, NEWS.length, ...serverItems);
@@ -673,28 +656,26 @@
   function renderAdminList() {
     const list = document.getElementById("adminList");
     list.innerHTML = "";
-
     NEWS.forEach((item, index) => {
       const el = document.createElement("div");
       el.className = "newsItem";
       const displayDate = formatDisplayDate(item.date, item.createdAt);
       const displayNumber = index + 1;
       el.innerHTML = `
-        <div class="newsHeader">
-          <div><strong>${item.title}</strong></div>
-          <span class="badge">${item.category}</span>
-        </div>
-        ${item.publishState === "draft" ? '<div class="small" style="color:var(--warning)">Черновик • не опубликовано</div>' : ''}
-        <div>${item.text}</div>
-        <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
-        <div class="row2" style="margin-top:8px;">
-          <button class="secondary" data-edit="${item.id}">Редактировать</button>
-          <button class="danger" data-delete="${item.id}">Удалить</button>
-        </div>
-      `;
+  	        <div class="newsHeader">
+  	          <div><strong>${item.title}</strong></div>
+  	          <span class="badge">${item.category}</span>
+  	        </div>
+  	        ${item.publishState === "draft" ? '<div class="small" style="color:var(--warning)">Черновик • не опубликовано</div>' : ''}
+  	        <div>${item.text}</div>
+  	        <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
+  	        <div class="row2" style="margin-top:8px;">
+  	          <button class="secondary" data-edit="${item.id}">Редактировать</button>
+  	          <button class="danger" data-delete="${item.id}">Удалить</button>
+  	        </div>
+  	      `;
       list.appendChild(el);
     });
-
     list.querySelectorAll("button[data-edit]").forEach(btn => {
       btn.onclick = () => {
         const id = Number(btn.getAttribute("data-edit"));
@@ -707,7 +688,6 @@
         document.getElementById("newsText").value = item.text;
       };
     });
-
     list.querySelectorAll("button[data-delete]").forEach(btn => {
       btn.onclick = () => {
         const id = Number(btn.getAttribute("data-delete"));
@@ -725,7 +705,7 @@
     });
   }
 
- function resetForm() {
+  function resetForm() {
     editingId = null;
     document.getElementById("newsTitle").value = "";
     document.getElementById("newsCategory").value = "Новость";
@@ -742,25 +722,17 @@
     }
     const isAdmin = isAdminUser;
     const canSuggest = isAuthorized && role === "sales_rep";
-
     const badge = document.getElementById("accessBadge");
-    badge.textContent = loading
-      ? "Проверка доступа…"
-      : (isAuthorized ? `Доступ: открыт (${role})` : "Доступ: требуется авторизация");
+    badge.textContent = loading ? "Проверка доступа…" : (isAuthorized ? `Доступ: открыт (${role})` : "Доступ: требуется авторизация");
     badge.classList.toggle("success", !loading && isAuthorized);
     badge.classList.toggle("danger", !loading && !isAuthorized);
-
     document.getElementById("accessGate").classList.toggle("hidden", loading || isAuthorized);
     document.getElementById("feedSection").classList.toggle("hidden", loading || !isAuthorized);
     document.getElementById("adminSection").classList.toggle("hidden", loading || !isAdmin);
     document.getElementById("ideasSection").classList.toggle("hidden", loading || !isAdmin);
     document.getElementById("btnSuggest").classList.toggle("hidden", loading || !canSuggest);
-
-
-    document.getElementById("btnRequestAccess").onclick = () =>
-      sendAction("access.request", { role: currentRole });
-    document.getElementById("btnContact").onclick = () =>
-      sendAction("manager.contact", { role: currentRole });
+    document.getElementById("btnRequestAccess").onclick = () => sendAction("access.request", { role: currentRole });
+    document.getElementById("btnContact").onclick = () => sendAction("manager.contact", { role: currentRole });
   }
 
   async function setupAccess() {
@@ -771,9 +743,14 @@
     const paramRole = params.get("role");
     const fallbackRole = paramRole || storedAccess.role || "client";
     const fallbackAuthorized = hasAuthParam ? authParam === "1" : Boolean(storedAccess.authorized);
-
+    let completed = false;
+    const finishAccess = (role, isAuthorized) => {
+      if (completed) return;
+      completed = true;
+      saveAccessState(role, isAuthorized);
+      applyAccessUi(role, isAuthorized, false);
+    };
     applyAccessUi(fallbackRole, fallbackAuthorized, true);
-
     const authApi = params.get("auth_api") || "/miniapp/auth";
     const payload = {
       initData: tg?.initData || "",
@@ -781,19 +758,14 @@
       role: paramRole,
       uid: params.get("uid")
     };
-
     try {
-      const res = await fetch(authApi, {
+      const profile = await fetchJsonWithTimeout(authApi, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const profile = await res.json();
+      }, 5000);
       const role = profile?.role || fallbackRole;
       const isAuthorized = Boolean(profile?.authorized);
-      saveAccessState(role, isAuthorized);
-
       if (paramRole && paramRole !== role) {
         console.warn("miniapp security mismatch: query role differs from server", {
           queryRole: paramRole,
@@ -808,15 +780,12 @@
           uid: profile?.uid
         });
       }
-
-      applyAccessUi(role, isAuthorized, false);
+      finishAccess(role, isAuthorized);
       return;
     } catch (e) {
-      console.warn("access verify failed, using debug fallback", e);
+      console.warn("access verify failed or timed out, using debug fallback", e);
     }
-
-    saveAccessState(fallbackRole, fallbackAuthorized);
-    applyAccessUi(fallbackRole, fallbackAuthorized, false);
+    finishAccess(fallbackRole, fallbackAuthorized);
   }
 
   if (tg) {
@@ -824,18 +793,14 @@
     tg.expand();
     setSafeInsets();
     applyTgTheme();
-
     tg.onEvent?.("safeAreaChanged", setSafeInsets);
     tg.onEvent?.("contentSafeAreaChanged", setSafeInsets);
     tg.onEvent?.("themeChanged", applyTgTheme);
-
     const params = new URLSearchParams(location.search);
     const u = tg.initDataUnsafe?.user;
     document.getElementById("user").textContent = resolveUserLabel(u, params);
-
     const ver = params.get("v");
-    document.getElementById("env").textContent =
-      `platform: ${tg.platform || "-"} • ver: ${tg.version || "-"}${ver ? " • v=" + ver : ""}`;
+    document.getElementById("env").textContent = `platform: ${tg.platform || "-"} • ver: ${tg.version || "-"}${ver ? " • v=" + ver : ""}`;
   } else {
     const params = new URLSearchParams(location.search);
     document.getElementById("user").textContent = resolveUserLabel(null, params);
@@ -857,8 +822,7 @@
   document.getElementById("btnClose").onclick = () => tg?.close?.();
   document.getElementById("btnRefresh").onclick = () => location.reload();
 
-  document.getElementById("btnSuggest").onclick = () =>
-    sendAction("news.suggest");
+  document.getElementById("btnSuggest").onclick = () => sendAction("news.suggest");
 
   document.getElementById("btnPublish").onclick = () => {
     const title = document.getElementById("newsTitle").value.trim();
@@ -866,7 +830,6 @@
     const date = formatDateInput(document.getElementById("newsDate").value);
     const text = document.getElementById("newsText").value.trim();
     if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
-
     const nowIso = new Date().toISOString();
     if (editingId) {
       const item = NEWS.find(n => n.id === editingId);
@@ -878,7 +841,7 @@
       item.updatedAt = nowIso;
       sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text, updatedAt: nowIso });
       showPublishStatus("Изменения отправлены. Обновление стенда выполняется...", "muted");
-      }else {
+    }else {
       const id = Date.now();
       NEWS.unshift({ id, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
       normalizeNewsOrder(NEWS);
@@ -886,7 +849,6 @@
       sendAction("news.create", { id, seq: created?.seq || 1, title, category, date, text, createdAt: nowIso, updatedAt: nowIso });
       showPublishStatus("Новость отправлена. Обновление стенда выполняется...", "muted");
     }
-
     normalizeNewsOrder(NEWS);
     saveLocalNews(NEWS, true);
     renderNews();
@@ -897,4 +859,3 @@
   document.getElementById("btnReset").onclick = resetForm;
 </script>
 </body>
-</html>

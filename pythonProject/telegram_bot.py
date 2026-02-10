@@ -4880,11 +4880,10 @@ def _news_upsert(item: Dict[str, Any]) -> None:
             if not item.get("createdAt") and existing.get("createdAt"):
                 item["createdAt"] = existing.get("createdAt")
             items[i] = item
-            break
             _news_save(items)
             return
-    items.insert(0, item)
-    _news_save(items)
+        items.insert(0, item)
+        _news_save(items)
 
 def _news_delete(news_id: str | int) -> bool:
     items = _news_load()
