@@ -25,25 +25,15 @@ const tg = window.Telegram?.WebApp;
   ];
   const NEWS = [];
 
-  const QUICK_IDEAS = [
-    { text: "📰 Новости", action: "feed.news" },
-    { text: "🛠 Обновления", action: "feed.updates" },
-    { text: "🎯 Акции", action: "feed.promos" },
-    { text: "📦 Поставки", action: "feed.deliveries" }
-  ];
-
   const FILTERS = ["Все", "Новость", "Обновление", "Акция", "Сервис"];
 
   let activeFilter = "Все";
   let editingId = null;
-  let localDirty = false;
   let currentRole = "client";
   let isAdminUser = false;
   let isAuthorizedUser = false;
   let publishInFlight = false;
 
-  const LOCAL_NEWS_KEY = "beerMarketNews";
-  const LOCAL_META_KEY = "beerMarketNewsMeta";
   const ACCESS_STATE_KEY = "beerMarketAccessState";
 
   function setSafeInsets() {
@@ -319,7 +309,8 @@ const tg = window.Telegram?.WebApp;
       date: toIsoDate(item.date || item.createdAt),
       text: item.text,
       createdAt: item.createdAt,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      publishState: "published"
     };
     const result = await sendAction("news.update", payload, { requireAck: true });
     if (result?.applied) {
@@ -337,37 +328,6 @@ const tg = window.Telegram?.WebApp;
       return `${d}.${m}.${y}`;
     }
     return raw;
-  }
-
-  function loadLocalNews() {
-    try {
-      const itemsRaw = localStorage.getItem(LOCAL_NEWS_KEY);
-      const metaRaw = localStorage.getItem(LOCAL_META_KEY);
-      const items = itemsRaw ? JSON.parse(itemsRaw) : [];
-      const meta = metaRaw ? JSON.parse(metaRaw) : {};
-      localDirty = Boolean(meta?.dirty);
-      return Array.isArray(items) ? items.map(normalizeNewsItem) : [];
-    } catch (e) {
-      console.warn("local news load failed", e);
-      return [];
-    }
-  }
-
-  function saveLocalNews(items, dirty) {
-    try {
-      localDirty = Boolean(dirty);
-      localStorage.setItem(LOCAL_NEWS_KEY, JSON.stringify(items));
-      localStorage.setItem(
-        LOCAL_META_KEY,
-        JSON.stringify({
-          dirty: localDirty,
-          signature: computeNewsSignature(items),
-          updatedAt: Date.now()
-        })
-      );
-    } catch (e) {
-      console.warn("local news save failed", e);
-    }
   }
 
   function loadAccessState() {
@@ -421,8 +381,7 @@ const tg = window.Telegram?.WebApp;
       return `${url}${joiner}v=${stamp}${authQuery ? `&${authQuery}` : ""}`;
     };
     const base = [
-      withQuery("news.json"),
-      withQuery("pythonProject/news.json")
+      withQuery("/miniapp/news")
     ];
     if (!explicit) return base;
     return [withQuery(explicit), ...base];
@@ -447,30 +406,19 @@ const tg = window.Telegram?.WebApp;
   }
 
   async function loadNews() {
-    const localItems = loadLocalNews();
-    if (localItems.length) {
-      NEWS.splice(0, NEWS.length, ...localItems);
-      newsSignature = computeNewsSignature(localItems);
-    }
     try {
       const data = await fetchNewsFromAnySource();
-      const signature = computeNewsSignature(data);
       const serverItems = data.map(item => normalizeNewsItem({ ...item, publishState: "published" }));
-      const shouldUseServer = !isAdminUser || !localDirty || !localItems.length || signature === newsSignature;
-      if (shouldUseServer) {
-        NEWS.splice(0, NEWS.length, ...serverItems);
-        newsSignature = signature;
-        saveLocalNews(serverItems, false);
-      }
+      NEWS.splice(0, NEWS.length, ...serverItems);
+      newsSignature = computeNewsSignature(serverItems);
+      showPublishStatus("Лента загружена с сервера.", "success");
       return;
     } catch (e) {
       console.warn("news load failed, using seed", e);
     }
-    if (!localItems.length) {
-      NEWS.splice(0, NEWS.length, ...NEWS_SEED);
-      newsSignature = computeNewsSignature(NEWS_SEED);
-      saveLocalNews(NEWS, false);
-    }
+    NEWS.splice(0, NEWS.length, ...NEWS_SEED);
+    newsSignature = computeNewsSignature(NEWS_SEED);
+    showPublishStatus("Сервер недоступен, показываем локальный пример ленты.", "error");
   }
 
 
@@ -518,7 +466,8 @@ const tg = window.Telegram?.WebApp;
   function renderNews() {
     const list = document.getElementById("newsList");
     list.innerHTML = "";
-    const items = NEWS.filter(item => activeFilter === "Все" || item.category === activeFilter);
+    const visibleItems = isAdminUser ? NEWS : NEWS.filter(item => item.publishState !== "draft");
+    const items = visibleItems.filter(item => activeFilter === "Все" || item.category === activeFilter);
 
     if (!items.length) {
       list.innerHTML = `<div class="muted">Пока нет новостей по выбранной теме.</div>`;
@@ -553,44 +502,16 @@ const tg = window.Telegram?.WebApp;
       const hasDrafts = NEWS.some(item => item.publishState === "draft");
 
       if (signature !== newsSignature || force) {
-        const allowOverwrite = !isAdminUser || !localDirty;
         newsSignature = signature;
-        if (allowOverwrite) {
-          NEWS.splice(0, NEWS.length, ...serverItems);
-          saveLocalNews(NEWS, false);
-          showPublishStatus("Лента синхронизирована с сервером.", "success");
-        } else {
-          const merged = mergeServerNewsWithLocal(serverItems);
-          const hasPendingDrafts = merged.some(item => item.publishState === "draft");
+        const merged = mergeServerNewsWithLocal(serverItems);
           NEWS.splice(0, NEWS.length, ...merged);
-          saveLocalNews(NEWS, hasPendingDrafts);
-          showPublishStatus(
-            hasPendingDrafts
-              ? "Обновили ленту с сервера и сохранили локальные черновики."
-              : "Локальные изменения подтверждены сервером.",
-            hasPendingDrafts ? "muted" : "success"
-          );
-        }
+        const hasPendingDrafts = merged.some(item => item.publishState === "draft");
+        showPublishStatus(hasPendingDrafts ? "Обновили ленту с сервера и сохранили локальные черновики." : "Локальные изменения подтверждены сервером.", hasPendingDrafts ? "muted" : "success");
         renderNews();
         renderAdminList();
-      } else if (localDirty && !hasDrafts) {
-        localDirty = false;
-        saveLocalNews(NEWS, false);
-        showPublishStatus("Локальные изменения подтверждены сервером.", "success");
       }
     } catch (e) {
       console.warn("news refresh failed", e);
-    }
-  }
-
-  function renderTiles() {
-    const box = document.getElementById("tiles");
-    box.innerHTML = "";
-    for (const a of QUICK_IDEAS) {
-      const b = document.createElement("button");
-      b.textContent = a.text;
-      b.onclick = () => sendAction(a.action);
-      box.appendChild(b);
     }
   }
 
@@ -630,7 +551,6 @@ const tg = window.Telegram?.WebApp;
         showPublishStatus("Публикуем черновик...", "muted");
         try {
           const confirmed = await publishDraftItem(item);
-          saveLocalNews(NEWS, !confirmed);
           renderNews();
           renderAdminList();
           if (confirmed) {
@@ -639,7 +559,6 @@ const tg = window.Telegram?.WebApp;
             showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
           }
         } catch (e) {
-          saveLocalNews(NEWS, true);
           showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
           popupOk("Ошибка", `Не удалось опубликовать черновик: ${e.message}`);
         } finally {
@@ -678,7 +597,6 @@ const tg = window.Telegram?.WebApp;
             resetForm();
           }
           const confirmed = deleteResult?.applied !== false;
-          saveLocalNews(NEWS, !confirmed);
           renderNews();
           renderAdminList();
           if (confirmed) {
@@ -688,7 +606,6 @@ const tg = window.Telegram?.WebApp;
             popupOk("BeerMarket", "Удаление отправлено. Подтверждение придёт с обновлением ленты.");
           }
         } catch (e) {
-          saveLocalNews(NEWS, true);
           showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
           popupOk("Ошибка", `Не удалось удалить: ${e.message}`);
         } finally {
@@ -711,9 +628,6 @@ const tg = window.Telegram?.WebApp;
     isAdminUser = isAuthorized && role === "admin";
     currentRole = role || "client";
     isAuthorizedUser = isAuthorized;
-    if (!isAdminUser) {
-      localDirty = false;
-    }
     const isAdmin = isAdminUser;
     const canSuggest = isAuthorized && role === "sales_rep";
 
@@ -727,7 +641,6 @@ const tg = window.Telegram?.WebApp;
     document.getElementById("accessGate").classList.toggle("hidden", loading || isAuthorized);
     document.getElementById("feedSection").classList.toggle("hidden", loading || !isAuthorized);
     document.getElementById("adminSection").classList.toggle("hidden", loading || !isAdmin);
-    document.getElementById("ideasSection").classList.toggle("hidden", loading || !isAdmin);
     document.getElementById("btnSuggest").classList.toggle("hidden", loading || !canSuggest);
 
 
@@ -820,10 +733,9 @@ const tg = window.Telegram?.WebApp;
     await loadNews();
     renderChips();
     renderNews();
-    renderTiles();
     renderAdminList();
     resetForm();
-    setInterval(refreshNews, 5000);
+    setInterval(refreshNews, 2000);
   }
 
   initApp();
@@ -845,7 +757,7 @@ const tg = window.Telegram?.WebApp;
     if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
 
     setPublishBusyState(true);
-    showPublishStatus("Отправка...", "muted");
+    showPublishStatus("Сохранение черновика...", "muted");
     let prevSnapshot = JSON.stringify(NEWS);
     try {
       let publishResult = null;
@@ -858,13 +770,9 @@ const tg = window.Telegram?.WebApp;
           item.text = text;
           item.updatedAt = new Date().toISOString();
           item.publishState = "draft";
-          saveLocalNews(NEWS, true);
           renderNews();
           renderAdminList();
-           publishResult = await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text }, { requireAck: true });
-          if (publishResult?.applied) {
-            item.publishState = "published";
-          }
+          publishResult = await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text, publishState: "draft" }, { requireAck: true });
         }
       } else {
         await refreshNews({ force: true });
@@ -872,25 +780,17 @@ const tg = window.Telegram?.WebApp;
         const seq = nextNewsSeq();
         const nowIso = new Date().toISOString();
         NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "draft" });
-        saveLocalNews(NEWS, true);
         renderNews();
         renderAdminList();
-        publishResult = await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso }, { requireAck: true });
-        if (publishResult?.applied) {
-          const created = NEWS.find(n => idsEqual(n.id, id));
-          if (created) created.publishState = "published";
-        }
+        publishResult = await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "draft" }, { requireAck: true });
       }
       const confirmed = publishResult?.applied !== false;
-      saveLocalNews(NEWS, !confirmed);
       renderNews();
       renderAdminList();
       resetForm();
       if (confirmed) {
-        const synced = await syncNewsAfterMutation("Публикация подтверждена сервером.");
-        if (synced) {
-          popupOk("BeerMarket", "Изменения опубликованы");
-        }
+        await syncNewsAfterMutation("Черновик сохранён на сервере.");
+        popupOk("BeerMarket", "Черновик сохранён");
       } else {
         showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
         popupOk("BeerMarket", "Изменения отправлены. Подтверждение придёт с обновлением ленты.");
@@ -900,7 +800,6 @@ const tg = window.Telegram?.WebApp;
         const parsed = JSON.parse(prevSnapshot);
         NEWS.splice(0, NEWS.length, ...parsed.map(normalizeNewsItem));
       } catch (_) {}
-      saveLocalNews(NEWS, true);
       renderNews();
       renderAdminList();
       showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");

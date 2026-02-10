@@ -82,8 +82,6 @@ PROMO_PAGE_SIZE = 8
 ALLOWED_PROMO_IMG = {"jpg","jpeg","png","webp"}
 ALLOWED_PROMO_DOC = {"pdf"}  # документ (отправим как файл)
 NEWS_INDEX = ROOT_DIR / "news.json"
-NEWS_PUBLIC_INDEX = ROOT_DIR.parent / "news.json"
-NEWS_LEGACY_INDEXES = (NEWS_PUBLIC_INDEX,)
 NEWS_CATEGORIES = {"Новость", "Обновление", "Акция", "Сервис"}
 #календарь
 _RU_MONTHS = ["", "Январь","Февраль","Март","Апрель","Май","Июнь",
@@ -1491,6 +1489,11 @@ def _apply_miniapp_news_action(payload: Dict[str, Any], uid: Optional[int], role
         return {"ok": False, "applied": False, "message": "Заполните заголовок, дату и текст.", "id": news_id}
 
     now_iso = datetime.now(TZ).isoformat()
+    publish_state = (payload.get("publishState") or (
+        existing.get("publishState") if existing else "published") or "published").strip().lower()
+    if publish_state not in {"draft", "published"}:
+        publish_state = "published"
+
     item = {
         "id": news_id,
         "seq": payload.get("seq") or (existing.get("seq") if existing else None),
@@ -1498,6 +1501,7 @@ def _apply_miniapp_news_action(payload: Dict[str, Any], uid: Optional[int], role
         "category": category,
         "date": date_value,
         "text": text,
+        "publishState": publish_state,
         "createdAt": payload.get("createdAt") or (existing.get("createdAt") if existing else now_iso),
         "updatedAt": payload.get("updatedAt") or now_iso,
     }
@@ -1561,9 +1565,13 @@ async def miniapp_news_handler(request: web.Request) -> web.Response:
     if not is_authorized or role not in {"client", "admin", "sales_rep"}:
         return _json_with_cors({"ok": False, "message": "Доступ запрещён.", "items": []}, status=403)
 
+    items = _news_load()
+    if role != "admin":
+        items = [it for it in items if (it.get("publishState") or "published") == "published"]
+
     return _json_with_cors({
         "ok": True,
-        "items": _news_load(),
+        "items": items,
         "role": role,
         "uid": resolved.get("uid"),
         "updatedAt": datetime.now(TZ).isoformat(),
@@ -4894,36 +4902,14 @@ def _read_news_index(path: Path) -> List[Dict[str, Any]]:
         logger.exception("news: failed to parse %s", path)
         return []
 
-def _news_index_targets() -> List[Path]:
-    targets: List[Path] = []
-    for path in (NEWS_INDEX, *NEWS_LEGACY_INDEXES):
-        if path not in targets:
-            targets.append(path)
-    return targets
-
 def _news_load() -> List[Dict[str, Any]]:
-    targets = _news_index_targets()
-    if not targets:
+    if not NEWS_INDEX.exists():
         return []
-
-    primary = targets[0]
-    # Всегда используем первичный индекс как источник истины,
-    # чтобы старый mirror-файл не «оживлял» удалённые новости.
-    if primary.exists():
-        items = _read_news_index(primary)
-        if isinstance(items, list):
-            return [dict(it) for it in items]
-
-    for source in targets[1:]:
-        if not source.exists():
-            continue
-        items = _read_news_index(source)
-        if not isinstance(items, list):
-            continue
-        _news_save(items)
-        logger.info("news: migrated index from %s to %s", source, NEWS_INDEX)
+    items = _read_news_index(NEWS_INDEX)
+    if isinstance(items, list):
         return [dict(it) for it in items]
     return []
+
 
 def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -4937,23 +4923,13 @@ def _news_save(items: List[Dict[str, Any]]) -> None:
     normalized = _news_reindex(list(items))
     payload = json.dumps(normalized, ensure_ascii=False, indent=2)
 
-    targets = _news_index_targets()
-    primary = targets[0]
     try:
-        primary.parent.mkdir(parents=True, exist_ok=True)
-        tmp = primary.with_suffix(primary.suffix + ".tmp")
+        NEWS_INDEX.parent.mkdir(parents=True, exist_ok=True)
+        tmp = NEWS_INDEX.with_suffix(NEWS_INDEX.suffix + ".tmp")
         tmp.write_text(payload, encoding="utf-8")
-        os.replace(tmp, primary)
+        os.replace(tmp, NEWS_INDEX)
     except Exception:
-        logger.exception("news: failed to write %s", primary)
-        return
-
-    for mirror in targets[1:]:
-        try:
-            mirror.parent.mkdir(parents=True, exist_ok=True)
-            mirror.write_text(payload, encoding="utf-8")
-        except Exception:
-            logger.exception("news: failed to mirror index to %s", mirror)
+        logger.exception("news: failed to write %s", NEWS_INDEX)
 
 
 def _news_next_seq(items: List[Dict[str, Any]]) -> int:
@@ -6029,6 +6005,9 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
                 await m.answer("⚠️ Новость не сохранена: проверьте заголовок, дату и текст.")
                 return
             now_iso = datetime.now(TZ).isoformat()
+            publish_state = (payload.get("publishState") or (existing.get("publishState") if existing else "published") or "published").strip().lower()
+            if publish_state not in {"draft", "published"}:
+                publish_state = "published"
             item = {
                 "id": news_id,
                 "seq": payload.get("seq") or (existing.get("seq") if existing else None),
@@ -6036,6 +6015,7 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
                 "category": category,
                 "date": date_value,
                 "text": text,
+                "publishState": publish_state,
                 "createdAt": payload.get("createdAt") or (existing.get("createdAt") if existing else now_iso),
                 "updatedAt": payload.get("updatedAt") or now_iso,
             }
