@@ -309,6 +309,26 @@ const tg = window.Telegram?.WebApp;
     return true;
   }
 
+  async function publishDraftItem(item) {
+    if (!item) return false;
+    const payload = {
+      id: item.id,
+      seq: item.seq,
+      title: item.title,
+      category: item.category,
+      date: toIsoDate(item.date || item.createdAt),
+      text: item.text,
+      createdAt: item.createdAt,
+      updatedAt: new Date().toISOString()
+    };
+    const result = await sendAction("news.update", payload, { requireAck: true });
+    if (result?.applied) {
+      item.publishState = "published";
+      item.updatedAt = payload.updatedAt;
+    }
+    return result?.applied !== false;
+  }
+
   function formatDisplayDate(value, fallback) {
     const raw = value || fallback;
     if (!raw) return "";
@@ -593,10 +613,39 @@ const tg = window.Telegram?.WebApp;
         <div class="newsMeta">№${displayNumber}${displayDate ? ` • ${displayDate}` : ""}</div>
         <div class="row2" style="margin-top:8px;">
           <button class="secondary" data-edit="${item.id}">Редактировать</button>
+          ${item.publishState === "draft" ? `<button data-publish="${item.id}">Опубликовать</button>` : ""}
           <button class="danger" data-delete="${item.id}">Удалить</button>
         </div>
       `;
       list.appendChild(el);
+    });
+
+    list.querySelectorAll("button[data-publish]").forEach(btn => {
+      btn.onclick = async () => {
+        if (publishInFlight) return;
+        const id = btn.getAttribute("data-publish");
+        const item = NEWS.find(n => idsEqual(n.id, id));
+        if (!item) return;
+        setPublishBusyState(true);
+        showPublishStatus("Публикуем черновик...", "muted");
+        try {
+          const confirmed = await publishDraftItem(item);
+          saveLocalNews(NEWS, !confirmed);
+          renderNews();
+          renderAdminList();
+          if (confirmed) {
+            await syncNewsAfterMutation("Черновик опубликован.");
+          } else {
+            showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
+          }
+        } catch (e) {
+          saveLocalNews(NEWS, true);
+          showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
+          popupOk("Ошибка", `Не удалось опубликовать черновик: ${e.message}`);
+        } finally {
+          setPublishBusyState(false);
+        }
+      };
     });
 
     list.querySelectorAll("button[data-edit]").forEach(btn => {

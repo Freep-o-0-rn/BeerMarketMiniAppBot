@@ -4902,18 +4902,26 @@ def _news_index_targets() -> List[Path]:
     return targets
 
 def _news_load() -> List[Dict[str, Any]]:
-    candidates = [path for path in _news_index_targets() if path.exists()]
-    if not candidates:
+    targets = _news_index_targets()
+    if not targets:
         return []
 
-    candidates.sort(key=lambda path: path.stat().st_mtime, reverse=True)
-    for source in candidates:
+    primary = targets[0]
+    # Всегда используем первичный индекс как источник истины,
+    # чтобы старый mirror-файл не «оживлял» удалённые новости.
+    if primary.exists():
+        items = _read_news_index(primary)
+        if isinstance(items, list):
+            return [dict(it) for it in items]
+
+    for source in targets[1:]:
+        if not source.exists():
+            continue
         items = _read_news_index(source)
         if not isinstance(items, list):
             continue
-        if source != NEWS_INDEX:
-            _news_save(items)
-            logger.info("news: migrated index from %s to %s", source, NEWS_INDEX)
+        _news_save(items)
+        logger.info("news: migrated index from %s to %s", source, NEWS_INDEX)
         return [dict(it) for it in items]
     return []
 
