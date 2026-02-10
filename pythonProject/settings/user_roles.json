@@ -26,12 +26,6 @@
     "role": "client",
     "name": "Демидов"
   },
-  "727411283": {
-    "phone": "+79964550715",
-    "phone_verified": true,
-    "role": "admin",
-    "name": "Данилок"
-  },
   "288807506": {
     "phone": "+79232235848",
     "phone_verified": true,
@@ -57,5 +51,14 @@
   "750420118": {
     "role": "client",
     "name": "Вобла"
+  },
+  "727411283": {
+    "username": "kontra93",
+    "first_name": "Данилок",
+    "language_code": "ru",
+    "role": "sales_rep",
+    "phone": "+79964550715",
+    "phone_verified": true,
+    "name": "ДАНИЛОК"
   }
 }

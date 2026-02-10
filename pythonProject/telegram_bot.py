@@ -2,6 +2,7 @@ import asyncio
 import logging
 import html as _html
 import ssl
+import hmac
 from mini_app import (
     router as mini_app_router,
     mini_app_reply_button,
@@ -21,13 +22,13 @@ from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import BaseMiddleware
 from pathlib import Path
-from hashlib import md5
+from hashlib import md5, sha256
 from urllib.parse import quote_plus
 from datetime import datetime, date, timedelta
 import pytz
 from aiogram.types import Message, CallbackQuery
 import openpyxl
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientSession, ClientTimeout, web
 from dotenv import load_dotenv
 load_dotenv(override=True)
 from aiogram import Bot, Dispatcher, Router, F
@@ -179,6 +180,11 @@ PRICES_INDEX.parent.mkdir(parents=True, exist_ok=True)
 
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
+MINIAPP_AUTH_HOST = os.getenv("MINIAPP_AUTH_HOST", "0.0.0.0")
+MINIAPP_AUTH_PORT = int(os.getenv("MINIAPP_AUTH_PORT", "8081"))
+MINIAPP_AUTH_ENABLED = os.getenv("MINIAPP_AUTH_ENABLED", "1") in {"1", "true", "yes"}
+MINIAPP_AUTH_DEBUG_QUERY_FALLBACK = os.getenv("MINIAPP_AUTH_DEBUG_QUERY_FALLBACK", "1") in {"1", "true", "yes"}
+
 
 # --- FSM states ---
 class SearchStates(StatesGroup):
@@ -1273,6 +1279,171 @@ def set_client_name(user_id: int, name: str) -> None:
 
 def _save_user_roles(data: Dict[str, Any]) -> None:
     _roles_save_atomic(_normalize_user_roles_schema(data or {}))
+
+#авторизация мини апп
+def _parse_tg_init_data(init_data: str) -> Dict[str, str]:
+    pairs = parse_qs(init_data or "", keep_blank_values=True)
+    out: Dict[str, str] = {}
+    for key, values in pairs.items():
+        if not values:
+            continue
+        out[key] = values[-1]
+    return out
+
+
+def _verify_tg_init_data(init_data: str) -> Tuple[bool, Dict[str, Any], Optional[str]]:
+    parsed = _parse_tg_init_data(init_data)
+    provided_hash = (parsed.get("hash") or "").strip().lower()
+    if not provided_hash:
+        return False, {}, "missing_hash"
+
+    data_check_items = []
+    for key in sorted(k for k in parsed.keys() if k != "hash"):
+        data_check_items.append(f"{key}={parsed[key]}")
+    data_check_string = "\n".join(data_check_items)
+
+    secret_key = hmac.new(b"WebAppData", BOT_TOKEN.encode("utf-8"), sha256).digest()
+    expected_hash = hmac.new(secret_key, data_check_string.encode("utf-8"), sha256).hexdigest()
+    if expected_hash != provided_hash:
+        return False, {}, "hash_mismatch"
+
+    user_payload: Dict[str, Any] = {}
+    user_raw = parsed.get("user")
+    if user_raw:
+        try:
+            user_payload = json.loads(user_raw)
+        except Exception:
+            user_payload = {}
+
+    auth_date = parsed.get("auth_date")
+    profile: Dict[str, Any] = {
+        "uid": user_payload.get("id"),
+        "auth_date": int(auth_date) if str(auth_date or "").isdigit() else None,
+        "query_id": parsed.get("query_id"),
+        "user": user_payload,
+    }
+    return True, profile, None
+
+
+def _resolve_miniapp_profile(init_data: str, debug_query: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    ok, profile, reason = _verify_tg_init_data(init_data)
+    if ok:
+        uid = profile.get("uid")
+        role = get_user_role(uid)
+        authorized = role in {"client", "admin", "sales_rep"}
+        return {
+            "authorized": bool(authorized),
+            "role": role,
+            "uid": uid,
+            "source": "telegram_init_data",
+            "reason": None,
+        }
+
+    debug_query = debug_query or {}
+    fallback_auth = str(debug_query.get("auth") or "").strip()
+    fallback_role = normalize_role(debug_query.get("role") or "client")
+    fallback_uid = debug_query.get("uid")
+    if MINIAPP_AUTH_DEBUG_QUERY_FALLBACK and (fallback_auth or fallback_role or fallback_uid):
+        AUDIT.warning({
+            "event": "miniapp_auth_debug_fallback",
+            "reason": reason,
+            "fallback_role": fallback_role,
+            "fallback_uid": fallback_uid,
+        })
+        return {
+            "authorized": fallback_auth == "1",
+            "role": fallback_role,
+            "uid": int(fallback_uid) if str(fallback_uid or "").isdigit() else None,
+            "source": "debug_query_fallback",
+            "reason": reason,
+        }
+
+    return {
+        "authorized": False,
+        "role": "client",
+        "uid": None,
+        "source": "denied",
+        "reason": reason,
+    }
+
+
+def _json_with_cors(payload: Dict[str, Any], status: int = 200) -> web.Response:
+    res = web.json_response(payload, status=status)
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    res.headers["Access-Control-Allow-Headers"] = "content-type"
+    res.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return res
+
+
+async def miniapp_auth_options(_: web.Request) -> web.Response:
+    return _json_with_cors({"ok": True})
+
+
+async def miniapp_auth_handler(request: web.Request) -> web.Response:
+    body: Dict[str, Any] = {}
+    if request.method == "POST":
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+
+    init_data = (
+        (body.get("initData") if isinstance(body, dict) else None)
+        or request.query.get("initData")
+        or ""
+    )
+    debug_query = {
+        "auth": request.query.get("auth") or (body.get("auth") if isinstance(body, dict) else None),
+        "role": request.query.get("role") or (body.get("role") if isinstance(body, dict) else None),
+        "uid": request.query.get("uid") or (body.get("uid") if isinstance(body, dict) else None),
+    }
+    resolved = _resolve_miniapp_profile(init_data, debug_query=debug_query)
+
+    query_role = request.query.get("role") or (body.get("role") if isinstance(body, dict) else None)
+    query_auth = request.query.get("auth") or (body.get("auth") if isinstance(body, dict) else None)
+    if query_role and normalize_role(query_role) != resolved.get("role"):
+        AUDIT.warning({
+            "event": "miniapp_security_mismatch",
+            "kind": "role",
+            "query_role": query_role,
+            "server_role": resolved.get("role"),
+            "uid": resolved.get("uid"),
+        })
+    if query_auth in {"0", "1"} and ((query_auth == "1") != bool(resolved.get("authorized"))):
+        AUDIT.warning({
+            "event": "miniapp_security_mismatch",
+            "kind": "authorized",
+            "query_auth": query_auth,
+            "server_authorized": bool(resolved.get("authorized")),
+            "uid": resolved.get("uid"),
+        })
+
+    return _json_with_cors({
+        "ok": bool(resolved.get("authorized")),
+        "authorized": bool(resolved.get("authorized")),
+        "role": resolved.get("role"),
+        "uid": resolved.get("uid"),
+        "source": resolved.get("source"),
+        "reason": resolved.get("reason"),
+    })
+
+
+async def _run_miniapp_auth_server() -> None:
+    app = web.Application()
+    app.router.add_route("OPTIONS", "/miniapp/auth", miniapp_auth_options)
+    app.router.add_route("GET", "/miniapp/auth", miniapp_auth_handler)
+    app.router.add_route("POST", "/miniapp/auth", miniapp_auth_handler)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, MINIAPP_AUTH_HOST, MINIAPP_AUTH_PORT)
+    await site.start()
+    logger.info("miniapp auth server started on %s:%s", MINIAPP_AUTH_HOST, MINIAPP_AUTH_PORT)
+    try:
+        while True:
+            await asyncio.sleep(3600)
+    finally:
+        await runner.cleanup()
+
 
 
 # ---------------- Фильтры  -----------------
@@ -5703,6 +5874,8 @@ async def run_bot():
     except Exception:
         pass
     asyncio.create_task(daily_fetch_worker())
+    if MINIAPP_AUTH_ENABLED:
+        asyncio.create_task(_run_miniapp_auth_server())
     try:
         await setup_menu_button(bot)
     except Exception:

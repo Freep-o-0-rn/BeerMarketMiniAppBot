@@ -636,24 +636,9 @@
     document.getElementById("newsText").value = "";
   }
 
-  function setupAccess() {
-    const params = new URLSearchParams(location.search);
-    const storedAccess = loadAccessState();
-    const authParam = params.get("auth");
-    const hasAuthParam = authParam !== null;
-    const paramRole = params.get("role");
-    const tgUser = tg?.initDataUnsafe?.user;
-
-    let role = paramRole || storedAccess.role || "client";
-    let isAuthorized = hasAuthParam ? authParam === "1" : Boolean(storedAccess.authorized || tgUser);
-
-    if (paramRole || hasAuthParam) {
-      saveAccessState(role, isAuthorized);
-    } else if (tgUser && !storedAccess.authorized) {
-      saveAccessState(role, true);
-    }
+  function applyAccessUi(role, isAuthorized, loading = false) {
     isAdminUser = isAuthorized && role === "admin";
-    currentRole = role;
+    currentRole = role || "client";
     isAuthorizedUser = isAuthorized;
     if (!isAdminUser) {
       localDirty = false;
@@ -661,22 +646,80 @@
     const isAdmin = isAdminUser;
     const canSuggest = isAuthorized && role === "sales_rep";
 
-    document.getElementById("accessBadge").textContent = isAuthorized
-      ? `Доступ: открыт (${role})`
-      : "Доступ: требуется авторизация";
-    document.getElementById("accessBadge").classList.toggle("success", isAuthorized);
-    document.getElementById("accessBadge").classList.toggle("danger", !isAuthorized);
+    const badge = document.getElementById("accessBadge");
+    badge.textContent = loading
+      ? "Проверка доступа…"
+      : (isAuthorized ? `Доступ: открыт (${role})` : "Доступ: требуется авторизация");
+    badge.classList.toggle("success", !loading && isAuthorized);
+    badge.classList.toggle("danger", !loading && !isAuthorized);
 
-    document.getElementById("accessGate").classList.toggle("hidden", isAuthorized);
-    document.getElementById("feedSection").classList.toggle("hidden", !isAuthorized);
-    document.getElementById("adminSection").classList.toggle("hidden", !isAdmin);
-    document.getElementById("ideasSection").classList.toggle("hidden", !isAdmin);
-    document.getElementById("btnSuggest").classList.toggle("hidden", !canSuggest);
+    document.getElementById("accessGate").classList.toggle("hidden", loading || isAuthorized);
+    document.getElementById("feedSection").classList.toggle("hidden", loading || !isAuthorized);
+    document.getElementById("adminSection").classList.toggle("hidden", loading || !isAdmin);
+    document.getElementById("ideasSection").classList.toggle("hidden", loading || !isAdmin);
+    document.getElementById("btnSuggest").classList.toggle("hidden", loading || !canSuggest);
+
 
     document.getElementById("btnRequestAccess").onclick = () =>
-      sendAction("access.request", { role });
+      sendAction("access.request", { role: currentRole });
     document.getElementById("btnContact").onclick = () =>
-      sendAction("manager.contact", { role });
+      sendAction("manager.contact", { role: currentRole });
+  }
+
+  async function setupAccess() {
+    const params = new URLSearchParams(location.search);
+    const storedAccess = loadAccessState();
+    const authParam = params.get("auth");
+    const hasAuthParam = authParam !== null;
+    const paramRole = params.get("role");
+    const fallbackRole = paramRole || storedAccess.role || "client";
+    const fallbackAuthorized = hasAuthParam ? authParam === "1" : Boolean(storedAccess.authorized);
+
+    applyAccessUi(fallbackRole, fallbackAuthorized, true);
+
+    const authApi = params.get("auth_api") || "/miniapp/auth";
+    const payload = {
+      initData: tg?.initData || "",
+      auth: authParam,
+      role: paramRole,
+      uid: params.get("uid")
+    };
+
+    try {
+      const res = await fetch(authApi, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const profile = await res.json();
+      const role = profile?.role || fallbackRole;
+      const isAuthorized = Boolean(profile?.authorized);
+      saveAccessState(role, isAuthorized);
+
+      if (paramRole && paramRole !== role) {
+        console.warn("miniapp security mismatch: query role differs from server", {
+          queryRole: paramRole,
+          serverRole: role,
+          uid: profile?.uid
+        });
+      }
+      if (hasAuthParam && (authParam === "1") !== isAuthorized) {
+        console.warn("miniapp security mismatch: query auth differs from server", {
+          queryAuth: authParam,
+          serverAuthorized: isAuthorized,
+          uid: profile?.uid
+        });
+      }
+
+      applyAccessUi(role, isAuthorized, false);
+      return;
+    } catch (e) {
+      console.warn("access verify failed, using debug fallback", e);
+    }
+
+    saveAccessState(fallbackRole, fallbackAuthorized);
+    applyAccessUi(fallbackRole, fallbackAuthorized, false);
   }
 
   if (tg) {
@@ -702,7 +745,7 @@
   }
 
   async function initApp() {
-    setupAccess();
+    await setupAccess();
     await loadNews();
     renderChips();
     renderNews();
