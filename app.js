@@ -90,8 +90,8 @@ const tg = window.Telegram?.WebApp;
     }
     showPublishStatus(
       editingId
-        ? "Режим редактирования: после сохранения обновится существующая новость."
-        : "Черновик не опубликован.",
+        ? "Режим редактирования: после сохранения новость обновится сразу в ленте."
+        : "Новая публикация будет сразу доступна в ленте.",
       "muted"
     );
   }
@@ -657,7 +657,9 @@ const tg = window.Telegram?.WebApp;
     const hasAuthParam = authParam !== null;
     const paramRole = params.get("role");
     const fallbackRole = paramRole || storedAccess.role || "client";
-    const fallbackAuthorized = hasAuthParam ? authParam === "1" : Boolean(storedAccess.authorized);
+    const fallbackAuthorized = hasAuthParam
+      ? authParam === "1"
+      : (typeof storedAccess.authorized === "boolean" ? storedAccess.authorized : true);
 
     applyAccessUi(fallbackRole, fallbackAuthorized, true);
 
@@ -757,7 +759,7 @@ const tg = window.Telegram?.WebApp;
     if (!title || !text || !date) return popupOk("Новость", "Заполните все поля");
 
     setPublishBusyState(true);
-    showPublishStatus("Сохранение черновика...", "muted");
+    showPublishStatus("Публикация...", "muted");
     let prevSnapshot = JSON.stringify(NEWS);
     try {
       let publishResult = null;
@@ -769,28 +771,28 @@ const tg = window.Telegram?.WebApp;
           item.date = date;
           item.text = text;
           item.updatedAt = new Date().toISOString();
-          item.publishState = "draft";
+          item.publishState = "published";
           renderNews();
           renderAdminList();
-          publishResult = await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text, publishState: "draft" }, { requireAck: true });
+          publishResult = await sendAction("news.update", { id: item.id, seq: item.seq, title, category, date, text, publishState: "published" }, { requireAck: true });
         }
       } else {
         await refreshNews({ force: true });
         const id = Date.now();
         const seq = nextNewsSeq();
         const nowIso = new Date().toISOString();
-        NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "draft" });
+        NEWS.unshift({ id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "published" });
         renderNews();
         renderAdminList();
-        publishResult = await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "draft" }, { requireAck: true });
+        publishResult = await sendAction("news.create", { id, seq, title, category, date, text, createdAt: nowIso, updatedAt: nowIso, publishState: "published" }, { requireAck: true });
       }
       const confirmed = publishResult?.applied !== false;
       renderNews();
       renderAdminList();
       resetForm();
       if (confirmed) {
-        await syncNewsAfterMutation("Черновик сохранён на сервере.");
-        popupOk("BeerMarket", "Черновик сохранён");
+        await syncNewsAfterMutation("Публикация подтверждена сервером.");
+        popupOk("BeerMarket", "Новость опубликована");
       } else {
         showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
         popupOk("BeerMarket", "Изменения отправлены. Подтверждение придёт с обновлением ленты.");
