@@ -263,23 +263,50 @@ const tg = window.Telegram?.WebApp;
         .filter(item => item.publishState === "draft")
         .map(item => [String(item.id), normalizeNewsItem(item)])
     );
+    const usedDraftIds = new Set();
     const merged = serverItems.map(item => {
       const draft = localDraftById.get(String(item.id));
-      if (!draft) return normalizeNewsItem(item);
+      if (!draft) {
+        // Фолбэк для случаев, когда сервер сохранил новость с другим id,
+        // но содержимое уже совпадает с локальным черновиком.
+        const matchingDraft = NEWS.find(localItem =>
+          localItem.publishState === "draft" &&
+          !usedDraftIds.has(String(localItem.id)) &&
+          isSameNewsContent(localItem, item)
+        );
+        if (matchingDraft) {
+          usedDraftIds.add(String(matchingDraft.id));
+          return normalizeNewsItem({ ...item, publishState: "published" });
+        }
+        return normalizeNewsItem(item);
+      }
 
       // Если сервер уже содержит ту же версию, считаем черновик подтверждённым.
       if (isSameNewsContent(draft, item)) {
+        usedDraftIds.add(String(draft.id));
         return normalizeNewsItem({ ...item, publishState: "published" });
       }
-
+      usedDraftIds.add(String(draft.id));
       return draft;
     });
     for (const [id, draft] of localDraftById.entries()) {
-      if (!merged.some(item => String(item.id) === id)) {
+      if (!usedDraftIds.has(id) && !merged.some(item => String(item.id) === id)) {
         merged.unshift(draft);
       }
     }
     return merged;
+  }
+
+  async function syncNewsAfterMutation(successMessage = "Локальные изменения подтверждены сервером.") {
+    await refreshNews({ force: true });
+    const stillDrafts = NEWS.some(item => item.publishState === "draft");
+    if (stillDrafts) {
+      showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
+      popupOk("BeerMarket", "Изменения отправлены. Подтверждение придёт с обновлением ленты.");
+      return false;
+    }
+    showPublishStatus(successMessage, "success");
+    return true;
   }
 
   function formatDisplayDate(value, fallback) {
@@ -472,7 +499,8 @@ const tg = window.Telegram?.WebApp;
     });
   }
 
-  async function refreshNews() {
+  async function refreshNews(options = {}) {
+    const force = Boolean(options?.force);
     try {
       const data = await fetchNewsFromAnySource();
       if (!Array.isArray(data)) return;
@@ -480,7 +508,7 @@ const tg = window.Telegram?.WebApp;
       const signature = computeNewsSignature(serverItems);
       const hasDrafts = NEWS.some(item => item.publishState === "draft");
 
-      if (signature !== newsSignature) {
+      if (signature !== newsSignature || force) {
         const allowOverwrite = !isAdminUser || !localDirty;
         newsSignature = signature;
         if (allowOverwrite) {
@@ -571,15 +599,21 @@ const tg = window.Telegram?.WebApp;
         setPublishBusyState(true);
         showPublishStatus("Отправка...", "muted");
         try {
-          await sendAction("news.delete", { id: removed.id, title: removed.title }, { requireAck: true });
+          const deleteResult = await sendAction("news.delete", { id: removed.id, title: removed.title }, { requireAck: true });
           NEWS.splice(idx, 1);
           if (editingId && idsEqual(editingId, removed.id)) {
             resetForm();
           }
-          saveLocalNews(NEWS, false);
+          const confirmed = deleteResult?.applied !== false;
+          saveLocalNews(NEWS, !confirmed);
           renderNews();
           renderAdminList();
-          showPublishStatus("Удаление подтверждено сервером.", "success");
+          if (confirmed) {
+            await syncNewsAfterMutation("Удаление подтверждено сервером.");
+          } else {
+            showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
+            popupOk("BeerMarket", "Удаление отправлено. Подтверждение придёт с обновлением ленты.");
+          }
         } catch (e) {
           saveLocalNews(NEWS, true);
           showPublishStatus(`Ошибка публикации: ${e.message}. Черновик не опубликован.`, "error");
@@ -722,7 +756,9 @@ const tg = window.Telegram?.WebApp;
   initApp();
 
   document.getElementById("btnClose").onclick = () => tg?.close?.();
-  document.getElementById("btnRefresh").onclick = () => location.reload();
+  document.getElementById("btnRefresh").onclick = async () => {
+    await refreshNews({ force: true });
+  };
 
   document.getElementById("btnSuggest").onclick = () =>
     sendAction("news.suggest");
@@ -758,6 +794,7 @@ const tg = window.Telegram?.WebApp;
           }
         }
       } else {
+        await refreshNews({ force: true });
         const id = Date.now();
         const seq = nextNewsSeq();
         const nowIso = new Date().toISOString();
@@ -777,8 +814,10 @@ const tg = window.Telegram?.WebApp;
       renderAdminList();
       resetForm();
       if (confirmed) {
-        showPublishStatus("Публикация подтверждена сервером.", "success");
-        popupOk("BeerMarket", "Изменения опубликованы");
+        const synced = await syncNewsAfterMutation("Публикация подтверждена сервером.");
+        if (synced) {
+          popupOk("BeerMarket", "Изменения опубликованы");
+        }
       } else {
         showPublishStatus("Изменения отправлены. Ожидаем подтверждение от сервера…", "muted");
         popupOk("BeerMarket", "Изменения отправлены. Подтверждение придёт с обновлением ленты.");
