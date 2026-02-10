@@ -147,6 +147,7 @@ const tg = window.Telegram?.WebApp;
 
     const endpoints = getActionAckEndpoints();
     let lastError = new Error("Сервер подтверждения недоступен");
+    let methodNotAllowedOrMissing = false;
 
     for (const endpoint of endpoints) {
       try {
@@ -162,9 +163,12 @@ const tg = window.Telegram?.WebApp;
           })
         });
         if (!res.ok) {
-          if ((res.status === 404 || res.status === 405) && endpoint !== endpoints[endpoints.length - 1]) {
-            lastError = new Error(`HTTP ${res.status}`);
-            continue;
+          if (res.status === 404 || res.status === 405) {
+            methodNotAllowedOrMissing = true;
+            if (endpoint !== endpoints[endpoints.length - 1]) {
+              lastError = new Error(`HTTP ${res.status}`);
+              continue;
+            }
           }
           throw new Error(`HTTP ${res.status}`);
         }
@@ -184,6 +188,19 @@ const tg = window.Telegram?.WebApp;
         lastError = new Error(e?.message || "Ошибка отправки действия");
       }
     }
+
+    if (methodNotAllowedOrMissing && tg?.sendData) {
+      tg.sendData(JSON.stringify(payload));
+      tg?.HapticFeedback?.impactOccurred?.("light");
+      return {
+        ok: true,
+        applied: false,
+        pending: true,
+        transport: "telegram",
+        fallback: "ack_endpoint_unavailable"
+      };
+    }
+
     throw lastError;
   }
 
@@ -757,6 +774,5 @@ const tg = window.Telegram?.WebApp;
       setPublishBusyState(false);
     }
   };
-
 
   document.getElementById("btnReset").onclick = resetForm;
