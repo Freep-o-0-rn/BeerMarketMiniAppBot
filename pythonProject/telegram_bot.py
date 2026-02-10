@@ -1195,11 +1195,15 @@ def build_mini_app_url(source: Optional[Any]) -> str:
 
     auth_api = MINIAPP_AUTH_API_URL
     action_api = MINIAPP_NEWS_ACTION_API_URL
+    news_api = ""
     if auth_api and not action_api:
         action_api = re.sub(r"/miniapp/auth/?$", "/miniapp/news-action", auth_api)
+    if auth_api:
+        news_api = re.sub(r"/miniapp/auth/?$", "/miniapp/news", auth_api)
 
     _query_set(query, "auth_api", auth_api)
     _query_set(query, "action_api", action_api)
+    _query_set(query, "news_api", news_api)
     _query_set(query, "uid", user_id)
     _query_set(query, "username", getattr(user, "username", None) or rec.get("username"))
     _query_set(query, "first_name", getattr(user, "first_name", None) or rec.get("first_name"))
@@ -1544,6 +1548,27 @@ async def miniapp_news_action_handler(request: web.Request) -> web.Response:
     }, status=status)
 
 
+async def miniapp_news_handler(request: web.Request) -> web.Response:
+    init_data = request.query.get("initData") or ""
+    debug_query = {
+        "auth": request.query.get("auth"),
+        "role": request.query.get("role"),
+        "uid": request.query.get("uid"),
+    }
+    resolved = _resolve_miniapp_profile(init_data, debug_query=debug_query)
+    role = resolved.get("role") or "client"
+    is_authorized = bool(resolved.get("authorized"))
+    if not is_authorized or role not in {"client", "admin", "sales_rep"}:
+        return _json_with_cors({"ok": False, "message": "Доступ запрещён.", "items": []}, status=403)
+
+    return _json_with_cors({
+        "ok": True,
+        "items": _news_load(),
+        "role": role,
+        "uid": resolved.get("uid"),
+        "updatedAt": datetime.now(TZ).isoformat(),
+    })
+
 async def _run_miniapp_auth_server() -> None:
     app = web.Application()
     app.router.add_route("OPTIONS", "/miniapp/auth", miniapp_auth_options)
@@ -1551,6 +1576,8 @@ async def _run_miniapp_auth_server() -> None:
     app.router.add_route("POST", "/miniapp/auth", miniapp_auth_handler)
     app.router.add_route("OPTIONS", "/miniapp/news-action", miniapp_auth_options)
     app.router.add_route("POST", "/miniapp/news-action", miniapp_news_action_handler)
+    app.router.add_route("OPTIONS", "/miniapp/news", miniapp_auth_options)
+    app.router.add_route("GET", "/miniapp/news", miniapp_news_handler)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, MINIAPP_AUTH_HOST, MINIAPP_AUTH_PORT)

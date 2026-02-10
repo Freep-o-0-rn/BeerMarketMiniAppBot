@@ -375,14 +375,37 @@ const tg = window.Telegram?.WebApp;
     }
   }
 
+  function buildMiniappAuthQuery() {
+    const params = new URLSearchParams(location.search);
+    const auth = (params.get("auth") || "").trim();
+    const role = (params.get("role") || "").trim();
+    const uid = (params.get("uid") || "").trim();
+    const query = new URLSearchParams();
+    if (tg?.initData) {
+      query.set("initData", tg.initData);
+    }
+    if (auth) query.set("auth", auth);
+    if (role) query.set("role", role);
+    if (uid) query.set("uid", uid);
+    return query.toString();
+  }
+
   function newsFetchCandidates() {
     const stamp = Date.now();
     const params = new URLSearchParams(location.search);
     const explicit = (params.get("news_api") || "").trim();
-    const base = [`news.json?v=${stamp}`, `pythonProject/news.json?v=${stamp}`];
+    const authQuery = buildMiniappAuthQuery();
+    const withQuery = (url) => {
+      if (!url) return "";
+      const joiner = url.includes("?") ? "&" : "?";
+      return `${url}${joiner}v=${stamp}${authQuery ? `&${authQuery}` : ""}`;
+    };
+    const base = [
+      withQuery("news.json"),
+      withQuery("pythonProject/news.json")
+    ];
     if (!explicit) return base;
-    if (explicit.includes("?")) return [explicit, ...base];
-    return [`${explicit}?v=${stamp}`, ...base];
+    return [withQuery(explicit), ...base];
   }
 
   async function fetchNewsFromAnySource() {
@@ -393,8 +416,9 @@ const tg = window.Telegram?.WebApp;
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (!Array.isArray(data)) throw new Error("invalid payload");
-        return data;
+        const items = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : null);
+        if (!Array.isArray(items)) throw new Error("invalid payload");
+        return items;
       } catch (e) {
         lastError = e;
       }
