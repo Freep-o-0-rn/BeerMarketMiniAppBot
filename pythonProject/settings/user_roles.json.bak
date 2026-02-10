@@ -1,0 +1,64 @@
+{
+  "client_phones": {
+    "поляченков-занони андрей геннадьевич ип": "+79130097878",
+    "тимкина снежана михайловна ип": "+79139008820",
+    "селюнова виктория максимовна ип": "+79537609179",
+    "кустов артем дмитриевич ип": "+79537912266",
+    "вира ооо": "+79039066399"
+  },
+  "939285490": {
+    "role": "client",
+    "name": "себекин"
+  },
+  "8442184384": {
+    "role": "client",
+    "name": "Колядина"
+  },
+  "237087423": {
+    "role": "admin",
+    "phone": "+79994680011",
+    "phone_verified": true,
+    "username": "Freep_o_0_rn",
+    "first_name": "Freep_o_0_rn",
+    "language_code": "ru"
+  },
+  "405433712": {
+    "role": "client",
+    "name": "Демидов"
+  },
+  "288807506": {
+    "phone": "+79232235848",
+    "phone_verified": true,
+    "role": "sales_rep",
+    "name": "Заечка"
+  },
+  "1188061961": {
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "role": "client",
+    "name": "Морозова",
+    "username": "Re1ze_r",
+    "first_name": "Vadim BeerMarket",
+    "language_code": "ru",
+    "is_premium": true
+  },
+  "1153611285": {
+    "phone": "+79994642108",
+    "phone_verified": true,
+    "name": "Цветкова",
+    "role": "client"
+  },
+  "750420118": {
+    "role": "client",
+    "name": "Вобла"
+  },
+  "727411283": {
+    "username": "kontra93",
+    "first_name": "Данилок",
+    "language_code": "ru",
+    "role": "sales_rep",
+    "phone": "+79964550715",
+    "phone_verified": true,
+    "name": "ДАНИЛОК"
+  }
+}
