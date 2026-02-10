@@ -35,6 +35,8 @@ const tg = window.Telegram?.WebApp;
   let publishInFlight = false;
 
   const ACCESS_STATE_KEY = "beerMarketAccessState";
+  const ACCESS_STATE_TTL_MS = 10 * 60 * 1000;
+  const ACCESS_VERIFY_TIMEOUT_MS = 2000;
 
   function setSafeInsets() {
     const top = tg?.safeAreaInset?.top ?? tg?.contentSafeAreaInset?.top ?? 0;
@@ -338,6 +340,11 @@ const tg = window.Telegram?.WebApp;
       console.warn("access state load failed", e);
       return {};
     }
+  }
+
+  function isAccessStateFresh(state) {
+    const updatedAt = Number(state?.updatedAt);
+    return Number.isFinite(updatedAt) && (Date.now() - updatedAt) <= ACCESS_STATE_TTL_MS;
   }
 
   function saveAccessState(role, authorized) {
@@ -683,8 +690,9 @@ const tg = window.Telegram?.WebApp;
     const fallbackAuthorized = hasAuthParam
       ? authParam === "1"
       : (typeof storedAccess.authorized === "boolean" ? storedAccess.authorized : true);
+    const canUseWarmCache = !hasAuthParam && !params.get("role") && isAccessStateFresh(storedAccess);
 
-    applyAccessUi(fallbackRole, fallbackAuthorized, true);
+    applyAccessUi(fallbackRole, fallbackAuthorized, !canUseWarmCache);
 
     const authApi = params.get("auth_api") || "/miniapp/auth";
     const payload = {
@@ -699,7 +707,7 @@ const tg = window.Telegram?.WebApp;
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
-      }, 5000);
+      }, ACCESS_VERIFY_TIMEOUT_MS);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const profile = await res.json();
       const role = profile?.role || fallbackRole;
@@ -724,7 +732,7 @@ const tg = window.Telegram?.WebApp;
       applyAccessUi(role, isAuthorized, false);
       return;
     } catch (e) {
-      console.warn("access verify failed, using debug fallback", e);
+      console.warn("access verify failed, using fallback", e);
     }
 
     saveAccessState(fallbackRole, fallbackAuthorized);
