@@ -248,6 +248,16 @@ const tg = window.Telegram?.WebApp;
   }
 
   function mergeServerNewsWithLocal(serverItems) {
+    const isSameNewsContent = (left, right) => {
+      if (!left || !right) return false;
+      return (
+        String(left.title || "").trim() === String(right.title || "").trim() &&
+        String(left.category || "").trim() === String(right.category || "").trim() &&
+        toIsoDate(left.date || left.createdAt) === toIsoDate(right.date || right.createdAt) &&
+        String(left.text || "").trim() === String(right.text || "").trim()
+      );
+    };
+
     const localDraftById = new Map(
       NEWS
         .filter(item => item.publishState === "draft")
@@ -255,7 +265,14 @@ const tg = window.Telegram?.WebApp;
     );
     const merged = serverItems.map(item => {
       const draft = localDraftById.get(String(item.id));
-      return draft || normalizeNewsItem(item);
+      if (!draft) return normalizeNewsItem(item);
+
+      // Если сервер уже содержит ту же версию, считаем черновик подтверждённым.
+      if (isSameNewsContent(draft, item)) {
+        return normalizeNewsItem({ ...item, publishState: "published" });
+      }
+
+      return draft;
     });
     for (const [id, draft] of localDraftById.entries()) {
       if (!merged.some(item => String(item.id) === id)) {
@@ -472,9 +489,15 @@ const tg = window.Telegram?.WebApp;
           showPublishStatus("Лента синхронизирована с сервером.", "success");
         } else {
           const merged = mergeServerNewsWithLocal(serverItems);
+          const hasPendingDrafts = merged.some(item => item.publishState === "draft");
           NEWS.splice(0, NEWS.length, ...merged);
-          saveLocalNews(NEWS, true);
-          showPublishStatus("Обновили ленту с сервера и сохранили локальные черновики.", "muted");
+          saveLocalNews(NEWS, hasPendingDrafts);
+          showPublishStatus(
+            hasPendingDrafts
+              ? "Обновили ленту с сервера и сохранили локальные черновики."
+              : "Локальные изменения подтверждены сервером.",
+            hasPendingDrafts ? "muted" : "success"
+          );
         }
         renderNews();
         renderAdminList();

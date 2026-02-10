@@ -185,7 +185,8 @@ MINIAPP_AUTH_HOST = os.getenv("MINIAPP_AUTH_HOST", "0.0.0.0")
 MINIAPP_AUTH_PORT = int(os.getenv("MINIAPP_AUTH_PORT", "8081"))
 MINIAPP_AUTH_ENABLED = os.getenv("MINIAPP_AUTH_ENABLED", "1") in {"1", "true", "yes"}
 MINIAPP_AUTH_DEBUG_QUERY_FALLBACK = os.getenv("MINIAPP_AUTH_DEBUG_QUERY_FALLBACK", "1") in {"1", "true", "yes"}
-
+MINIAPP_AUTH_API_URL = os.getenv("MINIAPP_AUTH_API_URL", "").strip()
+MINIAPP_NEWS_ACTION_API_URL = os.getenv("MINIAPP_NEWS_ACTION_API_URL", "").strip()
 
 # --- FSM states ---
 class SearchStates(StatesGroup):
@@ -1186,10 +1187,19 @@ def build_mini_app_url(source: Optional[Any]) -> str:
     else:
         role = get_user_role(user_id)
         is_authorized = role in {"client", "admin", "sales_rep"}
+
     parsed = urlparse(MINI_APP_URL)
     query = parse_qs(parsed.query, keep_blank_values=True)
     query["auth"] = ["1" if is_authorized else "0"]
     query["role"] = [role]
+
+    auth_api = MINIAPP_AUTH_API_URL
+    action_api = MINIAPP_NEWS_ACTION_API_URL
+    if auth_api and not action_api:
+        action_api = re.sub(r"/miniapp/auth/?$", "/miniapp/news-action", auth_api)
+
+    _query_set(query, "auth_api", auth_api)
+    _query_set(query, "action_api", action_api)
     _query_set(query, "uid", user_id)
     _query_set(query, "username", getattr(user, "username", None) or rec.get("username"))
     _query_set(query, "first_name", getattr(user, "first_name", None) or rec.get("first_name"))
