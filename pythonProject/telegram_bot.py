@@ -81,8 +81,8 @@ PROMO_INDEX = PROMO_DIR / "promos.json"
 PROMO_PAGE_SIZE = 8
 ALLOWED_PROMO_IMG = {"jpg","jpeg","png","webp"}
 ALLOWED_PROMO_DOC = {"pdf"}  # документ (отправим как файл)
-NEWS_INDEX = ROOT_DIR / "news.json"
-NEWS_PUBLIC_INDEX = ROOT_DIR.parent / "news.json"
+NEWS_INDEX = ROOT_DIR.parent / "news.json"
+NEWS_LEGACY_INDEX = ROOT_DIR / "news.json"
 NEWS_CATEGORIES = {"Новость", "Обновление", "Акция", "Сервис"}
 #календарь
 _RU_MONTHS = ["", "Январь","Февраль","Март","Апрель","Май","Июнь",
@@ -1374,6 +1374,20 @@ def _json_with_cors(payload: Dict[str, Any], status: int = 200) -> web.Response:
     res.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
     return res
 
+def _normalize_news_date(value: Any) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return datetime.now(TZ).date().isoformat()
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
+        return raw
+    ru = re.match(r"^(\d{2})\.(\d{2})\.(\d{4})$", raw)
+    if ru:
+        d, m, y = ru.groups()
+        return f"{y}-{m}-{d}"
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).date().isoformat()
+    except Exception:
+        return datetime.now(TZ).date().isoformat()
 
 async def miniapp_auth_options(_: web.Request) -> web.Response:
     return _json_with_cors({"ok": True})
@@ -1454,7 +1468,7 @@ def _apply_miniapp_news_action(payload: Dict[str, Any], uid: Optional[int], role
     existing = _news_find(news_id)
     title = (payload.get("title") or "").strip()
     text = (payload.get("text") or "").strip()
-    date_value = (payload.get("date") or "").strip()
+    date_value = _normalize_news_date(payload.get("date"))
     category = (payload.get("category") or "Новость").strip()
     if category not in NEWS_CATEGORIES:
         category = "Новость"
@@ -4829,15 +4843,29 @@ def actor_id(obj):
 def is_admin_event(obj) -> bool:
     return is_admin(actor_id(obj))
 
-def _news_load() -> List[Dict[str, Any]]:
-    if not NEWS_INDEX.exists():
-        return []
+def _read_news_index(path: Path) -> List[Dict[str, Any]]:
     try:
-        data = json.loads(NEWS_INDEX.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
         return data if isinstance(data, list) else []
     except Exception:
-        logger.exception("news: index parse error, fallback empty")
+        logger.exception("news: failed to parse %s", path)
         return []
+
+def _news_load() -> List[Dict[str, Any]]:
+    candidates = [path for path in (NEWS_INDEX, NEWS_LEGACY_INDEX) if path.exists()]
+    if not candidates:
+        return []
+
+    candidates.sort(key=lambda path: path.stat().st_mtime, reverse=True)
+    for source in candidates:
+        items = _read_news_index(source)
+        if not items:
+            continue
+        if source != NEWS_INDEX:
+            _news_save(items)
+            logger.info("news: migrated index from %s to %s", source, NEWS_INDEX)
+        return items
+    return []
 
 def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -4848,15 +4876,13 @@ def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return out
 
 def _news_save(items: List[Dict[str, Any]]) -> None:
-    items = _news_reindex(items)
     payload = json.dumps(items, ensure_ascii=False, indent=2)
-    for target in (NEWS_INDEX, NEWS_PUBLIC_INDEX):
-        try:
-            tmp = target.with_suffix(target.suffix + ".tmp")
-            tmp.write_text(payload, encoding="utf-8")
-            os.replace(tmp, target)
-        except Exception:
-            logger.exception("news: failed to write %s", target)
+    try:
+        tmp = NEWS_INDEX.with_suffix(NEWS_INDEX.suffix + ".tmp")
+        tmp.write_text(payload, encoding="utf-8")
+        os.replace(tmp, NEWS_INDEX)
+    except Exception:
+        logger.exception("news: failed to write %s", NEWS_INDEX)
 
 def _news_next_seq(items: List[Dict[str, Any]]) -> int:
     seqs = []
@@ -5918,7 +5944,7 @@ async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
             existing = _news_find(news_id)
             title = (payload.get("title") or "").strip()
             text = (payload.get("text") or "").strip()
-            date_value = (payload.get("date") or "").strip()
+            date_value = _normalize_news_date(payload.get("date"))
             category = (payload.get("category") or "Новость").strip()
             if category not in NEWS_CATEGORIES:
                 category = "Новость"
