@@ -1354,10 +1354,31 @@ def _resolve_miniapp_profile(init_data: str, debug_query: Optional[Dict[str, str
         }
 
     debug_query = debug_query or {}
+    fallback_uid = debug_query.get("uid")
+    uid_int = int(fallback_uid) if str(fallback_uid or "").isdigit() else None
+    if uid_int is not None:
+        has_user_record = bool(_roles_load().get(str(uid_int)))
+        is_admin_uid = bool(_ADMIN_IDS and uid_int in _ADMIN_IDS)
+        if has_user_record or is_admin_uid:
+            role = get_user_role(uid_int)
+            authorized = role in {"client", "admin", "sales_rep"}
+            AUDIT.warning({
+                "event": "miniapp_auth_uid_fallback",
+                "reason": reason,
+                "fallback_uid": uid_int,
+                "fallback_role": role,
+                "authorized": authorized,
+            })
+            return {
+                "authorized": bool(authorized),
+                "role": role,
+                "uid": uid_int,
+                "source": "uid_roles_fallback",
+                "reason": reason,
+            }
     fallback_allowed = APP_ENV == "dev" and MINIAPP_AUTH_DEBUG_QUERY_FALLBACK
     fallback_auth = str(debug_query.get("auth") or "").strip()
     fallback_role = normalize_role(debug_query.get("role") or "client")
-    fallback_uid = debug_query.get("uid")
     if fallback_allowed and (fallback_auth or fallback_role or fallback_uid):
         AUDIT.warning({
             "event": "miniapp_auth_debug_fallback",
@@ -1368,7 +1389,7 @@ def _resolve_miniapp_profile(init_data: str, debug_query: Optional[Dict[str, str
         return {
             "authorized": fallback_auth == "1",
             "role": fallback_role,
-            "uid": int(fallback_uid) if str(fallback_uid or "").isdigit() else None,
+            "uid": uid_int,
             "source": "debug_query_fallback",
             "reason": reason,
         }
