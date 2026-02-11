@@ -1,6 +1,6 @@
 const tg = window.Telegram?.WebApp;
 
-  const NEWS_SEED = [
+  const DEV_NEWS_SEED = [
     {
       id: 101,
       title: "Обновили прайс и доступность",
@@ -24,6 +24,7 @@ const tg = window.Telegram?.WebApp;
     }
   ];
   const NEWS = [];
+  const IS_DEV_MODE = /(^localhost$|^127\.0\.0\.1$)/.test(location.hostname) || location.protocol === "file:";
 
   const FILTERS = ["Все", "Новость", "Обновление", "Акция", "Сервис"];
 
@@ -200,7 +201,7 @@ const tg = window.Telegram?.WebApp;
   function computeNewsSignature(items) {
     if (!Array.isArray(items)) return "";
     return items
-      .map(item => `${item.id}:${item.seq || ""}:${item.title}:${item.category}:${item.date}:${item.text}:${item.updatedAt || ""}`)
+      .map(item => `${item.id}:${item.seq || ""}:${item.title}:${item.category}:${item.date}:${item.text}:${item.publishState || "published"}:${item.createdAt || ""}:${item.updatedAt || ""}`)
       .join("|");
   }
 
@@ -331,24 +332,13 @@ const tg = window.Telegram?.WebApp;
     return raw;
   }
 
-  function loadAccessState() {
-    try {
-      const raw = localStorage.getItem(ACCESS_STATE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      console.warn("access state load failed", e);
-      return {};
-    }
-  }
-
-  function saveAccessState(role, authorized) {
+ function saveAccessStateMeta(meta = {}) {
     try {
       localStorage.setItem(
         ACCESS_STATE_KEY,
         JSON.stringify({
-          role,
-          authorized: Boolean(authorized),
-          updatedAt: Date.now()
+          checkedAt: Date.now(),
+          ...meta
         })
       );
     } catch (e) {
@@ -356,17 +346,22 @@ const tg = window.Telegram?.WebApp;
     }
   }
 
+  function showAuthStatus(message, kind = "muted") {
+    const node = document.getElementById("authStatus");
+    if (!node) return;
+    node.textContent = message;
+    node.style.color = kind === "error"
+      ? "var(--danger)"
+      : (kind === "success" ? "var(--accent)" : "var(--muted)");
+  }
+
   function buildMiniappAuthQuery() {
     const params = new URLSearchParams(location.search);
-    const auth = (params.get("auth") || "").trim();
-    const role = (params.get("role") || "").trim();
     const uid = (params.get("uid") || "").trim();
     const query = new URLSearchParams();
     if (tg?.initData) {
       query.set("initData", tg.initData);
     }
-    if (auth) query.set("auth", auth);
-    if (role) query.set("role", role);
     if (uid) query.set("uid", uid);
     return query.toString();
   }
@@ -432,17 +427,25 @@ const tg = window.Telegram?.WebApp;
   async function loadNews() {
     try {
       const data = await fetchNewsFromAnySource();
-      const serverItems = data.map(item => normalizeNewsItem({ ...item, publishState: "published" }));
+      const serverItems = data.map(item => normalizeNewsItem(item));
       NEWS.splice(0, NEWS.length, ...serverItems);
       newsSignature = computeNewsSignature(serverItems);
-      showPublishStatus("Лента загружена с сервера.", "success");
+      showPublishStatus("Лента загружена с сервера (/miniapp/news).", "success");
       return;
     } catch (e) {
-      console.warn("news load failed, using seed", e);
+      console.warn("news load failed", e);
     }
-    NEWS.splice(0, NEWS.length, ...NEWS_SEED);
-    newsSignature = computeNewsSignature(NEWS_SEED);
-    showPublishStatus("Сервер недоступен, показываем локальный пример ленты.", "error");
+    if (IS_DEV_MODE) {
+      const seedItems = DEV_NEWS_SEED.map(item => normalizeNewsItem(item));
+      NEWS.splice(0, NEWS.length, ...seedItems);
+      newsSignature = computeNewsSignature(seedItems);
+      showPublishStatus("DEV-заглушка: сервер недоступен, показан news.seed.json/встроенный seed.", "error");
+      return;
+    }
+
+    NEWS.splice(0, NEWS.length);
+    newsSignature = "";
+    showPublishStatus("Сервер новостей недоступен. Локальные альтернативы отключены.", "error");
   }
 
 
@@ -674,62 +677,113 @@ const tg = window.Telegram?.WebApp;
       sendAction("manager.contact", { role: currentRole });
   }
 
-  async function setupAccess() {
+  function getAuthApi() {
     const params = new URLSearchParams(location.search);
-    const storedAccess = loadAccessState();
-    const authParam = params.get("auth");
-    const hasAuthParam = authParam !== null;
-    const paramRole = params.get("role");
-    const fallbackRole = paramRole || storedAccess.role || "client";
-    const fallbackAuthorized = hasAuthParam
-      ? authParam === "1"
-      : Boolean(storedAccess.authorized);
+    return params.get("auth_api") || "/miniapp/auth";
+  }
 
-    applyAccessUi(fallbackRole, fallbackAuthorized, true);
-
-    const authApi = params.get("auth_api") || "/miniapp/auth";
-    const payload = {
+  function buildAuthPayload() {
+    const params = new URLSearchParams(location.search);
+    return {
       initData: tg?.initData || "",
-      auth: authParam,
-      role: paramRole,
       uid: params.get("uid")
     };
+  }
 
-    try {
-      const res = await fetchWithTimeout(authApi, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-      }, ACCESS_VERIFY_TIMEOUT_MS);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const profile = await res.json();
-      const role = profile?.role || fallbackRole;
-      const isAuthorized = Boolean(profile?.authorized);
-      saveAccessState(role, isAuthorized);
+  async function verifyAccess() {
+    const params = new URLSearchParams(location.search);
+    const authParam = params.get("auth");
+    const paramRole = params.get("role") || "client";
+    const authApi = getAuthApi();
+    const payload = buildAuthPayload();
 
-      if (paramRole && paramRole !== role) {
-        console.warn("miniapp security mismatch: query role differs from server", {
-          queryRole: paramRole,
-          serverRole: role,
-          uid: profile?.uid
-        });
-      }
-      if (hasAuthParam && (authParam === "1") !== isAuthorized) {
-        console.warn("miniapp security mismatch: query auth differs from server", {
-          queryAuth: authParam,
-          serverAuthorized: isAuthorized,
-          uid: profile?.uid
-        });
-      }
-
-      applyAccessUi(role, isAuthorized, false);
-      return;
-    } catch (e) {
-      console.warn("access verify failed, using fallback", e);
+    const res = await fetchWithTimeout(authApi, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    }, ACCESS_VERIFY_TIMEOUT_MS);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const profile = await res.json();
+    if (!profile || typeof profile !== "object" || typeof profile.authorized !== "boolean") {
+      throw new Error("invalid auth payload");
+    }
+    const role = profile?.role || paramRole || "client";
+    const isAuthorized = profile.authorized;
+    saveAccessStateMeta({ lastResult: "ok" });
+    if (paramRole && paramRole !== role) {
+      console.warn("miniapp security mismatch: query role differs from server", {
+        queryRole: paramRole,
+        serverRole: role,
+        uid: profile?.uid
+      });
+    }
+    if (hasAuthParam && (authParam === "1") !== isAuthorized) {
+      console.warn("miniapp security mismatch: query auth differs from server", {
+        queryAuth: authParam,
+        serverAuthorized: isAuthorized,
+        uid: profile?.uid
+      });
     }
 
-    saveAccessState(fallbackRole, fallbackAuthorized);
-    applyAccessUi(fallbackRole, fallbackAuthorized, false);
+    return { role, isAuthorized };
+  }
+
+  function bindRetryAuthHandler() {
+    const retryBtn = document.getElementById("btnRetryAuth");
+    if (!retryBtn) return;
+    retryBtn.onclick = async () => {
+      await setupAccess({retries: 0, source: "manual"});
+    };
+  }
+
+  async function setupAccess(options = {}) {
+    const retries = Number.isInteger(options.retries) ? options.retries : 2;
+    const source = options.source || "init";
+    const baseDelay = 1200;
+    const fallbackRole = "client";
+
+    applyAccessUi(fallbackRole, false, true);
+    showAuthStatus(
+      source === "manual"
+        ? "Повторная проверка авторизации…"
+        : "Проверяем права доступа…",
+      "muted"
+    );
+
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        const result = await verifyAccess();
+        applyAccessUi(result.role, result.isAuthorized, false);
+        showAuthStatus(
+          result.isAuthorized
+            ? "Авторизация подтверждена сервером."
+            : "Сервер не подтвердил авторизацию. Запросите доступ или обратитесь к менеджеру.",
+          result.isAuthorized ? "success" : "error"
+        );
+        return;
+      } catch (e) {
+        const isLast = attempt >= retries;
+        console.warn("access verify failed", { attempt: attempt + 1, error: e });
+        saveAccessStateMeta({
+          lastResult: "error",
+          lastError: e?.message || "auth failed"
+        });
+        if (isLast) {
+          applyAccessUi("client", false, false);
+          showAuthStatus(
+            "Ошибка авторизации: не удалось подтвердить доступ на сервере. Нажмите «Повторить авторизацию».",
+            "error"
+          );
+          return;
+        }
+        const delayMs = baseDelay * (2 ** attempt);
+        showAuthStatus(
+          `Сервер авторизации недоступен. Повтор через ${Math.round(delayMs / 1000)} сек…`,
+          "muted"
+        );
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
   }
 
   if (tg) {
@@ -773,6 +827,8 @@ const tg = window.Telegram?.WebApp;
 
   document.getElementById("btnSuggest").onclick = () =>
     sendAction("news.suggest");
+
+  bindRetryAuthHandler();
 
   document.getElementById("btnPublish").onclick = async () => {
     if (publishInFlight) return;

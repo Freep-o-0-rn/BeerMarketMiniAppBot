@@ -182,7 +182,8 @@ _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.stri
 MINIAPP_AUTH_HOST = os.getenv("MINIAPP_AUTH_HOST", "0.0.0.0")
 MINIAPP_AUTH_PORT = int(os.getenv("MINIAPP_AUTH_PORT", "8081"))
 MINIAPP_AUTH_ENABLED = os.getenv("MINIAPP_AUTH_ENABLED", "1") in {"1", "true", "yes"}
-MINIAPP_AUTH_DEBUG_QUERY_FALLBACK = os.getenv("MINIAPP_AUTH_DEBUG_QUERY_FALLBACK", "1") in {"1", "true", "yes"}
+MINIAPP_AUTH_DEBUG_QUERY_FALLBACK = os.getenv("MINIAPP_AUTH_DEBUG_QUERY_FALLBACK", "0") in {"1", "true", "yes"}
+APP_ENV = os.getenv("ENV", "").strip().lower()
 MINIAPP_AUTH_API_URL = os.getenv("MINIAPP_AUTH_API_URL", "").strip()
 MINIAPP_NEWS_ACTION_API_URL = os.getenv("MINIAPP_NEWS_ACTION_API_URL", "").strip()
 
@@ -1353,10 +1354,11 @@ def _resolve_miniapp_profile(init_data: str, debug_query: Optional[Dict[str, str
         }
 
     debug_query = debug_query or {}
+    fallback_allowed = APP_ENV == "dev" and MINIAPP_AUTH_DEBUG_QUERY_FALLBACK
     fallback_auth = str(debug_query.get("auth") or "").strip()
     fallback_role = normalize_role(debug_query.get("role") or "client")
     fallback_uid = debug_query.get("uid")
-    if MINIAPP_AUTH_DEBUG_QUERY_FALLBACK and (fallback_auth or fallback_role or fallback_uid):
+    if fallback_allowed and (fallback_auth or fallback_role or fallback_uid):
         AUDIT.warning({
             "event": "miniapp_auth_debug_fallback",
             "reason": reason,
@@ -1370,7 +1372,12 @@ def _resolve_miniapp_profile(init_data: str, debug_query: Optional[Dict[str, str
             "source": "debug_query_fallback",
             "reason": reason,
         }
-
+    AUDIT.warning({
+        "event": "miniapp_auth_denied",
+        "reason": reason,
+        "source": "telegram_init_data",
+        "env": APP_ENV or "unknown",
+    })
     return {
         "authorized": False,
         "role": "client",
@@ -1520,13 +1527,7 @@ async def miniapp_news_action_handler(request: web.Request) -> web.Response:
     if not isinstance(payload, dict):
         payload = {}
     init_data = (body.get("initData") if isinstance(body, dict) else None) or ""
-    debug_query = {
-        "auth": request.query.get("auth") or (body.get("auth") if isinstance(body, dict) else None),
-        "role": request.query.get("role") or (body.get("role") if isinstance(body, dict) else None),
-        "uid": request.query.get("uid") or (body.get("uid") if isinstance(body, dict) else None),
-    }
-
-    resolved = _resolve_miniapp_profile(init_data, debug_query=debug_query)
+    resolved = _resolve_miniapp_profile(init_data)
     role = resolved.get("role") or "client"
     uid = resolved.get("uid")
 
@@ -1554,12 +1555,7 @@ async def miniapp_news_action_handler(request: web.Request) -> web.Response:
 
 async def miniapp_news_handler(request: web.Request) -> web.Response:
     init_data = request.query.get("initData") or ""
-    debug_query = {
-        "auth": request.query.get("auth"),
-        "role": request.query.get("role"),
-        "uid": request.query.get("uid"),
-    }
-    resolved = _resolve_miniapp_profile(init_data, debug_query=debug_query)
+    resolved = _resolve_miniapp_profile(init_data)
     role = resolved.get("role") or "client"
     is_authorized = bool(resolved.get("authorized"))
     if not is_authorized or role not in {"client", "admin", "sales_rep"}:
@@ -4907,17 +4903,45 @@ def _news_load() -> List[Dict[str, Any]]:
         return []
     items = _read_news_index(NEWS_INDEX)
     if isinstance(items, list):
-        return [dict(it) for it in items]
+        normalized = _news_normalize_items([dict(it) for it in items])
+        if normalized != items:
+            _news_save(normalized)
+        return normalized
     return []
 
 
-def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _news_normalize_items(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    now_iso = datetime.now(TZ).isoformat()
     out: List[Dict[str, Any]] = []
     for idx, it in enumerate(items, 1):
         row = dict(it)
-        row["seq"] = idx
-        out.append(row)
+        try:
+            row_id = int(row.get("id"))
+        except (TypeError, ValueError):
+            row_id = int(time.time() * 1000) + idx
+
+        publish_state = (row.get("publishState") or "published").strip().lower()
+        if publish_state not in {"draft", "published"}:
+            publish_state = "published"
+
+        created_at = row.get("createdAt") or row.get("updatedAt") or now_iso
+        updated_at = row.get("updatedAt") or created_at
+
+        out.append({
+            "id": row_id,
+            "seq": idx,
+            "title": (row.get("title") or "").strip(),
+            "category": (row.get("category") or "Новость").strip() or "Новость",
+            "date": _normalize_news_date(row.get("date")) or datetime.now(TZ).date().isoformat(),
+            "text": (row.get("text") or "").strip(),
+            "publishState": publish_state,
+            "createdAt": created_at,
+            "updatedAt": updated_at,
+        })
     return out
+
+def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return _news_normalize_items(items)
 
 def _news_save(items: List[Dict[str, Any]]) -> None:
     normalized = _news_reindex(list(items))

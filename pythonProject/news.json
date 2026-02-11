@@ -39,6 +39,7 @@
     "category": "Сервис",
     "date": "2026-02-10",
     "text": "Тестим тестим",
+    "publishState": "published",
     "createdAt": "2026-02-10T02:16:52.792Z",
     "updatedAt": "2026-02-10T02:16:52.792Z"
   },
@@ -49,6 +50,7 @@
     "category": "Новость",
     "date": "2026-02-09",
     "text": "Тест",
+    "publishState": "published",
     "createdAt": "2026-02-09T19:30:30.062Z",
     "updatedAt": "2026-02-09T19:30:30.062Z"
   },
@@ -59,6 +61,7 @@
     "category": "Сервис",
     "date": "2026-02-09",
     "text": "Тест",
+    "publishState": "published",
     "createdAt": "2026-02-09T18:58:18.324Z",
     "updatedAt": "2026-02-09T18:58:18.324Z"
   },
@@ -68,6 +71,7 @@
     "title": "Обновление приложения",
     "category": "Обновление",
     "date": "2026-02-09",
+    "publishState": "published",
     "text": "Крупное обновление, авторизация, роли, mini App, новости, фикс багов.",
     "createdAt": "2026-02-09T18:51:55.673Z",
     "updatedAt": "2026-02-09T18:51:55.673Z"
