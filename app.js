@@ -693,6 +693,7 @@ const tg = window.Telegram?.WebApp;
   async function verifyAccess() {
     const params = new URLSearchParams(location.search);
     const authParam = params.get("auth");
+    const hasAuthParam = authParam === "0" || authParam === "1";
     const paramRole = params.get("role") || "client";
     const authApi = getAuthApi();
     const payload = buildAuthPayload();
