@@ -326,17 +326,17 @@ class ClientCardsDB:
                     FROM clients c
                     JOIN client_user_links l ON l.client_id = c.id
                     WHERE l.user_id = ?
-                    ORDER BY c.updated_at DESC
+                    ORDER BY c.legal_name COLLATE NOCASE, c.store_name COLLATE NOCASE, c.updated_at DESC
                     """,
                     (int(owner_user_id),),
                 ).fetchall()
             elif sales_rep_user_id is not None:
                 rows = conn.execute(
-                    "SELECT * FROM clients WHERE sales_rep_user_id = ? ORDER BY updated_at DESC",
+                    "SELECT * FROM clients WHERE sales_rep_user_id = ? ORDER BY legal_name COLLATE NOCASE, store_name COLLATE NOCASE, updated_at DESC",
                     (int(sales_rep_user_id),),
                 ).fetchall()
             else:
-                rows = conn.execute("SELECT * FROM clients ORDER BY updated_at DESC").fetchall()
+                rows = conn.execute("SELECT * FROM clients ORDER BY legal_name COLLATE NOCASE, store_name COLLATE NOCASE, updated_at DESC").fetchall()
         return rows
 
     def get_client(self, client_id: str) -> Optional[Dict[str, Any]]:
@@ -391,6 +391,31 @@ class ClientCardsDB:
         vals.append(client_id)
         with self._connect() as conn:
             conn.execute(f"UPDATE clients SET {', '.join(parts)} WHERE id = ?", tuple(vals))
+
+    def sync_overdue_days(self, overdue_by_client_id: Dict[str, int]) -> int:
+        """Bulk-update overdue days for existing clients. Returns number of changed records."""
+        if not overdue_by_client_id:
+            return 0
+
+        now = _utcnow()
+        changed = 0
+        with self._connect() as conn:
+            for client_id, days in overdue_by_client_id.items():
+                row = conn.execute(
+                    "SELECT overdue_days FROM clients WHERE id = ?",
+                    (client_id,),
+                ).fetchone()
+                if not row:
+                    continue
+                new_days = int(days)
+                if int(row.get("overdue_days") or 0) == new_days:
+                    continue
+                conn.execute(
+                    "UPDATE clients SET overdue_days = ?, updated_at = ? WHERE id = ?",
+                    (new_days, now, client_id),
+                )
+                changed += 1
+        return changed
 
     def ensure_network(self, name: str) -> str:
         name = (name or "").strip()

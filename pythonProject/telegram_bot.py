@@ -1421,7 +1421,38 @@ def _save_overdue_map(m: Dict[str, int]) -> None:
     except Exception as e:
         logger.error("Не удалось сохранить %s: %s", CLIENT_OVERDUE_JSON, e)
 
+def _sync_client_cards_overdue_from_map() -> int:
+    """Синхронизирует индивидуальные отсрочки из JSON в актуальную БД карточек клиентов."""
+    if not _CLIENT_OD_MAP:
+        return 0
+
+    updates: Dict[str, int] = {}
+    for card in CLIENTS_DB.list_clients():
+        legal_name = (card.get("legal_name") or "").strip().casefold()
+        store_name = (card.get("store_name") or "").strip().casefold()
+        address = (card.get("address") or "").strip().casefold()
+        best_days: Optional[int] = None
+
+        for key, days in _CLIENT_OD_MAP.items():
+            k = (key or "").strip().casefold()
+            if not k:
+                continue
+            if k in legal_name or k in store_name or k in address:
+                if best_days is None or int(days) > best_days:
+                    best_days = int(days)
+
+        if best_days is not None:
+            updates[str(card.get("id"))] = best_days
+
+    if not updates:
+        return 0
+    changed = CLIENTS_DB.sync_overdue_days(updates)
+    if changed:
+        logger.info("Синхронизировано отсрочек в карточки клиентов: %s", changed)
+    return changed
+
 _CLIENT_OD_MAP = _load_overdue_map()
+_sync_client_cards_overdue_from_map()
 
 def get_overdue_days_for_client(client_name: str) -> int:
     base = OVERDUE_DAYS_DEFAULT
@@ -1903,6 +1934,14 @@ def _extract_legal_form_and_name(raw: str) -> Tuple[str, str]:
     if m_full:
         form = "ИП" if "предприниматель" in m_full.group(1).casefold() else "ООО"
         return form, m_full.group(2).strip(" -")
+    if re.search(r"\b(ИП|индивидуальный\s+предприниматель)\b", txt, flags=re.IGNORECASE):
+        return "ИП", txt
+    if re.search(
+            r"\b(ООО|общество\s+с\s+ограниченной\s+ответственностью)\b",
+            txt,
+            flags=re.IGNORECASE,
+    ):
+        return "ООО", txt
     return "ООО", txt
 
 def _normalize_legal_name(legal_name: str) -> str:
@@ -4719,11 +4758,13 @@ async def od_edit_days(m: Message, state: FSMContext):
     if days == 0:
         _CLIENT_OD_MAP.pop(key, None)
         _save_overdue_map(_CLIENT_OD_MAP)
+        _sync_client_cards_overdue_from_map()
         await state.clear()
         await m.answer(f"Отсрочка для «{esc(client)}» <b>сброшена</b> до общего значения.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     else:
         _CLIENT_OD_MAP[key] = days
         _save_overdue_map(_CLIENT_OD_MAP)
+        _sync_client_cards_overdue_from_map()
         await state.clear()
         await m.answer(f"Отсрочка для «{esc(client)}» установлена: <b>{days} дн.</b>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
@@ -4756,6 +4797,7 @@ async def od_set_days(m: Message, state: FSMContext):
         return
     _CLIENT_OD_MAP[key] = days
     _save_overdue_map(_CLIENT_OD_MAP)
+    _sync_client_cards_overdue_from_map()
     await state.clear()
     await m.answer(f"Сохранено: <code>{esc(key)}</code> → {days} дн.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
@@ -4779,6 +4821,7 @@ async def od_del_key(m: Message, state: FSMContext):
     if key in _CLIENT_OD_MAP:
         _CLIENT_OD_MAP.pop(key)
         _save_overdue_map(_CLIENT_OD_MAP)
+        _sync_client_cards_overdue_from_map()
         await m.answer(f"Удалено правило: <code>{esc(key)}</code>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     else:
         await m.answer("Такого ключа нет в списке.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
