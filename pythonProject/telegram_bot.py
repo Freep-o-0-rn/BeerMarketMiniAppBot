@@ -3,13 +3,6 @@ import logging
 import html as _html
 import ssl
 import hmac
-from mini_app import (
-    router as mini_app_router,
-    mini_app_reply_button,
-    setup_menu_button,
-    set_webapp_handler,
-    set_webapp_url_builder,
-)
 from aiogram.types import FSInputFile  # aiogram v3
 import uuid
 import io
@@ -69,8 +62,6 @@ ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
 
 logger = logging.getLogger(__name__)
-
-MINI_APP_URL = os.getenv("MINI_APP_URL", "https://freep0rndeveloper.website/")
 
 #Прайсы: сортировка по алфавиту ---
 PRICES_SORT_ALPHA = True   # вырубить — поставьте False
@@ -149,7 +140,6 @@ except TokenValidationError:
 
 bot = Bot(BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 router = Router(name="root")
-router.include_router(mini_app_router)
 dp = Dispatcher(storage=MemoryStorage())
 dp.include_router(router)
 
@@ -179,13 +169,6 @@ PRICES_INDEX.parent.mkdir(parents=True, exist_ok=True)
 
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
-MINIAPP_AUTH_HOST = os.getenv("MINIAPP_AUTH_HOST", "0.0.0.0")
-MINIAPP_AUTH_PORT = int(os.getenv("MINIAPP_AUTH_PORT", "8081"))
-MINIAPP_AUTH_ENABLED = os.getenv("MINIAPP_AUTH_ENABLED", "1") in {"1", "true", "yes"}
-MINIAPP_AUTH_DEBUG_QUERY_FALLBACK = os.getenv("MINIAPP_AUTH_DEBUG_QUERY_FALLBACK", "0") in {"1", "true", "yes"}
-APP_ENV = os.getenv("ENV", "").strip().lower()
-MINIAPP_AUTH_API_URL = os.getenv("MINIAPP_AUTH_API_URL", "").strip()
-MINIAPP_NEWS_ACTION_API_URL = os.getenv("MINIAPP_NEWS_ACTION_API_URL", "").strip()
 
 # --- FSM states ---
 class SearchStates(StatesGroup):
@@ -1160,58 +1143,6 @@ def _user_record(user_id: Optional[int]) -> Dict[str, Any]:
         return {}
     return (_roles_load().get(str(user_id)) or {})
 
-def _query_set(query: Dict[str, List[str]], key: str, value: Optional[Any]) -> None:
-    if value is None:
-        return
-    text = str(value).strip()
-    if not text:
-        return
-    query[key] = [text]
-
-def _extract_user(source: Optional[Any]) -> Tuple[Optional[int], Optional[User]]:
-    if isinstance(source, Message):
-        return getattr(source.from_user, "id", None), source.from_user
-    if isinstance(source, User):
-        return getattr(source, "id", None), source
-    if isinstance(source, int):
-        return source, None
-    return None, None
-
-def build_mini_app_url(source: Optional[Any]) -> str:
-    user_id, user = _extract_user(source)
-    rec = _user_record(user_id)
-    if not user_id:
-        role = "guest"
-        is_authorized = False
-    else:
-        role = get_user_role(user_id)
-        is_authorized = role in {"client", "admin", "sales_rep"}
-
-    parsed = urlparse(MINI_APP_URL)
-    query = parse_qs(parsed.query, keep_blank_values=True)
-    query["auth"] = ["1" if is_authorized else "0"]
-    query["role"] = [role]
-
-    auth_api = MINIAPP_AUTH_API_URL
-    action_api = MINIAPP_NEWS_ACTION_API_URL
-    news_api = ""
-    if auth_api and not action_api:
-        action_api = re.sub(r"/miniapp/auth/?$", "/miniapp/news-action", auth_api)
-    if auth_api:
-        news_api = re.sub(r"/miniapp/auth/?$", "/miniapp/news", auth_api)
-
-    _query_set(query, "auth_api", auth_api)
-    _query_set(query, "action_api", action_api)
-    _query_set(query, "news_api", news_api)
-    _query_set(query, "uid", user_id)
-    _query_set(query, "username", getattr(user, "username", None) or rec.get("username"))
-    _query_set(query, "first_name", getattr(user, "first_name", None) or rec.get("first_name"))
-    _query_set(query, "last_name", getattr(user, "last_name", None) or rec.get("last_name"))
-    _query_set(query, "name", rec.get("name"))
-    _query_set(query, "phone", rec.get("phone"))
-    _query_set(query, "phone_verified", "1" if rec.get("phone_verified") else "0")
-    return urlunparse(parsed._replace(query=urlencode(query, doseq=True)))
-
 def update_user_profile_from_message(m: Message) -> None:
     user = getattr(m, "from_user", None)
     if not user:
@@ -1293,328 +1224,6 @@ def set_client_name(user_id: int, name: str) -> None:
 
 def _save_user_roles(data: Dict[str, Any]) -> None:
     _roles_save_atomic(_normalize_user_roles_schema(data or {}))
-
-#авторизация мини апп
-def _parse_tg_init_data(init_data: str) -> Dict[str, str]:
-    pairs = parse_qs(init_data or "", keep_blank_values=True)
-    out: Dict[str, str] = {}
-    for key, values in pairs.items():
-        if not values:
-            continue
-        out[key] = values[-1]
-    return out
-
-
-def _verify_tg_init_data(init_data: str) -> Tuple[bool, Dict[str, Any], Optional[str]]:
-    parsed = _parse_tg_init_data(init_data)
-    provided_hash = (parsed.get("hash") or "").strip().lower()
-    if not provided_hash:
-        return False, {}, "missing_hash"
-
-    data_check_items = []
-    for key in sorted(k for k in parsed.keys() if k != "hash"):
-        data_check_items.append(f"{key}={parsed[key]}")
-    data_check_string = "\n".join(data_check_items)
-
-    secret_key = hmac.new(b"WebAppData", BOT_TOKEN.encode("utf-8"), sha256).digest()
-    expected_hash = hmac.new(secret_key, data_check_string.encode("utf-8"), sha256).hexdigest()
-    if expected_hash != provided_hash:
-        return False, {}, "hash_mismatch"
-
-    user_payload: Dict[str, Any] = {}
-    user_raw = parsed.get("user")
-    if user_raw:
-        try:
-            user_payload = json.loads(user_raw)
-        except Exception:
-            user_payload = {}
-
-    auth_date = parsed.get("auth_date")
-    profile: Dict[str, Any] = {
-        "uid": user_payload.get("id"),
-        "auth_date": int(auth_date) if str(auth_date or "").isdigit() else None,
-        "query_id": parsed.get("query_id"),
-        "user": user_payload,
-    }
-    return True, profile, None
-
-
-def _resolve_miniapp_profile(init_data: str, debug_query: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
-    ok, profile, reason = _verify_tg_init_data(init_data)
-    if ok:
-        uid = profile.get("uid")
-        role = get_user_role(uid)
-        authorized = role in {"client", "admin", "sales_rep"}
-        return {
-            "authorized": bool(authorized),
-            "role": role,
-            "uid": uid,
-            "source": "telegram_init_data",
-            "reason": None,
-        }
-
-    debug_query = debug_query or {}
-    fallback_uid = debug_query.get("uid")
-    uid_int = int(fallback_uid) if str(fallback_uid or "").isdigit() else None
-    if uid_int is not None:
-        has_user_record = bool(_roles_load().get(str(uid_int)))
-        is_admin_uid = bool(_ADMIN_IDS and uid_int in _ADMIN_IDS)
-        if has_user_record or is_admin_uid:
-            role = get_user_role(uid_int)
-            authorized = role in {"client", "admin", "sales_rep"}
-            AUDIT.warning({
-                "event": "miniapp_auth_uid_fallback",
-                "reason": reason,
-                "fallback_uid": uid_int,
-                "fallback_role": role,
-                "authorized": authorized,
-            })
-            return {
-                "authorized": bool(authorized),
-                "role": role,
-                "uid": uid_int,
-                "source": "uid_roles_fallback",
-                "reason": reason,
-            }
-    fallback_allowed = APP_ENV == "dev" and MINIAPP_AUTH_DEBUG_QUERY_FALLBACK
-    fallback_auth = str(debug_query.get("auth") or "").strip()
-    fallback_role = normalize_role(debug_query.get("role") or "client")
-    if fallback_allowed and (fallback_auth or fallback_role or fallback_uid):
-        AUDIT.warning({
-            "event": "miniapp_auth_debug_fallback",
-            "reason": reason,
-            "fallback_role": fallback_role,
-            "fallback_uid": fallback_uid,
-        })
-        return {
-            "authorized": fallback_auth == "1",
-            "role": fallback_role,
-            "uid": uid_int,
-            "source": "debug_query_fallback",
-            "reason": reason,
-        }
-    AUDIT.warning({
-        "event": "miniapp_auth_denied",
-        "reason": reason,
-        "source": "telegram_init_data",
-        "env": APP_ENV or "unknown",
-    })
-    return {
-        "authorized": False,
-        "role": "client",
-        "uid": None,
-        "source": "denied",
-        "reason": reason,
-    }
-
-
-def _json_with_cors(payload: Dict[str, Any], status: int = 200) -> web.Response:
-    res = web.json_response(payload, status=status)
-    res.headers["Access-Control-Allow-Origin"] = "*"
-    res.headers["Access-Control-Allow-Headers"] = "content-type"
-    res.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
-    return res
-
-def _normalize_news_date(value: Any) -> str:
-    raw = str(value or "").strip()
-    if not raw:
-        return datetime.now(TZ).date().isoformat()
-    if re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
-        return raw
-    ru = re.match(r"^(\d{2})\.(\d{2})\.(\d{4})$", raw)
-    if ru:
-        d, m, y = ru.groups()
-        return f"{y}-{m}-{d}"
-    try:
-        return datetime.fromisoformat(raw.replace("Z", "+00:00")).date().isoformat()
-    except Exception:
-        return datetime.now(TZ).date().isoformat()
-
-async def miniapp_auth_options(_: web.Request) -> web.Response:
-    return _json_with_cors({"ok": True})
-
-
-async def miniapp_auth_handler(request: web.Request) -> web.Response:
-    body: Dict[str, Any] = {}
-    if request.method == "POST":
-        try:
-            body = await request.json()
-        except Exception:
-            body = {}
-
-    init_data = (
-        (body.get("initData") if isinstance(body, dict) else None)
-        or request.query.get("initData")
-        or ""
-    )
-    debug_query = {
-        "auth": request.query.get("auth") or (body.get("auth") if isinstance(body, dict) else None),
-        "role": request.query.get("role") or (body.get("role") if isinstance(body, dict) else None),
-        "uid": request.query.get("uid") or (body.get("uid") if isinstance(body, dict) else None),
-    }
-    resolved = _resolve_miniapp_profile(init_data, debug_query=debug_query)
-
-    query_role = request.query.get("role") or (body.get("role") if isinstance(body, dict) else None)
-    query_auth = request.query.get("auth") or (body.get("auth") if isinstance(body, dict) else None)
-    if query_role and normalize_role(query_role) != resolved.get("role"):
-        AUDIT.warning({
-            "event": "miniapp_security_mismatch",
-            "kind": "role",
-            "query_role": query_role,
-            "server_role": resolved.get("role"),
-            "uid": resolved.get("uid"),
-        })
-    if query_auth in {"0", "1"} and ((query_auth == "1") != bool(resolved.get("authorized"))):
-        AUDIT.warning({
-            "event": "miniapp_security_mismatch",
-            "kind": "authorized",
-            "query_auth": query_auth,
-            "server_authorized": bool(resolved.get("authorized")),
-            "uid": resolved.get("uid"),
-        })
-
-    return _json_with_cors({
-        "ok": bool(resolved.get("authorized")),
-        "authorized": bool(resolved.get("authorized")),
-        "role": resolved.get("role"),
-        "uid": resolved.get("uid"),
-        "source": resolved.get("source"),
-        "reason": resolved.get("reason"),
-    })
-
-
-def _apply_miniapp_news_action(payload: Dict[str, Any], uid: Optional[int], role: str) -> Dict[str, Any]:
-    action = (payload.get("action") or "").strip()
-    is_authorized = role in {"client", "admin", "sales_rep"}
-    is_admin = role == "admin"
-    if not is_authorized:
-        return {"ok": False, "applied": False, "message": "Доступ к ленте только для авторизованных пользователей."}
-    if action not in {"news.create", "news.update", "news.delete"}:
-        return {"ok": False, "applied": False, "message": "Неподдерживаемое действие."}
-    if not is_admin:
-        return {"ok": False, "applied": False, "message": "Недостаточно прав для управления новостями."}
-
-    news_id = payload.get("id")
-    try:
-        news_id = int(news_id)
-    except (TypeError, ValueError):
-        news_id = int(time.time() * 1000)
-
-    if action == "news.delete":
-        removed = _news_delete(news_id)
-        if not removed:
-            return {"ok": False, "applied": False, "message": "Новость не найдена.", "id": news_id}
-        return {"ok": True, "applied": True, "message": "Новость удалена.", "id": news_id}
-
-    existing = _news_find(news_id)
-    title = (payload.get("title") or "").strip()
-    text = (payload.get("text") or "").strip()
-    date_value = _normalize_news_date(payload.get("date"))
-    category = (payload.get("category") or "Новость").strip()
-    if category not in NEWS_CATEGORIES:
-        category = "Новость"
-    if not title or not text or not date_value:
-        return {"ok": False, "applied": False, "message": "Заполните заголовок, дату и текст.", "id": news_id}
-
-    now_iso = datetime.now(TZ).isoformat()
-    publish_state = (payload.get("publishState") or (
-        existing.get("publishState") if existing else "published") or "published").strip().lower()
-    if publish_state not in {"draft", "published"}:
-        publish_state = "published"
-
-    item = {
-        "id": news_id,
-        "seq": payload.get("seq") or (existing.get("seq") if existing else None),
-        "title": title,
-        "category": category,
-        "date": date_value,
-        "text": text,
-        "publishState": publish_state,
-        "createdAt": payload.get("createdAt") or (existing.get("createdAt") if existing else now_iso),
-        "updatedAt": payload.get("updatedAt") or now_iso,
-    }
-    _news_upsert(item)
-    return {"ok": True, "applied": True, "message": "Изменения сохранены.", "id": news_id, "item": item}
-
-async def miniapp_news_action_handler(request: web.Request) -> web.Response:
-    body: Dict[str, Any] = {}
-    try:
-        if request.method == "POST":
-            body = await request.json()
-    except Exception:
-        body = {}
-
-    payload = body.get("payload") if isinstance(body, dict) else {}
-    if not isinstance(payload, dict):
-        payload = {}
-    init_data = (body.get("initData") if isinstance(body, dict) else None) or ""
-    resolved = _resolve_miniapp_profile(init_data)
-    role = resolved.get("role") or "client"
-    uid = resolved.get("uid")
-
-    result = _apply_miniapp_news_action(payload, uid, role)
-    status = 200 if result.get("ok") and result.get("applied") else 400
-    AUDIT.info({
-        "event": "miniapp_news_action_ack",
-        "uid": uid,
-        "role": role,
-        "action": payload.get("action"),
-        "ok": result.get("ok"),
-        "applied": result.get("applied"),
-        "message": result.get("message"),
-    })
-    return _json_with_cors({
-        "ok": bool(result.get("ok")),
-        "applied": bool(result.get("applied")),
-        "message": result.get("message"),
-        "uid": uid,
-        "role": role,
-        "action": payload.get("action"),
-        "id": result.get("id"),
-    }, status=status)
-
-
-async def miniapp_news_handler(request: web.Request) -> web.Response:
-    init_data = request.query.get("initData") or ""
-    resolved = _resolve_miniapp_profile(init_data)
-    role = resolved.get("role") or "client"
-    is_authorized = bool(resolved.get("authorized"))
-    if not is_authorized or role not in {"client", "admin", "sales_rep"}:
-        return _json_with_cors({"ok": False, "message": "Доступ запрещён.", "items": []}, status=403)
-
-    items = _news_load()
-    if role != "admin":
-        items = [it for it in items if (it.get("publishState") or "published") == "published"]
-
-    return _json_with_cors({
-        "ok": True,
-        "items": items,
-        "role": role,
-        "uid": resolved.get("uid"),
-        "updatedAt": datetime.now(TZ).isoformat(),
-    })
-
-async def _run_miniapp_auth_server() -> None:
-    app = web.Application()
-    app.router.add_route("OPTIONS", "/miniapp/auth", miniapp_auth_options)
-    app.router.add_route("GET", "/miniapp/auth", miniapp_auth_handler)
-    app.router.add_route("POST", "/miniapp/auth", miniapp_auth_handler)
-    app.router.add_route("OPTIONS", "/miniapp/news-action", miniapp_auth_options)
-    app.router.add_route("POST", "/miniapp/news-action", miniapp_news_action_handler)
-    app.router.add_route("OPTIONS", "/miniapp/news", miniapp_auth_options)
-    app.router.add_route("GET", "/miniapp/news", miniapp_news_handler)
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, MINIAPP_AUTH_HOST, MINIAPP_AUTH_PORT)
-    await site.start()
-    logger.info("miniapp auth server started on %s:%s", MINIAPP_AUTH_HOST, MINIAPP_AUTH_PORT)
-    try:
-        while True:
-            await asyncio.sleep(3600)
-    finally:
-        await runner.cleanup()
-
-
 
 # ---------------- Фильтры  -----------------
 def _ensure_filters_dir():
@@ -1868,7 +1477,6 @@ def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     hhmm = fmt_hhmm(last_dt)
     if hhmm:
         upd_label = f"{upd_label} ({hhmm})"
-    mini_app_url = build_mini_app_url(user_id)
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
@@ -1878,14 +1486,13 @@ def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
             [KeyboardButton(text="👥 Пользователи")],
-            [KeyboardButton(text="▶️ Старт"), mini_app_reply_button(mini_app_url), KeyboardButton(text=upd_label), ],
+            [KeyboardButton(text="▶️ Старт"), KeyboardButton(text=upd_label)],
         ],
         resize_keyboard=True
     )
 
 def sales_rep_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     """Клавиатура торгового представителя: поиск, прайсы, акции, график, ТТН."""
-    mini_app_url = build_mini_app_url(user_id)
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
@@ -1893,7 +1500,7 @@ def sales_rep_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="▶️ Старт"), mini_app_reply_button(mini_app_url)],
+            [KeyboardButton(text="▶️ Старт")],
         ],
         resize_keyboard=True
     )
@@ -2069,13 +1676,12 @@ def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     hhmm = fmt_hhmm(last_dt)
     if hhmm:
         upd_label = f"{upd_label} ({hhmm})"
-        mini_app_url = build_mini_app_url(user_id)
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN)],
-            [KeyboardButton(text="▶️ Старт"), mini_app_reply_button(mini_app_url)],
+            [KeyboardButton(text="▶️ Старт")],
             [KeyboardButton(text="✏️ Изменить название")],
         ],
         resize_keyboard=True
@@ -2761,10 +2367,6 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
 async def on_start(m: Message, state: FSMContext):
     await state.clear()
     update_user_profile_from_message(m)
-    try:
-        await setup_menu_button(bot, m)
-    except Exception:
-        pass
 
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
@@ -2815,10 +2417,6 @@ async def on_help(m: Message):
         await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
         return
     update_user_profile_from_message(m)
-    try:
-        await setup_menu_button(bot, m)
-    except Exception:
-        pass
     role = get_user_role(getattr(m.from_user, "id", None))
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
@@ -5978,115 +5576,10 @@ async def cmd_bakalar(m: Message):
         ),
     )
 
-
-#--------------------------------
-#--------МИНИ АПП----------------
-#--------------------------------
-#--------МИНИ АПП----------------
-async def _miniapp_dispatch(m: Message, state: FSMContext, payload: dict):
-    if is_user_blocked(getattr(m.from_user, "id", None)):
-        await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
-        return
-    action = (payload.get("action") or "").strip()
-    uid = getattr(m.from_user, "id", None)
-    role = get_user_role(uid)
-    is_authorized = role in {"client", "admin", "sales_rep"}
-    is_admin = role == "admin"
-
-    async def notify_admins(text: str) -> None:
-        if not _ADMIN_IDS:
-            return
-        for admin_id in _ADMIN_IDS:
-            try:
-                await m.bot.send_message(admin_id, text)
-            except Exception:
-                logger.exception("miniapp: failed to notify admin %s", admin_id)
-
-
-    if action in {"access.request", "manager.contact"}:
-        await m.answer("Запрос отправлен. Менеджер свяжется с вами в ближайшее время.")
-        await notify_admins(
-            f"🔐 Запрос доступа Mini App от пользователя {uid} ({role})."
-        )
-        return
-
-    if not is_authorized:
-        await m.answer("Доступ к ленте доступен только авторизованным пользователям.")
-        return
-
-    if action.startswith("feed."):
-        await m.answer("Лента обновлена. Выберите новость в приложении.")
-        return
-
-    if action == "news.suggest":
-        await m.answer("Напишите предложение новости в чат, мы передадим администратору.")
-        await notify_admins(
-            f"📰 Предложение новости от пользователя {uid} ({role})."
-        )
-        return
-
-    if action in {"news.create", "news.update", "news.delete"}:
-        if not is_admin:
-            await m.answer("У вас нет прав для управления новостями.")
-            return
-        news_id = payload.get("id")
-        try:
-            news_id = int(news_id)
-        except (TypeError, ValueError):
-            news_id = int(time.time() * 1000)
-
-        if action == "news.delete":
-            removed = _news_delete(news_id)
-            await m.answer("✅ Новость удалена." if removed else "⚠️ Новость не найдена.")
-        else:
-            existing = _news_find(news_id)
-            title = (payload.get("title") or "").strip()
-            text = (payload.get("text") or "").strip()
-            date_value = _normalize_news_date(payload.get("date"))
-            category = (payload.get("category") or "Новость").strip()
-            if category not in NEWS_CATEGORIES:
-                category = "Новость"
-            if not title or not text or not date_value:
-                await m.answer("⚠️ Новость не сохранена: проверьте заголовок, дату и текст.")
-                return
-            now_iso = datetime.now(TZ).isoformat()
-            publish_state = (payload.get("publishState") or (existing.get("publishState") if existing else "published") or "published").strip().lower()
-            if publish_state not in {"draft", "published"}:
-                publish_state = "published"
-            item = {
-                "id": news_id,
-                "seq": payload.get("seq") or (existing.get("seq") if existing else None),
-                "title": title,
-                "category": category,
-                "date": date_value,
-                "text": text,
-                "publishState": publish_state,
-                "createdAt": payload.get("createdAt") or (existing.get("createdAt") if existing else now_iso),
-                "updatedAt": payload.get("updatedAt") or now_iso,
-            }
-            _news_upsert(item)
-            #await m.answer("✅ Изменение по новости сохранено.")
-        await notify_admins(
-            f"🛠 Админ {uid} выполнил действие {action} в Mini App."
-        )
-        return
-
-    await m.answer(f"Неизвестная команда Mini App: <code>{esc(action)}</code>")
-
-
 # --- Fallback для неизвестных callback'ов ---
 @router.callback_query()
 async def fallback_cb(cq: CallbackQuery):
     await cq.answer()
-
-try:
-    set_webapp_handler(_miniapp_dispatch)
-except Exception as e:
-    logger.warning("set_webapp_handler failed: %s", e)
-try:
-    set_webapp_url_builder(lambda msg: build_mini_app_url(msg))
-except Exception as e:
-    logger.warning("set_webapp_url_builder failed: %s", e)
 
 
 # --- Старт бота ---
@@ -6096,10 +5589,4 @@ async def run_bot():
     except Exception:
         pass
     asyncio.create_task(daily_fetch_worker())
-    if MINIAPP_AUTH_ENABLED:
-        asyncio.create_task(_run_miniapp_auth_server())
-    try:
-        await setup_menu_button(bot)
-    except Exception:
-        pass
     await dp.start_polling(bot)
