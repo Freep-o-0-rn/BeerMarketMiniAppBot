@@ -37,16 +37,6 @@
     "last_name": "Колягина",
     "language_code": "ru"
   },
-  "1188061961": {
-    "phone": "+79965440806",
-    "phone_verified": true,
-    "role": "sales_rep",
-    "name": "Воротников",
-    "username": "Re1ze_r",
-    "first_name": "Vadim BeerMarket",
-    "language_code": "ru",
-    "is_premium": true
-  },
   "1153611285": {
     "phone": "+79994642108",
     "phone_verified": true,
@@ -66,5 +56,15 @@
     "phone_verified": true,
     "name": "ДАНИЛОК",
     "blocked": false
+  },
+  "1188061961": {
+    "username": "Re1ze_r",
+    "first_name": "Vadim BeerMarket",
+    "language_code": "ru",
+    "is_premium": true,
+    "role": "client",
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "name": "Воротников"
   }
 }

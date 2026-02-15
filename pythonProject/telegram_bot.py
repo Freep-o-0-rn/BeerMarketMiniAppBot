@@ -1791,7 +1791,8 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
+def user_detail_kb(uid: str, page: int = 0, is_authorized: bool = False) -> InlineKeyboardMarkup:
+    auth_btn_text = "🚫 Снять авторизацию" if is_authorized else "✅ Авторизовать"
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
@@ -1800,6 +1801,9 @@ def user_detail_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
             InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
+        ],
+        [
+            InlineKeyboardButton(text=auth_btn_text, callback_data=f"usr:auth:{uid}:{page}"),
         ],
         [
             InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
@@ -5370,6 +5374,7 @@ async def admin_users_select(cq: CallbackQuery):
     role = normalize_role(rec.get("role") or "client")
     phone = (rec.get("phone") or "—").strip()
     verified = "✅" if rec.get("phone_verified") else "❌"
+    is_authorized = bool(rec.get("phone_verified"))
     blocked = "⛔" if rec.get("blocked") else "✅"
     text = (
         f"<b>Пользователь</b>\n"
@@ -5379,8 +5384,26 @@ async def admin_users_select(cq: CallbackQuery):
         f"Телефон: <b>{esc(phone)}</b> ({verified})\n"
         f"Доступ: {blocked}"
     )
-    await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page))
+    await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page, is_authorized=is_authorized))
     await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:auth:"))
+async def admin_users_toggle_auth(cq: CallbackQuery):
+    if not is_admin(getattr(cq.from_user, "id", None)):
+        await cq.answer("Недостаточно прав.", show_alert=True)
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    if not uid:
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    rec = _roles_load().get(uid, {})
+    if not isinstance(rec, dict):
+        rec = {"role": "client", "name": str(rec)}
+    new_auth_state = not bool(rec.get("phone_verified"))
+    update_user_record(uid, {"phone_verified": new_auth_state})
+    await cq.answer("Авторизация выдана." if new_auth_state else "Авторизация снята.")
+    await admin_users_select(cq)
 
 @router.callback_query(F.data.startswith("usr:setrole:"))
 async def admin_users_set_role(cq: CallbackQuery):
