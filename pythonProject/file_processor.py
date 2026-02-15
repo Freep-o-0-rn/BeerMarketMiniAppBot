@@ -231,7 +231,9 @@ def _repair_xlsx_via_excel(src_path: str) -> str:
     """
     Открывает файл в Excel и пересохраняет в .repaired.xlsx.
     Используем late-binding (dynamic.Dispatch) без gencache/makepy.
-    Перед открытием снимаем Mark-of-the-Web и пытаемся открыть с CorruptLoad=1.
+    Перед открытием снимаем Mark-of-the-Web.
+    СНАЧАЛА пробуем обычное открытие (как при ручном "Разрешить редактирование"),
+    и только если не получилось — fallback с CorruptLoad=1.
     """
     from pathlib import Path
     abspath = os.path.abspath(src_path)
@@ -251,16 +253,33 @@ def _repair_xlsx_via_excel(src_path: str) -> str:
         excel.DisplayAlerts = False
         excel.Visible = False
 
-        # Попытка 1: CorruptLoad=1 (Recovery)
+        # Попытка 1: обычное открытие (ближе к ручному сценарию)
         try:
-            wb = excel.Workbooks.Open(Filename=abspath, ReadOnly=False, CorruptLoad=1,
-                                      IgnoreReadOnlyRecommended=True, Notify=False)
+            wb = excel.Workbooks.Open(
+                Filename=abspath,
+                ReadOnly=False,
+                IgnoreReadOnlyRecommended=True,
+                Notify=False,
+                UpdateLinks=0,
+            )
         except Exception:
-            # Попытка 2: без CorruptLoad — вдруг сработает
-            wb = excel.Workbooks.Open(Filename=abspath, ReadOnly=False,
-                                      IgnoreReadOnlyRecommended=True, Notify=False)
+            # Попытка 2: Recovery-режим, если обычное открытие не удалось
+            wb = excel.Workbooks.Open(
+                Filename=abspath,
+                ReadOnly=False,
+                CorruptLoad=1,
+                IgnoreReadOnlyRecommended=True,
+                Notify=False,
+                UpdateLinks=0,
+            )
 
         wb.SaveAs(Filename=out_path, FileFormat=51)  # 51 = .xlsx
+        try:
+            src_size = os.path.getsize(abspath)
+            out_size = os.path.getsize(out_path)
+            logging.info("Excel SaveAs size: %s -> %s bytes", src_size, out_size)
+        except Exception:
+            pass
         wb.Close(SaveChanges=False)
     finally:
         if excel is not None:
