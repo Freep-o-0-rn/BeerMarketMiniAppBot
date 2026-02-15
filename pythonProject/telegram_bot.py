@@ -1874,6 +1874,28 @@ def client_card_technician_pick_kb() -> InlineKeyboardMarkup:
     rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)", callback_data="cc:tech:skip")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def client_card_cancel_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="❌ Отмена")]],
+        resize_keyboard=True,
+        one_time_keyboard=False,
+    )
+
+
+def client_card_skip_cancel_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="⏭ Пропустить")], [KeyboardButton(text="❌ Отмена")]],
+        resize_keyboard=True,
+        one_time_keyboard=False,
+    )
+
+
+def _cc_is_cancel(text: Optional[str]) -> bool:
+    return (text or "").strip().lower() in {"/cancel", "отмена", "❌ отмена"}
+
+
+def _cc_is_skip(text: Optional[str]) -> bool:
+    return (text or "").strip().lower() in {"пропустить", "⏭ пропустить", "-"}
 
 def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
     rows = [[InlineKeyboardButton(text="➕ Контакт", callback_data=f"cc:addcontact:{client_id}")]]
@@ -3431,8 +3453,18 @@ async def cc_new(cq: CallbackQuery, state: FSMContext):
     await state.clear()
     await state.update_data(client_contacts=[])
     await state.set_state(ClientCardStates.waiting_legal_form)
-    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="ООО", callback_data="cc:lf:ООО"), InlineKeyboardButton(text="ИП", callback_data="cc:lf:ИП")]])
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="ООО", callback_data="cc:lf:ООО"),
+         InlineKeyboardButton(text="ИП", callback_data="cc:lf:ИП")],
+        [InlineKeyboardButton(text="❌ Отмена", callback_data="cc:create:cancel")],
+    ])
     await cq.message.answer("Создание карточки. Выберите форму: ООО или ИП.", reply_markup=kb)
+    await cq.answer()
+
+@router.callback_query(F.data == "cc:create:cancel", ClientCardStates.waiting_legal_form)
+async def cc_create_cancel(cq: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await cq.message.answer("Создание карточки отменено.")
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:lf:"), ClientCardStates.waiting_legal_form)
@@ -3440,65 +3472,109 @@ async def cc_pick_legal_form(cq: CallbackQuery, state: FSMContext):
     lf = cq.data.split(":", 2)[2]
     await state.update_data(legal_form=lf)
     await state.set_state(ClientCardStates.waiting_legal_name)
-    await cq.message.answer("Введите юр. название клиента (без формы).")
+    await cq.message.answer("Введите юр. название клиента (без формы).", reply_markup=client_card_cancel_kb())
     await cq.answer()
 
 @router.message(ClientCardStates.waiting_legal_name)
 async def cc_legal_name(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
     v = (m.text or "").strip()
     if len(v) < 2:
-        await m.answer("Слишком короткое название.")
+        await m.answer("Слишком короткое название.", reply_markup=client_card_cancel_kb())
         return
     await state.update_data(legal_name=v)
     await state.set_state(ClientCardStates.waiting_store_name)
-    await m.answer("Введите название магазина.")
+    await m.answer("Введите название магазина. (Можно пропустить)", reply_markup=client_card_skip_cancel_kb())
 
 @router.message(ClientCardStates.waiting_store_name)
 async def cc_store_name(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
+    if _cc_is_skip(m.text):
+        await state.update_data(store_name="—")
+        await state.set_state(ClientCardStates.waiting_address)
+        await m.answer("Введите адрес клиента. (Можно пропустить)", reply_markup=client_card_skip_cancel_kb())
+        return
     v = (m.text or "").strip()
     if len(v) < 2:
-        await m.answer("Введите корректное название магазина.")
+        await m.answer("Введите корректное название магазина или нажмите «⏭ Пропустить».", reply_markup=client_card_skip_cancel_kb())
         return
     await state.update_data(store_name=v)
     await state.set_state(ClientCardStates.waiting_address)
-    await m.answer("Введите адрес клиента.")
+    await m.answer("Введите адрес клиента. (Можно пропустить)", reply_markup=client_card_skip_cancel_kb())
 
 @router.message(ClientCardStates.waiting_address)
 async def cc_address(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
+    if _cc_is_skip(m.text):
+        await state.update_data(address="—")
+        await state.set_state(ClientCardStates.waiting_overdue_days)
+        await m.answer("Введите кол-во дней отсрочки (число). (Можно пропустить, по умолчанию 7)",
+                       reply_markup=client_card_skip_cancel_kb())
+        return
     v = (m.text or "").strip()
     if len(v) < 5:
-        await m.answer("Адрес слишком короткий.")
+        await m.answer("Адрес слишком короткий или нажмите «⏭ Пропустить».", reply_markup=client_card_skip_cancel_kb())
         return
     await state.update_data(address=v)
     await state.set_state(ClientCardStates.waiting_overdue_days)
-    await m.answer("Введите кол-во дней отсрочки (число).")
+    await m.answer("Введите кол-во дней отсрочки. (Можно пропустить, по умолчанию 7)", reply_markup=client_card_skip_cancel_kb())
 
 @router.message(ClientCardStates.waiting_overdue_days)
 async def cc_overdue_days(m: Message, state: FSMContext):
-    try:
-        days = max(0, int((m.text or "").strip()))
-    except Exception:
-        await m.answer("Нужно целое число.")
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
         return
+    if _cc_is_skip(m.text):
+        days = 7
+    else:
+        try:
+            days = max(0, int((m.text or "").strip()))
+        except Exception:
+            await m.answer("Нужно целое число или нажмите «⏭ Пропустить».", reply_markup=client_card_skip_cancel_kb())
+            return
     await state.update_data(overdue_days=days)
     await state.set_state(ClientCardStates.waiting_contact_name)
-    await m.answer("Введите имя контактного лица.")
+    await m.answer("Введите имя контактного лица. (Можно пропустить)", reply_markup=client_card_skip_cancel_kb())
 
 @router.message(ClientCardStates.waiting_contact_name)
 async def cc_contact_name(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
+    if _cc_is_skip(m.text):
+        await state.update_data(contact_name="", contact_phone="", contact_position="")
+        await state.set_state(ClientCardStates.waiting_technician_select)
+        await m.answer("Выберите техника для карточки.", reply_markup=ReplyKeyboardRemove())
+        await m.answer("Выберите техника для карточки.", reply_markup=client_card_technician_pick_kb())
+        return
     v = (m.text or "").strip()
     if len(v) < 2:
-        await m.answer("Введите имя контакта.")
+        await m.answer("Введите имя контакта или нажмите «⏭ Пропустить».", reply_markup=client_card_skip_cancel_kb())
         return
     await state.update_data(contact_name=v)
     await state.set_state(ClientCardStates.waiting_contact_phone)
-    await m.answer("Введите телефон контакта (например +79990000000).")
+    await m.answer("Введите телефон контакта (например +79990000000).", reply_markup=client_card_cancel_kb())
 
 @router.message(ClientCardStates.waiting_contact_phone)
 async def cc_contact_phone(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
     v = (m.text or "").strip()
     if len(re.sub(r"\D", "", v)) < 10:
-        await m.answer("Неверный формат телефона.")
+        await m.answer("Неверный формат телефона.", reply_markup=client_card_cancel_kb())
         return
     await state.update_data(contact_phone=v)
     await state.set_state(ClientCardStates.waiting_contact_position)
@@ -3522,9 +3598,13 @@ async def cc_contact_position_pick(cq: CallbackQuery, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_contact_position)
 async def cc_contact_position_text(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
     pos = (m.text or "").strip()
     if len(pos) < 2:
-        await m.answer("Введите должность.")
+        await m.answer("Введите должность.", reply_markup=client_card_cancel_kb())
         return
     await state.update_data(contact_position=pos)
     await state.set_state(ClientCardStates.waiting_more_contacts)
@@ -3603,25 +3683,37 @@ async def cc_technician_pick(cq: CallbackQuery, state: FSMContext):
         technician_phone=tech.get("phone"),
     )
     await state.set_state(ClientCardStates.waiting_sales_rep)
-    await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').")
+    await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').", reply_markup=client_card_skip_cancel_kb())
     await cq.answer()
 
 @router.callback_query(F.data == "cc:tech:skip", ClientCardStates.waiting_technician_select)
 async def cc_technician_skip(cq: CallbackQuery, state: FSMContext):
     await state.update_data(technician_id=None, technician_name="ТЕСТ", technician_phone="+79999999999")
     await state.set_state(ClientCardStates.waiting_sales_rep)
-    await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').")
+    await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').", reply_markup=client_card_skip_cancel_kb())
     await cq.answer()
 
 @router.message(ClientCardStates.waiting_sales_rep)
 async def cc_sales_rep(m: Message, state: FSMContext):
-    uid, name = _parse_sales_rep_input(m.text or "")
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
+    if _cc_is_skip(m.text):
+        uid, name = None, ""
+    else:
+        uid, name = _parse_sales_rep_input(m.text or "")
     await state.update_data(sales_rep_user_id=uid, sales_rep_name=name)
     await state.set_state(ClientCardStates.waiting_network_name)
-    await m.answer("Введите название сети для связки юрлиц (или '-' если без сети).")
+    await m.answer("Введите название сети для связки юрлиц (или '-' если без сети).",
+                   reply_markup=client_card_skip_cancel_kb())
 
 @router.message(ClientCardStates.waiting_network_name)
 async def cc_finish_create(m: Message, state: FSMContext):
+    if _cc_is_cancel(m.text):
+        await state.clear()
+        await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
+        return
     network_raw = (m.text or "").strip()
     data = await state.get_data()
     network_id = None
@@ -3662,7 +3754,7 @@ async def cc_finish_create(m: Message, state: FSMContext):
     role = get_user_role(getattr(m.from_user, "id", None))
     await state.clear()
     card = CLIENTS_DB.get_client(cid)
-    await m.answer("✅ Карточка клиента создана.")
+    await m.answer("✅ Карточка клиента создана.", reply_markup=ReplyKeyboardRemove())
     await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(cid, role))
 
 @router.callback_query(F.data == "cc:import:debt")
