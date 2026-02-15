@@ -177,9 +177,6 @@ _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.stri
 class SearchStates(StatesGroup):
     waiting_query = State()
 
-class PhoneStates(StatesGroup):
-    waiting_phone = State()
-
 class SearchTaraStates(StatesGroup):
     waiting_query = State()
 
@@ -662,73 +659,12 @@ def wa_number_from_e164(e164: str) -> str:
     # wa.me принимает без «+»
     return re.sub(r"^\+", "", e164)
 
-def build_whatsapp_debt_text(item: Dict[str, Any], report_date: Optional[str]) -> str:
-    """
-    Текст для WhatsApp: собираем номера и даты всех документов с положительной суммой.
-    Общая сумма берётся из total_amount, если она пустая — суммируем строки > 0.
-    """
-    client = _base_client_name_for_debt(item.get("client") or "")
-    docs = item.get("docs") or []
-
-    pos_docs: List[Dict[str, Any]] = []
-    total = float(item.get("total_amount") or 0.0)
-
-    if total <= 0.009:
-        total = 0.0
-
-    for d in docs:
-        amt = float(d.get("amount") or 0.0)
-        if amt > 0.009:
-            pos_docs.append(d)
-            if total <= 0.009:
-                total += amt
-
-    # если задолженности нет — текст пустой
-    if not pos_docs or total <= 0.009:
-        return ""
-
-    parts: List[str] = []
-    for d in pos_docs:
-        nums = ", ".join(d.get("doc_numbers") or []) or "—"
-        date = d.get("doc_date") or "—"
-        parts.append(f"{nums} от {date}")
-
-    docs_txt = "; ".join(parts)
-    sum_txt = fmt_money(total).replace("\u00A0", " ")  # без NBSP
-
-    intro = f"Добрый день! "
-    body  = f"У вас имеется задолженность по фактуре(ам) {docs_txt} на общую сумму {sum_txt}."
-    tail  = f" (по состоянию на {report_date})" if report_date else ""
-
-    msg = (intro + body + tail).strip()
-    return f"{msg}\n\nКогда ожидать оплату?"
-
-
-
-# временная карта callback key -> base name (на период жизни процесса)
-_CB_CLIENT_MAP: Dict[str, str] = {}
-
 def client_card_kb(item: Dict[str, Any], report_date: Optional[str]) -> Optional[InlineKeyboardMarkup]:
     total = float(item.get("total_amount") or 0.0)
     has_debt = total > 0.009
-    base = _base_client_name_for_debt(item.get("client") or "")
-    key  = client_key(item.get("client") or "")
-    _CB_CLIENT_MAP[key] = base  # запомним
 
     phone = get_client_phone(item.get("client") or "")
     buttons = []
-
-    if has_debt and phone:
-        text = build_whatsapp_debt_text(item, report_date)
-        if text:
-            wa_phone = wa_number_from_e164(phone)  # 7XXXXXXXXXX
-            url = f"https://wa.me/{wa_phone}?text={quote_plus(text)}"
-            buttons.append([InlineKeyboardButton(text="💬 WhatsApp", url=url)])
-
-    if phone:
-        buttons.append([InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"ph:edit:{key}")])
-    else:
-        buttons.append([InlineKeyboardButton(text="📞 Добавить телефон", callback_data=f"ph:add:{key}")])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -953,58 +889,6 @@ async def cmd_logs(m: Message):
 
 #----------Конец Логов----------------------------
 
-@router.callback_query(F.data.startswith("ph:add:"))
-async def cb_phone_add(c: CallbackQuery, state: FSMContext):
-    _, _, key = c.data.partition("ph:add:")
-    base = _CB_CLIENT_MAP.get(key)
-    if not base:
-        await c.message.answer("Не удалось определить клиента. Повторите из отчёта.")
-        return
-    await state.update_data(phone_client_base=base)
-    await state.set_state(PhoneStates.waiting_phone)
-    await c.message.answer(
-        f"Введите телефон клиента «{base}» в формате: +7 999 999 99 99 или 8XXXXXXXXXX — преобразую в +7.",
-        reply_markup=back_only_kb()
-    )
-    await c.answer()
-
-@router.callback_query(F.data.startswith("ph:edit:"))
-async def cb_phone_edit(c: CallbackQuery, state: FSMContext):
-    _, _, key = c.data.partition("ph:edit:")
-    base = _CB_CLIENT_MAP.get(key)
-    if not base:
-        await c.message.answer("Не удалось определить клиента. Повторите из отчёта.")
-        return
-    cur = get_client_phone(base) or "не указан"
-    await state.update_data(phone_client_base=base)
-    await state.set_state(PhoneStates.waiting_phone)
-    await c.message.answer(
-        f"Текущий телефон: {cur}\nВведите новый телефон в формате +7 999 999 99 99 или 8XXXXXXXXXX:",
-        reply_markup=back_only_kb()
-    )
-    await c.answer()
-
-@router.message(PhoneStates.waiting_phone)
-async def on_phone_input(m: Message, state: FSMContext):
-    raw = (m.text or "").strip()
-    ok, e164, disp = normalize_phone_ru(raw)
-    data = await state.get_data()
-    base = data.get("phone_client_base")
-    await state.clear()
-
-    if not base:
-        await m.answer("Не удалось определить клиента. Повторите из отчёта.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
-        return
-
-    if not ok:
-        await m.answer("Неверный номер. Пример: +7 999 123-45-67 или 8XXXXXXXXXX.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
-        return
-
-    set_client_phone(base, e164)
-    await m.answer(f"Телефон для «{base}» сохранён: {disp}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
-
-
-
 # --- Группировка тары по клиенту и адресам ---
 _TARA_PARENS_RE = re.compile(r"\(([^)]*)\)")
 
@@ -1104,9 +988,6 @@ def help_text_admin() -> str:
         "• 🔴 просрочка 7+ и старше\n"
         "• ⚪ нулевая сумма строки (закрытая)\n"
         "• 💰 нулевая сумма <u>и</u> есть переплата (старинка закрыта переплатой)\n\n"
-        "📞 <b>Телефон в карточке</b>:\n"
-        "— «📞 Добавить/Изменить телефон» принимает номер текстом (+7/8) <u>или карточку контакта</u>.\n"
-        "— При долге появится «💬 WhatsApp» с готовым текстом напоминания.\n\n"
         "🧰 <b>Команды</b>:\n"
         "• /bakalar — напоминалка про бакалар\n"
         "• /report — общий отчёт\n"
@@ -1140,7 +1021,7 @@ def help_text_client(current_name: str) -> str:
         "• ✏️ Изменить название — изменить название Вашей организации ООО или ИП(<b>Без ООО, ИП</b>).\n\n\n"
         "• <b>‼️ График обновлений‼️</b>\n"
         "• 📊 <b>Дебиторская задолженность</b> — ежедневно в <b>10:30</b> и <b>15:30</b>\n"
-        "• 📦 <b>Отчёт по таре</b> — по средам в <b>12:00</b> (еженедельно).\n\n\n"
+        "• 📦 <b>Отчёт по таре</b> — ежедневно в <b>12:00</b> (еженедельно).\n\n\n"
         "• ✉️ <a href='https://t.me/Re1ze_r'>Написать администратору в Telegram</a>\n"
     )
 
@@ -1879,10 +1760,10 @@ def client_card_edit_technician_pick_kb(client_id: str) -> InlineKeyboardMarkup:
         rows.append([
             InlineKeyboardButton(
                 text=f"{it.get('full_name')} · {it.get('phone')}",
-                callback_data=f"cc:edittechsel:{client_id}:{it.get('id')}",
+                callback_data=f"cc:edittechsel:{it.get('id')}",
             )
         ])
-    rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)", callback_data=f"cc:edittechskip:{client_id}")])
+    rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)", callback_data="cc:edittechskip")])
     rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -3878,7 +3759,7 @@ async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:edittech:"))
-async def cc_edit_technician_start(cq: CallbackQuery):
+async def cc_edit_technician_start(cq: CallbackQuery, state: FSMContext):
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
@@ -3891,8 +3772,13 @@ async def cc_edit_technician_start(cq: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("cc:edittechsel:"))
-async def cc_edit_technician_pick(cq: CallbackQuery):
-    _, _, client_id, technician_id = cq.data.split(":", 3)
+async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
+    _, _, technician_id = cq.data.split(":", 2)
+    data = await state.get_data()
+    client_id = data.get("cc_edit_technician_client_id")
+    if not client_id:
+        await cq.answer("Сессия редактирования истекла. Откройте карточку заново.", show_alert=True)
+        return
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
     if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
@@ -3909,6 +3795,7 @@ async def cc_edit_technician_pick(cq: CallbackQuery):
         "technician_name": tech.get("full_name") or "",
         "technician_phone": tech.get("phone") or "",
     })
+    await state.update_data(cc_edit_technician_client_id=None)
     card = CLIENTS_DB.get_client(client_id)
     await cq.message.answer("✅ Техник обновлён.")
     await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
