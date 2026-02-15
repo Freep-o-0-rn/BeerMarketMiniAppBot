@@ -1836,6 +1836,8 @@ def settings_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🔐 EMAIL_PASSWORD", callback_data="cfg:pass")],
         [InlineKeyboardButton(text="⬅️ Назад",          callback_data="menu:back")]
     ])
+
+#карточка клиента ----------------------
 #ТЕХНИКИ--------------------------------
 def technicians_menu_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
@@ -1866,7 +1868,21 @@ def technician_actions_kb(technician_id: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⬅️ К списку", callback_data="tc:list")],
     ])
 
-#карточка клиента ----------------------
+def client_card_edit_technician_pick_kb(client_id: str) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for it in CLIENTS_DB.list_technicians()[:50]:
+        rows.append([
+            InlineKeyboardButton(
+                text=f"{it.get('full_name')} · {it.get('phone')}",
+                callback_data=f"cc:edittechsel:{client_id}:{it.get('id')}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)", callback_data=f"cc:edittechskip:{client_id}")])
+    rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+
 def client_card_technician_pick_kb() -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
     for it in CLIENTS_DB.list_technicians()[:50]:
@@ -3790,11 +3806,69 @@ async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="Название магазина", callback_data=f"cc:editfield:{client_id}:store_name")],
         [InlineKeyboardButton(text="Адрес", callback_data=f"cc:editfield:{client_id}:address")],
         [InlineKeyboardButton(text="Отсрочка (дни)", callback_data=f"cc:editfield:{client_id}:overdue_days")],
+        [InlineKeyboardButton(text="Техник", callback_data=f"cc:edittech:{client_id}")],
         [InlineKeyboardButton(text="Торг. представитель", callback_data=f"cc:editfield:{client_id}:sales_rep_name")],
         [InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")],
     ])
     await state.clear()
     await cq.message.answer("Выберите поле для редактирования:", reply_markup=kb)
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("cc:edittech:"))
+async def cc_edit_technician_start(cq: CallbackQuery):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+
+    await cq.message.answer("Выберите нового техника:", reply_markup=client_card_edit_technician_pick_kb(client_id))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:edittechsel:"))
+async def cc_edit_technician_pick(cq: CallbackQuery):
+    _, _, client_id, technician_id = cq.data.split(":", 3)
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+
+    tech = CLIENTS_DB.get_technician(technician_id)
+    if not tech:
+        await cq.answer("Техник не найден", show_alert=True)
+        return
+
+    CLIENTS_DB.update_client(client_id, {
+        "technician_id": technician_id,
+        "technician_name": tech.get("full_name") or "",
+        "technician_phone": tech.get("phone") or "",
+    })
+    card = CLIENTS_DB.get_client(client_id)
+    await cq.message.answer("✅ Техник обновлён.")
+    await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:edittechskip:"))
+async def cc_edit_technician_skip(cq: CallbackQuery):
+    _, _, client_id = cq.data.split(":", 2)
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+
+    CLIENTS_DB.update_client(client_id, {
+        "technician_id": None,
+        "technician_name": "ТЕСТ",
+        "technician_phone": "+79999999999",
+    })
+    card = CLIENTS_DB.get_client(client_id)
+    await cq.message.answer("✅ Техник обновлён.")
+    await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
     await cq.answer()
 
 
