@@ -147,6 +147,7 @@ dp.include_router(router)
 
 # --- Настройки ---
 OVERDUE_DAYS_DEFAULT = int(os.getenv("OVERDUE_DAYS_DEFAULT", "7"))
+IMPORTED_CLIENT_OVERDUE_DAYS_DEFAULT = 7
 CLIENT_OVERDUE_JSON = os.getenv("CLIENT_OVERDUE_JSON", "settings/client_overdue_days.json")
 MIN_DEBT_JSON = os.getenv("MIN_DEBT_JSON", "settings/filters.json")
 MAX_TG = 3900
@@ -1986,7 +1987,7 @@ def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
             "legal_name": parsed["legal_name"],
             "store_name": parsed["store_name"],
             "address": parsed["address"],
-            "overdue_days": 0,
+            "overdue_days": IMPORTED_CLIENT_OVERDUE_DAYS_DEFAULT,
             "technician_name": "",
             "technician_phone": "",
             "technician_id": None,
