@@ -4106,6 +4106,21 @@ def _find_items_by_keywords(report_type: str, path: str, keywords: List[str]) ->
     return found, report_date
 
 
+def _save_repaired_to_downloads(src_path: str, repaired_path: str) -> str:
+    """Сохраняет починенный файл в рабочей папке downloads (без отправки в чат)."""
+    src = Path(src_path)
+    repaired = Path(repaired_path)
+
+    # Требование: итог — свежий .xlsx в рабочей папке downloads
+    target = src if src.suffix.lower() == ".xlsx" else src.with_suffix(".xlsx")
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    if repaired.resolve() != target.resolve():
+        os.replace(str(repaired), str(target))
+
+    return str(target)
+
+
 async def _repair_until_found_and_send(chat: Message, report_type: str, control_key: str):
     latest = find_latest_download(download_dir="downloads", report_type=report_type)
     if not latest:
@@ -4121,7 +4136,7 @@ async def _repair_until_found_and_send(chat: Message, report_type: str, control_
         await chat.answer("Введите контрольный ключ (например: Смирнов).", reply_markup=menu_for_message(chat))
         return
 
-    await chat.answer("Запускаю починку и проверку по ключу. Если «Ничего не найдено по заданным ключам.», продолжу чинить дальше…")
+    await chat.answer("Запускаю починку и проверку по ключу. Файл будет обновляться в рабочей папке downloads (без отправки в чат)…")
 
     max_attempts = 6
     current = latest
@@ -4133,13 +4148,11 @@ async def _repair_until_found_and_send(chat: Message, report_type: str, control_
 
         if found:
             kind = "дебиторка" if report_type == "debt" else "тара"
-            await chat.answer_document(
-                FSInputFile(current),
-                caption=(
-                    f"✅ Найдено после {attempt - 1} починок ({kind}). "
-                    f"Ключ: <code>{esc(control_key)}</code>. Совпадений: {len(found)}"
-                    + (f". Дата отчёта: {esc(report_date)}" if report_date else "")
-                ),
+            await chat.answer(
+                f"✅ Найдено после {attempt - 1} починок ({kind}). "
+                f"Ключ: <code>{esc(control_key)}</code>. Совпадений: {len(found)}"
+                + (f". Дата отчёта: {esc(report_date)}" if report_date else "")
+                + f"\nФайл обновлён в downloads: <code>{esc(os.path.basename(current))}</code>",
                 reply_markup=menu_for_message(chat),
             )
             return
@@ -4148,14 +4161,15 @@ async def _repair_until_found_and_send(chat: Message, report_type: str, control_
             break
 
         try:
-            current = repair_excel_for_telegram(current)
+            repaired = repair_excel_for_telegram(current)
+            current = _save_repaired_to_downloads(current, repaired)
         except Exception as e:
             logger.exception("Manual iterative repair failed for %s", report_type)
             await chat.answer(f"❌ Не удалось продолжить починку: {e}", reply_markup=menu_for_message(chat))
             return
 
     await chat.answer(
-        "Ничего не найдено по заданным ключам. Выполнено несколько попыток починки, но совпадений всё ещё нет.",
+        "Ничего не найдено по заданным ключам. Выполнено несколько попыток починки, файл обновлён в downloads.",
         reply_markup=menu_for_message(chat),
     )
 
@@ -4170,12 +4184,12 @@ async def _repair_and_send(chat: Message, report_type: str):
         )
         return
 
-    await chat.answer("Запускаю починку и пересохранение в свежий .xlsx для Telegram…")
+    await chat.answer("Запускаю починку и пересохранение в свежий .xlsx для Telegram (без отправки файла в чат)…")
     try:
         repaired = repair_excel_for_telegram(latest)
-        await chat.answer_document(
-            FSInputFile(repaired),
-            caption=f"✅ Починка завершена. Готовый файл: <code>{esc(os.path.basename(repaired))}</code>",
+        updated = _save_repaired_to_downloads(latest, repaired)
+        await chat.answer(
+            f"✅ Починка завершена. Файл обновлён в downloads: <code>{esc(os.path.basename(updated))}</code>",
             reply_markup=menu_for_message(chat),
         )
     except Exception as e:
@@ -4193,7 +4207,7 @@ async def cmd_repair(m: Message):
 
 @router.callback_query(F.data == "repair:debt")
 async def cb_repair_debt(cq: CallbackQuery, state: FSMContext):
-    if _is_client(cq):
+    if get_user_role(getattr(cq.from_user, "id", None)) in {"client", "sales_rep"}:
         await cq.answer("Команда доступна только для админов.", show_alert=True)
         return
     await state.set_state(RepairStates.waiting_control_key)
@@ -4204,13 +4218,43 @@ async def cb_repair_debt(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "repair:tara")
 async def cb_repair_tara(cq: CallbackQuery, state: FSMContext):
-    if _is_client(cq):
+    if get_user_role(getattr(cq.from_user, "id", None)) in {"client", "sales_rep"}:
         await cq.answer("Команда доступна только для админов.", show_alert=True)
         return
     await state.set_state(RepairStates.waiting_control_key)
     await state.update_data(repair_type="tara")
     await cq.answer()
-    await cq.message.answer("Введите контрольный ключ (клиента), например: <code>Смирнов</code>.", reply_markup=back_only_kb())
+    await cq.message.answer("Введите контрольный ключ (клиента), например: Смирнов", reply_markup=back_only_kb())
+
+
+@router.message(RepairStates.waiting_control_key)
+async def repair_wait_key(m: Message, state: FSMContext):
+    key = (m.text or "").strip()
+    if not key or key.startswith("/"):
+        await state.clear()
+        await m.answer("Починка отменена.", reply_markup=menu_for_message(m))
+        return
+
+    data = await state.get_data()
+    report_type = data.get("repair_type") or "debt"
+    await state.clear()
+    await _repair_until_found_and_send(m, report_type, key)
+
+
+@router.message(Command("repair_debt"))
+async def cmd_repair_debt(m: Message):
+    if _is_client(m):
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+        return
+    await _repair_and_send(m, "debt")
+#конец починки ------------------------------
+
+@router.message(Command("repair_tara"))
+async def cmd_repair_tara(m: Message):
+    if _is_client(m):
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+        return
+    await _repair_and_send(m, "tara")
 
 
 @router.message(RepairStates.waiting_control_key)
