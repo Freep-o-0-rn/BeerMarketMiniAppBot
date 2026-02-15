@@ -48,7 +48,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from config import BOT_TOKEN, update_setting
-from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads
+from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads, repair_excel_for_telegram
 from mail_agent import fetch_latest_file
 from pathlib import Path
 from dataclasses import dataclass
@@ -201,6 +201,9 @@ class ConfigStates(StatesGroup):
     waiting_imap_server = State()
     waiting_email_account = State()
     waiting_email_password = State()
+
+class RepairStates(StatesGroup):
+    waiting_control_key = State()
 
 # NEW: онбординг и клиентское имя
 class OnboardStates(StatesGroup):
@@ -1073,6 +1076,9 @@ def help_text_admin() -> str:
         "• /report — общий отчёт\n"
         "• /report просрочено [слова] — только просрочка\n"
         "• /report переплаты [слова] — только переплаты\n"
+        "• /repair — выбор файла (дебиторка/тара), ввод ключа и пошаговая починка до результата\n"
+        "• /repair_debt — ручная починка дебиторки в свежий .xlsx\n"
+        "• /repair_tara — ручная починка тары в свежий .xlsx\n"
         "• /tara — отчёт по таре\n"
         "• /refresh [debt|tara] — обновить файлы\n"
         "• /settings — параметры подключения (админам)\n"
@@ -1535,6 +1541,12 @@ def update_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⬅️ Назад",     callback_data="menu:back")],
     ])
 
+def repair_menu_kb() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🧾 Починить дебиторку", callback_data="repair:debt")],
+        [InlineKeyboardButton(text="📦 Починить тару", callback_data="repair:tara")],
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")],
+    ])
 
 #график развоза
 def _ensure_parent(p: Path):
@@ -4074,6 +4086,163 @@ async def cmd_refresh_tara(m: Message):
         logger.exception("Manual refresh (tara) failed")
         await m.answer(f"Не удалось обновить: {e}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
+#----починка тары и дебиторки
+def _find_items_by_keywords(report_type: str, path: str, keywords: List[str]) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+    if report_type == "debt":
+        res = process_file(path)
+        items = (res or {}).get("items") or []
+        report_date = (res or {}).get("report_date")
+        found = [it for it in items if client_matches_any_keyword(it, keywords)]
+        return found, report_date
+
+    res = process_tara_file(path)
+    items = (res or {}).get("items") or []
+    report_date = (res or {}).get("report_date")
+    found = []
+    for item in items:
+        name = (item.get("client") or "").strip().casefold()
+        if any(k in name for k in keywords):
+            found.append(item)
+    return found, report_date
+
+
+async def _repair_until_found_and_send(chat: Message, report_type: str, control_key: str):
+    latest = find_latest_download(download_dir="downloads", report_type=report_type)
+    if not latest:
+        kind = "дебиторке" if report_type == "debt" else "таре"
+        await chat.answer(
+            f"Файл по {kind} не найден. Сначала выполните /refresh {report_type}",
+            reply_markup=menu_for_message(chat),
+        )
+        return
+
+    keywords = [t.casefold() for t in _tokenize_query(control_key)]
+    if not keywords:
+        await chat.answer("Введите контрольный ключ (например: Смирнов).", reply_markup=menu_for_message(chat))
+        return
+
+    await chat.answer("Запускаю починку и проверку по ключу. Если «Ничего не найдено по заданным ключам.», продолжу чинить дальше…")
+
+    max_attempts = 6
+    current = latest
+    for attempt in range(1, max_attempts + 1):
+        try:
+            found, report_date = _find_items_by_keywords(report_type, current, keywords)
+        except Exception:
+            found, report_date = [], None
+
+        if found:
+            kind = "дебиторка" if report_type == "debt" else "тара"
+            await chat.answer_document(
+                FSInputFile(current),
+                caption=(
+                    f"✅ Найдено после {attempt - 1} починок ({kind}). "
+                    f"Ключ: <code>{esc(control_key)}</code>. Совпадений: {len(found)}"
+                    + (f". Дата отчёта: {esc(report_date)}" if report_date else "")
+                ),
+                reply_markup=menu_for_message(chat),
+            )
+            return
+
+        if attempt == max_attempts:
+            break
+
+        try:
+            current = repair_excel_for_telegram(current)
+        except Exception as e:
+            logger.exception("Manual iterative repair failed for %s", report_type)
+            await chat.answer(f"❌ Не удалось продолжить починку: {e}", reply_markup=menu_for_message(chat))
+            return
+
+    await chat.answer(
+        "Ничего не найдено по заданным ключам. Выполнено несколько попыток починки, но совпадений всё ещё нет.",
+        reply_markup=menu_for_message(chat),
+    )
+
+
+async def _repair_and_send(chat: Message, report_type: str):
+    latest = find_latest_download(download_dir="downloads", report_type=report_type)
+    if not latest:
+        kind = "дебиторке" if report_type == "debt" else "таре"
+        await chat.answer(
+            f"Файл по {kind} не найден. Сначала выполните /refresh {report_type}",
+            reply_markup=menu_for_message(chat),
+        )
+        return
+
+    await chat.answer("Запускаю починку и пересохранение в свежий .xlsx для Telegram…")
+    try:
+        repaired = repair_excel_for_telegram(latest)
+        await chat.answer_document(
+            FSInputFile(repaired),
+            caption=f"✅ Починка завершена. Готовый файл: <code>{esc(os.path.basename(repaired))}</code>",
+            reply_markup=menu_for_message(chat),
+        )
+    except Exception as e:
+        logger.exception("Manual repair failed for %s", report_type)
+        await chat.answer(f"❌ Не удалось починить файл: {e}", reply_markup=menu_for_message(chat))
+
+
+@router.message(Command("repair"))
+async def cmd_repair(m: Message):
+    if _is_client(m):
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+        return
+    await m.answer("Что починить? Выберите тип отчёта:", reply_markup=repair_menu_kb())
+
+
+@router.callback_query(F.data == "repair:debt")
+async def cb_repair_debt(cq: CallbackQuery, state: FSMContext):
+    if _is_client(cq):
+        await cq.answer("Команда доступна только для админов.", show_alert=True)
+        return
+    await state.set_state(RepairStates.waiting_control_key)
+    await state.update_data(repair_type="debt")
+    await cq.answer()
+    await cq.message.answer("Введите контрольный ключ (клиента), например: <code>Смирнов</code>.", reply_markup=back_only_kb())
+
+
+@router.callback_query(F.data == "repair:tara")
+async def cb_repair_tara(cq: CallbackQuery, state: FSMContext):
+    if _is_client(cq):
+        await cq.answer("Команда доступна только для админов.", show_alert=True)
+        return
+    await state.set_state(RepairStates.waiting_control_key)
+    await state.update_data(repair_type="tara")
+    await cq.answer()
+    await cq.message.answer("Введите контрольный ключ (клиента), например: <code>Смирнов</code>.", reply_markup=back_only_kb())
+
+
+@router.message(RepairStates.waiting_control_key)
+async def repair_wait_key(m: Message, state: FSMContext):
+    key = (m.text or "").strip()
+    if not key or key.startswith("/"):
+        await state.clear()
+        await m.answer("Починка отменена.", reply_markup=menu_for_message(m))
+        return
+
+    data = await state.get_data()
+    report_type = data.get("repair_type") or "debt"
+    await state.clear()
+    await _repair_until_found_and_send(m, report_type, key)
+
+
+@router.message(Command("repair_debt"))
+async def cmd_repair_debt(m: Message):
+    if _is_client(m):
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+        return
+    await _repair_and_send(m, "debt")
+
+
+@router.message(Command("repair_tara"))
+async def cmd_repair_tara(m: Message):
+    if _is_client(m):
+        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+        return
+    await _repair_and_send(m, "tara")
+
+
 @router.callback_query(F.data == "upd:debt")
 async def cb_upd_debt(cq: CallbackQuery):
     await _refresh_and_reply_cb(cq, "ДЕБИТОРКА")
@@ -4508,113 +4677,6 @@ def actor_id(obj):
 
 def is_admin_event(obj) -> bool:
     return is_admin(actor_id(obj))
-
-def _read_news_index(path: Path) -> List[Dict[str, Any]]:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return data if isinstance(data, list) else []
-    except Exception:
-        logger.exception("news: failed to parse %s", path)
-        return []
-
-def _news_load() -> List[Dict[str, Any]]:
-    if not NEWS_INDEX.exists():
-        return []
-    items = _read_news_index(NEWS_INDEX)
-    if isinstance(items, list):
-        normalized = _news_normalize_items([dict(it) for it in items])
-        if normalized != items:
-            _news_save(normalized)
-        return normalized
-    return []
-
-
-def _news_normalize_items(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    now_iso = datetime.now(TZ).isoformat()
-    out: List[Dict[str, Any]] = []
-    for idx, it in enumerate(items, 1):
-        row = dict(it)
-        try:
-            row_id = int(row.get("id"))
-        except (TypeError, ValueError):
-            row_id = int(time.time() * 1000) + idx
-
-        publish_state = (row.get("publishState") or "published").strip().lower()
-        if publish_state not in {"draft", "published"}:
-            publish_state = "published"
-
-        created_at = row.get("createdAt") or row.get("updatedAt") or now_iso
-        updated_at = row.get("updatedAt") or created_at
-
-        out.append({
-            "id": row_id,
-            "seq": idx,
-            "title": (row.get("title") or "").strip(),
-            "category": (row.get("category") or "Новость").strip() or "Новость",
-            "date": _normalize_news_date(row.get("date")) or datetime.now(TZ).date().isoformat(),
-            "text": (row.get("text") or "").strip(),
-            "publishState": publish_state,
-            "createdAt": created_at,
-            "updatedAt": updated_at,
-        })
-    return out
-
-def _news_reindex(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    return _news_normalize_items(items)
-
-def _news_save(items: List[Dict[str, Any]]) -> None:
-    normalized = _news_reindex(list(items))
-    payload = json.dumps(normalized, ensure_ascii=False, indent=2)
-
-    try:
-        NEWS_INDEX.parent.mkdir(parents=True, exist_ok=True)
-        tmp = NEWS_INDEX.with_suffix(NEWS_INDEX.suffix + ".tmp")
-        tmp.write_text(payload, encoding="utf-8")
-        os.replace(tmp, NEWS_INDEX)
-    except Exception:
-        logger.exception("news: failed to write %s", NEWS_INDEX)
-
-
-def _news_next_seq(items: List[Dict[str, Any]]) -> int:
-    seqs = []
-    for it in items:
-        try:
-            seqs.append(int(it.get("seq")))
-        except (TypeError, ValueError):
-            continue
-    return max(seqs) if seqs else 0
-
-def _news_find(news_id: str | int) -> Optional[Dict[str, Any]]:
-    for it in _news_load():
-        if str(it.get("id")) == str(news_id):
-            return it
-    return None
-
-def _news_upsert(item: Dict[str, Any]) -> None:
-    items = _news_load()
-    for i, existing in enumerate(items):
-        if str(existing.get("id")) == str(item.get("id")):
-            if not item.get("createdAt") and existing.get("createdAt"):
-                item["createdAt"] = existing.get("createdAt")
-            if not item.get("seq") and existing.get("seq"):
-                item["seq"] = existing.get("seq")
-            items[i] = item
-            _news_save(items)
-            return
-    if not item.get("seq"):
-        item["seq"] = _news_next_seq(items) + 1
-    items.insert(0, item)
-    _news_save(items)
-
-
-def _news_delete(news_id: str | int) -> bool:
-    items = _news_load()
-    before = len(items)
-    items = [it for it in items if str(it.get("id")) != str(news_id)]
-    if len(items) == before:
-        return False
-    _news_save(items)
-    return True
 
 def _promos_load() -> List[Dict[str, Any]]:
     if not PROMO_INDEX.exists():

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
+import openpyxl
 
 # ------------------ Общие утилиты ------------------
 
@@ -730,4 +731,42 @@ def find_latest_downloads(download_dir: str = "downloads",
     cands = [p for p in cands if _is_valid_excel_file(p)]
     return cands[:max_count]
 
+def repair_excel_for_telegram(path: str) -> str:
+    """
+    Ручная починка/пересохранение в современный .xlsx для Telegram.
+    Возвращает путь к новому файлу.
+    """
+    src = Path(path)
+    if not src.exists():
+        raise FileNotFoundError(f"Файл не найден: {path}")
 
+    out_path = str(src.with_suffix(".telegram.xlsx"))
+    ext = src.suffix.lower()
+
+    if ext == ".xls":
+        with pd.ExcelFile(path, engine="xlrd") as book:
+            with pd.ExcelWriter(out_path, engine="openpyxl") as writer:
+                for sheet in book.sheet_names:
+                    df = pd.read_excel(book, sheet_name=sheet, dtype=object)
+                    safe_name = (str(sheet) or "Sheet1")[:31]
+                    df.to_excel(writer, sheet_name=safe_name, index=False)
+        return out_path
+
+    if ext == ".xlsx":
+        try:
+            wb = openpyxl.load_workbook(path, data_only=False)
+            wb.save(out_path)
+            return out_path
+        except Exception:
+            fixed = _fix_missing_sharedstrings_via_zip(path)
+            if fixed:
+                wb = openpyxl.load_workbook(fixed, data_only=False)
+                wb.save(out_path)
+                return out_path
+
+            repaired = _repair_xlsx_via_excel(path)
+            wb = openpyxl.load_workbook(repaired, data_only=False)
+            wb.save(out_path)
+            return out_path
+
+    raise ValueError(f"Неподдерживаемый формат для починки: {ext}")
