@@ -48,7 +48,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from config import BOT_TOKEN, update_setting
-from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads
+from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads, read_debt_file, parse_clients
 from mail_agent import fetch_latest_file
 from pathlib import Path
 from dataclasses import dataclass
@@ -230,6 +230,7 @@ class ClientCardStates(StatesGroup):
     waiting_additional_contact_name = State()
     waiting_additional_contact_phone = State()
     waiting_additional_contact_position = State()
+    waiting_edit_value = State()
 
 class TechnicianStates(StatesGroup):
     waiting_full_name = State()
@@ -1844,8 +1845,11 @@ def client_card_technician_pick_kb() -> InlineKeyboardMarkup:
 
 def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
     rows = [[InlineKeyboardButton(text="➕ Контакт", callback_data=f"cc:addcontact:{client_id}")]]
+    rows.append([InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"cc:edit:{client_id}")])
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="✏️ Привязать к сети", callback_data=f"cc:net:{client_id}")])
+    if role in {"admin", "sales_rep"}:
+        rows.append([InlineKeyboardButton(text="🗑 Удалить", callback_data=f"cc:del:{client_id}")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="cc:list")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -1857,6 +1861,7 @@ def client_cards_list_kb(items: List[Dict[str, Any]], role: str) -> InlineKeyboa
         rows.append([InlineKeyboardButton(text=title[:60], callback_data=f"cc:view:{it.get('id')}")])
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
+    rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -1869,6 +1874,88 @@ def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
     uid = int(m.group(1)) if m else None
     name = re.sub(r"\(.*?\)", "", txt).strip()
     return uid, name
+
+def _extract_legal_form_and_name(raw: str) -> Tuple[str, str]:
+    txt = (raw or "").strip()
+    m = re.match(r"^(ООО|ИП)\s+(.+)$", txt, flags=re.IGNORECASE)
+    if m:
+        return m.group(1).upper(), m.group(2).strip(" - ")
+    return "ООО", txt
+
+
+def _extract_sales_rep_and_address(raw: str) -> Tuple[str, str, str]:
+    txt = (raw or "").strip()
+    inside = ""
+    m = re.search(r"\(([^)]+)\)\s*$", txt)
+    if m:
+        inside = m.group(1).strip()
+        txt = txt[:m.start()].strip()
+
+    sales_rep = ""
+    if "-" in txt:
+        left, right = txt.rsplit("-", 1)
+        txt = left.strip()
+        sales_rep = right.strip()
+
+    address = inside
+    return txt, sales_rep, address
+
+
+def parse_client_row_for_card(raw: str) -> Optional[Dict[str, str]]:
+    txt = (raw or "").strip()
+    if not txt:
+        return None
+    legal_form, legal_name = _extract_legal_form_and_name(txt)
+    legal_name, sales_rep, address = _extract_sales_rep_and_address(legal_name)
+
+    if not legal_name:
+        return None
+
+    return {
+        "legal_form": legal_form if legal_form in {"ООО", "ИП"} else "ООО",
+        "legal_name": legal_name,
+        "store_name": "",
+        "address": address,
+        "sales_rep_name": sales_rep,
+    }
+
+
+def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
+    path = find_latest_download(report_type="debt")
+    if not path:
+        return 0, 0
+    df, _ = read_debt_file(path)
+    items = parse_clients(df)
+    created = 0
+    skipped = 0
+    for it in items:
+        parsed = parse_client_row_for_card(it.get("client") or "")
+        if not parsed:
+            skipped += 1
+            continue
+        existing = CLIENTS_DB.find_client(parsed["legal_form"], parsed["legal_name"], parsed["address"])
+        if existing:
+            skipped += 1
+            CLIENTS_DB.set_user_link(owner_user_id, existing["id"], can_edit=True)
+            continue
+        payload = {
+            "legal_form": parsed["legal_form"],
+            "legal_name": parsed["legal_name"],
+            "store_name": parsed["store_name"],
+            "address": parsed["address"],
+            "overdue_days": 0,
+            "technician_name": "",
+            "technician_phone": "",
+            "technician_id": None,
+            "sales_rep_user_id": None,
+            "sales_rep_name": parsed["sales_rep_name"],
+            "owner_user_id": owner_user_id,
+            "network_id": None,
+        }
+        contact = [{"contact_name": "", "contact_phone": "", "contact_position": ""}]
+        CLIENTS_DB.create_client(payload, contact)
+        created += 1
+    return created, skipped
 
 
 def _client_cards_for_user(user_id: int, role: str) -> List[Dict[str, Any]]:
@@ -3486,6 +3573,121 @@ async def cc_finish_create(m: Message, state: FSMContext):
     card = CLIENTS_DB.get_client(cid)
     await m.answer("✅ Карточка клиента создана.")
     await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(cid, role))
+
+@router.callback_query(F.data == "cc:import:debt")
+async def cc_import_debt(cq: CallbackQuery):
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"}:
+        await cq.answer("Нет прав", show_alert=True)
+        return
+    try:
+        created, skipped = import_clients_from_latest_debt(uid)
+    except Exception as e:
+        await cq.message.answer(f"Не удалось выполнить импорт: {e}")
+        await cq.answer()
+        return
+    await cq.message.answer(f"✅ Импорт завершён. Добавлено: {created}, пропущено: {skipped}.")
+    items = _client_cards_for_user(uid, role)
+    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:edit:"))
+async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Форма (ООО/ИП)", callback_data=f"cc:editfield:{client_id}:legal_form")],
+        [InlineKeyboardButton(text="Юр. название", callback_data=f"cc:editfield:{client_id}:legal_name")],
+        [InlineKeyboardButton(text="Название магазина", callback_data=f"cc:editfield:{client_id}:store_name")],
+        [InlineKeyboardButton(text="Адрес", callback_data=f"cc:editfield:{client_id}:address")],
+        [InlineKeyboardButton(text="Отсрочка (дни)", callback_data=f"cc:editfield:{client_id}:overdue_days")],
+        [InlineKeyboardButton(text="Торг. представитель", callback_data=f"cc:editfield:{client_id}:sales_rep_name")],
+        [InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")],
+    ])
+    await state.clear()
+    await cq.message.answer("Выберите поле для редактирования:", reply_markup=kb)
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:editfield:"))
+async def cc_edit_field_pick(cq: CallbackQuery, state: FSMContext):
+    _, _, client_id, field = cq.data.split(":", 3)
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    prompts = {
+        "legal_form": "Введите форму: ООО или ИП",
+        "legal_name": "Введите новое юр. название:",
+        "store_name": "Введите новое название магазина:",
+        "address": "Введите новый адрес:",
+        "overdue_days": "Введите число дней отсрочки:",
+        "sales_rep_name": "Введите ФИО торгового представителя:",
+    }
+    if field not in prompts:
+        await cq.answer("Поле недоступно", show_alert=True)
+        return
+    await state.clear()
+    await state.update_data(edit_client_id=client_id, edit_field=field)
+    await state.set_state(ClientCardStates.waiting_edit_value)
+    await cq.message.answer(prompts[field])
+    await cq.answer()
+
+
+@router.message(ClientCardStates.waiting_edit_value)
+async def cc_edit_field_value(m: Message, state: FSMContext):
+    data = await state.get_data()
+    client_id = data.get("edit_client_id")
+    field = data.get("edit_field")
+    if not client_id or not field:
+        await state.clear()
+        await m.answer("Сессия редактирования потеряна.")
+        return
+    raw = (m.text or "").strip()
+    patch: Dict[str, Any] = {}
+    if field == "legal_form":
+        val = raw.upper()
+        if val not in {"ООО", "ИП"}:
+            await m.answer("Допустимо только ООО или ИП.")
+            return
+        patch[field] = val
+    elif field == "overdue_days":
+        try:
+            patch[field] = max(0, int(raw))
+        except Exception:
+            await m.answer("Введите целое число.")
+            return
+    else:
+        patch[field] = raw
+
+    CLIENTS_DB.update_client(client_id, patch)
+    await state.clear()
+    role = get_user_role(getattr(m.from_user, "id", None))
+    card = CLIENTS_DB.get_client(client_id)
+    await m.answer("✅ Карточка обновлена.")
+    await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+
+
+@router.callback_query(F.data.startswith("cc:del:"))
+async def cc_delete_client(cq: CallbackQuery):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    CLIENTS_DB.delete_client(client_id)
+    await cq.message.answer("✅ Карточка клиента удалена.")
+    items = _client_cards_for_user(uid, role)
+    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:addcontact:"))
 async def cc_add_contact_start(cq: CallbackQuery, state: FSMContext):

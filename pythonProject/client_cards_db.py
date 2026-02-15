@@ -108,7 +108,6 @@ class ClientCardsDB:
 
                 CREATE INDEX IF NOT EXISTS idx_clients_sales_rep ON clients(sales_rep_user_id);
                 CREATE INDEX IF NOT EXISTS idx_clients_network ON clients(network_id);
-                CREATE INDEX IF NOT EXISTS idx_clients_technician ON clients(technician_id);
                 CREATE INDEX IF NOT EXISTS idx_links_user ON client_user_links(user_id);
                 """
             )
@@ -175,6 +174,20 @@ class ClientCardsDB:
                     ),
                 )
         return cid
+
+    def find_client(self, legal_form: str, legal_name: str, address: str) -> Optional[Dict[str, Any]]:
+        with self._connect() as conn:
+            return conn.execute(
+                """
+                SELECT *
+                FROM clients
+                WHERE lower(legal_form) = lower(?)
+                  AND lower(trim(legal_name)) = lower(trim(?))
+                  AND lower(trim(address)) = lower(trim(?))
+                LIMIT 1
+                """,
+                (legal_form, legal_name, address),
+            ).fetchone()
 
     def add_contact(self, client_id: str, name: str, phone: str, position: str) -> None:
         now = _utcnow()
@@ -285,6 +298,11 @@ class ClientCardsDB:
                 "INSERT OR REPLACE INTO client_user_links(user_id, client_id, can_edit, created_at) VALUES (?, ?, ?, ?)",
                 (int(user_id), client_id, 1 if can_edit else 0, now),
             )
+
+    def delete_client(self, client_id: str) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE FROM clients WHERE id = ?", (client_id,))
+
 
     def user_can_access(self, user_id: int, role: str, client_id: str) -> bool:
         if role == "admin":
