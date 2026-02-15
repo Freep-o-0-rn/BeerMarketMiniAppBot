@@ -2034,7 +2034,45 @@ def parse_client_row_for_card(raw: str) -> Optional[Dict[str, str]]:
     }
 
 
-def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
+def _normalize_person_text(value: str) -> str:
+    return " ".join((value or "").strip().casefold().split())
+
+
+def _extract_surname(value: str) -> str:
+    normalized = _normalize_person_text(value)
+    if not normalized:
+        return ""
+    m = re.search(r"[a-zа-яё]+", normalized, flags=re.IGNORECASE)
+    return m.group(0) if m else ""
+
+
+def _can_import_debt_row_for_user(*, user_id: int, role: str, raw_client_name: str, parsed: Dict[str, str]) -> bool:
+    if role == "admin":
+        return True
+
+    if role == "sales_rep":
+        rec = _user_record(user_id)
+        user_surname = (
+            _extract_surname(rec.get("name") or "")
+            or _extract_surname(rec.get("last_name") or "")
+            or _extract_surname(rec.get("first_name") or "")
+        )
+        sales_rep_surname = _extract_surname(parsed.get("sales_rep_name") or "")
+        if not user_surname or not sales_rep_surname:
+            return False
+        return sales_rep_surname == user_surname
+
+    if role == "client":
+        cname = _normalize_person_text(get_client_name(user_id))
+        if not cname:
+            return False
+        legal_name = _normalize_person_text(parsed.get("legal_name") or "")
+        raw = _normalize_person_text(raw_client_name)
+        return cname in legal_name or cname in raw
+
+    return False
+
+def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int, int]:
     path = find_latest_download(report_type="debt")
     if not path:
         return 0, 0
@@ -2043,8 +2081,17 @@ def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
     created = 0
     skipped = 0
     for it in items:
-        parsed = parse_client_row_for_card(it.get("client") or "")
+        raw_client = it.get("client") or ""
+        parsed = parse_client_row_for_card(raw_client)
         if not parsed:
+            skipped += 1
+            continue
+        if not _can_import_debt_row_for_user(
+                user_id=owner_user_id,
+                role=role,
+                raw_client_name=raw_client,
+                parsed=parsed,
+        ):
             skipped += 1
             continue
         CLIENTS_DB.consolidate_client_duplicates(parsed["legal_name"])
@@ -2052,11 +2099,21 @@ def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
         if existing:
             skipped += 1
             CLIENTS_DB.set_user_link(owner_user_id, existing["id"], can_edit=True)
+            if role == "sales_rep" and not existing.get("sales_rep_user_id"):
+                CLIENTS_DB.update_client(existing["id"], {
+                    "sales_rep_user_id": owner_user_id,
+                    "sales_rep_name": parsed["sales_rep_name"],
+                })
             continue
         by_name = CLIENTS_DB.find_clients_by_name(parsed["legal_name"])
         if by_name:
             CLIENTS_DB.append_address(by_name[0]["id"], parsed["address"])
             CLIENTS_DB.set_user_link(owner_user_id, by_name[0]["id"], can_edit=True)
+            if role == "sales_rep" and not by_name[0].get("sales_rep_user_id"):
+                CLIENTS_DB.update_client(by_name[0]["id"], {
+                    "sales_rep_user_id": owner_user_id,
+                    "sales_rep_name": parsed["sales_rep_name"],
+                })
             skipped += 1
             continue
         payload = {
@@ -2068,7 +2125,7 @@ def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
             "technician_name": "",
             "technician_phone": "",
             "technician_id": None,
-            "sales_rep_user_id": None,
+            "sales_rep_user_id": owner_user_id if role == "sales_rep" else None,
             "sales_rep_name": parsed["sales_rep_name"],
             "owner_user_id": owner_user_id,
             "network_id": None,

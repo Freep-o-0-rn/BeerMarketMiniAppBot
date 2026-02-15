@@ -59,6 +59,7 @@
     "role": "sales_rep",
     "phone": "+79964550715",
     "phone_verified": true,
-    "name": "ДАНИЛОК"
+    "name": "ДАНИЛОК",
+    "blocked": false
   }
 }
