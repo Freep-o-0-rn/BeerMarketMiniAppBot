@@ -56,7 +56,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile
 from aiogram import BaseMiddleware
 from typing import Optional, Tuple, Dict, Any
-from client_cards_db import ClientCardsDB, format_client_card, DEFAULT_POSITIONS
+from client_cards_db import ClientCardsDB, format_client_card, DEFAULT_POSITIONS, _split_addresses
 
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -1754,16 +1754,29 @@ def technician_actions_kb(technician_id: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⬅️ К списку", callback_data="tc:list")],
     ])
 
-def client_card_edit_technician_pick_kb(client_id: str) -> InlineKeyboardMarkup:
+def client_card_edit_technician_pick_kb(client_id: str, address_key: str) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
     for it in CLIENTS_DB.list_technicians()[:50]:
         rows.append([
             InlineKeyboardButton(
                 text=f"{it.get('full_name')} · {it.get('phone')}",
-                callback_data=f"cc:edittechsel:{it.get('id')}",
+                callback_data=f"cc:edittechsel:{client_id}:{address_key}:{it.get('id')}",
             )
         ])
-    rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)", callback_data="cc:edittechskip")])
+        rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)",
+                                          callback_data=f"cc:edittechskip:{client_id}:{address_key}")])
+        rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
+        return InlineKeyboardMarkup(inline_keyboard=rows)
+
+    def client_card_edit_technician_address_kb(client_id: str, addresses: List[str]) -> InlineKeyboardMarkup:
+        rows: List[List[InlineKeyboardButton]] = []
+        for idx, address in enumerate(addresses[:30]):
+            rows.append([
+                InlineKeyboardButton(
+                    text=address,
+                    callback_data=f"cc:edittechaddr:{client_id}:{idx}",
+            )
+        ])
     rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -3767,18 +3780,52 @@ async def cc_edit_technician_start(cq: CallbackQuery, state: FSMContext):
         await cq.answer("Нет доступа", show_alert=True)
         return
 
-    await cq.message.answer("Выберите нового техника:", reply_markup=client_card_edit_technician_pick_kb(client_id))
+    card = CLIENTS_DB.get_client(client_id)
+    if not card:
+        await cq.answer("Карточка не найдена", show_alert=True)
+        return
+    addresses = [x for x in _split_addresses(card.get("address") or "") if x]
+    if not addresses:
+        await cq.answer("В карточке не указан адрес", show_alert=True)
+        return
+    if len(addresses) == 1:
+        await cq.message.answer("Выберите нового техника:",
+                                reply_markup=client_card_edit_technician_pick_kb(client_id, "0"))
+    else:
+        await cq.message.answer(
+            "Выберите адрес, для которого нужно изменить техника:",
+            reply_markup=client_card_edit_technician_address_kb(client_id, addresses),
+        )
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:edittechaddr:"))
+async def cc_edit_technician_address_pick(cq: CallbackQuery):
+    _, _, client_id, address_idx = cq.data.split(":", 3)
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    card = CLIENTS_DB.get_client(client_id)
+    if not card:
+        await cq.answer("Карточка не найдена", show_alert=True)
+        return
+    addresses = [x for x in _split_addresses(card.get("address") or "") if x]
+    idx = int(address_idx)
+    if idx < 0 or idx >= len(addresses):
+        await cq.answer("Адрес не найден", show_alert=True)
+        return
+    await cq.message.answer(
+        f"Выберите нового техника для адреса:\n{addresses[idx]}",
+        reply_markup=client_card_edit_technician_pick_kb(client_id, address_idx),
+    )
     await cq.answer()
 
 
 @router.callback_query(F.data.startswith("cc:edittechsel:"))
 async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
-    _, _, technician_id = cq.data.split(":", 2)
-    data = await state.get_data()
-    client_id = data.get("cc_edit_technician_client_id")
-    if not client_id:
-        await cq.answer("Сессия редактирования истекла. Откройте карточку заново.", show_alert=True)
-        return
+    _, _, client_id, address_idx, technician_id = cq.data.split(":", 4)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
     if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
@@ -3790,12 +3837,23 @@ async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
         await cq.answer("Техник не найден", show_alert=True)
         return
 
-    CLIENTS_DB.update_client(client_id, {
-        "technician_id": technician_id,
-        "technician_name": tech.get("full_name") or "",
-        "technician_phone": tech.get("phone") or "",
-    })
-    await state.update_data(cc_edit_technician_client_id=None)
+    card_before = CLIENTS_DB.get_client(client_id)
+    if not card_before:
+        await cq.answer("Карточка не найдена", show_alert=True)
+        return
+    addresses = [x for x in _split_addresses(card_before.get("address") or "") if x]
+    idx = int(address_idx)
+    if idx < 0 or idx >= len(addresses):
+        await cq.answer("Адрес не найден", show_alert=True)
+        return
+    CLIENTS_DB.set_client_address_technician(client_id, addresses[idx], technician_id)
+    if len(addresses) == 1:
+        CLIENTS_DB.update_client(client_id, {
+            "technician_id": technician_id,
+            "technician_name": tech.get("full_name") or "",
+            "technician_phone": tech.get("phone") or "",
+        })
+    await state.clear()
     card = CLIENTS_DB.get_client(client_id)
     await cq.message.answer("✅ Техник обновлён.")
     await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
@@ -3804,18 +3862,29 @@ async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("cc:edittechskip:"))
 async def cc_edit_technician_skip(cq: CallbackQuery):
-    _, _, client_id = cq.data.split(":", 2)
+    _, _, client_id, address_idx = cq.data.split(":", 3)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
     if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
         await cq.answer("Нет доступа", show_alert=True)
         return
 
-    CLIENTS_DB.update_client(client_id, {
-        "technician_id": None,
-        "technician_name": "ТЕСТ",
-        "technician_phone": "+79999999999",
-    })
+    card_before = CLIENTS_DB.get_client(client_id)
+    if not card_before:
+        await cq.answer("Карточка не найдена", show_alert=True)
+        return
+    addresses = [x for x in _split_addresses(card_before.get("address") or "") if x]
+    idx = int(address_idx)
+    if idx < 0 or idx >= len(addresses):
+        await cq.answer("Адрес не найден", show_alert=True)
+        return
+    CLIENTS_DB.set_client_address_technician(client_id, addresses[idx], None)
+    if len(addresses) == 1:
+        CLIENTS_DB.update_client(client_id, {
+            "technician_id": None,
+            "technician_name": "ТЕСТ",
+            "technician_phone": "+79999999999",
+        })
     card = CLIENTS_DB.get_client(client_id)
     await cq.message.answer("✅ Техник обновлён.")
     await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))

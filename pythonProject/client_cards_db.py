@@ -129,10 +129,23 @@ class ClientCardsDB:
                     PRIMARY KEY(user_id, client_id),
                     FOREIGN KEY(client_id) REFERENCES clients(id) ON DELETE CASCADE
                 );
+                
+                CREATE TABLE IF NOT EXISTS client_address_technicians (
+                    client_id TEXT NOT NULL,
+                    address_key TEXT NOT NULL,
+                    address TEXT NOT NULL,
+                    technician_id TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY(client_id, address_key),
+                    FOREIGN KEY(client_id) REFERENCES clients(id) ON DELETE CASCADE,
+                    FOREIGN KEY(technician_id) REFERENCES technicians(id) ON DELETE SET NULL
+                );
 
                 CREATE INDEX IF NOT EXISTS idx_clients_sales_rep ON clients(sales_rep_user_id);
                 CREATE INDEX IF NOT EXISTS idx_clients_network ON clients(network_id);
                 CREATE INDEX IF NOT EXISTS idx_links_user ON client_user_links(user_id);
+                CREATE INDEX IF NOT EXISTS idx_client_address_technicians_technician ON client_address_technicians(technician_id);
                 """
             )
             cols = {r["name"] for r in conn.execute("PRAGMA table_info(clients)").fetchall()}
@@ -181,6 +194,12 @@ class ClientCardsDB:
                     "INSERT OR REPLACE INTO client_user_links(user_id, client_id, can_edit, created_at) VALUES (?, ?, 1, ?)",
                     (int(payload["owner_user_id"]), cid, now),
                 )
+            self._upsert_address_technician_mappings(
+                conn,
+                client_id=cid,
+                address_value=payload.get("address") or "",
+                technician_id=payload.get("technician_id"),
+            )
             for c in contacts:
                 conn.execute(
                     """
@@ -367,6 +386,16 @@ class ClientCardsDB:
                 row["technician"] = None
             row["network"] = network
             row["network_clients"] = linked_clients
+            row["address_technicians"] = conn.execute(
+                """
+                SELECT cat.address_key, cat.address, cat.technician_id, t.full_name AS technician_name, t.phone AS technician_phone
+                FROM client_address_technicians cat
+                LEFT JOIN technicians t ON t.id = cat.technician_id
+                WHERE cat.client_id = ?
+                ORDER BY cat.address COLLATE NOCASE
+                """,
+                (client_id,),
+            ).fetchall()
             return row
 
     def update_client(self, client_id: str, patch: Dict[str, Any]) -> None:
@@ -391,6 +420,8 @@ class ClientCardsDB:
         vals.append(client_id)
         with self._connect() as conn:
             conn.execute(f"UPDATE clients SET {', '.join(parts)} WHERE id = ?", tuple(vals))
+            if "address" in patch:
+                self._prune_address_technicians(conn, client_id, patch.get("address") or "")
 
     def sync_overdue_days(self, overdue_by_client_id: Dict[str, int]) -> int:
         """Bulk-update overdue days for existing clients. Returns number of changed records."""
@@ -490,7 +521,65 @@ class ClientCardsDB:
                 "UPDATE clients SET technician_id = NULL WHERE technician_id = ?",
                 (technician_id,),
             )
+            conn.execute(
+                "DELETE FROM client_address_technicians WHERE technician_id = ?",
+                (technician_id,),
+            )
             conn.execute("DELETE FROM technicians WHERE id = ?", (technician_id,))
+
+    def set_client_address_technician(self, client_id: str, address: str, technician_id: Optional[str]) -> None:
+        with self._connect() as conn:
+            row = conn.execute("SELECT address FROM clients WHERE id = ?", (client_id,)).fetchone()
+            if not row:
+                return
+            normalized_address = " ".join((address or "").strip().split())
+            if not normalized_address:
+                return
+            existing_addresses = _split_addresses(row.get("address") or "")
+            normalized_existing = {_normalize_text(a): a for a in existing_addresses}
+            key = _normalize_text(normalized_address)
+            if key not in normalized_existing:
+                return
+            now = _utcnow()
+            conn.execute(
+                """
+                INSERT INTO client_address_technicians(client_id, address_key, address, technician_id, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(client_id, address_key) DO UPDATE SET
+                    address = excluded.address,
+                    technician_id = excluded.technician_id,
+                    updated_at = excluded.updated_at
+                """,
+                (client_id, key, normalized_existing[key], technician_id, now, now),
+            )
+
+    def _upsert_address_technician_mappings(self, conn: sqlite3.Connection, *, client_id: str, address_value: str,
+                                            technician_id: Optional[str]) -> None:
+        if not technician_id:
+            return
+        now = _utcnow()
+        for address in _split_addresses(address_value):
+            key = _normalize_text(address)
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO client_address_technicians(client_id, address_key, address, technician_id, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (client_id, key, address, technician_id, now, now),
+            )
+
+    def _prune_address_technicians(self, conn: sqlite3.Connection, client_id: str, address_value: str) -> None:
+        valid = {_normalize_text(a) for a in _split_addresses(address_value)}
+        rows = conn.execute(
+            "SELECT address_key FROM client_address_technicians WHERE client_id = ?",
+            (client_id,),
+        ).fetchall()
+        for row in rows:
+            if row.get("address_key") not in valid:
+                conn.execute(
+                    "DELETE FROM client_address_technicians WHERE client_id = ? AND address_key = ?",
+                    (client_id, row.get("address_key")),
+                )
 
     def export_masked_summary(self) -> Dict[str, Any]:
         with self._connect() as conn:
@@ -509,7 +598,7 @@ def format_client_card(card: Dict[str, Any]) -> str:
         f"Магазин: {card.get('store_name') or '—'}",
         f"Адрес: {card.get('address') or '—'}",
         f"Отсрочка: {card.get('overdue_days')} дн.",
-        f"Техник: {tech_name} ({tech_phone})",
+        f"Техник (по умолчанию): {tech_name} ({tech_phone})",
         f"Торговый представитель: {card.get('sales_rep_name') or '—'}",
         f"Сеть: {network_name}",
         "",
@@ -520,6 +609,13 @@ def format_client_card(card: Dict[str, Any]) -> str:
     else:
         for i, c in enumerate(contacts, 1):
             lines.append(f"{i}. {c.get('contact_name')} — {c.get('contact_phone')} ({c.get('contact_position')})")
+    address_technicians = card.get("address_technicians") or []
+    if address_technicians:
+        lines.append("\n<b>Техники по адресам:</b>")
+        for row in address_technicians:
+            t_name = row.get("technician_name") or "ТЕСТ"
+            t_phone = row.get("technician_phone") or "+79999999999"
+            lines.append(f"• {row.get('address')}: {t_name} ({t_phone})")
     if card.get("network_clients") and len(card["network_clients"]) > 1:
         lines.append("\n<b>Юрлица в сети:</b>")
         for c in card["network_clients"]:
