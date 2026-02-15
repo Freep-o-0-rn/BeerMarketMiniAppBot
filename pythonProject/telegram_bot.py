@@ -1882,6 +1882,14 @@ def _extract_legal_form_and_name(raw: str) -> Tuple[str, str]:
         return m.group(1).upper(), m.group(2).strip(" - ")
     return "ООО", txt
 
+def _normalize_legal_name(legal_name: str) -> str:
+    txt = (legal_name or "").strip()
+    if not txt:
+        return ""
+    txt = re.sub(r"\b(ООО|ИП)\b", " ", txt, flags=re.IGNORECASE)
+    txt = re.sub(r"\s+", " ", txt).strip(" -")
+    return txt
+
 
 def _extract_sales_rep_and_address(raw: str) -> Tuple[str, str, str]:
     txt = (raw or "").strip()
@@ -1907,6 +1915,7 @@ def parse_client_row_for_card(raw: str) -> Optional[Dict[str, str]]:
         return None
     legal_form, legal_name = _extract_legal_form_and_name(txt)
     legal_name, sales_rep, address = _extract_sales_rep_and_address(legal_name)
+    legal_name = _normalize_legal_name(legal_name)
 
     if not legal_name:
         return None
@@ -1933,10 +1942,17 @@ def import_clients_from_latest_debt(owner_user_id: int) -> Tuple[int, int]:
         if not parsed:
             skipped += 1
             continue
+        CLIENTS_DB.consolidate_client_duplicates(parsed["legal_name"])
         existing = CLIENTS_DB.find_client(parsed["legal_form"], parsed["legal_name"], parsed["address"])
         if existing:
             skipped += 1
             CLIENTS_DB.set_user_link(owner_user_id, existing["id"], can_edit=True)
+            continue
+        by_name = CLIENTS_DB.find_clients_by_name(parsed["legal_name"])
+        if by_name:
+            CLIENTS_DB.append_address(by_name[0]["id"], parsed["address"])
+            CLIENTS_DB.set_user_link(owner_user_id, by_name[0]["id"], can_edit=True)
+            skipped += 1
             continue
         payload = {
             "legal_form": parsed["legal_form"],

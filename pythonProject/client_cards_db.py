@@ -33,6 +33,30 @@ def _dict_factory(cursor, row):
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
+def _normalize_text(value: str) -> str:
+    return " ".join((value or "").strip().casefold().split())
+
+
+def _split_addresses(value: str) -> List[str]:
+    raw = (value or "").replace("\r", "\n")
+    chunks: List[str] = []
+    for part in raw.split("\n"):
+        chunks.extend(part.split(";"))
+    return [" ".join(x.strip().split()) for x in chunks if x and x.strip()]
+
+
+def _merge_addresses(*values: str) -> str:
+    result: List[str] = []
+    seen = set()
+    for value in values:
+        for addr in _split_addresses(value):
+            key = _normalize_text(addr)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            result.append(addr)
+    return "\n".join(result)
+
 class ClientCardsDB:
     def __init__(self, path: Optional[Path] = None):
         self.path = Path(path or DB_PATH)
@@ -188,6 +212,99 @@ class ClientCardsDB:
                 """,
                 (legal_form, legal_name, address),
             ).fetchone()
+
+    def find_clients_by_name(self, legal_name: str) -> List[Dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT *
+                FROM clients
+                WHERE lower(trim(legal_name)) = lower(trim(?))
+                ORDER BY created_at ASC
+                """,
+                (legal_name,),
+            ).fetchall()
+        return rows
+
+    def append_address(self, client_id: str, address: str) -> bool:
+        now = _utcnow()
+        with self._connect() as conn:
+            row = conn.execute("SELECT address FROM clients WHERE id = ?", (client_id,)).fetchone()
+            if not row:
+                return False
+            merged = _merge_addresses(row.get("address") or "", address or "")
+            if merged == (row.get("address") or ""):
+                return False
+            conn.execute(
+                "UPDATE clients SET address = ?, updated_at = ? WHERE id = ?",
+                (merged, now, client_id),
+            )
+        return True
+
+    def consolidate_client_duplicates(self, legal_name: str) -> Optional[Dict[str, Any]]:
+        rows = self.find_clients_by_name(legal_name)
+        if not rows:
+            return None
+        if len(rows) == 1:
+            return rows[0]
+
+        primary = rows[0]
+        dupes = rows[1:]
+        now = _utcnow()
+        with self._connect() as conn:
+            merged_addresses = _merge_addresses(*(r.get("address") or "" for r in rows))
+            conn.execute(
+                "UPDATE clients SET address = ?, updated_at = ? WHERE id = ?",
+                (merged_addresses, now, primary["id"]),
+            )
+
+            contact_keys = {
+                (
+                    _normalize_text(c["contact_name"]),
+                    _normalize_text(c["contact_phone"]),
+                    _normalize_text(c["contact_position"]),
+                )
+                for c in conn.execute(
+                    "SELECT contact_name, contact_phone, contact_position FROM client_contacts WHERE client_id = ?",
+                    (primary["id"],),
+                ).fetchall()
+            }
+            for d in dupes:
+                dup_contacts = conn.execute(
+                    "SELECT contact_name, contact_phone, contact_position FROM client_contacts WHERE client_id = ?",
+                    (d["id"],),
+                ).fetchall()
+                for c in dup_contacts:
+                    key = (
+                        _normalize_text(c["contact_name"]),
+                        _normalize_text(c["contact_phone"]),
+                        _normalize_text(c["contact_position"]),
+                    )
+                    if key in contact_keys:
+                        continue
+                    contact_keys.add(key)
+                    conn.execute(
+                        """
+                        INSERT INTO client_contacts(id, client_id, contact_name, contact_phone, contact_position, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (str(uuid.uuid4()), primary["id"], c["contact_name"], c["contact_phone"], c["contact_position"],
+                         now, now),
+                    )
+
+                links = conn.execute(
+                    "SELECT user_id, can_edit, created_at FROM client_user_links WHERE client_id = ?",
+                    (d["id"],),
+                ).fetchall()
+                for link in links:
+                    conn.execute(
+                        "INSERT OR REPLACE INTO client_user_links(user_id, client_id, can_edit, created_at) VALUES (?, ?, ?, ?)",
+                        (int(link["user_id"]), primary["id"], int(link["can_edit"]), link["created_at"]),
+                    )
+
+                conn.execute("DELETE FROM clients WHERE id = ?", (d["id"],))
+
+        return self.get_client(primary["id"])
 
     def add_contact(self, client_id: str, name: str, phone: str, position: str) -> None:
         now = _utcnow()
