@@ -45,7 +45,8 @@
   },
   "750420118": {
     "role": "client",
-    "name": "Вобла"
+    "name": "Вобла",
+    "phone_verified": true
   },
   "727411283": {
     "username": "kontra93",
