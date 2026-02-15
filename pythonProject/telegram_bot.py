@@ -1890,22 +1890,30 @@ def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
 
 def _extract_legal_form_and_name(raw: str) -> Tuple[str, str]:
     txt = re.sub(r"\s+", " ", (raw or "").strip())
+    txt = re.sub(r"^\d+\s+", "", txt)
     m = re.match(r"^[«\"'\s]*(ООО|ИП)\b[\s\.\-]*([^\n]+)$", txt, flags=re.IGNORECASE)
     if m:
         return m.group(1).upper(), m.group(2).strip(" -")
-        m_full = re.match(
-            r"^[«\"'\s]*(индивидуальный\s+предприниматель|общество\s+с\s+ограниченной\s+ответственностью)\b[\s\.\-]*([^\n]+)$",
-            txt, flags=re.IGNORECASE)
-        if m_full:
-            form = "ИП" if "предприниматель" in m_full.group(1).casefold() else "ООО"
-            return form, m_full.group(2).strip(" -")
+    m_full = re.match(
+        r"^[«\"'\s]*(индивидуальный\s+предприниматель|общество\s+с\s+ограниченной\s+ответственностью)\b[\s\.\-]*([^\n]+)$",
+        txt,
+        flags=re.IGNORECASE,
+    )
+    if m_full:
+        form = "ИП" if "предприниматель" in m_full.group(1).casefold() else "ООО"
+        return form, m_full.group(2).strip(" -")
     return "ООО", txt
 
 def _normalize_legal_name(legal_name: str) -> str:
     txt = (legal_name or "").strip()
     if not txt:
         return ""
-    txt = re.sub(r"\b(ООО|ИП)\b", " ", txt, flags=re.IGNORECASE)
+    txt = re.sub(
+        r"\b(ООО|ИП|индивидуальный\s+предприниматель|общество\s+с\s+ограниченной\s+ответственностью)\b",
+        " ",
+        txt,
+        flags=re.IGNORECASE,
+    )
     txt = re.sub(r"\s+", " ", txt).strip(" -")
     return txt
 
