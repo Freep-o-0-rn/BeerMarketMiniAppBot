@@ -3834,11 +3834,11 @@ async def cc_finish_create(m: Message, state: FSMContext):
 async def cc_import_debt(cq: CallbackQuery):
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"}:
+    if role not in {"admin", "sales_rep", "client"}:
         await cq.answer("Нет прав", show_alert=True)
         return
     try:
-        created, skipped = import_clients_from_latest_debt(uid)
+        created, skipped = import_clients_from_latest_debt(uid, role)
     except Exception as e:
         await cq.message.answer(f"Не удалось выполнить импорт: {e}")
         await cq.answer()
