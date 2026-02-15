@@ -26,12 +26,15 @@
   },
   "sales_rep": {
     "label": "Торговый представитель",
-    "description": "Доступ к данным клиентов, прайсам и отчётам без админских прав.",
+    "description": "Доступ к своим клиентам, отчётам и карточкам клиентов.",
     "permissions": [
       "view_prices",
       "view_promos",
       "view_schedule",
+      "manage_clients",
+      "view_prices",
       "view_reports",
+      "view_schedule",
       "view_ttn"
     ]
   }

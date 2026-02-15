@@ -48,7 +48,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from config import BOT_TOKEN, update_setting
-from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads, repair_excel_for_telegram
+from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads
 from mail_agent import fetch_latest_file
 from pathlib import Path
 from dataclasses import dataclass
@@ -56,10 +56,12 @@ from typing import Optional, Dict, Any, List, Tuple
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile
 from aiogram import BaseMiddleware
 from typing import Optional, Tuple, Dict, Any
+from client_cards_db import ClientCardsDB, format_client_card, DEFAULT_POSITIONS
 
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
+CLIENTS_DB = ClientCardsDB(SETTINGS_DIR / "clients.sqlite3")
 
 logger = logging.getLogger(__name__)
 
@@ -202,9 +204,6 @@ class ConfigStates(StatesGroup):
     waiting_email_account = State()
     waiting_email_password = State()
 
-class RepairStates(StatesGroup):
-    waiting_control_key = State()
-
 # NEW: онбординг и клиентское имя
 class OnboardStates(StatesGroup):
     waiting_role = State()
@@ -214,6 +213,24 @@ class OnboardStates(StatesGroup):
 
 class ClientEditStates(StatesGroup):
     waiting_new_name = State()
+
+class ClientCardStates(StatesGroup):
+    waiting_legal_form = State()
+    waiting_legal_name = State()
+    waiting_store_name = State()
+    waiting_address = State()
+    waiting_overdue_days = State()
+    waiting_contact_name = State()
+    waiting_contact_phone = State()
+    waiting_contact_position = State()
+    waiting_more_contacts = State()
+    waiting_technician_name = State()
+    waiting_technician_phone = State()
+    waiting_sales_rep = State()
+    waiting_network_name = State()
+    waiting_additional_contact_name = State()
+    waiting_additional_contact_phone = State()
+    waiting_additional_contact_position = State()
 
 class PriceStates(StatesGroup):
     waiting_new_title = State()
@@ -409,6 +426,18 @@ DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
             "view_promos",
             "view_schedule",
             "view_reports",
+        ],
+    },
+    "sales_rep": {
+        "label": "Торговый представитель",
+        "description": "Работает со своими клиентами и их карточками.",
+        "permissions": [
+            "view_prices",
+            "view_promos",
+            "view_schedule",
+            "view_reports",
+            "view_ttn",
+            "manage_clients",
         ],
     },
 }
@@ -1076,9 +1105,6 @@ def help_text_admin() -> str:
         "• /report — общий отчёт\n"
         "• /report просрочено [слова] — только просрочка\n"
         "• /report переплаты [слова] — только переплаты\n"
-        "• /repair — выбор файла (дебиторка/тара), ввод ключа и пошаговая починка до результата\n"
-        "• /repair_debt — ручная починка дебиторки в свежий .xlsx\n"
-        "• /repair_tara — ручная починка тары в свежий .xlsx\n"
         "• /tara — отчёт по таре\n"
         "• /refresh [debt|tara] — обновить файлы\n"
         "• /settings — параметры подключения (админам)\n"
@@ -1491,7 +1517,7 @@ def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"),KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="👥 Пользователи")],
+            [KeyboardButton(text="👥 Пользователи"), KeyboardButton(text="🏢 Клиенты")],
             [KeyboardButton(text="▶️ Старт"), KeyboardButton(text=upd_label)],
         ],
         resize_keyboard=True
@@ -1505,7 +1531,7 @@ def sales_rep_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
             [KeyboardButton(text="⏰ Просрочено"), KeyboardButton(text="💰 Переплаты")],
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
-            [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
+            [KeyboardButton(text="🏢 Клиенты"),KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
             [KeyboardButton(text="▶️ Старт")],
         ],
         resize_keyboard=True
@@ -1541,12 +1567,6 @@ def update_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⬅️ Назад",     callback_data="menu:back")],
     ])
 
-def repair_menu_kb() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🧾 Починить дебиторку", callback_data="repair:debt")],
-        [InlineKeyboardButton(text="📦 Починить тару", callback_data="repair:tara")],
-        [InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")],
-    ])
 
 #график развоза
 def _ensure_parent(p: Path):
@@ -1694,7 +1714,7 @@ def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN)],
             [KeyboardButton(text="▶️ Старт")],
-            [KeyboardButton(text="✏️ Изменить название")],
+            [KeyboardButton(text="🏢 Моя карточка"), KeyboardButton(text="✏️ Изменить название")],
         ],
         resize_keyboard=True
     )
@@ -1779,6 +1799,63 @@ def settings_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🔐 EMAIL_PASSWORD", callback_data="cfg:pass")],
         [InlineKeyboardButton(text="⬅️ Назад",          callback_data="menu:back")]
     ])
+
+def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
+    rows = [[InlineKeyboardButton(text="➕ Контакт", callback_data=f"cc:addcontact:{client_id}")]]
+    if role in {"admin", "sales_rep"}:
+        rows.append([InlineKeyboardButton(text="✏️ Привязать к сети", callback_data=f"cc:net:{client_id}")])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="cc:list")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def client_cards_list_kb(items: List[Dict[str, Any]], role: str) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for it in items[:30]:
+        title = f"{it.get('legal_form')} {it.get('legal_name')}"
+        rows.append([InlineKeyboardButton(text=title[:60], callback_data=f"cc:view:{it.get('id')}")])
+    if role in {"admin", "sales_rep"}:
+        rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
+    txt = (raw or "").strip()
+    if not txt:
+        return None, ""
+    m = re.search(r"(\d{4,})", txt)
+    uid = int(m.group(1)) if m else None
+    name = re.sub(r"\(.*?\)", "", txt).strip()
+    return uid, name
+
+
+def _client_cards_for_user(user_id: int, role: str) -> List[Dict[str, Any]]:
+    if role == "admin":
+        return CLIENTS_DB.list_clients()
+    if role == "sales_rep":
+        return CLIENTS_DB.list_clients(sales_rep_user_id=user_id)
+    direct = CLIENTS_DB.list_clients(owner_user_id=user_id)
+    if direct:
+        return direct
+    cname = (get_client_name(user_id) or "").strip().casefold()
+    if not cname:
+        return []
+    matched = []
+    for it in CLIENTS_DB.list_clients():
+        legal = (it.get("legal_name") or "").casefold()
+        store = (it.get("store_name") or "").casefold()
+        if cname in legal or cname in store:
+            matched.append(it)
+    return matched
+
+def _has_client_card_access(user_id: int, role: str, client_id: str) -> bool:
+    if CLIENTS_DB.user_can_access(user_id, role, client_id):
+        return True
+    if role == "client":
+        ids = {it.get("id") for it in _client_cards_for_user(user_id, role)}
+        return client_id in ids
+    return False
+
 
 #----------------Инлайн меню прайсы 4. Список прайсов — без админ-кнопок клиентам
 def _price_list_page(items: List[Dict[str, Any]], page: int, admin: bool) -> InlineKeyboardMarkup:
@@ -2982,6 +3059,306 @@ async def _do_mail_refresh(m: Message):
 async def btn_refresh(m: Message):
     await m.answer("Что обновить?", reply_markup=update_menu_kb())
 
+@router.message(F.text.in_({"🏢 Клиенты", "🏢 Моя карточка"}))
+async def client_cards_entry(m: Message, state: FSMContext):
+    await state.clear()
+    uid = int(getattr(m.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    items = _client_cards_for_user(uid, role)
+    if not items and role in {"admin", "sales_rep"}:
+        await m.answer("Карточек пока нет. Создайте первую.", reply_markup=client_cards_list_kb([], role))
+        return
+    if not items:
+        await m.answer("Вам пока не назначена карточка клиента. Обратитесь к администратору.", reply_markup=menu_for_message(m))
+        return
+    await m.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+
+@router.callback_query(F.data == "cc:list")
+async def cc_list(cq: CallbackQuery):
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    items = _client_cards_for_user(uid, role)
+    await cq.message.edit_text("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("cc:view:"))
+async def cc_view(cq: CallbackQuery):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    card = CLIENTS_DB.get_client(client_id)
+    if not card:
+        await cq.answer("Карточка не найдена", show_alert=True)
+        return
+    await cq.message.edit_text(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+    await cq.answer()
+
+@router.callback_query(F.data == "cc:new")
+async def cc_new(cq: CallbackQuery, state: FSMContext):
+    role = get_user_role(getattr(cq.from_user, "id", None))
+    if role not in {"admin", "sales_rep"}:
+        await cq.answer("Нет прав", show_alert=True)
+        return
+    await state.clear()
+    await state.update_data(client_contacts=[])
+    await state.set_state(ClientCardStates.waiting_legal_form)
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="ООО", callback_data="cc:lf:ООО"), InlineKeyboardButton(text="ИП", callback_data="cc:lf:ИП")]])
+    await cq.message.answer("Создание карточки. Выберите форму: ООО или ИП.", reply_markup=kb)
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("cc:lf:"), ClientCardStates.waiting_legal_form)
+async def cc_pick_legal_form(cq: CallbackQuery, state: FSMContext):
+    lf = cq.data.split(":", 2)[2]
+    await state.update_data(legal_form=lf)
+    await state.set_state(ClientCardStates.waiting_legal_name)
+    await cq.message.answer("Введите юр. название клиента (без формы).")
+    await cq.answer()
+
+@router.message(ClientCardStates.waiting_legal_name)
+async def cc_legal_name(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    if len(v) < 2:
+        await m.answer("Слишком короткое название.")
+        return
+    await state.update_data(legal_name=v)
+    await state.set_state(ClientCardStates.waiting_store_name)
+    await m.answer("Введите название магазина.")
+
+@router.message(ClientCardStates.waiting_store_name)
+async def cc_store_name(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    if len(v) < 2:
+        await m.answer("Введите корректное название магазина.")
+        return
+    await state.update_data(store_name=v)
+    await state.set_state(ClientCardStates.waiting_address)
+    await m.answer("Введите адрес клиента.")
+
+@router.message(ClientCardStates.waiting_address)
+async def cc_address(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    if len(v) < 5:
+        await m.answer("Адрес слишком короткий.")
+        return
+    await state.update_data(address=v)
+    await state.set_state(ClientCardStates.waiting_overdue_days)
+    await m.answer("Введите кол-во дней отсрочки (число).")
+
+@router.message(ClientCardStates.waiting_overdue_days)
+async def cc_overdue_days(m: Message, state: FSMContext):
+    try:
+        days = max(0, int((m.text or "").strip()))
+    except Exception:
+        await m.answer("Нужно целое число.")
+        return
+    await state.update_data(overdue_days=days)
+    await state.set_state(ClientCardStates.waiting_contact_name)
+    await m.answer("Введите имя контактного лица.")
+
+@router.message(ClientCardStates.waiting_contact_name)
+async def cc_contact_name(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    if len(v) < 2:
+        await m.answer("Введите имя контакта.")
+        return
+    await state.update_data(contact_name=v)
+    await state.set_state(ClientCardStates.waiting_contact_phone)
+    await m.answer("Введите телефон контакта (например +79990000000).")
+
+@router.message(ClientCardStates.waiting_contact_phone)
+async def cc_contact_phone(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    if len(re.sub(r"\D", "", v)) < 10:
+        await m.answer("Неверный формат телефона.")
+        return
+    await state.update_data(contact_phone=v)
+    await state.set_state(ClientCardStates.waiting_contact_position)
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=pos, callback_data=f"cc:pos:{pos}")] for pos in DEFAULT_POSITIONS
+    ] + [[InlineKeyboardButton(text="✍️ Ввести вручную", callback_data="cc:pos:custom")]])
+    await m.answer("Выберите должность контакта или введите вручную.", reply_markup=kb)
+
+@router.callback_query(F.data.startswith("cc:pos:"), ClientCardStates.waiting_contact_position)
+async def cc_contact_position_pick(cq: CallbackQuery, state: FSMContext):
+    pos = cq.data.split(":", 2)[2]
+    if pos == "custom":
+        await cq.message.answer("Введите должность вручную.")
+        await cq.answer()
+        return
+    await state.update_data(contact_position=pos)
+    await state.set_state(ClientCardStates.waiting_more_contacts)
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="➕ Добавить ещё", callback_data="cc:more:yes"), InlineKeyboardButton(text="✅ Продолжить", callback_data="cc:more:no")]])
+    await cq.message.answer("Добавить ещё контакт?", reply_markup=kb)
+    await cq.answer()
+
+@router.message(ClientCardStates.waiting_contact_position)
+async def cc_contact_position_text(m: Message, state: FSMContext):
+    pos = (m.text or "").strip()
+    if len(pos) < 2:
+        await m.answer("Введите должность.")
+        return
+    await state.update_data(contact_position=pos)
+    await state.set_state(ClientCardStates.waiting_more_contacts)
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="➕ Добавить ещё", callback_data="cc:more:yes"), InlineKeyboardButton(text="✅ Продолжить", callback_data="cc:more:no")]])
+    await m.answer("Добавить ещё контакт?", reply_markup=kb)
+
+@router.callback_query(F.data.startswith("cc:more:"), ClientCardStates.waiting_more_contacts)
+async def cc_more_contacts(cq: CallbackQuery, state: FSMContext):
+    answer = cq.data.split(":", 2)[2]
+    data = await state.get_data()
+    contacts = data.get("client_contacts") or []
+    base_contact = {
+        "contact_name": data.get("contact_name"),
+        "contact_phone": data.get("contact_phone"),
+        "contact_position": data.get("contact_position") or "Контакт",
+    }
+    if base_contact["contact_name"] and (not contacts or contacts[-1] != base_contact):
+        contacts.append(base_contact)
+    await state.update_data(client_contacts=contacts)
+    if answer == "yes":
+        await state.set_state(ClientCardStates.waiting_additional_contact_name)
+        await cq.message.answer("Введите имя дополнительного контакта.")
+    else:
+        await state.set_state(ClientCardStates.waiting_technician_name)
+        await cq.message.answer("Введите имя техника (или '-' для значения по умолчанию ТЕСТ).")
+    await cq.answer()
+
+@router.message(ClientCardStates.waiting_additional_contact_name)
+async def cc_add_contact_name(m: Message, state: FSMContext):
+    await state.update_data(add_contact_name=(m.text or "").strip())
+    await state.set_state(ClientCardStates.waiting_additional_contact_phone)
+    await m.answer("Телефон доп. контакта:")
+
+@router.message(ClientCardStates.waiting_additional_contact_phone)
+async def cc_add_contact_phone(m: Message, state: FSMContext):
+    await state.update_data(add_contact_phone=(m.text or "").strip())
+    await state.set_state(ClientCardStates.waiting_additional_contact_position)
+    await m.answer("Должность доп. контакта:")
+
+@router.message(ClientCardStates.waiting_additional_contact_position)
+async def cc_add_contact_position(m: Message, state: FSMContext):
+    data = await state.get_data()
+    edit_client_id = data.get("edit_client_id")
+    c_name = data.get("add_contact_name") or "Контакт"
+    c_phone = data.get("add_contact_phone") or ""
+    c_pos = (m.text or "").strip() or "Контакт"
+    if edit_client_id:
+        CLIENTS_DB.add_contact(edit_client_id, c_name, c_phone, c_pos)
+        await state.clear()
+        role = get_user_role(getattr(m.from_user, "id", None))
+        card = CLIENTS_DB.get_client(edit_client_id)
+        await m.answer("✅ Контакт добавлен.")
+        await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(edit_client_id, role))
+        return
+    contacts = data.get("client_contacts") or []
+    contacts.append({
+        "contact_name": c_name,
+        "contact_phone": c_phone,
+        "contact_position": c_pos,
+    })
+    await state.update_data(client_contacts=contacts, add_contact_name=None, add_contact_phone=None)
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="➕ Добавить ещё", callback_data="cc:more:yes"), InlineKeyboardButton(text="✅ Продолжить", callback_data="cc:more:no")]])
+    await state.set_state(ClientCardStates.waiting_more_contacts)
+    await m.answer("Контакт добавлен. Добавить ещё?", reply_markup=kb)
+
+@router.message(ClientCardStates.waiting_technician_name)
+async def cc_technician_name(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    await state.update_data(technician_name=("ТЕСТ" if v in {"", "-"} else v))
+    await state.set_state(ClientCardStates.waiting_technician_phone)
+    await m.answer("Контакт техника (или '-' для +79999999999).")
+
+@router.message(ClientCardStates.waiting_technician_phone)
+async def cc_technician_phone(m: Message, state: FSMContext):
+    v = (m.text or "").strip()
+    await state.update_data(technician_phone=("+79999999999" if v in {"", "-"} else v))
+    await state.set_state(ClientCardStates.waiting_sales_rep)
+    await m.answer("Укажите торгового представителя (имя или 'Имя (123456)').")
+
+@router.message(ClientCardStates.waiting_sales_rep)
+async def cc_sales_rep(m: Message, state: FSMContext):
+    uid, name = _parse_sales_rep_input(m.text or "")
+    await state.update_data(sales_rep_user_id=uid, sales_rep_name=name)
+    await state.set_state(ClientCardStates.waiting_network_name)
+    await m.answer("Введите название сети для связки юрлиц (или '-' если без сети).")
+
+@router.message(ClientCardStates.waiting_network_name)
+async def cc_finish_create(m: Message, state: FSMContext):
+    network_raw = (m.text or "").strip()
+    data = await state.get_data()
+    network_id = None
+    if network_raw and network_raw != "-":
+        network_id = CLIENTS_DB.ensure_network(network_raw)
+    edit_client_id = data.get("edit_client_id")
+    if edit_client_id:
+        CLIENTS_DB.update_client(edit_client_id, {"network_id": network_id})
+        await state.clear()
+        role = get_user_role(getattr(m.from_user, "id", None))
+        card = CLIENTS_DB.get_client(edit_client_id)
+        await m.answer("✅ Сеть клиента обновлена.")
+        await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(edit_client_id, role))
+        return
+
+    payload = {
+        "legal_form": data.get("legal_form"),
+        "legal_name": data.get("legal_name"),
+        "store_name": data.get("store_name"),
+        "address": data.get("address"),
+        "overdue_days": int(data.get("overdue_days") or 0),
+        "technician_name": data.get("technician_name") or "ТЕСТ",
+        "technician_phone": data.get("technician_phone") or "+79999999999",
+        "sales_rep_user_id": data.get("sales_rep_user_id"),
+        "sales_rep_name": data.get("sales_rep_name") or "",
+        "owner_user_id": getattr(m.from_user, "id", None),
+        "network_id": network_id,
+    }
+    contacts = data.get("client_contacts") or []
+    if not contacts:
+        contacts = [{
+            "contact_name": data.get("contact_name") or "Контакт",
+            "contact_phone": data.get("contact_phone") or "",
+            "contact_position": data.get("contact_position") or "Контакт",
+        }]
+    cid = CLIENTS_DB.create_client(payload, contacts)
+    role = get_user_role(getattr(m.from_user, "id", None))
+    await state.clear()
+    card = CLIENTS_DB.get_client(cid)
+    await m.answer("✅ Карточка клиента создана.")
+    await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(cid, role))
+
+@router.callback_query(F.data.startswith("cc:addcontact:"))
+async def cc_add_contact_start(cq: CallbackQuery, state: FSMContext):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    await state.clear()
+    await state.update_data(edit_client_id=client_id)
+    await state.set_state(ClientCardStates.waiting_additional_contact_name)
+    await cq.message.answer("Имя нового контакта:")
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("cc:net:"))
+async def cc_set_network_start(cq: CallbackQuery, state: FSMContext):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "sales_rep"}:
+        await cq.answer("Нет прав", show_alert=True)
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await cq.answer("Нет доступа", show_alert=True)
+        return
+    await state.clear()
+    await state.update_data(edit_client_id=client_id)
+    await state.set_state(ClientCardStates.waiting_network_name)
+    await cq.message.answer("Введите название сети для этой карточки.")
+    await cq.answer()
 
 @router.message(F.text == "⚙️ Отсрочки")
 async def btn_overdue_menu(m: Message):
@@ -4085,207 +4462,6 @@ async def cmd_refresh_tara(m: Message):
     except Exception as e:
         logger.exception("Manual refresh (tara) failed")
         await m.answer(f"Не удалось обновить: {e}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
-
-#----починка тары и дебиторки
-def _find_items_by_keywords(report_type: str, path: str, keywords: List[str]) -> Tuple[List[Dict[str, Any]], Optional[str]]:
-    if report_type == "debt":
-        res = process_file(path)
-        items = (res or {}).get("items") or []
-        report_date = (res or {}).get("report_date")
-        found = [it for it in items if client_matches_any_keyword(it, keywords)]
-        return found, report_date
-
-    res = process_tara_file(path)
-    items = (res or {}).get("items") or []
-    report_date = (res or {}).get("report_date")
-    found = []
-    for item in items:
-        name = (item.get("client") or "").strip().casefold()
-        if any(k in name for k in keywords):
-            found.append(item)
-    return found, report_date
-
-
-def _save_repaired_to_downloads(src_path: str, repaired_path: str) -> str:
-    """Сохраняет починенный файл в рабочей папке downloads (без отправки в чат)."""
-    src = Path(src_path)
-    repaired = Path(repaired_path)
-
-    # Требование: итог — свежий .xlsx в рабочей папке downloads
-    target = src if src.suffix.lower() == ".xlsx" else src.with_suffix(".xlsx")
-    target.parent.mkdir(parents=True, exist_ok=True)
-
-    if repaired.resolve() != target.resolve():
-        os.replace(str(repaired), str(target))
-
-    return str(target)
-
-
-async def _repair_until_found_and_send(chat: Message, report_type: str, control_key: str):
-    latest = find_latest_download(download_dir="downloads", report_type=report_type)
-    if not latest:
-        kind = "дебиторке" if report_type == "debt" else "таре"
-        await chat.answer(
-            f"Файл по {kind} не найден. Сначала выполните /refresh {report_type}",
-            reply_markup=menu_for_message(chat),
-        )
-        return
-
-    keywords = [t.casefold() for t in _tokenize_query(control_key)]
-    if not keywords:
-        await chat.answer("Введите контрольный ключ (например: Смирнов).", reply_markup=menu_for_message(chat))
-        return
-
-    await chat.answer("Запускаю починку и проверку по ключу. Файл будет обновляться в рабочей папке downloads (без отправки в чат)…")
-
-    max_attempts = 6
-    current = latest
-    for attempt in range(1, max_attempts + 1):
-        try:
-            found, report_date = _find_items_by_keywords(report_type, current, keywords)
-        except Exception:
-            found, report_date = [], None
-
-        if found:
-            kind = "дебиторка" if report_type == "debt" else "тара"
-            await chat.answer(
-                f"✅ Найдено после {attempt - 1} починок ({kind}). "
-                f"Ключ: <code>{esc(control_key)}</code>. Совпадений: {len(found)}"
-                + (f". Дата отчёта: {esc(report_date)}" if report_date else "")
-                + f"\nФайл обновлён в downloads: <code>{esc(os.path.basename(current))}</code>",
-                reply_markup=menu_for_message(chat),
-            )
-            return
-
-        if attempt == max_attempts:
-            break
-
-        try:
-            repaired = repair_excel_for_telegram(current)
-            current = _save_repaired_to_downloads(current, repaired)
-        except Exception as e:
-            logger.exception("Manual iterative repair failed for %s", report_type)
-            await chat.answer(f"❌ Не удалось продолжить починку: {e}", reply_markup=menu_for_message(chat))
-            return
-
-    await chat.answer(
-        "Ничего не найдено по заданным ключам. Выполнено несколько попыток починки, файл обновлён в downloads.",
-        reply_markup=menu_for_message(chat),
-    )
-
-
-async def _repair_and_send(chat: Message, report_type: str):
-    latest = find_latest_download(download_dir="downloads", report_type=report_type)
-    if not latest:
-        kind = "дебиторке" if report_type == "debt" else "таре"
-        await chat.answer(
-            f"Файл по {kind} не найден. Сначала выполните /refresh {report_type}",
-            reply_markup=menu_for_message(chat),
-        )
-        return
-
-    await chat.answer("Запускаю починку и пересохранение в свежий .xlsx для Telegram (без отправки файла в чат)…")
-    try:
-        repaired = repair_excel_for_telegram(latest)
-        updated = _save_repaired_to_downloads(latest, repaired)
-        await chat.answer(
-            f"✅ Починка завершена. Файл обновлён в downloads: <code>{esc(os.path.basename(updated))}</code>",
-            reply_markup=menu_for_message(chat),
-        )
-    except Exception as e:
-        logger.exception("Manual repair failed for %s", report_type)
-        await chat.answer(f"❌ Не удалось починить файл: {e}", reply_markup=menu_for_message(chat))
-
-
-@router.message(Command("repair"))
-async def cmd_repair(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
-        return
-    await m.answer("Что починить? Выберите тип отчёта:", reply_markup=repair_menu_kb())
-
-
-@router.callback_query(F.data == "repair:debt")
-async def cb_repair_debt(cq: CallbackQuery, state: FSMContext):
-    if get_user_role(getattr(cq.from_user, "id", None)) in {"client", "sales_rep"}:
-        await cq.answer("Команда доступна только для админов.", show_alert=True)
-        return
-    await state.set_state(RepairStates.waiting_control_key)
-    await state.update_data(repair_type="debt")
-    await cq.answer()
-    await cq.message.answer("Введите контрольный ключ (клиента), например: <code>Смирнов</code>.", reply_markup=back_only_kb())
-
-
-@router.callback_query(F.data == "repair:tara")
-async def cb_repair_tara(cq: CallbackQuery, state: FSMContext):
-    if get_user_role(getattr(cq.from_user, "id", None)) in {"client", "sales_rep"}:
-        await cq.answer("Команда доступна только для админов.", show_alert=True)
-        return
-    await state.set_state(RepairStates.waiting_control_key)
-    await state.update_data(repair_type="tara")
-    await cq.answer()
-    await cq.message.answer("Введите контрольный ключ (клиента), например: Смирнов", reply_markup=back_only_kb())
-
-
-@router.message(RepairStates.waiting_control_key)
-async def repair_wait_key(m: Message, state: FSMContext):
-    key = (m.text or "").strip()
-    if not key or key.startswith("/"):
-        await state.clear()
-        await m.answer("Починка отменена.", reply_markup=menu_for_message(m))
-        return
-
-    data = await state.get_data()
-    report_type = data.get("repair_type") or "debt"
-    await state.clear()
-    await _repair_until_found_and_send(m, report_type, key)
-
-
-@router.message(Command("repair_debt"))
-async def cmd_repair_debt(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
-        return
-    await _repair_and_send(m, "debt")
-#конец починки ------------------------------
-
-@router.message(Command("repair_tara"))
-async def cmd_repair_tara(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
-        return
-    await _repair_and_send(m, "tara")
-
-
-@router.message(RepairStates.waiting_control_key)
-async def repair_wait_key(m: Message, state: FSMContext):
-    key = (m.text or "").strip()
-    if not key or key.startswith("/"):
-        await state.clear()
-        await m.answer("Починка отменена.", reply_markup=menu_for_message(m))
-        return
-
-    data = await state.get_data()
-    report_type = data.get("repair_type") or "debt"
-    await state.clear()
-    await _repair_until_found_and_send(m, report_type, key)
-
-
-@router.message(Command("repair_debt"))
-async def cmd_repair_debt(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
-        return
-    await _repair_and_send(m, "debt")
-
-
-@router.message(Command("repair_tara"))
-async def cmd_repair_tara(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
-        return
-    await _repair_and_send(m, "tara")
-
 
 @router.callback_query(F.data == "upd:debt")
 async def cb_upd_debt(cq: CallbackQuery):
