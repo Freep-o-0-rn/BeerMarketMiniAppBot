@@ -1754,27 +1754,35 @@ def technician_actions_kb(technician_id: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⬅️ К списку", callback_data="tc:list")],
     ])
 
-def client_card_edit_technician_pick_kb(client_id: str, address_key: str) -> InlineKeyboardMarkup:
+def client_card_edit_technician_pick_kb(
+    client_id: str,
+    address_key: str,
+    technicians: List[Dict[str, Any]],
+) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
-    for it in CLIENTS_DB.list_technicians()[:50]:
+    for idx, it in enumerate(technicians[:50]):
         rows.append([
             InlineKeyboardButton(
                 text=f"{it.get('full_name')} · {it.get('phone')}",
-                callback_data=f"cc:edittechsel:{client_id}:{address_key}:{it.get('id')}",
+                callback_data=f"cc:edittechsel:{client_id}:{address_key}:{idx}",
             )
         ])
-        rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)",
-                                          callback_data=f"cc:edittechskip:{client_id}:{address_key}")])
+        rows.append([
+            InlineKeyboardButton(
+                text="— По умолчанию (ТЕСТ)",
+                callback_data=f"cc:edittechskip:{client_id}:{address_key}",
+            )
+        ])
         rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
         return InlineKeyboardMarkup(inline_keyboard=rows)
 
-    def client_card_edit_technician_address_kb(client_id: str, addresses: List[str]) -> InlineKeyboardMarkup:
-        rows: List[List[InlineKeyboardButton]] = []
-        for idx, address in enumerate(addresses[:30]):
-            rows.append([
-                InlineKeyboardButton(
-                    text=address,
-                    callback_data=f"cc:edittechaddr:{client_id}:{idx}",
+def client_card_edit_technician_address_kb(client_id: str, addresses: List[str]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for idx, address in enumerate(addresses[:30]):
+        rows.append([
+            InlineKeyboardButton(
+                text=address,
+                callback_data=f"cc:edittechaddr:{client_id}:{idx}",
             )
         ])
     rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
@@ -3788,9 +3796,15 @@ async def cc_edit_technician_start(cq: CallbackQuery, state: FSMContext):
     if not addresses:
         await cq.answer("В карточке не указан адрес", show_alert=True)
         return
+    technicians = CLIENTS_DB.list_technicians()
+    if not technicians:
+        await cq.answer("Список техников пуст", show_alert=True)
+        return
     if len(addresses) == 1:
-        await cq.message.answer("Выберите нового техника:",
-                                reply_markup=client_card_edit_technician_pick_kb(client_id, "0"))
+        await cq.message.answer(
+            "Выберите нового техника:",
+            reply_markup=client_card_edit_technician_pick_kb(client_id, "0", technicians),
+        )
     else:
         await cq.message.answer(
             "Выберите адрес, для которого нужно изменить техника:",
@@ -3816,24 +3830,38 @@ async def cc_edit_technician_address_pick(cq: CallbackQuery):
     if idx < 0 or idx >= len(addresses):
         await cq.answer("Адрес не найден", show_alert=True)
         return
+    technicians = CLIENTS_DB.list_technicians()
+    if not technicians:
+        await cq.answer("Список техников пуст", show_alert=True)
+        return
     await cq.message.answer(
         f"Выберите нового техника для адреса:\n{addresses[idx]}",
-        reply_markup=client_card_edit_technician_pick_kb(client_id, address_idx),
+        reply_markup=client_card_edit_technician_pick_kb(client_id, address_idx, technicians),
     )
     await cq.answer()
 
 
 @router.callback_query(F.data.startswith("cc:edittechsel:"))
 async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
-    _, _, client_id, address_idx, technician_id = cq.data.split(":", 4)
+    _, _, client_id, address_idx, technician_idx_raw = cq.data.split(":", 4)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
     if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
         await cq.answer("Нет доступа", show_alert=True)
         return
 
-    tech = CLIENTS_DB.get_technician(technician_id)
-    if not tech:
+    technicians = CLIENTS_DB.list_technicians()
+    try:
+        technician_idx = int(technician_idx_raw)
+    except ValueError:
+        await cq.answer("Некорректный техник", show_alert=True)
+        return
+    if technician_idx < 0 or technician_idx >= len(technicians):
+        await cq.answer("Техник не найден", show_alert=True)
+        return
+    tech = technicians[technician_idx]
+    technician_id = tech.get("id")
+    if not technician_id:
         await cq.answer("Техник не найден", show_alert=True)
         return
 
