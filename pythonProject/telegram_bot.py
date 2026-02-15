@@ -1854,11 +1854,24 @@ def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def client_cards_list_kb(items: List[Dict[str, Any]], role: str) -> InlineKeyboardMarkup:
+def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, page_size: int = 20) -> InlineKeyboardMarkup:
+    total = len(items)
+    last_page = max(0, (total - 1) // page_size) if total else 0
+    page = max(0, min(page, last_page))
+    start = page * page_size
+    end = min(total, start + page_size)
     rows: List[List[InlineKeyboardButton]] = []
-    for it in items[:30]:
+    for it in items[start:end]:
         title = f"{it.get('legal_form')} {it.get('legal_name')}"
         rows.append([InlineKeyboardButton(text=title[:60], callback_data=f"cc:view:{it.get('id')}")])
+    if total > page_size:
+        nav: List[InlineKeyboardButton] = []
+        if page > 0:
+            nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"cc:list:{page - 1}"))
+        nav.append(InlineKeyboardButton(text=f"{page + 1}/{last_page + 1}", callback_data="cc:list:noop"))
+        if page < last_page:
+            nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:list:{page + 1}"))
+        rows.append(nav)
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
     rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
@@ -1876,10 +1889,16 @@ def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
     return uid, name
 
 def _extract_legal_form_and_name(raw: str) -> Tuple[str, str]:
-    txt = (raw or "").strip()
-    m = re.match(r"^(ООО|ИП)\s+(.+)$", txt, flags=re.IGNORECASE)
+    txt = re.sub(r"\s+", " ", (raw or "").strip())
+    m = re.match(r"^[«\"'\s]*(ООО|ИП)\b[\s\.\-]*([^\n]+)$", txt, flags=re.IGNORECASE)
     if m:
-        return m.group(1).upper(), m.group(2).strip(" - ")
+        return m.group(1).upper(), m.group(2).strip(" -")
+        m_full = re.match(
+            r"^[«\"'\s]*(индивидуальный\s+предприниматель|общество\s+с\s+ограниченной\s+ответственностью)\b[\s\.\-]*([^\n]+)$",
+            txt, flags=re.IGNORECASE)
+        if m_full:
+            form = "ИП" if "предприниматель" in m_full.group(1).casefold() else "ООО"
+            return form, m_full.group(2).strip(" -")
     return "ООО", txt
 
 def _normalize_legal_name(legal_name: str) -> str:
@@ -3322,14 +3341,22 @@ async def client_cards_entry(m: Message, state: FSMContext):
     if not items:
         await m.answer("Вам пока не назначена карточка клиента. Обратитесь к администратору.", reply_markup=menu_for_message(m))
         return
-    await m.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    await m.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=0))
 
-@router.callback_query(F.data == "cc:list")
+@router.callback_query(F.data.func(lambda d: d and d.startswith("cc:list")))
 async def cc_list(cq: CallbackQuery):
+    page = 0
+    parts = (cq.data or "").split(":")
+    if len(parts) >= 3 and parts[2].isdigit():
+        page = int(parts[2])
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
     items = _client_cards_for_user(uid, role)
-    await cq.message.edit_text("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    if len(parts) >= 3 and parts[2] == "noop":
+        await cq.answer()
+        return
+
+    await cq.message.edit_text("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=page))
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:view:"))
@@ -3605,7 +3632,7 @@ async def cc_import_debt(cq: CallbackQuery):
         return
     await cq.message.answer(f"✅ Импорт завершён. Добавлено: {created}, пропущено: {skipped}.")
     items = _client_cards_for_user(uid, role)
-    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=0))
     await cq.answer()
 
 
@@ -3702,7 +3729,7 @@ async def cc_delete_client(cq: CallbackQuery):
     CLIENTS_DB.delete_client(client_id)
     await cq.message.answer("✅ Карточка клиента удалена.")
     items = _client_cards_for_user(uid, role)
-    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role))
+    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=0))
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:addcontact:"))
