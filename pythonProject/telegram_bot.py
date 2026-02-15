@@ -224,13 +224,17 @@ class ClientCardStates(StatesGroup):
     waiting_contact_phone = State()
     waiting_contact_position = State()
     waiting_more_contacts = State()
-    waiting_technician_name = State()
-    waiting_technician_phone = State()
+    waiting_technician_select = State()
     waiting_sales_rep = State()
     waiting_network_name = State()
     waiting_additional_contact_name = State()
     waiting_additional_contact_phone = State()
     waiting_additional_contact_position = State()
+
+class TechnicianStates(StatesGroup):
+    waiting_full_name = State()
+    waiting_phone = State()
+    waiting_points = State()
 
 class PriceStates(StatesGroup):
     waiting_new_title = State()
@@ -1517,7 +1521,7 @@ def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
             [KeyboardButton(text="📑 Прайсы"),KeyboardButton(text="🎁 Акции")],
             [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
             [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="👥 Пользователи"), KeyboardButton(text="🏢 Клиенты")],
+            [KeyboardButton(text="👥 Пользователи"), KeyboardButton(text="🏢 Клиенты"),KeyboardButton(text="🛠 Техники")],
             [KeyboardButton(text="▶️ Старт"), KeyboardButton(text=upd_label)],
         ],
         resize_keyboard=True
@@ -1799,6 +1803,44 @@ def settings_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🔐 EMAIL_PASSWORD", callback_data="cfg:pass")],
         [InlineKeyboardButton(text="⬅️ Назад",          callback_data="menu:back")]
     ])
+#ТЕХНИКИ--------------------------------
+def technicians_menu_kb() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📋 Список техников", callback_data="tc:list")],
+        [InlineKeyboardButton(text="➕ Добавить техника", callback_data="tc:new")],
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")],
+    ])
+
+
+def technicians_list_kb(items: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for it in items[:50]:
+        rows.append([
+            InlineKeyboardButton(
+                text=f"{it.get('full_name')} · {it.get('phone')}",
+                callback_data=f"tc:view:{it.get('id')}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="➕ Добавить техника", callback_data="tc:new")])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="tc:menu")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def technician_actions_kb(technician_id: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"tc:edit:{technician_id}")],
+        [InlineKeyboardButton(text="🗑 Удалить", callback_data=f"tc:del:{technician_id}")],
+        [InlineKeyboardButton(text="⬅️ К списку", callback_data="tc:list")],
+    ])
+
+#карточка клиента ----------------------
+def client_card_technician_pick_kb() -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for it in CLIENTS_DB.list_technicians()[:50]:
+        rows.append([InlineKeyboardButton(text=f"{it.get('full_name')} · {it.get('phone')}", callback_data=f"cc:tech:sel:{it.get('id')}")])
+    rows.append([InlineKeyboardButton(text="— По умолчанию (ТЕСТ)", callback_data="cc:tech:skip")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 
 def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
     rows = [[InlineKeyboardButton(text="➕ Контакт", callback_data=f"cc:addcontact:{client_id}")]]
@@ -3059,6 +3101,112 @@ async def _do_mail_refresh(m: Message):
 async def btn_refresh(m: Message):
     await m.answer("Что обновить?", reply_markup=update_menu_kb())
 
+@router.message(F.text == "🛠 Техники")
+async def technicians_menu(m: Message):
+    if get_user_role(getattr(m.from_user, "id", None)) != "admin":
+        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+        return
+    await m.answer("Управление техниками:", reply_markup=technicians_menu_kb())
+
+
+@router.callback_query(F.data == "tc:menu")
+async def tc_menu(cq: CallbackQuery):
+    await cq.message.answer("Управление техниками:", reply_markup=technicians_menu_kb())
+    await cq.answer()
+
+
+@router.callback_query(F.data == "tc:list")
+async def tc_list(cq: CallbackQuery):
+    items = CLIENTS_DB.list_technicians()
+    if not items:
+        await cq.message.answer("Список техников пуст. Добавьте первого техника.", reply_markup=technicians_menu_kb())
+    else:
+        await cq.message.answer("Техники:", reply_markup=technicians_list_kb(items))
+    await cq.answer()
+
+
+@router.callback_query(F.data == "tc:new")
+async def tc_new(cq: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await state.set_state(TechnicianStates.waiting_full_name)
+    await cq.message.answer("Введите имя и фамилию техника.")
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("tc:view:"))
+async def tc_view(cq: CallbackQuery):
+    technician_id = cq.data.split(":", 2)[2]
+    it = CLIENTS_DB.get_technician(technician_id)
+    if not it:
+        await cq.answer("Техник не найден", show_alert=True)
+        return
+    txt = f"<b>{it.get('full_name')}</b>\nТелефон: {it.get('phone')}\nТочки: {it.get('points_csv') or '—'}"
+    await cq.message.answer(txt, reply_markup=technician_actions_kb(technician_id))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("tc:edit:"))
+async def tc_edit(cq: CallbackQuery, state: FSMContext):
+    technician_id = cq.data.split(":", 2)[2]
+    it = CLIENTS_DB.get_technician(technician_id)
+    if not it:
+        await cq.answer("Техник не найден", show_alert=True)
+        return
+    await state.clear()
+    await state.update_data(edit_technician_id=technician_id)
+    await state.set_state(TechnicianStates.waiting_full_name)
+    await cq.message.answer(f"Новое имя и фамилия (сейчас: {it.get('full_name')}).")
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("tc:del:"))
+async def tc_delete(cq: CallbackQuery):
+    technician_id = cq.data.split(":", 2)[2]
+    CLIENTS_DB.delete_technician(technician_id)
+    await cq.message.answer("✅ Техник удалён.")
+    items = CLIENTS_DB.list_technicians()
+    await cq.message.answer("Техники:", reply_markup=technicians_list_kb(items) if items else technicians_menu_kb())
+    await cq.answer()
+
+
+@router.message(TechnicianStates.waiting_full_name)
+async def tc_wait_name(m: Message, state: FSMContext):
+    full_name = (m.text or "").strip()
+    if len(full_name) < 3:
+        await m.answer("Введите имя и фамилию (минимум 3 символа).")
+        return
+    await state.update_data(technician_full_name=full_name)
+    await state.set_state(TechnicianStates.waiting_phone)
+    await m.answer("Введите номер техника.")
+
+
+@router.message(TechnicianStates.waiting_phone)
+async def tc_wait_phone(m: Message, state: FSMContext):
+    phone = (m.text or "").strip()
+    if len(re.sub(r"\D", "", phone)) < 10:
+        await m.answer("Неверный формат номера. Повторите ввод.")
+        return
+    await state.update_data(technician_phone=phone)
+    await state.set_state(TechnicianStates.waiting_points)
+    await m.answer("Введите точки техника через запятую (или '-' если пусто).")
+
+
+@router.message(TechnicianStates.waiting_points)
+async def tc_wait_points(m: Message, state: FSMContext):
+    points = (m.text or "").strip()
+    points_csv = "" if points in {"", "-"} else points
+    data = await state.get_data()
+    edit_id = data.get("edit_technician_id")
+    if edit_id:
+        CLIENTS_DB.update_technician(edit_id, data.get("technician_full_name"), data.get("technician_phone"), points_csv)
+        await m.answer("✅ Техник обновлён.")
+    else:
+        CLIENTS_DB.create_technician(data.get("technician_full_name"), data.get("technician_phone"), points_csv)
+        await m.answer("✅ Техник добавлен.")
+    await state.clear()
+    await m.answer("Управление техниками:", reply_markup=technicians_menu_kb())
+
+
 @router.message(F.text.in_({"🏢 Клиенты", "🏢 Моя карточка"}))
 async def client_cards_entry(m: Message, state: FSMContext):
     await state.clear()
@@ -3222,8 +3370,8 @@ async def cc_more_contacts(cq: CallbackQuery, state: FSMContext):
         await state.set_state(ClientCardStates.waiting_additional_contact_name)
         await cq.message.answer("Введите имя дополнительного контакта.")
     else:
-        await state.set_state(ClientCardStates.waiting_technician_name)
-        await cq.message.answer("Введите имя техника (или '-' для значения по умолчанию ТЕСТ).")
+        await state.set_state(ClientCardStates.waiting_technician_select)
+        await cq.message.answer("Выберите техника для карточки.", reply_markup=client_card_technician_pick_kb())
     await cq.answer()
 
 @router.message(ClientCardStates.waiting_additional_contact_name)
@@ -3264,19 +3412,28 @@ async def cc_add_contact_position(m: Message, state: FSMContext):
     await state.set_state(ClientCardStates.waiting_more_contacts)
     await m.answer("Контакт добавлен. Добавить ещё?", reply_markup=kb)
 
-@router.message(ClientCardStates.waiting_technician_name)
-async def cc_technician_name(m: Message, state: FSMContext):
-    v = (m.text or "").strip()
-    await state.update_data(technician_name=("ТЕСТ" if v in {"", "-"} else v))
-    await state.set_state(ClientCardStates.waiting_technician_phone)
-    await m.answer("Контакт техника (или '-' для +79999999999).")
-
-@router.message(ClientCardStates.waiting_technician_phone)
-async def cc_technician_phone(m: Message, state: FSMContext):
-    v = (m.text or "").strip()
-    await state.update_data(technician_phone=("+79999999999" if v in {"", "-"} else v))
+@router.callback_query(F.data.startswith("cc:tech:sel:"), ClientCardStates.waiting_technician_select)
+async def cc_technician_pick(cq: CallbackQuery, state: FSMContext):
+    technician_id = cq.data.split(":", 3)[3]
+    tech = CLIENTS_DB.get_technician(technician_id)
+    if not tech:
+        await cq.answer("Техник не найден", show_alert=True)
+        return
+    await state.update_data(
+        technician_id=technician_id,
+        technician_name=tech.get("full_name"),
+        technician_phone=tech.get("phone"),
+    )
     await state.set_state(ClientCardStates.waiting_sales_rep)
-    await m.answer("Укажите торгового представителя (имя или 'Имя (123456)').")
+    await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').")
+    await cq.answer()
+
+@router.callback_query(F.data == "cc:tech:skip", ClientCardStates.waiting_technician_select)
+async def cc_technician_skip(cq: CallbackQuery, state: FSMContext):
+    await state.update_data(technician_id=None, technician_name="ТЕСТ", technician_phone="+79999999999")
+    await state.set_state(ClientCardStates.waiting_sales_rep)
+    await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').")
+    await cq.answer()
 
 @router.message(ClientCardStates.waiting_sales_rep)
 async def cc_sales_rep(m: Message, state: FSMContext):
@@ -3310,6 +3467,7 @@ async def cc_finish_create(m: Message, state: FSMContext):
         "overdue_days": int(data.get("overdue_days") or 0),
         "technician_name": data.get("technician_name") or "ТЕСТ",
         "technician_phone": data.get("technician_phone") or "+79999999999",
+        "technician_id": data.get("technician_id"),
         "sales_rep_user_id": data.get("sales_rep_user_id"),
         "sales_rep_name": data.get("sales_rep_name") or "",
         "owner_user_id": getattr(m.from_user, "id", None),
