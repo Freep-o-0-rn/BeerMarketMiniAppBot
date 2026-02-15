@@ -116,6 +116,8 @@ class ClientCardsDB:
             if "technician_id" not in cols:
                 conn.execute("ALTER TABLE clients ADD COLUMN technician_id TEXT")
 
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_clients_technician ON clients(technician_id)")
+
         try:
             os.chmod(self.path, 0o600)
         except Exception:
