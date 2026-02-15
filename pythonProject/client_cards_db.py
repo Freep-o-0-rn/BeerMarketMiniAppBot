@@ -66,13 +66,24 @@ class ClientCardsDB:
                     overdue_days INTEGER NOT NULL,
                     technician_name TEXT,
                     technician_phone TEXT,
+                    technician_id TEXT,
                     sales_rep_user_id INTEGER,
                     sales_rep_name TEXT,
                     owner_user_id INTEGER,
                     network_id TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
-                    FOREIGN KEY(network_id) REFERENCES networks(id) ON DELETE SET NULL
+                    FOREIGN KEY(network_id) REFERENCES networks(id) ON DELETE SET NULL,
+                    FOREIGN KEY(technician_id) REFERENCES technicians(id) ON DELETE SET NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS technicians (
+                    id TEXT PRIMARY KEY,
+                    full_name TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    points_csv TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
                 );
 
                 CREATE TABLE IF NOT EXISTS client_contacts (
@@ -97,9 +108,13 @@ class ClientCardsDB:
 
                 CREATE INDEX IF NOT EXISTS idx_clients_sales_rep ON clients(sales_rep_user_id);
                 CREATE INDEX IF NOT EXISTS idx_clients_network ON clients(network_id);
+                CREATE INDEX IF NOT EXISTS idx_clients_technician ON clients(technician_id);
                 CREATE INDEX IF NOT EXISTS idx_links_user ON client_user_links(user_id);
                 """
             )
+            cols = {r["name"] for r in conn.execute("PRAGMA table_info(clients)").fetchall()}
+            if "technician_id" not in cols:
+                conn.execute("ALTER TABLE clients ADD COLUMN technician_id TEXT")
 
         try:
             os.chmod(self.path, 0o600)
@@ -115,8 +130,8 @@ class ClientCardsDB:
                 INSERT INTO clients(
                     id, legal_form, legal_name, store_name, address, overdue_days,
                     technician_name, technician_phone, sales_rep_user_id, sales_rep_name,
-                    owner_user_id, network_id, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    technician_id, owner_user_id, network_id, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     cid,
@@ -129,6 +144,7 @@ class ClientCardsDB:
                     payload.get("technician_phone"),
                     payload.get("sales_rep_user_id"),
                     payload.get("sales_rep_name"),
+                    payload.get("technician_id"),
                     payload.get("owner_user_id"),
                     payload.get("network_id"),
                     now,
@@ -210,6 +226,13 @@ class ClientCardsDB:
                     (row["network_id"],),
                 ).fetchall()
             row["contacts"] = contacts
+            if row.get("technician_id"):
+                row["technician"] = conn.execute(
+                    "SELECT id, full_name, phone FROM technicians WHERE id = ?",
+                    (row["technician_id"],),
+                ).fetchone()
+            else:
+                row["technician"] = None
             row["network"] = network
             row["network_clients"] = linked_clients
             return row
@@ -220,7 +243,7 @@ class ClientCardsDB:
         allowed = {
             "legal_form", "legal_name", "store_name", "address", "overdue_days",
             "technician_name", "technician_phone", "sales_rep_user_id", "sales_rep_name",
-            "owner_user_id", "network_id",
+            "technician_id", "owner_user_id", "network_id",
         }
         parts = []
         vals = []
@@ -274,6 +297,39 @@ class ClientCardsDB:
             ).fetchone()
             return bool(row)
 
+    def list_technicians(self) -> List[Dict[str, Any]]:
+        with self._connect() as conn:
+            return conn.execute("SELECT * FROM technicians ORDER BY full_name COLLATE NOCASE").fetchall()
+
+    def get_technician(self, technician_id: str) -> Optional[Dict[str, Any]]:
+        with self._connect() as conn:
+            return conn.execute("SELECT * FROM technicians WHERE id = ?", (technician_id,)).fetchone()
+
+    def create_technician(self, full_name: str, phone: str, points_csv: str = "") -> str:
+        tid = str(uuid.uuid4())
+        now = _utcnow()
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO technicians(id, full_name, phone, points_csv, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (tid, full_name.strip(), phone.strip(), points_csv.strip(), now, now),
+            )
+        return tid
+
+    def update_technician(self, technician_id: str, full_name: str, phone: str, points_csv: str = "") -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE technicians SET full_name = ?, phone = ?, points_csv = ?, updated_at = ? WHERE id = ?",
+                (full_name.strip(), phone.strip(), points_csv.strip(), _utcnow(), technician_id),
+            )
+
+    def delete_technician(self, technician_id: str) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE clients SET technician_id = NULL WHERE technician_id = ?",
+                (technician_id,),
+            )
+            conn.execute("DELETE FROM technicians WHERE id = ?", (technician_id,))
+
     def export_masked_summary(self) -> Dict[str, Any]:
         with self._connect() as conn:
             clients = conn.execute("SELECT legal_form, legal_name, store_name, address, overdue_days, sales_rep_name FROM clients").fetchall()
@@ -283,12 +339,15 @@ class ClientCardsDB:
 def format_client_card(card: Dict[str, Any]) -> str:
     network_name = ((card.get("network") or {}).get("name") if isinstance(card.get("network"), dict) else None) or "—"
     contacts = card.get("contacts") or []
+    tech = card.get("technician") if isinstance(card.get("technician"), dict) else None
+    tech_name = (tech or {}).get("full_name") or card.get("technician_name") or "ТЕСТ"
+    tech_phone = (tech or {}).get("phone") or card.get("technician_phone") or "+79999999999"
     lines = [
         f"<b>{card.get('legal_form')} {card.get('legal_name')}</b>",
         f"Магазин: {card.get('store_name') or '—'}",
         f"Адрес: {card.get('address') or '—'}",
         f"Отсрочка: {card.get('overdue_days')} дн.",
-        f"Техник: {card.get('technician_name') or 'ТЕСТ'} ({card.get('technician_phone') or '+79999999999'})",
+        f"Техник: {tech_name} ({tech_phone})",
         f"Торговый представитель: {card.get('sales_rep_name') or '—'}",
         f"Сеть: {network_name}",
         "",
