@@ -1944,7 +1944,8 @@ def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, 
         rows.append(nav)
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
-    rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
+    if role in {"admin", "sales_rep"}:
+        rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -3834,7 +3835,7 @@ async def cc_finish_create(m: Message, state: FSMContext):
 async def cc_import_debt(cq: CallbackQuery):
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
-    if role not in {"admin", "sales_rep", "client"}:
+    if role not in {"admin", "sales_rep","client"}:
         await cq.answer("Нет прав", show_alert=True)
         return
     try:

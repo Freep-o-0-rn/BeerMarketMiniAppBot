@@ -29,8 +29,13 @@
   "288807506": {
     "phone": "+79232235848",
     "phone_verified": true,
-    "role": "sales_rep",
-    "name": "Заечка"
+    "role": "client",
+    "name": "Морозова",
+    "blocked": false,
+    "username": "Yudzhik",
+    "first_name": "Анка Евгеньевна",
+    "last_name": "Колягина",
+    "language_code": "ru"
   },
   "1188061961": {
     "phone": "+79965440806",
