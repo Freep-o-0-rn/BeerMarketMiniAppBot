@@ -1767,14 +1767,14 @@ def client_card_edit_technician_pick_kb(
                 callback_data=f"cc:edittechsel:{client_id}:{address_key}:{idx}",
             )
         ])
-        rows.append([
-            InlineKeyboardButton(
-                text="Не обслуживаем",
-                callback_data=f"cc:edittechskip:{client_id}:{address_key}",
-            )
-        ])
-        rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
-        return InlineKeyboardMarkup(inline_keyboard=rows)
+    rows.append([
+        InlineKeyboardButton(
+            text="Не обслуживаем",
+            callback_data=f"cc:edittechskip:{client_id}:{address_key}",
+        )
+    ])
+    rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def client_card_edit_technician_address_kb(client_id: str, addresses: List[str]) -> InlineKeyboardMarkup:

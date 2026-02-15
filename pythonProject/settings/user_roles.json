@@ -67,5 +67,16 @@
     "phone": "+79965440806",
     "phone_verified": true,
     "name": "Воротников"
+  },
+  "1438912261": {
+    "username": "Vays_V",
+    "first_name": "Alex",
+    "last_name": "V",
+    "language_code": "ru",
+    "role": "sales_rep",
+    "phone": "+79138993181",
+    "phone_verified": true,
+    "name": "Колягин",
+    "blocked": false
   }
 }

@@ -14419,3 +14419,476 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTO
 2026-02-16 00:13:18 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
 2026-02-16 00:13:18 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
 2026-02-16 00:13:18 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-16 00:16:23 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-16 00:16:26 | WARNING | root | Файл занят: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls. Сохраняю как downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS)_new.xls
+2026-02-16 00:16:26 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS)_new.xls
+2026-02-16 00:16:26 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS)_new.xls
+2026-02-16 00:16:27 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 00:16:27 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 00:16:27 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 00:16:27 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 00:16:27 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 00:16:27 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 00:16:27 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 00:16:27 | INFO | root | Собрано клиентов: 123
+2026-02-16 00:16:27 | INFO | __main__ | Отчёт на 15.02.2026 | клиентов: 123
+2026-02-16 00:16:27 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 181402.12 | проср: 181402.12 | наш долг: 0.00 | доков: 7
+2026-02-16 00:16:27 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 154132.08 | проср: 154132.08 | наш долг: 0.00 | доков: 5
+2026-02-16 00:16:27 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 150277.96 | проср: 150277.96 | наш долг: 0.00 | доков: 6
+2026-02-16 00:16:27 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 136591.84 | проср: 136591.84 | наш долг: 0.00 | доков: 6
+2026-02-16 00:16:27 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 132627.28 | проср: 132627.28 | наш долг: 0.00 | доков: 6
+2026-02-16 00:16:27 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 118836.44 | проср: 118836.44 | наш долг: 0.00 | доков: 5
+2026-02-16 00:16:27 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 118743.00 | проср: 118743.00 | наш долг: 0.00 | доков: 5
+2026-02-16 00:16:27 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 101934.68 | проср: 101934.68 | наш долг: 0.00 | доков: 6
+2026-02-16 00:16:27 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 90260.08 | проср: 90260.08 | наш долг: 0.00 | доков: 6
+2026-02-16 00:16:27 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 89125.64 | проср: 89125.64 | наш долг: 0.00 | доков: 4
+2026-02-16 00:16:28 | INFO | aiogram.dispatcher | Start polling
+2026-02-16 00:16:28 | INFO | telegram_bot | Daily fetch: next run in 36872 sec (now 2026-02-16 00:16:28, tz Asia/Novosibirsk)
+2026-02-16 00:16:28 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-16 00:17:38 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 541, 'req': '9d2e92c2', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1593, 'kind': <ContentType.TEXT: 'text'>, 'text': '🛠 Техники', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:17:38 | INFO | aiogram.event | Update id=104056707 is handled. Duration 545 ms by bot id=8304099970
+2026-02-16 00:17:40 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 320, 'req': '78d40369', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729044114334', 'msg_id': 1594, 'data': 'tc:list', 'state': None}
+2026-02-16 00:17:40 | INFO | aiogram.event | Update id=104056708 is handled. Duration 322 ms by bot id=8304099970
+2026-02-16 00:18:07 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 164, 'req': 'c24cb917', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1596, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:18:07 | INFO | aiogram.event | Update id=104056709 is handled. Duration 168 ms by bot id=8304099970
+2026-02-16 00:18:14 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 278, 'req': '148982d6', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731749405267', 'msg_id': 1597, 'data': 'cc:view:2ffc3441-dd6c-4f16-afc8-8d8a0654af0f', 'state': None}
+2026-02-16 00:18:14 | INFO | aiogram.event | Update id=104056710 is handled. Duration 281 ms by bot id=8304099970
+2026-02-16 00:18:22 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 273, 'req': '607c743c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732286040354', 'msg_id': 1597, 'data': 'cc:edit:2ffc3441-dd6c-4f16-afc8-8d8a0654af0f', 'state': None}
+2026-02-16 00:18:22 | INFO | aiogram.event | Update id=104056711 is handled. Duration 276 ms by bot id=8304099970
+2026-02-16 00:18:25 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 275, 'req': '85d271f4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731176503286', 'msg_id': 1598, 'data': 'cc:edittech:2ffc3441-dd6c-4f16-afc8-8d8a0654af0f', 'state': None}
+2026-02-16 00:18:25 | INFO | aiogram.event | Update id=104056712 is handled. Duration 279 ms by bot id=8304099970
+2026-02-16 00:18:32 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 271, 'req': 'caece740', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730511679304', 'msg_id': 1599, 'data': 'cc:edittechaddr:2ffc3441-dd6c-4f16-afc8-8d8a0654af0f:9', 'state': None}
+2026-02-16 00:18:32 | INFO | aiogram.event | Update id=104056713 is handled. Duration 276 ms by bot id=8304099970
+2026-02-16 00:18:35 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 475, 'req': '9e47a4ec', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730704495031', 'msg_id': 1600, 'data': 'cc:edittechsel:2ffc3441-dd6c-4f16-afc8-8d8a0654af0f:9:1', 'state': None}
+2026-02-16 00:18:35 | INFO | aiogram.event | Update id=104056714 is handled. Duration 479 ms by bot id=8304099970
+2026-02-16 00:19:04 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-16 00:19:04 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-02-16 00:19:04 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-02-16 00:19:04 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-16 00:31:05 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-16 00:31:07 | WARNING | root | Файл занят: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls. Сохраняю как downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS)_new.xls
+2026-02-16 00:31:07 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS)_new.xls
+2026-02-16 00:31:08 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS)_new.xls
+2026-02-16 00:31:09 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 00:31:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 00:31:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 00:31:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 00:31:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 00:31:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 00:31:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 00:31:09 | INFO | root | Собрано клиентов: 123
+2026-02-16 00:31:09 | INFO | __main__ | Отчёт на 15.02.2026 | клиентов: 123
+2026-02-16 00:31:09 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 181402.12 | проср: 181402.12 | наш долг: 0.00 | доков: 7
+2026-02-16 00:31:09 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 154132.08 | проср: 154132.08 | наш долг: 0.00 | доков: 5
+2026-02-16 00:31:09 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 150277.96 | проср: 150277.96 | наш долг: 0.00 | доков: 6
+2026-02-16 00:31:09 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 136591.84 | проср: 136591.84 | наш долг: 0.00 | доков: 6
+2026-02-16 00:31:09 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 132627.28 | проср: 132627.28 | наш долг: 0.00 | доков: 6
+2026-02-16 00:31:09 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 118836.44 | проср: 118836.44 | наш долг: 0.00 | доков: 5
+2026-02-16 00:31:09 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 118743.00 | проср: 118743.00 | наш долг: 0.00 | доков: 5
+2026-02-16 00:31:09 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 101934.68 | проср: 101934.68 | наш долг: 0.00 | доков: 6
+2026-02-16 00:31:09 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 90260.08 | проср: 90260.08 | наш долг: 0.00 | доков: 6
+2026-02-16 00:31:09 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 89125.64 | проср: 89125.64 | наш долг: 0.00 | доков: 4
+2026-02-16 00:31:09 | INFO | aiogram.dispatcher | Start polling
+2026-02-16 00:31:09 | INFO | telegram_bot | Daily fetch: next run in 35990 sec (now 2026-02-16 00:31:09, tz Asia/Novosibirsk)
+2026-02-16 00:31:09 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-16 00:33:24 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 380, 'req': '2fd3e05e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1603, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:33:24 | INFO | aiogram.event | Update id=104056715 is handled. Duration 384 ms by bot id=8304099970
+2026-02-16 00:35:08 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 139, 'req': '99a99bd4', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1605, 'kind': <ContentType.TEXT: 'text'>, 'text': '/start', 'caption_len': 0, 'entities': 1, 'state': 'OnboardStates:waiting_phone_contact'}
+2026-02-16 00:35:08 | INFO | aiogram.event | Update id=104056716 is handled. Duration 140 ms by bot id=8304099970
+2026-02-16 00:35:31 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 282, 'req': '9cf29375', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1607, 'kind': <ContentType.CONTACT: 'contact'>, 'text': '', 'caption_len': 0, 'entities': 0, 'state': 'OnboardStates:waiting_client_name'}
+2026-02-16 00:35:31 | INFO | aiogram.event | Update id=104056717 is handled. Duration 283 ms by bot id=8304099970
+2026-02-16 00:36:00 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 445, 'req': '6c7b520a', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1610, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Заря', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:36:00 | INFO | aiogram.event | Update id=104056718 is handled. Duration 446 ms by bot id=8304099970
+2026-02-16 00:38:15 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 00:38:15 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 00:38:15 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 00:38:15 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 00:38:15 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 00:38:15 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 00:38:15 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 00:38:15 | INFO | root | Собрано клиентов: 123
+2026-02-16 00:38:16 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2171, 'req': '7528a723', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1613, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:38:16 | INFO | aiogram.event | Update id=104056719 is handled. Duration 2174 ms by bot id=8304099970
+2026-02-16 00:39:01 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-02-16 00:39:01 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-02-16 00:39:01 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 961, 'req': '7dc127cd', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1620, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:39:01 | INFO | aiogram.event | Update id=104056720 is handled. Duration 963 ms by bot id=8304099970
+2026-02-16 00:39:22 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 201, 'req': '7bc0e479', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1622, 'kind': <ContentType.TEXT: 'text'>, 'text': '📑 Прайсы', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:39:22 | INFO | aiogram.event | Update id=104056721 is handled. Duration 203 ms by bot id=8304099970
+2026-02-16 00:39:29 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 689, 'req': '58dd1a3f', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'cb_id': '6180081103023472476', 'msg_id': 1623, 'data': 'pr:send:5246fd8bf8cc', 'state': None}
+2026-02-16 00:39:29 | INFO | aiogram.event | Update id=104056722 is handled. Duration 690 ms by bot id=8304099970
+2026-02-16 00:39:45 | INFO | root | Тара: собрано клиентов: 105
+2026-02-16 00:39:46 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1835, 'req': '205d4a97', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1625, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:39:46 | INFO | aiogram.event | Update id=104056723 is handled. Duration 1838 ms by bot id=8304099970
+2026-02-16 00:40:44 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 140, 'req': '3231831a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1629, 'kind': <ContentType.TEXT: 'text'>, 'text': '🎁 Акции', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:40:44 | INFO | aiogram.event | Update id=104056724 is handled. Duration 148 ms by bot id=8304099970
+2026-02-16 00:40:50 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 902, 'req': '2c7f3c9b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730732994638', 'msg_id': 1630, 'data': 'promo:view:8798d2dc3bb3', 'state': None}
+2026-02-16 00:40:50 | INFO | aiogram.event | Update id=104056725 is handled. Duration 912 ms by bot id=8304099970
+2026-02-16 00:40:57 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 540, 'req': 'f9cdde93', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730320884861', 'msg_id': 1631, 'data': 'promo:toggle:8798d2dc3bb3', 'state': None}
+2026-02-16 00:40:57 | INFO | aiogram.event | Update id=104056726 is handled. Duration 551 ms by bot id=8304099970
+2026-02-16 00:41:01 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 435, 'req': 'd9b05133', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732340433806', 'msg_id': 1632, 'data': 'promo:dates:8798d2dc3bb3', 'state': 'PromoStates:waiting_promo_dates_edit'}
+2026-02-16 00:41:01 | INFO | aiogram.event | Update id=104056727 is handled. Duration 445 ms by bot id=8304099970
+2026-02-16 00:41:02 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 394, 'req': '1b0373b4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731619132568', 'msg_id': 1633, 'data': 'promo:cal:open:edit', 'state': 'PromoStates:waiting_promo_dates_edit'}
+2026-02-16 00:41:02 | INFO | aiogram.event | Update id=104056728 is handled. Duration 403 ms by bot id=8304099970
+2026-02-16 00:41:05 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 850, 'req': '9cff64ad', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731309724772', 'msg_id': 1634, 'data': 'promo:cal:pick:edit:2026-02-28', 'state': None}
+2026-02-16 00:41:05 | INFO | aiogram.event | Update id=104056729 is handled. Duration 859 ms by bot id=8304099970
+2026-02-16 00:41:07 | ERROR | telegram_bot | Unhandled exception (req_id=0adeadf4)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 772, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 6027, in cb_promos_list
+    await cq.message.edit_text("<b>Акции</b>\nВыберите пункт:",
+                               reply_markup=_promo_list_kb(items, page, admin),
+                               disable_web_page_preview=True)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+        bot=bot, method=method, status_code=resp.status, content=raw_result
+    )
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: there is no text in the message to edit
+2026-02-16 00:41:07 | INFO | audit | {'t': 'cb', 'ok': False, 'ms': 122, 'req': '0adeadf4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728533935448', 'msg_id': 1636, 'data': 'promo:list:0', 'state': None}
+2026-02-16 00:41:07 | INFO | audit | {'t': 'error', 'req': '0adeadf4', 'exc': 'TelegramBadRequest: Telegram server says - Bad Request: there is no text in the message to edit'}
+2026-02-16 00:41:07 | INFO | aiogram.event | Update id=104056730 is not handled. Duration 131 ms by bot id=8304099970
+2026-02-16 00:41:07 | ERROR | aiogram.event | Cause exception while process update id=104056730 by bot id=8304099970
+TelegramBadRequest: Telegram server says - Bad Request: there is no text in the message to edit
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 772, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 6027, in cb_promos_list
+    await cq.message.edit_text("<b>Акции</b>\nВыберите пункт:",
+                               reply_markup=_promo_list_kb(items, page, admin),
+                               disable_web_page_preview=True)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+        bot=bot, method=method, status_code=resp.status, content=raw_result
+    )
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: there is no text in the message to edit
+2026-02-16 00:41:27 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 140, 'req': 'ec09779d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1637, 'kind': <ContentType.TEXT: 'text'>, 'text': '🎁 Акции', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:41:27 | INFO | aiogram.event | Update id=104056731 is handled. Duration 148 ms by bot id=8304099970
+2026-02-16 00:41:29 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 506, 'req': 'caeb8750', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730295646532', 'msg_id': 1638, 'data': 'promo:view:8798d2dc3bb3', 'state': None}
+2026-02-16 00:41:29 | INFO | aiogram.event | Update id=104056732 is handled. Duration 514 ms by bot id=8304099970
+2026-02-16 00:41:31 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 437, 'req': '02fb0a82', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730674615993', 'msg_id': 1639, 'data': 'promo:toggle:8798d2dc3bb3', 'state': None}
+2026-02-16 00:41:31 | INFO | aiogram.event | Update id=104056733 is handled. Duration 446 ms by bot id=8304099970
+2026-02-16 00:41:43 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 160, 'req': 'd28d8279', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1641, 'kind': <ContentType.TEXT: 'text'>, 'text': '🎁 Акции', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:41:43 | INFO | aiogram.event | Update id=104056734 is handled. Duration 169 ms by bot id=8304099970
+2026-02-16 00:42:40 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 151, 'req': 'f46096d8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1643, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:42:40 | INFO | aiogram.event | Update id=104056735 is handled. Duration 158 ms by bot id=8304099970
+2026-02-16 00:43:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 402, 'req': '53d6ffbf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729885756154', 'msg_id': 1644, 'data': 'usr:sel:1438912261:0', 'state': None}
+2026-02-16 00:43:33 | INFO | aiogram.event | Update id=104056736 is handled. Duration 410 ms by bot id=8304099970
+2026-02-16 00:43:40 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 371, 'req': 'd34bf735', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728930010138', 'msg_id': 1644, 'data': 'usr:block:1438912261', 'state': None}
+2026-02-16 00:43:40 | INFO | aiogram.event | Update id=104056737 is handled. Duration 378 ms by bot id=8304099970
+2026-02-16 00:44:03 | INFO | aiogram.event | Update id=104056738 is not handled. Duration 10 ms by bot id=8304099970
+2026-02-16 00:44:16 | ERROR | telegram_bot | Unhandled exception (req_id=92f12de6)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 772, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 5420, in admin_users_block
+    await admin_users_select(cq)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 5373, in admin_users_select
+    await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page, is_authorized=is_authorized))
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+        bot=bot, method=method, status_code=resp.status, content=raw_result
+    )
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-02-16 00:44:16 | INFO | audit | {'t': 'cb', 'ok': False, 'ms': 570, 'req': '92f12de6', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729321864320', 'msg_id': 1644, 'data': 'usr:block:1438912261', 'state': None}
+2026-02-16 00:44:16 | INFO | audit | {'t': 'error', 'req': '92f12de6', 'exc': 'TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message'}
+2026-02-16 00:44:16 | INFO | aiogram.event | Update id=104056739 is not handled. Duration 578 ms by bot id=8304099970
+2026-02-16 00:44:16 | ERROR | aiogram.event | Cause exception while process update id=104056739 by bot id=8304099970
+TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 772, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 5420, in admin_users_block
+    await admin_users_select(cq)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 5373, in admin_users_select
+    await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page, is_authorized=is_authorized))
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+        bot=bot, method=method, status_code=resp.status, content=raw_result
+    )
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-02-16 00:44:30 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 00:44:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 00:44:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 00:44:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 00:44:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 00:44:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 00:44:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 00:44:30 | INFO | root | Собрано клиентов: 123
+2026-02-16 00:44:31 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2498, 'req': 'd6d435c3', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1646, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:44:31 | INFO | aiogram.event | Update id=104056740 is handled. Duration 2501 ms by bot id=8304099970
+2026-02-16 00:44:35 | INFO | root | Тара: собрано клиентов: 105
+2026-02-16 00:44:36 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1787, 'req': '87399c11', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1653, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:44:36 | INFO | aiogram.event | Update id=104056741 is handled. Duration 1790 ms by bot id=8304099970
+2026-02-16 00:44:38 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 223, 'req': '98bed2e3', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'client', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1657, 'kind': <ContentType.TEXT: 'text'>, 'text': '📑 Прайсы', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:44:38 | INFO | aiogram.event | Update id=104056742 is handled. Duration 225 ms by bot id=8304099970
+2026-02-16 00:44:42 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 382, 'req': '643711c3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731165195617', 'msg_id': 1644, 'data': 'usr:unblock:1438912261', 'state': None}
+2026-02-16 00:44:42 | INFO | aiogram.event | Update id=104056743 is handled. Duration 390 ms by bot id=8304099970
+2026-02-16 00:45:42 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 399, 'req': '66e63189', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728856502593', 'msg_id': 1644, 'data': 'usr:setrole:1438912261:sales_rep', 'state': None}
+2026-02-16 00:45:42 | INFO | aiogram.event | Update id=104056744 is handled. Duration 407 ms by bot id=8304099970
+2026-02-16 00:45:56 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 184, 'req': '0102e344', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1659, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:45:56 | INFO | aiogram.event | Update id=104056745 is handled. Duration 186 ms by bot id=8304099970
+2026-02-16 00:46:08 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 00:46:08 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 00:46:08 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 00:46:08 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 00:46:08 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 00:46:08 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 00:46:08 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 00:46:08 | INFO | root | Собрано клиентов: 123
+2026-02-16 00:46:11 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 4746, 'req': '9e60d23d', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1661, 'kind': <ContentType.TEXT: 'text'>, 'text': '⏰ Просрочено', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:46:11 | INFO | aiogram.event | Update id=104056746 is handled. Duration 4749 ms by bot id=8304099970
+2026-02-16 00:46:48 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 140, 'req': '4a4ecb7d', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1681, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:46:48 | INFO | aiogram.event | Update id=104056747 is handled. Duration 145 ms by bot id=8304099970
+2026-02-16 00:47:00 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 269, 'req': '1f8892b0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731160014852', 'msg_id': 1644, 'data': 'usr:editname:1438912261', 'state': 'AdminUserEditStates:waiting_name'}
+2026-02-16 00:47:00 | INFO | aiogram.event | Update id=104056748 is handled. Duration 277 ms by bot id=8304099970
+2026-02-16 00:47:04 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 141, 'req': 'cfd7d2f5', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1684, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Колягин', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:47:04 | INFO | aiogram.event | Update id=104056749 is handled. Duration 149 ms by bot id=8304099970
+2026-02-16 00:47:08 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 157, 'req': 'aa1bc5ee', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1686, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:47:08 | INFO | aiogram.event | Update id=104056750 is handled. Duration 159 ms by bot id=8304099970
+2026-02-16 00:47:11 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 266, 'req': 'b2100320', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1688, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:47:11 | INFO | aiogram.event | Update id=104056751 is handled. Duration 268 ms by bot id=8304099970
+2026-02-16 00:47:16 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 156, 'req': '45197d9e', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1690, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:47:16 | INFO | aiogram.event | Update id=104056752 is handled. Duration 160 ms by bot id=8304099970
+2026-02-16 00:47:26 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 139, 'req': '9293c313', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1692, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:47:26 | INFO | aiogram.event | Update id=104056753 is handled. Duration 143 ms by bot id=8304099970
+2026-02-16 00:47:28 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 142, 'req': '1c6e6ac4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1694, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:47:28 | INFO | aiogram.event | Update id=104056754 is handled. Duration 150 ms by bot id=8304099970
+2026-02-16 00:47:41 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 00:47:41 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 00:47:41 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 00:47:41 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 00:47:41 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 00:47:41 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 00:47:41 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 00:47:41 | INFO | root | Собрано клиентов: 123
+2026-02-16 00:47:42 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 2616, 'req': '172fa69a', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081104524797621', 'msg_id': 1693, 'data': 'cc:import:debt', 'state': None}
+2026-02-16 00:47:42 | INFO | aiogram.event | Update id=104056755 is handled. Duration 2620 ms by bot id=8304099970
+2026-02-16 00:47:58 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 125, 'req': '0663db8a', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081106446484256', 'msg_id': 1697, 'data': 'cc:list:noop', 'state': None}
+2026-02-16 00:47:58 | INFO | aiogram.event | Update id=104056756 is handled. Duration 129 ms by bot id=8304099970
+2026-02-16 00:48:01 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 593, 'req': '135ed375', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081104990618547', 'msg_id': 1697, 'data': 'cc:list:1', 'state': None}
+2026-02-16 00:48:01 | INFO | aiogram.event | Update id=104056757 is handled. Duration 597 ms by bot id=8304099970
+2026-02-16 00:48:06 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 257, 'req': '19d6537f', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081106770675351', 'msg_id': 1697, 'data': 'cc:view:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:48:06 | INFO | aiogram.event | Update id=104056758 is handled. Duration 260 ms by bot id=8304099970
+2026-02-16 00:48:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 273, 'req': 'eff8cbf1', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081104944696363', 'msg_id': 1697, 'data': 'cc:edit:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:48:33 | INFO | aiogram.event | Update id=104056759 is handled. Duration 277 ms by bot id=8304099970
+2026-02-16 00:48:37 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 130, 'req': 'ee02d943', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081106706885790', 'msg_id': 1698, 'data': 'cc:edittech:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:48:37 | INFO | aiogram.event | Update id=104056760 is handled. Duration 134 ms by bot id=8304099970
+2026-02-16 00:48:45 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 359, 'req': 'df4373e0', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081103017790237', 'msg_id': 1698, 'data': 'cc:edittech:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:48:45 | INFO | aiogram.event | Update id=104056761 is handled. Duration 364 ms by bot id=8304099970
+2026-02-16 00:48:52 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 151, 'req': '1020ea99', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1699, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:48:52 | INFO | aiogram.event | Update id=104056762 is handled. Duration 155 ms by bot id=8304099970
+2026-02-16 00:49:02 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 368, 'req': 'c39ad5d6', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731429603974', 'msg_id': 1700, 'data': 'cc:list:1', 'state': None}
+2026-02-16 00:49:02 | INFO | aiogram.event | Update id=104056763 is handled. Duration 383 ms by bot id=8304099970
+2026-02-16 00:49:07 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 264, 'req': '9825fa9d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732072700303', 'msg_id': 1700, 'data': 'cc:list:2', 'state': None}
+2026-02-16 00:49:07 | INFO | aiogram.event | Update id=104056764 is handled. Duration 267 ms by bot id=8304099970
+2026-02-16 00:49:15 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 272, 'req': '8b5dff32', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729367289935', 'msg_id': 1700, 'data': 'cc:list:3', 'state': None}
+2026-02-16 00:49:15 | INFO | aiogram.event | Update id=104056765 is handled. Duration 275 ms by bot id=8304099970
+2026-02-16 00:49:19 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 261, 'req': 'fccf3116', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730341826164', 'msg_id': 1700, 'data': 'cc:view:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:49:19 | INFO | aiogram.event | Update id=104056766 is handled. Duration 264 ms by bot id=8304099970
+2026-02-16 00:49:22 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 331, 'req': '47f99792', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729205189947', 'msg_id': 1700, 'data': 'cc:edit:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:49:22 | INFO | aiogram.event | Update id=104056767 is handled. Duration 335 ms by bot id=8304099970
+2026-02-16 00:49:25 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 140, 'req': 'e169658a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730681277990', 'msg_id': 1701, 'data': 'cc:edittech:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:49:25 | INFO | aiogram.event | Update id=104056768 is handled. Duration 145 ms by bot id=8304099970
+2026-02-16 00:49:29 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 266, 'req': 'e673ada1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729247172776', 'msg_id': 1701, 'data': 'cc:editfield:858c4fb6-fce9-4b87-ad6a-46b21d40c73e:address', 'state': 'ClientCardStates:waiting_edit_value'}
+2026-02-16 00:49:29 | INFO | aiogram.event | Update id=104056769 is handled. Duration 271 ms by bot id=8304099970
+2026-02-16 00:50:38 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 313, 'req': 'db3a4674', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1703, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Бетонная улица, 16/а', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 00:50:38 | INFO | aiogram.event | Update id=104056770 is handled. Duration 319 ms by bot id=8304099970
+2026-02-16 00:50:50 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 261, 'req': '9d53b910', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729078684630', 'msg_id': 1705, 'data': 'cc:edit:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:50:50 | INFO | aiogram.event | Update id=104056771 is handled. Duration 266 ms by bot id=8304099970
+2026-02-16 00:50:52 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 286, 'req': '0fda1df3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729100839610', 'msg_id': 1706, 'data': 'cc:edittech:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 00:50:52 | INFO | aiogram.event | Update id=104056772 is handled. Duration 290 ms by bot id=8304099970
+2026-02-16 00:50:56 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 428, 'req': '3706679c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731858360897', 'msg_id': 1707, 'data': 'cc:edittechskip:858c4fb6-fce9-4b87-ad6a-46b21d40c73e:0', 'state': None}
+2026-02-16 00:50:56 | INFO | aiogram.event | Update id=104056773 is handled. Duration 433 ms by bot id=8304099970
+2026-02-16 01:01:23 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 578, 'req': 'd3d0c7fb', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081103135983849', 'msg_id': 1698, 'data': 'cc:view:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 01:01:23 | INFO | aiogram.event | Update id=104056774 is handled. Duration 582 ms by bot id=8304099970
+2026-02-16 01:01:29 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 283, 'req': '47443b40', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081103751048406', 'msg_id': 1698, 'data': 'cc:edit:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 01:01:29 | INFO | aiogram.event | Update id=104056775 is handled. Duration 287 ms by bot id=8304099970
+2026-02-16 01:01:31 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 272, 'req': 'ea891ad3', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081104136567828', 'msg_id': 1710, 'data': 'cc:edittech:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 01:01:31 | INFO | aiogram.event | Update id=104056776 is handled. Duration 276 ms by bot id=8304099970
+2026-02-16 01:02:12 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 402, 'req': '62fa7fc7', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081104649015304', 'msg_id': 1711, 'data': 'cc:view:858c4fb6-fce9-4b87-ad6a-46b21d40c73e', 'state': None}
+2026-02-16 01:02:12 | INFO | aiogram.event | Update id=104056777 is handled. Duration 405 ms by bot id=8304099970
+2026-02-16 01:11:39 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 541, 'req': '046915b6', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081105730069676', 'msg_id': 1711, 'data': 'cc:list', 'state': None}
+2026-02-16 01:11:39 | INFO | aiogram.event | Update id=104056778 is handled. Duration 544 ms by bot id=8304099970
+2026-02-16 01:11:50 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 161, 'req': '0b44dff3', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'chat_type': 'private', 'msg_id': 1712, 'kind': <ContentType.TEXT: 'text'>, 'text': '📑 Прайсы', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 01:11:50 | INFO | aiogram.event | Update id=104056779 is handled. Duration 162 ms by bot id=8304099970
+2026-02-16 01:12:02 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 279, 'req': '0c79b735', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081105408121364', 'msg_id': 1713, 'data': 'pr:list:1', 'state': None}
+2026-02-16 01:12:02 | INFO | aiogram.event | Update id=104056780 is handled. Duration 281 ms by bot id=8304099970
+2026-02-16 01:12:04 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 424, 'req': '675bbd40', 'bot': 8304099970, 'uid': 1438912261, 'user': 'Vays_V', 'name': 'Alex V', 'role': 'sales_rep', 'chat': 1438912261, 'cb_id': '6180081106730559951', 'msg_id': 1713, 'data': 'menu:back', 'state': None}
+2026-02-16 01:12:04 | INFO | aiogram.event | Update id=104056781 is handled. Duration 428 ms by bot id=8304099970
+2026-02-16 01:20:26 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-16 01:20:26 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-02-16 01:20:26 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-02-16 01:20:26 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
