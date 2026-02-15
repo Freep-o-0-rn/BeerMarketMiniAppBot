@@ -1760,7 +1760,7 @@ def client_card_edit_technician_pick_kb(
     technicians: List[Dict[str, Any]],
 ) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
-    for idx, it in enumerate(technicians[:50]):
+    for idx, it in enumerate(technicians):
         rows.append([
             InlineKeyboardButton(
                 text=f"{it.get('full_name')} · {it.get('phone')}",
@@ -1769,12 +1769,13 @@ def client_card_edit_technician_pick_kb(
         ])
         rows.append([
             InlineKeyboardButton(
-                text="— По умолчанию (ТЕСТ)",
+                text="Не обслуживаем",
                 callback_data=f"cc:edittechskip:{client_id}:{address_key}",
             )
         ])
         rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")])
         return InlineKeyboardMarkup(inline_keyboard=rows)
+
 
 def client_card_edit_technician_address_kb(client_id: str, addresses: List[str]) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
