@@ -58,7 +58,7 @@
     "role": "sales_rep",
     "phone": "+79964550715",
     "phone_verified": true,
-    "name": "ДАНИЛОК",
+    "name": "Воротников Д",
     "blocked": false,
     "access_overrides": {},
     "notification_settings": {}
@@ -81,19 +81,20 @@
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "role": "moderator",
+    "role": "admin",
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79965440806",
     "phone_verified": true,
-    "name": "Прозвицкий"
+    "name": "Колягин",
+    "blocked": false
   },
   "288807506": {
     "username": "Yudzhik",
     "first_name": "Анка Евгеньевна",
     "last_name": "Колягина",
     "language_code": "ru",
-    "role": "client",
+    "role": "moderator",
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79232235848",

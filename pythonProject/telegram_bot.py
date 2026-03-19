@@ -2676,7 +2676,7 @@ def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str]
 
             line = (
                 f"{row_badge} {prefix}{n}. \tРеализация товаров и услуг <code>{esc(nums)}</code> "
-                f"от {esc(doc_date_str)}\tCумма <b>{fmt_money(d['__amt'])}</b> ₽\t|\tДней <b>{days_txt}</b>\t |\t"
+                f"от {esc(doc_date_str)}\tCумма долга<b>{fmt_money(d['__amt'])}</b> ₽\t|\tДней <b>{days_txt}</b>\t |\t"
                 f"Просрочена — {'да' if overdue_for_text else 'нет'}"
             )
             head += line + "\n"
