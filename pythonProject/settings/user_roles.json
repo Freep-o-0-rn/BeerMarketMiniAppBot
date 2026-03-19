@@ -26,24 +26,13 @@
     "first_name": "Freep_o_0_rn",
     "language_code": "ru",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {
+      "new_users": true
+    }
   },
   "405433712": {
     "role": "client",
     "name": "Демидов",
-    "access_overrides": {},
-    "notification_settings": {}
-  },
-  "288807506": {
-    "phone": "+79232235848",
-    "phone_verified": true,
-    "role": "client",
-    "name": "Морозова",
-    "blocked": false,
-    "username": "Yudzhik",
-    "first_name": "Анка Евгеньевна",
-    "last_name": "Колягина",
-    "language_code": "ru",
     "access_overrides": {},
     "notification_settings": {}
   },
@@ -92,12 +81,22 @@
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "role": "client",
-    "phone": "+79965440806",
-    "phone_verified": true,
-    "blocked": false,
+    "role": "moderator",
     "access_overrides": {},
     "notification_settings": {},
-    "name": "Морозова"
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "name": "Прозвицкий"
+  },
+  "288807506": {
+    "username": "Yudzhik",
+    "first_name": "Анка Евгеньевна",
+    "last_name": "Колягина",
+    "language_code": "ru",
+    "role": "moderator",
+    "access_overrides": {},
+    "notification_settings": {},
+    "phone": "+79232235848",
+    "phone_verified": true
   }
 }

@@ -1624,146 +1624,86 @@ DEFAULT_SCHEDULE_NOTE = "Заявки за день понедельник-пя�
 
 #main_menu_kb() КЛАВИАТУРА АДМИНА
 def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
+    return build_user_menu_kb(user_id=user_id, role="admin")
+
+
+def _append_button_row_if_any(keyboard: List[List[KeyboardButton]], buttons: List[KeyboardButton]) -> None:
+    if buttons:
+        keyboard.append(buttons)
+
+
+def _management_button_text(role: str) -> str:
+    return "🏢 Моя карточка" if role == "client" else "🏢 Клиенты"
+
+
+def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None) -> ReplyKeyboardMarkup:
+    role = normalize_role(role or get_user_role(user_id))
     last_dt, _ = get_last_update()
     upd_label = "🔄 Обновить"
     hhmm = fmt_hhmm(last_dt)
     if hhmm:
         upd_label = f"{upd_label} ({hhmm})"
     keyboard: List[List[KeyboardButton]] = []
-    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
-        row: List[KeyboardButton] = []
-        if user_allows_action(user_id, "search.debt"):
-            row.append(KeyboardButton(text="🔎 Поиск"))
-        if user_allows_action(user_id, "search.tara"):
-            row.append(KeyboardButton(text="🔎 Поиск тары"))
-        if row:
-            keyboard.append(row)
-    if user_allows_action(user_id, "reports.general") or user_allows_action(user_id, "reports.tara"):
-        row = []
-        if user_allows_action(user_id, "reports.general"):
-            row.append(KeyboardButton(text="🧾 Общий отчёт"))
-        if user_allows_action(user_id, "reports.tara"):
-            row.append(KeyboardButton(text=TARE_BTN))
-        if row:
-            keyboard.append(row)
-    if user_allows_action(user_id, "reports.overdue") or user_allows_action(user_id, "reports.overpaid"):
-        row = []
-        if user_allows_action(user_id, "reports.overdue"):
-            row.append(KeyboardButton(text="⏰ Просрочено"))
-        if user_allows_action(user_id, "reports.overpaid"):
-            row.append(KeyboardButton(text="💰 Переплаты"))
-        if row:
-            keyboard.append(row)
-    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
-        row = []
-        if user_allows_action(user_id, "prices.view"):
-            row.append(KeyboardButton(text="📑 Прайсы"))
-        if user_allows_action(user_id, "promos.view"):
-            row.append(KeyboardButton(text="🎁 Акции"))
-        if row:
-            keyboard.append(row)
-    if user_allows_action(user_id, "schedule.view") or user_allows_action(user_id, "ttn.lookup"):
-        row = []
-        if user_allows_action(user_id, "schedule.view"):
-            row.append(KeyboardButton(text=SCHEDULE_BTN))
-        if user_allows_action(user_id, "ttn.lookup"):
-            row.append(KeyboardButton(text=TTN_BTN))
-        if row:
-            keyboard.append(row)
-    keyboard.append([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
+    row: List[KeyboardButton] = []
+    if user_allows_action(user_id, "search.debt"):
+        row.append(KeyboardButton(text="🔎 Поиск"))
+    if user_allows_action(user_id, "search.tara"):
+        row.append(KeyboardButton(text="🔎 Поиск тары"))
+    _append_button_row_if_any(keyboard, row)
+    row = []
+    if user_allows_action(user_id, "reports.general"):
+        row.append(KeyboardButton(text="🧾 Общий отчёт"))
+    if user_allows_action(user_id, "reports.tara"):
+        row.append(KeyboardButton(text=TARE_BTN))
+    _append_button_row_if_any(keyboard, row)
+    row = []
+    if user_allows_action(user_id, "reports.overdue"):
+        row.append(KeyboardButton(text="⏰ Просрочено"))
+    if user_allows_action(user_id, "reports.overpaid"):
+        row.append(KeyboardButton(text="💰 Переплаты"))
+    _append_button_row_if_any(keyboard, row)
+    row = []
+    if user_allows_action(user_id, "prices.view"):
+        row.append(KeyboardButton(text="📑 Прайсы"))
+    if user_allows_action(user_id, "promos.view"):
+        row.append(KeyboardButton(text="🎁 Акции"))
+    _append_button_row_if_any(keyboard, row)
+    row = []
+    if user_allows_action(user_id, "schedule.view"):
+        row.append(KeyboardButton(text=SCHEDULE_BTN))
+    if user_allows_action(user_id, "ttn.lookup"):
+        row.append(KeyboardButton(text=TTN_BTN))
+    _append_button_row_if_any(keyboard, row)
+    if role in {"admin", "sales_rep"}:
+        keyboard.append([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
     management_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "users.manage"):
         management_row.append(KeyboardButton(text="👥 Пользователи"))
     if user_allows_action(user_id, "client_cards.view"):
-        management_row.append(KeyboardButton(text="🏢 Клиенты"))
+        management_row.append(KeyboardButton(text=_management_button_text(role)))
     if user_allows_action(user_id, "technicians.manage"):
         management_row.append(KeyboardButton(text="🛠 Техники"))
-    if management_row:
-        keyboard.append(management_row)
+    if role == "client":
+        management_row.append(KeyboardButton(text="✏️ Изменить название"))
+    _append_button_row_if_any(keyboard, management_row)
     if user_allows_action(user_id, "notifications.manage"):
         keyboard.append([KeyboardButton(text="🔔 Уведомления")])
-    keyboard.append([KeyboardButton(text="▶️ Старт"), KeyboardButton(text=upd_label)])
+    start_row = [KeyboardButton(text="▶️ Старт")]
+    if role == "admin" or user_allows_action(user_id, "updates.mail"):
+        start_row.append(KeyboardButton(text=upd_label))
+    keyboard.append(start_row)
     return ReplyKeyboardMarkup(
         keyboard=keyboard,
         resize_keyboard=True
     )
 
 def sales_rep_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
-    """Клавиатура торгового представителя: поиск, прайсы, акции, график, ТТН."""
-    keyboard: List[List[KeyboardButton]] = []
-    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
-        row: List[KeyboardButton] = []
-        if user_allows_action(user_id, "search.debt"):
-            row.append(KeyboardButton(text="🔎 Поиск"))
-        if user_allows_action(user_id, "search.tara"):
-            row.append(KeyboardButton(text="🔎 Поиск тары"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "reports.overdue") or user_allows_action(user_id, "reports.overpaid"):
-        row = []
-        if user_allows_action(user_id, "reports.overdue"):
-            row.append(KeyboardButton(text="⏰ Просрочено"))
-        if user_allows_action(user_id, "reports.overpaid"):
-            row.append(KeyboardButton(text="💰 Переплаты"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
-        row = []
-        if user_allows_action(user_id, "prices.view"):
-            row.append(KeyboardButton(text="📑 Прайсы"))
-        if user_allows_action(user_id, "promos.view"):
-            row.append(KeyboardButton(text="🎁 Акции"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "schedule.view") or user_allows_action(user_id, "ttn.lookup"):
-        row = []
-        if user_allows_action(user_id, "schedule.view"):
-            row.append(KeyboardButton(text=SCHEDULE_BTN))
-        if user_allows_action(user_id, "ttn.lookup"):
-            row.append(KeyboardButton(text=TTN_BTN))
-        keyboard.append(row)
-    row = []
-    if user_allows_action(user_id, "client_cards.view"):
-        row.append(KeyboardButton(text="🏢 Клиенты"))
-    row.extend([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
-    keyboard.append(row)
-    keyboard.append([KeyboardButton(text="▶️ Старт")])
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    return build_user_menu_kb(user_id=user_id, role="sales_rep")
 
 
 def moderator_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
-    keyboard: List[List[KeyboardButton]] = []
-    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
-        row: List[KeyboardButton] = []
-        if user_allows_action(user_id, "search.debt"):
-            row.append(KeyboardButton(text="🔎 Поиск"))
-        if user_allows_action(user_id, "search.tara"):
-            row.append(KeyboardButton(text="🔎 Поиск тары"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "reports.overdue") or user_allows_action(user_id, "reports.overpaid"):
-        row = []
-        if user_allows_action(user_id, "reports.overdue"):
-            row.append(KeyboardButton(text="⏰ Просрочено"))
-        if user_allows_action(user_id, "reports.overpaid"):
-            row.append(KeyboardButton(text="💰 Переплаты"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
-        row = []
-        if user_allows_action(user_id, "prices.view"):
-            row.append(KeyboardButton(text="📑 Прайсы"))
-        if user_allows_action(user_id, "promos.view"):
-            row.append(KeyboardButton(text="🎁 Акции"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "schedule.view") or user_allows_action(user_id, "ttn.lookup"):
-        row = []
-        if user_allows_action(user_id, "schedule.view"):
-            row.append(KeyboardButton(text=SCHEDULE_BTN))
-        if user_allows_action(user_id, "ttn.lookup"):
-            row.append(KeyboardButton(text=TTN_BTN))
-        keyboard.append(row)
-    if user_allows_action(user_id, "client_cards.view"):
-        keyboard.append([KeyboardButton(text="🏢 Клиенты")])
-    if user_allows_action(user_id, "notifications.manage"):
-        keyboard.append([KeyboardButton(text="🔔 Уведомления")])
-    keyboard.append([KeyboardButton(text="▶️ Старт")])
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    return build_user_menu_kb(user_id=user_id, role="moderator")
+
 
 #первый запуск.
 def onboard_role_kb() -> InlineKeyboardMarkup:
@@ -1940,48 +1880,12 @@ async def sch_expect_text_only(m: Message, state: FSMContext):
 #------------UI Интерфейс клиента--------------
 #----------------------------------------------
 def guest_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
-    keyboard: List[List[KeyboardButton]] = []
-    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
-        row: List[KeyboardButton] = []
-        if user_allows_action(user_id, "prices.view"):
-            row.append(KeyboardButton(text="📑 Прайсы"))
-        if user_allows_action(user_id, "promos.view"):
-            row.append(KeyboardButton(text="🎁 Акции"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "schedule.view"):
-        keyboard.append([KeyboardButton(text=SCHEDULE_BTN)])
-    keyboard.append([KeyboardButton(text="▶️ Старт")])
-    return ReplyKeyboardMarkup(        keyboard=keyboard,
-        resize_keyboard=True
-    )
+    return build_user_menu_kb(user_id=user_id, role="guest")
 
 
 def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
-    """Клавиатура клиента: обновление, смена названия, поиск + старт."""
-    keyboard: List[List[KeyboardButton]] = []
-    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
-        row: List[KeyboardButton] = []
-        if user_allows_action(user_id, "search.debt"):
-            row.append(KeyboardButton(text="🔎 Поиск"))
-        if user_allows_action(user_id, "search.tara"):
-            row.append(KeyboardButton(text="🔎 Поиск тары"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
-        row = []
-        if user_allows_action(user_id, "prices.view"):
-            row.append(KeyboardButton(text="📑 Прайсы"))
-        if user_allows_action(user_id, "promos.view"):
-            row.append(KeyboardButton(text="🎁 Акции"))
-        keyboard.append(row)
-    if user_allows_action(user_id, "schedule.view"):
-        keyboard.append([KeyboardButton(text=SCHEDULE_BTN)])
-    keyboard.append([KeyboardButton(text="▶️ Старт")])
-    if user_allows_action(user_id, "client_cards.view"):
-        keyboard.append([KeyboardButton(text="🏢 Моя карточка"), KeyboardButton(text="✏️ Изменить название")])
-    return ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=True
-    )
+    """Клавиатура клиента: видимые кнопки определяются доступами пользователя."""
+    return build_user_menu_kb(user_id=user_id, role="client")
 
 def _user_sort_key(item: Tuple[str, Dict[str, Any]]) -> Tuple[int, str]:
     uid, rec = item
@@ -2028,7 +1932,9 @@ def user_detail_kb(uid: str, page: int = 0, is_authorized: bool = False) -> Inli
         [
             InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
             InlineKeyboardButton(text="👋 Сделать гостем", callback_data=f"usr:setrole:{uid}:guest"),
-
+        ],
+        [
+            InlineKeyboardButton(text="🛡 Сделать модератором", callback_data=f"usr:setrole:{uid}:moderator"),
         ],
         [
             InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
@@ -3119,6 +3025,15 @@ def menu_for_user_id(user_id: Optional[int]) -> ReplyKeyboardMarkup:
 
 def menu_for_callback(cq: CallbackQuery) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(cq.from_user, "id", None))
+
+async def push_user_menu_refresh(user_id: Any, text: str = "🔄 Ваше меню обновлено.") -> None:
+    uid = str(user_id or "").strip()
+    if not uid.isdigit():
+        return
+    try:
+        await bot.send_message(int(uid), text, reply_markup=menu_for_user_id(int(uid)))
+    except Exception:
+        logger.exception("menu-refresh: failed for user=%s", uid)
 
 ACCESS_MATRIX: Dict[str, set] = {
     "prices.view": {"guest", "client", "sales_rep", "moderator", "admin"},
@@ -6138,6 +6053,7 @@ async def admin_users_set_role(cq: CallbackQuery):
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     update_user_record(uid, {"role": normalize_role(role)})
+    await push_user_menu_refresh(uid, "🔄 Ваши права обновлены. Новое меню уже доступно.")
     await cq.answer("Роль обновлена.")
     if cq.message and cq.message.reply_markup:
         markup = cq.message.reply_markup
@@ -6199,6 +6115,7 @@ async def admin_users_permission_toggle(cq: CallbackQuery):
     new_allowed = not current_allowed
     override = None if new_allowed == base_allowed else new_allowed
     set_user_action_override(user_id, action, override)
+    await push_user_menu_refresh(user_id, f"🔄 Доступ к разделу «{MANAGED_ACTIONS_LABELS[action]}» обновлён.")
     await cq.message.edit_reply_markup(reply_markup=user_permissions_kb(uid, page=page))
     await cq.answer(f"{MANAGED_ACTIONS_LABELS[action]}: {'включено' if new_allowed else 'выключено'}")
 
@@ -6213,6 +6130,7 @@ async def admin_users_permission_reset(cq: CallbackQuery):
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     reset_user_action_overrides(int(uid))
+    await push_user_menu_refresh(int(uid), "🔄 Индивидуальные права сброшены. Меню обновлено.")
     await cq.message.edit_reply_markup(reply_markup=user_permissions_kb(uid, page=page))
     await cq.answer("Пользовательские права сброшены до роли по умолчанию.")
 
