@@ -2083,25 +2083,84 @@ def _client_cards_for_user(user_id: int, role: str) -> List[Dict[str, Any]]:
     if role == "sales_rep":
         return CLIENTS_DB.list_clients(sales_rep_user_id=user_id)
     direct = CLIENTS_DB.list_clients(owner_user_id=user_id)
-    if direct:
+    if role != "client":
         return direct
-    cname = (get_client_name(user_id) or "").strip().casefold()
-    if not cname:
-        return []
-    matched = []
-    for it in CLIENTS_DB.list_clients():
-        legal = (it.get("legal_name") or "").casefold()
-        store = (it.get("store_name") or "").casefold()
-        if cname in legal or cname in store:
-            matched.append(it)
-    return matched
+    return _client_cards_for_client(user_id, direct=direct)
+
+def _normalize_client_card_lookup(value: str) -> str:
+    value = normalize_client_name(value or "")
+    value = re.sub(r"\s+", " ", value).strip().casefold()
+    return value
+
+
+def _client_card_match_score(query: str, item: Dict[str, Any]) -> int:
+    if not query:
+        return -1
+    names = [
+        _normalize_client_card_lookup(item.get("legal_name") or ""),
+        _normalize_client_card_lookup(item.get("store_name") or ""),
+        _normalize_client_card_lookup(f"{item.get('legal_form') or ''} {item.get('legal_name') or ''}"),
+    ]
+    best = -1
+    for candidate in names:
+        if not candidate:
+            continue
+        if candidate == query:
+            best = max(best, 300)
+        elif candidate.startswith(query + " "):
+            best = max(best, 220)
+        elif query.startswith(candidate + " "):
+            best = max(best, 210)
+        elif query in candidate:
+            best = max(best, 120)
+        elif candidate in query:
+            best = max(best, 110)
+    return best
+
+
+def _pick_best_client_card(items: List[Dict[str, Any]], query: str) -> Optional[Dict[str, Any]]:
+    scored = []
+    for item in items:
+        score = _client_card_match_score(query, item)
+        if score >= 0:
+            scored.append((score, item))
+    if not scored:
+        return None
+    scored.sort(
+        key=lambda pair: (
+            pair[0],
+            _normalize_client_card_lookup(pair[1].get("legal_name") or ""),
+            _normalize_client_card_lookup(pair[1].get("store_name") or ""),
+            pair[1].get("updated_at") or "",
+        ),
+        reverse=True,
+    )
+    return scored[0][1]
+
+
+def _client_cards_for_client(user_id: int, *, direct: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+    direct = list(direct or [])
+    query = _normalize_client_card_lookup(get_client_name(user_id))
+
+    best_direct = _pick_best_client_card(direct, query)
+    if best_direct:
+        return [best_direct]
+    if len(direct) == 1:
+        return direct
+
+    best_global = _pick_best_client_card(CLIENTS_DB.list_clients(), query)
+    if best_global:
+        return [best_global]
+    if direct:
+        return [direct[0]]
+    return []
 
 def _has_client_card_access(user_id: int, role: str, client_id: str) -> bool:
-    if CLIENTS_DB.user_can_access(user_id, role, client_id):
-        return True
     if role == "client":
         ids = {it.get("id") for it in _client_cards_for_user(user_id, role)}
         return client_id in ids
+    if CLIENTS_DB.user_can_access(user_id, role, client_id):
+        return True
     return False
 
 
@@ -3543,7 +3602,8 @@ async def client_cards_entry(m: Message, state: FSMContext):
     if not items:
         await m.answer("Вам пока не назначена карточка клиента. Обратитесь к администратору.", reply_markup=menu_for_message(m))
         return
-    await m.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=0))
+    title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
+    await m.answer(title, reply_markup=client_cards_list_kb(items, role, page=0))
 
 @router.callback_query(F.data.func(lambda d: d and d.startswith("cc:list")))
 async def cc_list(cq: CallbackQuery):
@@ -3560,7 +3620,8 @@ async def cc_list(cq: CallbackQuery):
         await cq.answer()
         return
 
-    await cq.message.edit_text("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=page))
+    title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
+    await cq.message.edit_text(title, reply_markup=client_cards_list_kb(items, role, page=page))
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:view:"))
