@@ -582,7 +582,39 @@ def read_tara_file(path: str) -> Tuple[pd.DataFrame, Optional[str]]:
 
     return df.dropna(how="all"), report_date
 
+def _tara_item_key(name: Any) -> str:
+    """Ключ номенклатуры для схлопывания дублей/синонимов."""
+    s = str(name or "").strip().casefold().replace("ё", "е")
+    s = re.sub(r"\bru\b", "", s)
+    s = re.sub(r"\bтип\b", "", s)
+    s = re.sub(r"[^a-zа-я0-9]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
 
+
+_TARA_ITEM_ALIASES = {
+    _tara_item_key("Бочка 50л S RU"): "Бочка 50л тип S",
+    _tara_item_key("Бочка 50л тип S"): "Бочка 50л тип S",
+}
+
+
+def _tara_item_display_name(name: Any) -> str:
+    raw = str(name or "").strip()
+    return _TARA_ITEM_ALIASES.get(_tara_item_key(raw), raw)
+
+
+def _merge_tara_items(items: List[Tuple[str, float]]) -> List[Tuple[str, float]]:
+    """Объединяет одинаковую тару и известные синонимы по одной строке."""
+    merged: Dict[str, float] = {}
+    order: List[str] = []
+
+    for name, qty in items:
+        display = _tara_item_display_name(name)
+        if display not in merged:
+            merged[display] = 0.0
+            order.append(display)
+        merged[display] += float(qty or 0)
+
+    return [(name, qty) for name, qty in ((name, merged[name]) for name in order) if abs(qty) > 1e-9]
 
 def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """Парсинг строк отчёта по возвратной таре"""
@@ -607,11 +639,11 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
         # количество по последней колонке
         q_end = _to_float(row.get(col_qty_end, 0))
 
-        # клиент
+        # клиент␊
         if CLIENT_MARKERS.search(text):
-            # сохранить предыдущего
+            # сохранить предыдущего␊
             if current:
-                current["items"] = [(n, q) for n, q in current["items"] if abs(q) > 1e-9]
+                current["items"] = _merge_tara_items(current["items"])
                 if current["total"] > 0 or current["items"]:
                     results.append(current)
             current = {"client": text, "items": [], "total": q_end}
@@ -626,8 +658,9 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             current["items"].append((text, q_end))
 
     # финальный клиент
+    # финальный клиент␊
     if current:
-        current["items"] = [(n, q) for n, q in current["items"] if abs(q) > 1e-9]
+        current["items"] = _merge_tara_items(current["items"])
         if current["total"] > 0 or current["items"]:
             results.append(current)
 
