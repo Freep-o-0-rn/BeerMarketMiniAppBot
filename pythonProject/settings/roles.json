@@ -1,4 +1,13 @@
 {
+  "guest": {
+    "label": "Гость",
+    "description": "Ограниченный доступ до назначения роли администратором.",
+    "permissions": [
+      "view_prices",
+      "view_promos",
+      "view_schedule"
+    ]
+  },
   "admin": {
     "label": "Администратор",
     "description": "Полный доступ к управлению ботом, пользователями, прайсами и акциями.",
@@ -20,8 +29,7 @@
     "permissions": [
       "view_prices",
       "view_promos",
-      "view_schedule",
-      "view_reports"
+      "view_schedule"
     ]
   },
   "sales_rep": {

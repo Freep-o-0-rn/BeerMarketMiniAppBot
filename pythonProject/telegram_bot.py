@@ -406,6 +406,15 @@ USER_ROLES_PATH = Path(USER_ROLES_JSON)
 ROLE_DEFS_PATH = Path(ROLE_DEFS_JSON)
 
 DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
+    "guest": {
+        "label": "Гость",
+        "description": "Ограниченный доступ до назначения роли администратором.",
+        "permissions": [
+            "view_prices",
+            "view_promos",
+            "view_schedule",
+        ],
+    },
     "admin": {
         "label": "Администратор",
         "description": "Полный доступ к управлению ботом, пользователями, прайсами и акциями.",
@@ -428,7 +437,6 @@ DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
             "view_prices",
             "view_promos",
             "view_schedule",
-            "view_reports",
         ],
     },
     "sales_rep": {
@@ -487,20 +495,20 @@ def _role_defs_reload() -> Dict[str, Dict[str, Any]]:
     return _ROLE_DEFS
 
 def get_role_def(role: Optional[str]) -> Dict[str, Any]:
-    key = (role or "client").strip().lower()
-    return _ROLE_DEFS.get(key) or _ROLE_DEFS.get("client", {})
+    key = (role or "guest").strip().lower()
+    return _ROLE_DEFS.get(key) or _ROLE_DEFS.get("guest", {})
 
 def get_role_permissions(role: Optional[str]) -> set:
     return set(get_role_def(role).get("permissions") or [])
 
 def normalize_role(role: Optional[str]) -> str:
-    key = (role or "client").strip().lower()
+    key = (role or "guest").strip().lower()
     if key in _ROLE_DEFS:
         return key
-    return "client"
+    return "guest"
 
 def role_label(role: Optional[str]) -> str:
-    return str(get_role_def(role).get("label") or role or "client")
+    return str(get_role_def(role).get("label") or role or "guest")
 
 def user_has_permission(user_id: Optional[int], permission: str) -> bool:
     return permission in get_role_permissions(get_user_role(user_id))
@@ -516,7 +524,7 @@ def _normalize_user_roles_schema(data: dict) -> dict:
         if k == "client_phones":
             continue
         if not isinstance(v, dict):
-            data[k] = {"role": "client", "name": str(v)}
+            data[k] = {"role": "guest", "name": str(v)}
         else:
             v["role"] = normalize_role(v.get("role"))
     return data
@@ -1002,7 +1010,16 @@ def help_text_admin() -> str:
         "• /help — эта справка\n"
     )
 
-
+def help_text_guest() -> str:
+    return (
+        "<b>BeerMarket🍺 — гостевой режим</b>\n\n"
+        "Сейчас вам доступен только базовый просмотр.\n\n"
+        "📌 <b>Кнопки</b>:\n"
+        "• 📑 <b>Прайсы</b> — посмотреть прайс-листы\n"
+        "• 🎁 <b>Акции</b> — посмотреть акции\n"
+        "• 🚚 <b>График развоза</b> — посмотреть график и правила приёма заявок\n\n"
+        "Чтобы получить роль клиента, торгового представителя или администратора, обратитесь к администратору."
+    )
 
 
 def help_text_client(current_name: str) -> str:
@@ -1031,6 +1048,9 @@ def help_text_sales_rep() -> str:
         "📌 <b>Кнопки</b>:\n"
         "• 🔎 <b>Поиск</b> — поиск по части названия/адреса\n"
         "• 🔎 <b>Поиск тары</b> — поиск по ведомости тары\n"
+        "• ⏰ <b>Просрочено</b> — отчёт по своим клиентам с просрочкой\n"
+        "• 💰 <b>Переплаты</b> — отчёт по своим клиентам с переплатой\n"
+        "• 🏢 <b>Клиенты</b> — просмотр и ведение карточек своих клиентов\n"
         "• 📑 <b>Прайсы</b> — просмотр прайсов\n"
         "• 🎁 <b>Акции</b> — просмотр акций\n"
         "• 🚚 <b>График развоза</b> — фото и правила приёма заявок\n"
@@ -1051,12 +1071,12 @@ def _ensure_dir(path: str):
 
 def get_user_role(user_id: Optional[int]) -> str:
     if not user_id:
-        return "client"
+        return "guest"
     uid = str(user_id)
     if _ADMIN_IDS and user_id in _ADMIN_IDS:
         return "admin"
     rec = (_USER_ROLES.get(uid) or {})
-    return normalize_role(rec.get("role") or "client")
+    return normalize_role(rec.get("role") or "guest")
 
 def _user_record(user_id: Optional[int]) -> Dict[str, Any]:
     if not user_id:
@@ -1113,7 +1133,7 @@ def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     uid = str(user_id)
     cur = _roles_load().get(uid, {})
     if not isinstance(cur, dict):
-        cur = {"role": "client", "name": str(cur)}
+        cur = {"role": "guest", "name": str(cur)}
     patch = dict(patch or {})
     if "role" in patch:
         patch["role"] = normalize_role(patch.get("role"))
@@ -1620,6 +1640,16 @@ async def sch_expect_text_only(m: Message, state: FSMContext):
 #----------------------------------------------
 #------------UI Интерфейс клиента--------------
 #----------------------------------------------
+def guest_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
+            [KeyboardButton(text=SCHEDULE_BTN)],
+            [KeyboardButton(text="▶️ Старт")],
+        ],
+        resize_keyboard=True
+    )
+
 def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     """Клавиатура клиента: обновление, смена названия, поиск + старт."""
     last_dt, _ = get_last_update()
@@ -1650,7 +1680,7 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
         if k == "client_phones":
             continue
         if not isinstance(v, dict):
-            v = {"role": "client", "name": str(v)}
+            v = {"role": "guest", "name": str(v)}
         items.append((k, v))
     items.sort(key=_user_sort_key)
 
@@ -1661,7 +1691,7 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
     for uid, rec in items[start:end]:
         name = (rec.get("name") or "unknown").strip()
-        role = normalize_role(rec.get("role") or "client")
+        role = normalize_role(rec.get("role") or "guest")
         rows.append([InlineKeyboardButton(text=f"{name} · {role_label(role)}", callback_data=f"usr:sel:{uid}:{page}")])
     nav: List[InlineKeyboardButton] = []
     if start > 0:
@@ -1682,9 +1712,11 @@ def user_detail_kb(uid: str, page: int = 0, is_authorized: bool = False) -> Inli
         ],
         [
             InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
-            InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
+            InlineKeyboardButton(text="👋 Сделать гостем", callback_data=f"usr:setrole:{uid}:guest"),
+
         ],
         [
+            InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
             InlineKeyboardButton(text=auth_btn_text, callback_data=f"usr:auth:{uid}:{page}"),
         ],
         [
@@ -1822,15 +1854,15 @@ def _cc_is_skip(text: Optional[str]) -> bool:
     return (text or "").strip().lower() in {"пропустить", "⏭ пропустить", "-"}
 
 def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
-    rows = [[InlineKeyboardButton(text="➕ Контакт", callback_data=f"cc:addcontact:{client_id}")]]
-    rows.append([InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"cc:edit:{client_id}")])
     if role in {"admin", "sales_rep"}:
+        rows = [[InlineKeyboardButton(text="➕ Контакт", callback_data=f"cc:addcontact:{client_id}")]]
+        rows.append([InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"cc:edit:{client_id}")])
         rows.append([InlineKeyboardButton(text="✏️ Привязать к сети", callback_data=f"cc:net:{client_id}")])
-    if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="🗑 Удалить", callback_data=f"cc:del:{client_id}")])
+    else:
+        rows = []
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="cc:list")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
-
 
 def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, page_size: int = 20) -> InlineKeyboardMarkup:
     total = len(items)
@@ -2624,6 +2656,8 @@ def menu_for_role(role: str, user_id: Optional[int] = None) -> ReplyKeyboardMark
         return main_menu_kb(user_id)
     if role == "sales_rep":
         return sales_rep_menu_kb(user_id)
+    if role == "guest":
+        return guest_menu_kb(user_id)
     return client_menu_kb(user_id)
 
 def menu_for_message(msg: Message) -> ReplyKeyboardMarkup:
@@ -2634,6 +2668,96 @@ def menu_for_user_id(user_id: Optional[int]) -> ReplyKeyboardMarkup:
 
 def menu_for_callback(cq: CallbackQuery) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(cq.from_user, "id", None))
+
+ACCESS_MATRIX: Dict[str, set] = {
+    "reports.general": {"admin"},
+    "reports.overdue": {"admin", "sales_rep"},
+    "reports.overpaid": {"admin", "sales_rep"},
+    "reports.tara": {"admin"},
+    "updates.mail": {"admin"},
+    "ttn.lookup": {"admin", "sales_rep"},
+    "client_cards.view": {"admin", "sales_rep", "client"},
+    "client_cards.manage": {"admin", "sales_rep"},
+    "technicians.manage": {"admin"},
+    "users.manage": {"admin"},
+}
+
+ACCESS_LABELS: Dict[str, str] = {
+    "reports.general": "общий отчёт",
+    "reports.overdue": "отчёт по просрочке",
+    "reports.overpaid": "отчёт по переплатам",
+    "reports.tara": "отчёт по таре",
+    "updates.mail": "обновление из почты",
+    "ttn.lookup": "проверка ТТН",
+    "client_cards.view": "карточки клиентов",
+    "client_cards.manage": "управление карточками клиентов",
+    "technicians.manage": "управление техниками",
+    "users.manage": "управление пользователями",
+}
+
+
+def _allowed_roles_for(action: str) -> set:
+    return set(ACCESS_MATRIX.get(action) or set())
+
+
+def role_allows_action(role: Optional[str], action: str) -> bool:
+    return normalize_role(role) in _allowed_roles_for(action)
+
+
+def user_allows_action(user_id: Optional[int], action: str) -> bool:
+    return role_allows_action(get_user_role(user_id), action)
+
+
+def _deny_text(action: str, role: Optional[str]) -> str:
+    label = ACCESS_LABELS.get(action) or "это действие"
+    role_name = role_label(role)
+    return f"⛔ У роли «{role_name}» нет доступа к разделу «{label}»."
+
+
+async def deny_message_access(m: Message, action: str) -> None:
+    role = get_user_role(getattr(m.from_user, "id", None))
+    await m.answer(_deny_text(action, role), reply_markup=menu_for_message(m))
+
+
+async def deny_callback_access(cq: CallbackQuery, action: str, *, show_alert: bool = True) -> None:
+    role = get_user_role(getattr(cq.from_user, "id", None))
+    text = _deny_text(action, role)
+    await cq.answer(text, show_alert=show_alert)
+    try:
+        await cq.message.answer(text, reply_markup=menu_for_callback(cq))
+    except Exception:
+        logger.exception("access: failed to send callback deny message")
+
+
+async def ensure_message_access(
+        m: Message,
+        action: str,
+        *,
+        state: Optional[FSMContext] = None,
+) -> Optional[str]:
+    role = get_user_role(getattr(m.from_user, "id", None))
+    if role_allows_action(role, action):
+        return role
+    if state is not None:
+        await state.clear()
+    await deny_message_access(m, action)
+    return None
+
+
+async def ensure_callback_access(
+        cq: CallbackQuery,
+        action: str,
+        *,
+        state: Optional[FSMContext] = None,
+        show_alert: bool = True,
+) -> Optional[str]:
+    role = get_user_role(getattr(cq.from_user, "id", None))
+    if role_allows_action(role, action):
+        return role
+    if state is not None:
+        await state.clear()
+    await deny_callback_access(cq, action, show_alert=show_alert)
+    return None
 
 def client_name_prompt_text() -> str:
     return (
@@ -2647,18 +2771,19 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     key = str(uid) if uid is not None else None
     data = _roles_load()
     rec = (data.get(key) if key else {}) or {}
-    role = (rec.get("role") or "").strip().lower()
-
-    if not role:
-        await state.set_state(OnboardStates.waiting_role)
-        await m.answer("Выберите роль:", reply_markup=onboard_role_kb())
-        return
+    role = normalize_role(rec.get("role") or "guest")
+    if not rec.get("role") and key:
+        rec["role"] = role
+        _roles_merge_and_save({key: rec})
 
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
+        return
+    if role == "guest":
+        await m.answer(help_text_guest(), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
@@ -2678,7 +2803,7 @@ async def on_start(m: Message, state: FSMContext):
     global _USER_ROLES
     _USER_ROLES = _roles_load()
     rec = (_USER_ROLES.get(key) if key else {}) or {}
-    role = (rec.get("role") or "").strip().lower()
+    role = normalize_role(rec.get("role") or "guest")
     if rec.get("blocked"):
         await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
         return
@@ -2696,10 +2821,10 @@ async def on_start(m: Message, state: FSMContext):
         await send_phone_request(m)
         return
     # Первый визит: НЕТ записи или НЕТ поля role -> спрашиваем 1 раз.
-    if not role:
-        await state.set_state(OnboardStates.waiting_role)
-        await m.answer("Выберите роль:", reply_markup=onboard_role_kb())
-        return
+    if not rec.get("role") and key:
+        rec["role"] = role
+        _USER_ROLES[key] = rec
+        _save_user_roles(_USER_ROLES)
 
     # Известная роль — показываем соответствующее меню.
     if role == "admin":
@@ -2707,6 +2832,9 @@ async def on_start(m: Message, state: FSMContext):
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
+        return
+    if role == "guest":
+        await m.answer(help_text_guest(), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
@@ -2728,6 +2856,9 @@ async def on_help(m: Message):
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
+        return
+    if role == "guest":
+        await m.answer(help_text_guest(), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = get_client_name(getattr(m.from_user, "id", None))
     await m.answer(help_text_client(cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
@@ -3061,20 +3192,20 @@ async def btn_start(m: Message, state: FSMContext):
 
 @router.message(F.text.func(lambda t: _has(t, "общий отчет", "общий отчёт") or (t or "").startswith("🧾")))
 async def btn_all(m: Message):
-    if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "reports.general"):
         return
     await render_report(m, mode="all", keywords=[], min_debt=None)
 
 @router.message(F.text == TARE_BTN)
 async def btn_tara(m: Message):
-    if _is_client(m):
-        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "reports.tara"):
         return
     await render_tara_report(m)
 
 @router.message(F.text == TTN_BTN)
 async def btn_ttn(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "ttn.lookup", state=state):
+        return
     _cleanup_flows()
     logger.info("ttn: entry by user=%s role=%s", getattr(m.from_user, "id", None), get_user_role(getattr(m.from_user, "id", None)))
     await state.set_state(TTNStates.waiting_number)
@@ -3085,15 +3216,13 @@ async def btn_ttn(m: Message, state: FSMContext):
 
 @router.message(F.text.func(lambda t: _has(t, "просрочено") or (t or "").startswith("⏰")))
 async def btn_overdue(m: Message):
-    if _is_client_only(m):
-        await m.answer("Доступно только для админов или торговых.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "reports.overdue"):
         return
     await render_report(m, mode="overdue", keywords=[], min_debt=None)
 
 @router.message(F.text.func(lambda t: _has(t, "переплат") or (t or "").startswith("💰")))
 async def btn_overpaid(m: Message):
-    if _is_client_only(m):
-        await m.answer("Доступно только для админов или торговых.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "reports.overpaid"):
         return
     await render_report(m, mode="overpaid", keywords=[], min_debt=None)
 
@@ -3273,24 +3402,29 @@ async def _do_mail_refresh(m: Message):
 
 @router.message(F.text.func(lambda t: isinstance(t, str) and t.startswith("🔄 Обновить")))
 async def btn_refresh(m: Message):
+    if not await ensure_message_access(m, "updates.mail"):
+        return
     await m.answer("Что обновить?", reply_markup=update_menu_kb())
 
 @router.message(F.text == "🛠 Техники")
 async def technicians_menu(m: Message):
-    if get_user_role(getattr(m.from_user, "id", None)) != "admin":
-        await m.answer("Доступно только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "technicians.manage"):
         return
     await m.answer("Управление техниками:", reply_markup=technicians_menu_kb())
 
 
 @router.callback_query(F.data == "tc:menu")
 async def tc_menu(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "technicians.manage"):
+        return
     await cq.message.answer("Управление техниками:", reply_markup=technicians_menu_kb())
     await cq.answer()
 
 
 @router.callback_query(F.data == "tc:list")
 async def tc_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "technicians.manage"):
+        return
     items = CLIENTS_DB.list_technicians()
     if not items:
         await cq.message.answer("Список техников пуст. Добавьте первого техника.", reply_markup=technicians_menu_kb())
@@ -3301,6 +3435,8 @@ async def tc_list(cq: CallbackQuery):
 
 @router.callback_query(F.data == "tc:new")
 async def tc_new(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "technicians.manage", state=state):
+        return
     await state.clear()
     await state.set_state(TechnicianStates.waiting_full_name)
     await cq.message.answer("Введите имя и фамилию техника.")
@@ -3309,6 +3445,8 @@ async def tc_new(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("tc:view:"))
 async def tc_view(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "technicians.manage"):
+        return
     technician_id = cq.data.split(":", 2)[2]
     it = CLIENTS_DB.get_technician(technician_id)
     if not it:
@@ -3321,6 +3459,8 @@ async def tc_view(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("tc:edit:"))
 async def tc_edit(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "technicians.manage", state=state):
+        return
     technician_id = cq.data.split(":", 2)[2]
     it = CLIENTS_DB.get_technician(technician_id)
     if not it:
@@ -3335,6 +3475,8 @@ async def tc_edit(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("tc:del:"))
 async def tc_delete(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "technicians.manage"):
+        return
     technician_id = cq.data.split(":", 2)[2]
     CLIENTS_DB.delete_technician(technician_id)
     await cq.message.answer("✅ Техник удалён.")
@@ -3345,6 +3487,8 @@ async def tc_delete(cq: CallbackQuery):
 
 @router.message(TechnicianStates.waiting_full_name)
 async def tc_wait_name(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "technicians.manage", state=state):
+        return
     full_name = (m.text or "").strip()
     if len(full_name) < 3:
         await m.answer("Введите имя и фамилию (минимум 3 символа).")
@@ -3356,6 +3500,8 @@ async def tc_wait_name(m: Message, state: FSMContext):
 
 @router.message(TechnicianStates.waiting_phone)
 async def tc_wait_phone(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "technicians.manage", state=state):
+        return
     phone = (m.text or "").strip()
     if len(re.sub(r"\D", "", phone)) < 10:
         await m.answer("Неверный формат номера. Повторите ввод.")
@@ -3367,6 +3513,8 @@ async def tc_wait_phone(m: Message, state: FSMContext):
 
 @router.message(TechnicianStates.waiting_points)
 async def tc_wait_points(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "technicians.manage", state=state):
+        return
     points = (m.text or "").strip()
     points_csv = "" if points in {"", "-"} else points
     data = await state.get_data()
@@ -3383,6 +3531,8 @@ async def tc_wait_points(m: Message, state: FSMContext):
 
 @router.message(F.text.in_({"🏢 Клиенты", "🏢 Моя карточка"}))
 async def client_cards_entry(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.view", state=state):
+        return
     await state.clear()
     uid = int(getattr(m.from_user, "id", 0) or 0)
     role = get_user_role(uid)
@@ -3397,6 +3547,8 @@ async def client_cards_entry(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.func(lambda d: d and d.startswith("cc:list")))
 async def cc_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
     page = 0
     parts = (cq.data or "").split(":")
     if len(parts) >= 3 and parts[2].isdigit():
@@ -3413,11 +3565,13 @@ async def cc_list(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("cc:view:"))
 async def cc_view(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
     if not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+        await deny_callback_access(cq, "client_cards.view")
         return
     card = CLIENTS_DB.get_client(client_id)
     if not card:
@@ -3428,9 +3582,8 @@ async def cc_view(cq: CallbackQuery):
 
 @router.callback_query(F.data == "cc:new")
 async def cc_new(cq: CallbackQuery, state: FSMContext):
-    role = get_user_role(getattr(cq.from_user, "id", None))
-    if role not in {"admin", "sales_rep"}:
-        await cq.answer("Нет прав", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
         return
     await state.clear()
     await state.update_data(client_contacts=[])
@@ -3451,6 +3604,8 @@ async def cc_create_cancel(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("cc:lf:"), ClientCardStates.waiting_legal_form)
 async def cc_pick_legal_form(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.manage", state=state):
+        return
     lf = cq.data.split(":", 2)[2]
     await state.update_data(legal_form=lf)
     await state.set_state(ClientCardStates.waiting_legal_name)
@@ -3459,6 +3614,8 @@ async def cc_pick_legal_form(cq: CallbackQuery, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_legal_name)
 async def cc_legal_name(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3473,6 +3630,8 @@ async def cc_legal_name(m: Message, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_store_name)
 async def cc_store_name(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3492,6 +3651,8 @@ async def cc_store_name(m: Message, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_address)
 async def cc_address(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3512,6 +3673,8 @@ async def cc_address(m: Message, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_overdue_days)
 async def cc_overdue_days(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3530,6 +3693,8 @@ async def cc_overdue_days(m: Message, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_contact_name)
 async def cc_contact_name(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3550,6 +3715,8 @@ async def cc_contact_name(m: Message, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_contact_phone)
 async def cc_contact_phone(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3567,6 +3734,8 @@ async def cc_contact_phone(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("cc:pos:"), ClientCardStates.waiting_contact_position)
 async def cc_contact_position_pick(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.manage", state=state):
+        return
     pos = cq.data.split(":", 2)[2]
     if pos == "custom":
         await cq.message.answer("Введите должность вручную.")
@@ -3580,6 +3749,8 @@ async def cc_contact_position_pick(cq: CallbackQuery, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_contact_position)
 async def cc_contact_position_text(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3595,6 +3766,8 @@ async def cc_contact_position_text(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("cc:more:"), ClientCardStates.waiting_more_contacts)
 async def cc_more_contacts(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.manage", state=state):
+        return
     answer = cq.data.split(":", 2)[2]
     data = await state.get_data()
     contacts = data.get("client_contacts") or []
@@ -3616,18 +3789,25 @@ async def cc_more_contacts(cq: CallbackQuery, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_additional_contact_name)
 async def cc_add_contact_name(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     await state.update_data(add_contact_name=(m.text or "").strip())
     await state.set_state(ClientCardStates.waiting_additional_contact_phone)
     await m.answer("Телефон доп. контакта:")
 
 @router.message(ClientCardStates.waiting_additional_contact_phone)
 async def cc_add_contact_phone(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     await state.update_data(add_contact_phone=(m.text or "").strip())
     await state.set_state(ClientCardStates.waiting_additional_contact_position)
     await m.answer("Должность доп. контакта:")
 
 @router.message(ClientCardStates.waiting_additional_contact_position)
 async def cc_add_contact_position(m: Message, state: FSMContext):
+    role = await ensure_message_access(m, "client_cards.manage", state=state)
+    if not role:
+        return
     data = await state.get_data()
     edit_client_id = data.get("edit_client_id")
     c_name = data.get("add_contact_name") or "Контакт"
@@ -3636,7 +3816,6 @@ async def cc_add_contact_position(m: Message, state: FSMContext):
     if edit_client_id:
         CLIENTS_DB.add_contact(edit_client_id, c_name, c_phone, c_pos)
         await state.clear()
-        role = get_user_role(getattr(m.from_user, "id", None))
         card = CLIENTS_DB.get_client(edit_client_id)
         await m.answer("✅ Контакт добавлен.")
         await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(edit_client_id, role))
@@ -3654,6 +3833,8 @@ async def cc_add_contact_position(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("cc:tech:sel:"), ClientCardStates.waiting_technician_select)
 async def cc_technician_pick(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.manage", state=state):
+        return
     technician_id = cq.data.split(":", 3)[3]
     tech = CLIENTS_DB.get_technician(technician_id)
     if not tech:
@@ -3670,6 +3851,8 @@ async def cc_technician_pick(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "cc:tech:skip", ClientCardStates.waiting_technician_select)
 async def cc_technician_skip(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.manage", state=state):
+        return
     await state.update_data(technician_id=None, technician_name="ТЕСТ", technician_phone="+79999999999")
     await state.set_state(ClientCardStates.waiting_sales_rep)
     await cq.message.answer("Укажите торгового представителя (имя или 'Имя (123456)').", reply_markup=client_card_skip_cancel_kb())
@@ -3677,6 +3860,8 @@ async def cc_technician_skip(cq: CallbackQuery, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_sales_rep)
 async def cc_sales_rep(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.manage", state=state):
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3692,6 +3877,9 @@ async def cc_sales_rep(m: Message, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_network_name)
 async def cc_finish_create(m: Message, state: FSMContext):
+    role = await ensure_message_access(m, "client_cards.manage", state=state)
+    if not role:
+        return
     if _cc_is_cancel(m.text):
         await state.clear()
         await m.answer("Создание карточки отменено.", reply_markup=ReplyKeyboardRemove())
@@ -3705,7 +3893,6 @@ async def cc_finish_create(m: Message, state: FSMContext):
     if edit_client_id:
         CLIENTS_DB.update_client(edit_client_id, {"network_id": network_id})
         await state.clear()
-        role = get_user_role(getattr(m.from_user, "id", None))
         card = CLIENTS_DB.get_client(edit_client_id)
         await m.answer("✅ Сеть клиента обновлена.")
         await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(edit_client_id, role))
@@ -3733,7 +3920,6 @@ async def cc_finish_create(m: Message, state: FSMContext):
             "contact_position": data.get("contact_position") or "Контакт",
         }]
     cid = CLIENTS_DB.create_client(payload, contacts)
-    role = get_user_role(getattr(m.from_user, "id", None))
     await state.clear()
     card = CLIENTS_DB.get_client(cid)
     await m.answer("✅ Карточка клиента создана.", reply_markup=ReplyKeyboardRemove())
@@ -3742,9 +3928,8 @@ async def cc_finish_create(m: Message, state: FSMContext):
 @router.callback_query(F.data == "cc:import:debt")
 async def cc_import_debt(cq: CallbackQuery):
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep","client"}:
-        await cq.answer("Нет прав", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage")
+    if not role:
         return
     try:
         created, skipped = import_clients_from_latest_debt(uid, role)
@@ -3762,9 +3947,11 @@ async def cc_import_debt(cq: CallbackQuery):
 async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Форма (ООО/ИП)", callback_data=f"cc:editfield:{client_id}:legal_form")],
@@ -3784,9 +3971,11 @@ async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
 async def cc_edit_technician_start(cq: CallbackQuery, state: FSMContext):
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
 
     card = CLIENTS_DB.get_client(client_id)
@@ -3818,9 +4007,11 @@ async def cc_edit_technician_start(cq: CallbackQuery, state: FSMContext):
 async def cc_edit_technician_address_pick(cq: CallbackQuery):
     _, _, client_id, address_idx = cq.data.split(":", 3)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage")
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
     card = CLIENTS_DB.get_client(client_id)
     if not card:
@@ -3846,9 +4037,11 @@ async def cc_edit_technician_address_pick(cq: CallbackQuery):
 async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
     _, _, client_id, address_idx, technician_idx_raw = cq.data.split(":", 4)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
 
     technicians = CLIENTS_DB.list_technicians()
@@ -3893,9 +4086,11 @@ async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
 async def cc_edit_technician_skip(cq: CallbackQuery):
     _, _, client_id, address_idx = cq.data.split(":", 3)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage")
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
 
     card_before = CLIENTS_DB.get_client(client_id)
@@ -3924,9 +4119,11 @@ async def cc_edit_technician_skip(cq: CallbackQuery):
 async def cc_edit_field_pick(cq: CallbackQuery, state: FSMContext):
     _, _, client_id, field = cq.data.split(":", 3)
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
     prompts = {
         "legal_form": "Введите форму: ООО или ИП",
@@ -3948,6 +4145,9 @@ async def cc_edit_field_pick(cq: CallbackQuery, state: FSMContext):
 
 @router.message(ClientCardStates.waiting_edit_value)
 async def cc_edit_field_value(m: Message, state: FSMContext):
+    role = await ensure_message_access(m, "client_cards.manage", state=state)
+    if not role:
+        return
     data = await state.get_data()
     client_id = data.get("edit_client_id")
     field = data.get("edit_field")
@@ -3974,7 +4174,6 @@ async def cc_edit_field_value(m: Message, state: FSMContext):
 
     CLIENTS_DB.update_client(client_id, patch)
     await state.clear()
-    role = get_user_role(getattr(m.from_user, "id", None))
     card = CLIENTS_DB.get_client(client_id)
     await m.answer("✅ Карточка обновлена.")
     await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
@@ -3984,9 +4183,11 @@ async def cc_edit_field_value(m: Message, state: FSMContext):
 async def cc_delete_client(cq: CallbackQuery):
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"} or not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage")
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
         return
     CLIENTS_DB.delete_client(client_id)
     await cq.message.answer("✅ Карточка клиента удалена.")
@@ -3998,9 +4199,11 @@ async def cc_delete_client(cq: CallbackQuery):
 async def cc_add_contact_start(cq: CallbackQuery, state: FSMContext):
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
     if not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+        await deny_callback_access(cq, "client_cards.manage")
         return
     await state.clear()
     await state.update_data(edit_client_id=client_id)
@@ -4012,12 +4215,11 @@ async def cc_add_contact_start(cq: CallbackQuery, state: FSMContext):
 async def cc_set_network_start(cq: CallbackQuery, state: FSMContext):
     client_id = cq.data.split(":", 2)[2]
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    role = get_user_role(uid)
-    if role not in {"admin", "sales_rep"}:
-        await cq.answer("Нет прав", show_alert=True)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
         return
     if not _has_client_card_access(uid, role, client_id):
-        await cq.answer("Нет доступа", show_alert=True)
+        await deny_callback_access(cq, "client_cards.manage")
         return
     await state.clear()
     await state.update_data(edit_client_id=client_id)
@@ -4540,11 +4742,15 @@ ttn_captcha_kb = _ttn_captcha_kb
 # ---------- публичные хэндлеры ----------
 @router.message(F.text == TTN_BTN)
 async def btn_ttn(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "ttn.lookup", state=state):
+        return
     await state.set_state(TTNStates.waiting_number)
     await m.answer("Введите номер(а) ТТН.\nМожно несколько через пробел или с новой строки.", reply_markup=back_only_kb())
 
 @router.message(TTNStates.waiting_number, F.text)
 async def ttn_step_number(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "ttn.lookup", state=state):
+        return
     raw = (m.text or "").strip()
     ttns = extract_ttns(raw)
     if not ttns:
@@ -4584,6 +4790,8 @@ async def ttn_step_number(m: Message, state: FSMContext):
 
 @router.callback_query(F.data == "ttn:cap:refresh")
 async def ttn_cap_refresh(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "ttn.lookup", state=state):
+        return
     _cleanup_flows()
     data = await state.get_data()
     ttn = normalize_ttn(data.get("ttn"))
@@ -4619,6 +4827,8 @@ async def ttn_cap_refresh(cq: CallbackQuery, state: FSMContext):
 
 @router.message(TTNStates.waiting_captcha, F.text)
 async def ttn_step_captcha(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "ttn.lookup", state=state):
+        return
     code = (m.text or "").strip()
     flow = _TTN_FLOWS.get(m.from_user.id)
     if not flow or flow.sess.closed:
@@ -4801,6 +5011,8 @@ def render_ttn_results(results: List[TTNResult]) -> str:
 
 @router.callback_query(F.data.in_({"ttn:cap:refresh", "ttn:refresh"}))
 async def ttn_refresh_captcha(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "ttn.lookup", state=state):
+        return
     uid = cq.from_user.id
     old = _TTN_FLOWS.get(uid)
     if not old or old.sess.closed:
@@ -5044,8 +5256,7 @@ async def od_del_key(m: Message, state: FSMContext):
 # --- Команды ---
 @router.message(Command("report"))
 async def on_report(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "reports.general"):
         return
     mode, keywords, min_override = parse_report_args(m.text or "")
     await render_report(m, mode=mode, keywords=keywords, min_debt=min_override)
@@ -5053,8 +5264,7 @@ async def on_report(m: Message):
 
 @router.message(Command("refresh"))
 async def cmd_refresh(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "updates.mail"):
         return
 
     text = (m.text or "")
@@ -5093,19 +5303,21 @@ async def cmd_refresh(m: Message):
 
 @router.message(Command("tara"))
 async def on_tara(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "reports.tara"):
         return
     await render_tara_report(m)
 
 async def _refresh_and_reply_cb(cq: CallbackQuery, mail_type: str):
+    if not await ensure_callback_access(cq, "updates.mail"):
+        return
     await cq.message.edit_text("Обновляю отчёт из почты…")
     try:
         path = fetch_latest_file(mail_type)  # 'ДЕБИТОРКА' или 'ТАРА'
         if path:
             set_last_update("manual")
             kb = menu_for_callback(cq)
-            await cq.message.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=kb)
+            await cq.message.answer(f"Готово.", reply_markup=kb)
+            #await cq.message.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=kb)
         else:
             kb = menu_for_callback(cq)
             await cq.message.answer("Письмо не найдено или подходящих вложений нет.", reply_markup=kb)
@@ -5117,8 +5329,7 @@ async def _refresh_and_reply_cb(cq: CallbackQuery, mail_type: str):
 
 @router.message(Command("refresh_tara"))
 async def cmd_refresh_tara(m: Message):
-    if _is_client(m):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "updates.mail"):
         return
     await m.answer("Обновляю отчёт из почты (Тара)…")
     try:
@@ -5329,15 +5540,13 @@ async def reset_role_cmd(m: Message, state: FSMContext):
 @router.message(Command("users"))
 @router.message(F.text == "👥 Пользователи")
 async def admin_users_list(m: Message):
-    if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Команда доступна только для админов.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "users.manage"):
         return
     await m.answer("Список пользователей:", reply_markup=users_list_kb())
 
 @router.callback_query(F.data.startswith("usr:list:"))
 async def admin_users_list_page(cq: CallbackQuery):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage"):
         return
     try:
         page = int(cq.data.split(":")[2])
@@ -5348,8 +5557,7 @@ async def admin_users_list_page(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:sel:"))
 async def admin_users_select(cq: CallbackQuery):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage"):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
@@ -5357,7 +5565,7 @@ async def admin_users_select(cq: CallbackQuery):
     data = _roles_load()
     rec = data.get(uid, {}) if uid else {}
     name = (rec.get("name") or "unknown").strip()
-    role = normalize_role(rec.get("role") or "client")
+    role = normalize_role(rec.get("role") or "guest")
     phone = (rec.get("phone") or "—").strip()
     verified = "✅" if rec.get("phone_verified") else "❌"
     is_authorized = bool(rec.get("phone_verified"))
@@ -5375,8 +5583,7 @@ async def admin_users_select(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:auth:"))
 async def admin_users_toggle_auth(cq: CallbackQuery):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage"):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
@@ -5385,7 +5592,7 @@ async def admin_users_toggle_auth(cq: CallbackQuery):
         return
     rec = _roles_load().get(uid, {})
     if not isinstance(rec, dict):
-        rec = {"role": "client", "name": str(rec)}
+        rec = {"role": "guest", "name": str(rec)}
     new_auth_state = not bool(rec.get("phone_verified"))
     update_user_record(uid, {"phone_verified": new_auth_state})
     await cq.answer("Авторизация выдана." if new_auth_state else "Авторизация снята.")
@@ -5393,12 +5600,11 @@ async def admin_users_toggle_auth(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:setrole:"))
 async def admin_users_set_role(cq: CallbackQuery):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage"):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
-    role = parts[3] if len(parts) > 3 else "client"
+    role = parts[3] if len(parts) > 3 else "guest"
     if not uid:
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
@@ -5408,8 +5614,7 @@ async def admin_users_set_role(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:block:"))
 async def admin_users_block(cq: CallbackQuery):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage"):
         return
     uid = cq.data.split(":")[2] if len(cq.data.split(":")) > 2 else ""
     if not uid:
@@ -5421,8 +5626,7 @@ async def admin_users_block(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:unblock:"))
 async def admin_users_unblock(cq: CallbackQuery):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage"):
         return
     uid = cq.data.split(":")[2] if len(cq.data.split(":")) > 2 else ""
     if not uid:
@@ -5434,8 +5638,7 @@ async def admin_users_unblock(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:del:"))
 async def admin_users_delete(cq: CallbackQuery, state: FSMContext):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage", state=state):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
@@ -5458,8 +5661,7 @@ async def admin_users_delete(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("usr:confirm_del:"))
 async def admin_users_delete_confirm(cq: CallbackQuery, state: FSMContext):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage", state=state):
         return
     action = cq.data.split(":")[-1]
     data = await state.get_data()
@@ -5484,8 +5686,7 @@ async def admin_users_delete_confirm(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("usr:editname:"))
 async def admin_users_edit_name(cq: CallbackQuery, state: FSMContext):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage", state=state):
         return
     uid = cq.data.split(":")[2]
     await state.update_data(admin_edit_uid=uid)
@@ -5495,8 +5696,7 @@ async def admin_users_edit_name(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("usr:editphone:"))
 async def admin_users_edit_phone(cq: CallbackQuery, state: FSMContext):
-    if not is_admin(getattr(cq.from_user, "id", None)):
-        await cq.answer("Недостаточно прав.", show_alert=True)
+    if not await ensure_callback_access(cq, "users.manage", state=state):
         return
     uid = cq.data.split(":")[2]
     await state.update_data(admin_edit_uid=uid)
@@ -5506,8 +5706,7 @@ async def admin_users_edit_phone(cq: CallbackQuery, state: FSMContext):
 
 @router.message(AdminUserEditStates.waiting_name)
 async def admin_users_save_name(m: Message, state: FSMContext):
-    if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Недостаточно прав.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "users.manage", state=state):
         return
     data = await state.get_data()
     uid = data.get("admin_edit_uid")
@@ -5521,8 +5720,7 @@ async def admin_users_save_name(m: Message, state: FSMContext):
 
 @router.message(AdminUserEditStates.waiting_phone)
 async def admin_users_save_phone(m: Message, state: FSMContext):
-    if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Недостаточно прав.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "users.manage", state=state):
         return
     data = await state.get_data()
     uid = data.get("admin_edit_uid")
