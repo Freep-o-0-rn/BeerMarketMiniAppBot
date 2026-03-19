@@ -16217,3 +16217,246 @@ Traceback (most recent call last):
     role = get_user_role(user_id)
                          ^^^^^^^
 NameError: name 'user_id' is not defined
+2026-03-19 22:04:23 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-19 22:04:26 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-19 22:04:26 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-19 22:04:26 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-19 22:04:28 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-19 22:04:28 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-19 22:04:28 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-19 22:04:28 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-19 22:04:28 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-19 22:04:28 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-19 22:04:28 | INFO | root | Собрано клиентов: 113
+2026-03-19 22:04:28 | INFO | __main__ | Отчёт на 19.03.2026 | клиентов: 113
+2026-03-19 22:04:28 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 212592.00 | проср: 212592.00 | наш долг: 0.00 | доков: 5
+2026-03-19 22:04:28 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 128184.48 | проср: 128184.48 | наш долг: 0.00 | доков: 8
+2026-03-19 22:04:28 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 121390.00 | проср: 121390.00 | наш долг: 0.00 | доков: 7
+2026-03-19 22:04:28 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 113660.08 | проср: 95360.08 | наш долг: 0.00 | доков: 9
+2026-03-19 22:04:28 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 103462.88 | проср: 103462.88 | наш долг: 0.00 | доков: 7
+2026-03-19 22:04:28 | INFO | __main__ | 06. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 88601.10 | проср: 88601.10 | наш долг: 70.38 | доков: 3
+2026-03-19 22:04:28 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-03-19 22:04:28 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 77775.00 | проср: 77775.00 | наш долг: 0.00 | доков: 6
+2026-03-19 22:04:28 | INFO | __main__ | 09. Титовская Наталия Александровна ИП - Воротников Д (Комсомольская ул, дом № 12) | сум: 76909.50 | проср: 76909.50 | наш долг: 0.00 | доков: 4
+2026-03-19 22:04:28 | INFO | __main__ | 10. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-19 22:04:28 | INFO | aiogram.dispatcher | Start polling
+2026-03-19 22:04:28 | INFO | telegram_bot | Daily fetch: next run in 44791 sec (now 2026-03-19 22:04:28, tz Asia/Novosibirsk)
+2026-03-19 22:04:28 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-19 22:04:31 | ERROR | telegram_bot | Unhandled exception (req_id=e019a8f1)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 849, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3684, in btn_start
+    await on_start(m, state)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3306, in on_start
+    await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 1633, in main_menu_kb
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3178, in user_allows_action
+    return role_allows_action(get_user_role(user_id), action)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3167, in role_allows_action
+    role = get_user_role(user_id)
+                         ^^^^^^^
+NameError: name 'user_id' is not defined
+2026-03-19 22:04:31 | INFO | audit | {'t': 'msg', 'ok': False, 'ms': 4, 'req': 'e019a8f1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1909, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 22:04:31 | INFO | audit | {'t': 'error', 'req': 'e019a8f1', 'exc': "NameError: name 'user_id' is not defined"}
+2026-03-19 22:04:31 | INFO | aiogram.event | Update id=104056883 is not handled. Duration 7 ms by bot id=8304099970
+2026-03-19 22:04:31 | ERROR | aiogram.event | Cause exception while process update id=104056883 by bot id=8304099970
+NameError: name 'user_id' is not defined
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 819, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 849, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3684, in btn_start
+    await on_start(m, state)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3306, in on_start
+    await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 1633, in main_menu_kb
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3178, in user_allows_action
+    return role_allows_action(get_user_role(user_id), action)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3167, in role_allows_action
+    role = get_user_role(user_id)
+                         ^^^^^^^
+NameError: name 'user_id' is not defined
+2026-03-19 22:04:42 | ERROR | telegram_bot | Unhandled exception (req_id=71c0930e)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 849, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3684, in btn_start
+    await on_start(m, state)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3306, in on_start
+    await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 1633, in main_menu_kb
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3178, in user_allows_action
+    return role_allows_action(get_user_role(user_id), action)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3167, in role_allows_action
+    role = get_user_role(user_id)
+                         ^^^^^^^
+NameError: name 'user_id' is not defined
+2026-03-19 22:04:42 | INFO | audit | {'t': 'msg', 'ok': False, 'ms': 2, 'req': '71c0930e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1910, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 22:04:42 | INFO | audit | {'t': 'error', 'req': '71c0930e', 'exc': "NameError: name 'user_id' is not defined"}
+2026-03-19 22:04:42 | INFO | aiogram.event | Update id=104056884 is not handled. Duration 5 ms by bot id=8304099970
+2026-03-19 22:04:42 | ERROR | aiogram.event | Cause exception while process update id=104056884 by bot id=8304099970
+NameError: name 'user_id' is not defined
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 819, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 849, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3684, in btn_start
+    await on_start(m, state)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3306, in on_start
+    await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 1633, in main_menu_kb
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3178, in user_allows_action
+    return role_allows_action(get_user_role(user_id), action)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot\BeerMarketMiniAppBot\pythonProject\telegram_bot.py", line 3167, in role_allows_action
+    role = get_user_role(user_id)
+                         ^^^^^^^
+NameError: name 'user_id' is not defined
+2026-03-19 22:08:50 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-19 22:08:50 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-03-19 22:08:50 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-03-19 22:08:51 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'

@@ -1969,3 +1969,7 @@
 {"t":"error","req":"322b48a8","exc":"NameError: name 'user_id' is not defined"}
 {"t":"msg","ok":false,"ms":2,"req":"d34b8082","bot":8304099970,"uid":1188061961,"user":"Re1ze_r","name":"Vadim BeerMarket","role":"client","chat":1188061961,"chat_type":"private","msg_id":1907,"kind":"text","text":"▶️ Старт","caption_len":0,"entities":0,"state":null}
 {"t":"error","req":"d34b8082","exc":"NameError: name 'user_id' is not defined"}
+{"t":"msg","ok":false,"ms":4,"req":"e019a8f1","bot":8304099970,"uid":237087423,"user":"Freep_o_0_rn","name":"Freep_o_0_rn","role":"admin","chat":237087423,"chat_type":"private","msg_id":1909,"kind":"text","text":"▶️ Старт","caption_len":0,"entities":0,"state":null}
+{"t":"error","req":"e019a8f1","exc":"NameError: name 'user_id' is not defined"}
+{"t":"msg","ok":false,"ms":2,"req":"71c0930e","bot":8304099970,"uid":237087423,"user":"Freep_o_0_rn","name":"Freep_o_0_rn","role":"admin","chat":237087423,"chat_type":"private","msg_id":1910,"kind":"text","text":"▶️ Старт","caption_len":0,"entities":0,"state":null}
+{"t":"error","req":"71c0930e","exc":"NameError: name 'user_id' is not defined"}

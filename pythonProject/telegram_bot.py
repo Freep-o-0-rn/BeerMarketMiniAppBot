@@ -6855,6 +6855,8 @@ async def cb_promo_view(cq: CallbackQuery):
 #акция создание
 @router.callback_query(F.data == "promo:add")
 async def promo_add(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     await state.set_state(PromoStates.waiting_promo_title)
@@ -6923,6 +6925,8 @@ async def promo_add_media_fallback(m: Message, state: FSMContext):
 
 @router.callback_query(F.data == "promo:media:skip")
 async def promo_media_skip_cb(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     await state.set_state(PromoStates.waiting_promo_dates_new)
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📅 Выбрать дату окончания", callback_data="promo:cal:open:new")],
@@ -6978,6 +6982,8 @@ def _calendar_kb(year: int, month: int, mode: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 @router.callback_query(F.data.startswith("promo:cal:open:"))
 async def promo_cal_open(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     mode = cq.data.split(":")[-1]  # 'new' | 'edit'
     today = datetime.now(TZ).date()
     kb = _calendar_kb(today.year, today.month, mode)
@@ -6986,6 +6992,8 @@ async def promo_cal_open(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("promo:cal:nav:"))
 async def promo_cal_nav(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     _, _, _, mode, y, m = cq.data.split(":")
     year = int(y); month = int(m)
     kb = _calendar_kb(year, month, mode)
@@ -6994,6 +7002,8 @@ async def promo_cal_nav(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("promo:cal:pick:"))
 async def promo_cal_pick(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     # формат: promo:cal:pick:<mode>:YYYY-MM-DD
     try:
         _, _, _, mode, iso = cq.data.split(":")
@@ -7033,6 +7043,8 @@ async def promo_cal_pick(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "promo:cal:cancel")
 async def promo_cal_cancel(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     try:
         await cq.message.delete()
     finally:
@@ -7040,11 +7052,15 @@ async def promo_cal_cancel(cq: CallbackQuery):
 
 @router.callback_query(F.data == "promo:cal:noop")
 async def promo_cal_noop(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     await cq.answer()
 
 
 @router.callback_query(F.data.startswith("promo:rename:"))
 async def promo_rename(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     pid = cq.data.split(":")[-1]
@@ -7071,6 +7087,8 @@ async def promo_do_rename(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("promo:edittext:"))
 async def promo_edit_text(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     pid = cq.data.split(":")[-1]
@@ -7094,6 +7112,8 @@ async def promo_do_edit_text(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("promo:replaceimg:"))
 async def promo_replace_img(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     pid = cq.data.split(":")[-1]
@@ -7149,6 +7169,8 @@ async def promo_replace_img_fallback(m: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("promo:dates:"))
 async def promo_dates_start(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     pid = cq.data.split(":")[-1]
@@ -7233,6 +7255,8 @@ async def cb_back_main(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("promo:toggle:"))
 async def promo_toggle(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     pid = cq.data.split(":")[-1]
@@ -7248,6 +7272,8 @@ async def promo_toggle(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("promo:del:"))
 async def promo_del(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     pid = cq.data.split(":")[-1]
@@ -7264,6 +7290,8 @@ async def promo_del(cq: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("promo:confirm_del:"))
 async def promo_del_confirm(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if not is_admin_event(cq):
         await cq.answer("Только для админов", show_alert=True); return
     action = cq.data.split(":")[-1]
