@@ -8,11 +8,15 @@
   },
   "939285490": {
     "role": "client",
-    "name": "себекин"
+    "name": "себекин",
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "8442184384": {
     "role": "client",
-    "name": "Колядина"
+    "name": "Колядина",
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "237087423": {
     "role": "admin",
@@ -20,11 +24,15 @@
     "phone_verified": true,
     "username": "Freep_o_0_rn",
     "first_name": "Freep_o_0_rn",
-    "language_code": "ru"
+    "language_code": "ru",
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "405433712": {
     "role": "client",
-    "name": "Демидов"
+    "name": "Демидов",
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "288807506": {
     "phone": "+79232235848",
@@ -35,18 +43,24 @@
     "username": "Yudzhik",
     "first_name": "Анка Евгеньевна",
     "last_name": "Колягина",
-    "language_code": "ru"
+    "language_code": "ru",
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "1153611285": {
     "phone": "+79994642108",
     "phone_verified": true,
     "name": "Цветкова",
-    "role": "client"
+    "role": "client",
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "750420118": {
     "role": "client",
     "name": "Вобла",
-    "phone_verified": true
+    "phone_verified": true,
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "727411283": {
     "username": "kontra93",
@@ -56,17 +70,9 @@
     "phone": "+79964550715",
     "phone_verified": true,
     "name": "ДАНИЛОК",
-    "blocked": false
-  },
-  "1188061961": {
-    "username": "Re1ze_r",
-    "first_name": "Vadim BeerMarket",
-    "language_code": "ru",
-    "is_premium": true,
-    "role": "client",
-    "phone": "+79965440806",
-    "phone_verified": true,
-    "name": "Анохина"
+    "blocked": false,
+    "access_overrides": {},
+    "notification_settings": {}
   },
   "1438912261": {
     "username": "Vays_V",
@@ -77,6 +83,21 @@
     "phone": "+79138993181",
     "phone_verified": true,
     "name": "Колягин",
-    "blocked": false
+    "blocked": false,
+    "access_overrides": {},
+    "notification_settings": {}
+  },
+  "1188061961": {
+    "username": "Re1ze_r",
+    "first_name": "Vadim BeerMarket",
+    "language_code": "ru",
+    "is_premium": true,
+    "role": "client",
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "blocked": false,
+    "access_overrides": {},
+    "notification_settings": {},
+    "name": "Морозова"
   }
 }

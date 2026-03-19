@@ -451,6 +451,19 @@ DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
             "manage_clients",
         ],
     },
+    "moderator": {
+        "label": "Модератор",
+        "description": "Расширенный просмотр данных без доступа к админским настройкам.",
+        "permissions": [
+            "view_prices",
+            "view_promos",
+            "view_schedule",
+            "view_reports",
+            "view_ttn",
+            "view_clients",
+            "receive_notifications",
+        ],
+    },
 }
 
 
@@ -513,6 +526,24 @@ def role_label(role: Optional[str]) -> str:
 def user_has_permission(user_id: Optional[int], permission: str) -> bool:
     return permission in get_role_permissions(get_user_role(user_id))
 
+def _normalize_access_overrides(value: Any) -> Dict[str, bool]:
+    if not isinstance(value, dict):
+        return {}
+    out: Dict[str, bool] = {}
+    for key, enabled in value.items():
+        if isinstance(key, str) and isinstance(enabled, bool):
+            out[key] = enabled
+    return out
+
+def _normalize_notification_settings(value: Any) -> Dict[str, bool]:
+    if not isinstance(value, dict):
+        return {}
+    out: Dict[str, bool] = {}
+    for key, enabled in value.items():
+        if isinstance(key, str) and isinstance(enabled, bool):
+            out[key] = enabled
+    return out
+
 def _normalize_user_roles_schema(data: dict) -> dict:
     """Гарантируем структуру и не трогаем неизвестные ключи."""
     data = (data or {})
@@ -527,6 +558,8 @@ def _normalize_user_roles_schema(data: dict) -> dict:
             data[k] = {"role": "guest", "name": str(v)}
         else:
             v["role"] = normalize_role(v.get("role"))
+            v["access_overrides"] = _normalize_access_overrides(v.get("access_overrides"))
+            v["notification_settings"] = _normalize_notification_settings(v.get("notification_settings"))
     return data
 
 def _roles_load() -> dict:
@@ -769,6 +802,42 @@ def _extract_media_meta(m: Message) -> Tuple[str, Optional[Dict[str, Any]]]:
         # никаких падений из-за аудита
         return "unknown", None
 
+BLOCKED_USER_TEXT = "Ваш доступ заблокирован. Обратитесь к администратору."
+
+
+def _blocked_actor_id(event: Any) -> Optional[int]:
+    if isinstance(event, (Message, CallbackQuery)):
+        user = getattr(event, "from_user", None)
+        return getattr(user, "id", None)
+    return None
+
+
+class BlockedUserMiddleware(BaseMiddleware):
+    async def __call__(self, handler, event, data):
+        user_id = _blocked_actor_id(event)
+        if not is_user_blocked(user_id):
+            return await handler(event, data)
+
+        state = data.get("state")
+        if state is not None:
+            with contextlib.suppress(Exception):
+                await state.clear()
+
+        if isinstance(event, CallbackQuery):
+            with contextlib.suppress(Exception):
+                await event.answer(BLOCKED_USER_TEXT, show_alert=True)
+            if event.message is not None:
+                with contextlib.suppress(Exception):
+                    await event.message.answer(BLOCKED_USER_TEXT)
+            return None
+
+        if isinstance(event, Message):
+            with contextlib.suppress(Exception):
+                await event.answer(BLOCKED_USER_TEXT)
+            return None
+
+        return None
+
 class AuditMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         req_id = uuid.uuid4().hex[:8]
@@ -868,6 +937,8 @@ class AuditMiddleware(BaseMiddleware):
                 pass
 
 # Подключаем к вашему router (aiogram v3):
+router.message.middleware(BlockedUserMiddleware())
+router.callback_query.middleware(BlockedUserMiddleware())
 router.message.middleware(AuditMiddleware())
 router.callback_query.middleware(AuditMiddleware())
 
@@ -1010,6 +1081,24 @@ def help_text_admin() -> str:
         "• /help — эта справка\n"
     )
 
+def help_text_moderator() -> str:
+    return (
+        "<b>BeerMarket🍺 — справка (модератор)</b>\n\n"
+        "📌 <b>Кнопки</b>:\n"
+        "• 🔎 <b>Поиск</b> — поиск по части названия/адреса\n"
+        "• 🔎 <b>Поиск тары</b> — поиск по ведомости тары\n"
+        "• ⏰ <b>Просрочено</b> — отчёт по просрочке\n"
+        "• 💰 <b>Переплаты</b> — отчёт по переплатам\n"
+        "• 🏢 <b>Клиенты</b> — просмотр карточек клиентов\n"
+        "• 📑 <b>Прайсы</b> — просмотр прайсов\n"
+        "• 🎁 <b>Акции</b> — просмотр акций\n"
+        "• 🚚 <b>График развоза</b> — фото и правила приёма заявок\n"
+        "• 📦 <b>Проверить ТТН</b> — проверка статуса фактуры в ЕГАИС\n"
+        "• 🔔 <b>Уведомления</b> — включить или отключить уведомления о новых пользователях\n\n"
+        "🧰 <b>Команды</b>:\n"
+        "• /help — эта справка\n"
+    )
+
 def help_text_guest() -> str:
     return (
         "<b>BeerMarket🍺 — гостевой режим</b>\n\n"
@@ -1101,6 +1190,58 @@ def update_user_profile_from_message(m: Message) -> None:
     if patch:
         update_user_record(user.id, patch)
 
+def _new_user_notification_text(user_id: int) -> str:
+    rec = _user_record(user_id)
+    role = role_label(rec.get("role") or "guest")
+    username = rec.get("username") or "—"
+    first_name = rec.get("first_name") or "—"
+    last_name = rec.get("last_name") or "—"
+    phone = rec.get("phone") or "—"
+    name = rec.get("name") or "—"
+    verified = "да" if rec.get("phone_verified") else "нет"
+    return (
+        "🆕 <b>Новый пользователь в боте</b>\n"
+        f"ID: <code>{user_id}</code>\n"
+        f"Роль: <b>{esc(role)}</b>\n"
+        f"Username: <b>{esc(str(username))}</b>\n"
+        f"Имя: <b>{esc(str(first_name))}</b>\n"
+        f"Фамилия: <b>{esc(str(last_name))}</b>\n"
+        f"Контактное имя: <b>{esc(str(name))}</b>\n"
+        f"Телефон: <b>{esc(str(phone))}</b>\n"
+        f"Телефон подтверждён: <b>{verified}</b>"
+    )
+
+def _notification_recipients_new_users() -> List[int]:
+    data = _roles_load()
+    recipients = {int(uid) for uid in _ADMIN_IDS if isinstance(uid, int)}
+    for uid, rec in data.items():
+        if uid == "client_phones" or not isinstance(rec, dict) or not uid.isdigit():
+            continue
+        role = normalize_role(rec.get("role"))
+        if role not in {"admin", "moderator"}:
+            continue
+        if notification_enabled(int(uid), "new_users"):
+            recipients.add(int(uid))
+    return sorted(recipients)
+
+async def notify_admins_about_new_user(user_id: int) -> None:
+    rec = _user_record(user_id)
+    if not isinstance(rec, dict):
+        return
+    if rec.get("new_user_notified"):
+        return
+    text = _new_user_notification_text(user_id)
+    sent = False
+    for recipient in _notification_recipients_new_users():
+        if recipient == user_id:
+            continue
+        try:
+            await bot.send_message(recipient, text)
+            sent = True
+        except Exception:
+            logger.exception("new-user-notify: failed recipient=%s user=%s", recipient, user_id)
+    update_user_record(user_id, {"new_user_notified": sent or bool(rec.get("new_user_notified"))})
+
 def set_user_role(user_id: int, role: str) -> None:
     uid = str(user_id)
     role_val = normalize_role(role)
@@ -1137,8 +1278,48 @@ def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     patch = dict(patch or {})
     if "role" in patch:
         patch["role"] = normalize_role(patch.get("role"))
+    if "access_overrides" in patch:
+        patch["access_overrides"] = _normalize_access_overrides(patch.get("access_overrides"))
+    if "notification_settings" in patch:
+        patch["notification_settings"] = _normalize_notification_settings(patch.get("notification_settings"))
     cur.update(patch)
     _roles_merge_and_save({uid: cur})
+
+def get_user_access_overrides(user_id: Optional[int]) -> Dict[str, bool]:
+    return _normalize_access_overrides(_user_record(user_id).get("access_overrides"))
+
+def set_user_action_override(user_id: Any, action: str, enabled: Optional[bool]) -> None:
+    rec = _user_record(user_id)
+    overrides = _normalize_access_overrides(rec.get("access_overrides"))
+    if enabled is None:
+        overrides.pop(action, None)
+    else:
+        overrides[action] = bool(enabled)
+    update_user_record(user_id, {"access_overrides": overrides})
+
+def reset_user_action_overrides(user_id: Any) -> None:
+    update_user_record(user_id, {"access_overrides": {}})
+
+def get_user_notification_settings(user_id: Optional[int]) -> Dict[str, bool]:
+    return _normalize_notification_settings(_user_record(user_id).get("notification_settings"))
+
+def notification_enabled(user_id: Optional[int], key: str, *, default: Optional[bool] = None) -> bool:
+    rec = _user_record(user_id)
+    settings = _normalize_notification_settings(rec.get("notification_settings"))
+    if key in settings:
+        return settings[key]
+    role = normalize_role(rec.get("role") or get_user_role(user_id))
+    if default is not None:
+        return default
+    if key == "new_users":
+        return role in {"admin", "moderator"}
+    return False
+
+def set_user_notification_setting(user_id: Any, key: str, enabled: bool) -> None:
+    rec = _user_record(user_id)
+    settings = _normalize_notification_settings(rec.get("notification_settings"))
+    settings[key] = bool(enabled)
+    update_user_record(user_id, {"notification_settings": settings})
 
 def delete_user_record(user_id: Any) -> bool:
     uid = str(user_id)
@@ -1448,33 +1629,141 @@ def main_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     hhmm = fmt_hhmm(last_dt)
     if hhmm:
         upd_label = f"{upd_label} ({hhmm})"
+    keyboard: List[List[KeyboardButton]] = []
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+        row: List[KeyboardButton] = []
+        if user_allows_action(user_id, "search.debt"):
+            row.append(KeyboardButton(text="🔎 Поиск"))
+        if user_allows_action(user_id, "search.tara"):
+            row.append(KeyboardButton(text="🔎 Поиск тары"))
+        if row:
+            keyboard.append(row)
+    if user_allows_action(user_id, "reports.general") or user_allows_action(user_id, "reports.tara"):
+        row = []
+        if user_allows_action(user_id, "reports.general"):
+            row.append(KeyboardButton(text="🧾 Общий отчёт"))
+        if user_allows_action(user_id, "reports.tara"):
+            row.append(KeyboardButton(text=TARE_BTN))
+        if row:
+            keyboard.append(row)
+    if user_allows_action(user_id, "reports.overdue") or user_allows_action(user_id, "reports.overpaid"):
+        row = []
+        if user_allows_action(user_id, "reports.overdue"):
+            row.append(KeyboardButton(text="⏰ Просрочено"))
+        if user_allows_action(user_id, "reports.overpaid"):
+            row.append(KeyboardButton(text="💰 Переплаты"))
+        if row:
+            keyboard.append(row)
+    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
+        row = []
+        if user_allows_action(user_id, "prices.view"):
+            row.append(KeyboardButton(text="📑 Прайсы"))
+        if user_allows_action(user_id, "promos.view"):
+            row.append(KeyboardButton(text="🎁 Акции"))
+        if row:
+            keyboard.append(row)
+    if user_allows_action(user_id, "schedule.view") or user_allows_action(user_id, "ttn.lookup"):
+        row = []
+        if user_allows_action(user_id, "schedule.view"):
+            row.append(KeyboardButton(text=SCHEDULE_BTN))
+        if user_allows_action(user_id, "ttn.lookup"):
+            row.append(KeyboardButton(text=TTN_BTN))
+        if row:
+            keyboard.append(row)
+    keyboard.append([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
+    management_row: List[KeyboardButton] = []
+    if user_allows_action(user_id, "users.manage"):
+        management_row.append(KeyboardButton(text="👥 Пользователи"))
+    if user_allows_action(user_id, "client_cards.view"):
+        management_row.append(KeyboardButton(text="🏢 Клиенты"))
+    if user_allows_action(user_id, "technicians.manage"):
+        management_row.append(KeyboardButton(text="🛠 Техники"))
+    if management_row:
+        keyboard.append(management_row)
+    if user_allows_action(user_id, "notifications.manage"):
+        keyboard.append([KeyboardButton(text="🔔 Уведомления")])
+    keyboard.append([KeyboardButton(text="▶️ Старт"), KeyboardButton(text=upd_label)])
     return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
-            [KeyboardButton(text="🧾 Общий отчёт"),KeyboardButton(text=TARE_BTN)],
-            [KeyboardButton(text="⏰ Просрочено"),KeyboardButton(text="💰 Переплаты")],
-            [KeyboardButton(text="📑 Прайсы"),KeyboardButton(text="🎁 Акции")],
-            [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
-            [KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="👥 Пользователи"), KeyboardButton(text="🏢 Клиенты"),KeyboardButton(text="🛠 Техники")],
-            [KeyboardButton(text="▶️ Старт"), KeyboardButton(text=upd_label)],
-        ],
+        keyboard=keyboard,
         resize_keyboard=True
     )
 
 def sales_rep_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     """Клавиатура торгового представителя: поиск, прайсы, акции, график, ТТН."""
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
-            [KeyboardButton(text="⏰ Просрочено"), KeyboardButton(text="💰 Переплаты")],
-            [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
-            [KeyboardButton(text=SCHEDULE_BTN), KeyboardButton(text=TTN_BTN)],
-            [KeyboardButton(text="🏢 Клиенты"),KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")],
-            [KeyboardButton(text="▶️ Старт")],
-        ],
-        resize_keyboard=True
-    )
+    keyboard: List[List[KeyboardButton]] = []
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+        row: List[KeyboardButton] = []
+        if user_allows_action(user_id, "search.debt"):
+            row.append(KeyboardButton(text="🔎 Поиск"))
+        if user_allows_action(user_id, "search.tara"):
+            row.append(KeyboardButton(text="🔎 Поиск тары"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "reports.overdue") or user_allows_action(user_id, "reports.overpaid"):
+        row = []
+        if user_allows_action(user_id, "reports.overdue"):
+            row.append(KeyboardButton(text="⏰ Просрочено"))
+        if user_allows_action(user_id, "reports.overpaid"):
+            row.append(KeyboardButton(text="💰 Переплаты"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
+        row = []
+        if user_allows_action(user_id, "prices.view"):
+            row.append(KeyboardButton(text="📑 Прайсы"))
+        if user_allows_action(user_id, "promos.view"):
+            row.append(KeyboardButton(text="🎁 Акции"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "schedule.view") or user_allows_action(user_id, "ttn.lookup"):
+        row = []
+        if user_allows_action(user_id, "schedule.view"):
+            row.append(KeyboardButton(text=SCHEDULE_BTN))
+        if user_allows_action(user_id, "ttn.lookup"):
+            row.append(KeyboardButton(text=TTN_BTN))
+        keyboard.append(row)
+    row = []
+    if user_allows_action(user_id, "client_cards.view"):
+        row.append(KeyboardButton(text="🏢 Клиенты"))
+    row.extend([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
+    keyboard.append(row)
+    keyboard.append([KeyboardButton(text="▶️ Старт")])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+
+def moderator_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
+    keyboard: List[List[KeyboardButton]] = []
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+        row: List[KeyboardButton] = []
+        if user_allows_action(user_id, "search.debt"):
+            row.append(KeyboardButton(text="🔎 Поиск"))
+        if user_allows_action(user_id, "search.tara"):
+            row.append(KeyboardButton(text="🔎 Поиск тары"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "reports.overdue") or user_allows_action(user_id, "reports.overpaid"):
+        row = []
+        if user_allows_action(user_id, "reports.overdue"):
+            row.append(KeyboardButton(text="⏰ Просрочено"))
+        if user_allows_action(user_id, "reports.overpaid"):
+            row.append(KeyboardButton(text="💰 Переплаты"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
+        row = []
+        if user_allows_action(user_id, "prices.view"):
+            row.append(KeyboardButton(text="📑 Прайсы"))
+        if user_allows_action(user_id, "promos.view"):
+            row.append(KeyboardButton(text="🎁 Акции"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "schedule.view") or user_allows_action(user_id, "ttn.lookup"):
+        row = []
+        if user_allows_action(user_id, "schedule.view"):
+            row.append(KeyboardButton(text=SCHEDULE_BTN))
+        if user_allows_action(user_id, "ttn.lookup"):
+            row.append(KeyboardButton(text=TTN_BTN))
+        keyboard.append(row)
+    if user_allows_action(user_id, "client_cards.view"):
+        keyboard.append([KeyboardButton(text="🏢 Клиенты")])
+    if user_allows_action(user_id, "notifications.manage"):
+        keyboard.append([KeyboardButton(text="🔔 Уведомления")])
+    keyboard.append([KeyboardButton(text="▶️ Старт")])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 #первый запуск.
 def onboard_role_kb() -> InlineKeyboardMarkup:
@@ -1536,6 +1825,11 @@ def schedule_admin_kb() -> InlineKeyboardMarkup:
 
 @router.message(F.text == SCHEDULE_BTN)
 async def schedule_show_button(m: Message):
+    if is_user_blocked(getattr(m.from_user, "id", None)):
+        await m.answer(BLOCKED_USER_TEXT)
+        return
+    if not await ensure_message_access(m, "schedule.view"):
+        return
     note = load_schedule_note()
     if SCHEDULE_IMG_PATH.exists():
         try:
@@ -1554,6 +1848,11 @@ async def schedule_show_button(m: Message):
 
 @router.callback_query(F.data == "schedule:show")
 async def sch_admin_show(cq: CallbackQuery):
+    if is_user_blocked(getattr(m.from_user, "id", None)):
+        await m.answer(BLOCKED_USER_TEXT)
+        return
+    if not await ensure_callback_access(cq, "schedule.view"):
+        return
     note = load_schedule_note()
     try:
         if SCHEDULE_IMG_PATH.exists():
@@ -1641,30 +1940,46 @@ async def sch_expect_text_only(m: Message, state: FSMContext):
 #------------UI Интерфейс клиента--------------
 #----------------------------------------------
 def guest_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
-            [KeyboardButton(text=SCHEDULE_BTN)],
-            [KeyboardButton(text="▶️ Старт")],
-        ],
+    keyboard: List[List[KeyboardButton]] = []
+    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
+        row: List[KeyboardButton] = []
+        if user_allows_action(user_id, "prices.view"):
+            row.append(KeyboardButton(text="📑 Прайсы"))
+        if user_allows_action(user_id, "promos.view"):
+            row.append(KeyboardButton(text="🎁 Акции"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "schedule.view"):
+        keyboard.append([KeyboardButton(text=SCHEDULE_BTN)])
+    keyboard.append([KeyboardButton(text="▶️ Старт")])
+    return ReplyKeyboardMarkup(        keyboard=keyboard,
         resize_keyboard=True
     )
 
+
 def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
     """Клавиатура клиента: обновление, смена названия, поиск + старт."""
-    last_dt, _ = get_last_update()
-    upd_label = "🔄 Обновить"
-    hhmm = fmt_hhmm(last_dt)
-    if hhmm:
-        upd_label = f"{upd_label} ({hhmm})"
+    keyboard: List[List[KeyboardButton]] = []
+    if user_allows_action(user_id, "search.debt") or user_allows_action(user_id, "search.tara"):
+        row: List[KeyboardButton] = []
+        if user_allows_action(user_id, "search.debt"):
+            row.append(KeyboardButton(text="🔎 Поиск"))
+        if user_allows_action(user_id, "search.tara"):
+            row.append(KeyboardButton(text="🔎 Поиск тары"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "prices.view") or user_allows_action(user_id, "promos.view"):
+        row = []
+        if user_allows_action(user_id, "prices.view"):
+            row.append(KeyboardButton(text="📑 Прайсы"))
+        if user_allows_action(user_id, "promos.view"):
+            row.append(KeyboardButton(text="🎁 Акции"))
+        keyboard.append(row)
+    if user_allows_action(user_id, "schedule.view"):
+        keyboard.append([KeyboardButton(text=SCHEDULE_BTN)])
+    keyboard.append([KeyboardButton(text="▶️ Старт")])
+    if user_allows_action(user_id, "client_cards.view"):
+        keyboard.append([KeyboardButton(text="🏢 Моя карточка"), KeyboardButton(text="✏️ Изменить название")])
     return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🔎 Поиск"), KeyboardButton(text="🔎 Поиск тары")],
-            [KeyboardButton(text="📑 Прайсы"), KeyboardButton(text="🎁 Акции")],
-            [KeyboardButton(text=SCHEDULE_BTN)],
-            [KeyboardButton(text="▶️ Старт")],
-            [KeyboardButton(text="🏢 Моя карточка"), KeyboardButton(text="✏️ Изменить название")],
-        ],
+        keyboard=keyboard,
         resize_keyboard=True
     )
 
@@ -1723,6 +2038,7 @@ def user_detail_kb(uid: str, page: int = 0, is_authorized: bool = False) -> Inli
             InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
             InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"usr:editphone:{uid}"),
         ],
+        [InlineKeyboardButton(text="🔐 Права доступа", callback_data=f"usr:perms:{uid}:0")],
         [
             InlineKeyboardButton(text="⛔ Заблокировать", callback_data=f"usr:block:{uid}"),
             InlineKeyboardButton(text="✅ Разблокировать", callback_data=f"usr:unblock:{uid}"),
@@ -1730,6 +2046,76 @@ def user_detail_kb(uid: str, page: int = 0, is_authorized: bool = False) -> Inli
         [InlineKeyboardButton(text="⬅️ К списку", callback_data=f"usr:list:{page}")],
     ])
 
+MANAGED_ACTIONS: List[Tuple[str, str]] = [
+    ("prices.view", "📑 Прайсы"),
+    ("promos.view", "🎁 Акции"),
+    ("schedule.view", "🚚 График"),
+    ("search.debt", "🔎 Поиск"),
+    ("search.tara", "🔎 Поиск тары"),
+    ("reports.general", "🧾 Общий отчёт"),
+    ("reports.overdue", "⏰ Просрочено"),
+    ("reports.overpaid", "💰 Переплаты"),
+    ("reports.tara", "📦 Тара"),
+    ("ttn.lookup", "📦 Проверить ТТН"),
+    ("updates.mail", "🔄 Обновить"),
+    ("client_cards.view", "🏢 Клиенты"),
+    ("client_cards.manage", "✏️ Карточки"),
+    ("technicians.manage", "🛠 Техники"),
+    ("users.manage", "👥 Пользователи"),
+    ("notifications.manage", "🔔 Уведомления"),
+]
+MANAGED_ACTIONS_BY_TOKEN: Dict[str, str] = {str(i): action for i, (action, _) in enumerate(MANAGED_ACTIONS)}
+MANAGED_ACTIONS_LABELS: Dict[str, str] = {action: label for action, label in MANAGED_ACTIONS}
+MANAGED_ACTIONS_PAGE_SIZE = 6
+
+def user_permissions_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
+    rec = _roles_load().get(uid, {}) if uid else {}
+    role = normalize_role((rec or {}).get("role") or "guest")
+    total = len(MANAGED_ACTIONS)
+    last_page = max(0, (total - 1) // MANAGED_ACTIONS_PAGE_SIZE) if total else 0
+    page = max(0, min(page, last_page))
+    start = page * MANAGED_ACTIONS_PAGE_SIZE
+    end = min(total, start + MANAGED_ACTIONS_PAGE_SIZE)
+    rows: List[List[InlineKeyboardButton]] = [[
+        InlineKeyboardButton(text="👑 Админ", callback_data=f"usr:setrole:{uid}:admin"),
+        InlineKeyboardButton(text="🛡 Модератор", callback_data=f"usr:setrole:{uid}:moderator"),
+    ], [
+        InlineKeyboardButton(text="🧑‍💼 Торговый", callback_data=f"usr:setrole:{uid}:sales_rep"),
+        InlineKeyboardButton(text="👤 Клиент", callback_data=f"usr:setrole:{uid}:client"),
+    ], [
+        InlineKeyboardButton(text="👋 Гость", callback_data=f"usr:setrole:{uid}:guest"),
+        InlineKeyboardButton(text="♻️ Сбросить права", callback_data=f"usr:permreset:{uid}:{page}"),
+    ]]
+    for idx in range(start, end):
+        action, label = MANAGED_ACTIONS[idx]
+        enabled = user_allows_action(int(uid), action) if uid.isdigit() else role_allows_action(role, action)
+        icon = "✅" if enabled else "❌"
+        rows.append([
+            InlineKeyboardButton(
+                text=f"{icon} {label}",
+                callback_data=f"usr:permtoggle:{uid}:{idx}:{page}"
+            )
+        ])
+    nav: List[InlineKeyboardButton] = []
+    if page > 0:
+        nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"usr:perms:{uid}:{page-1}"))
+    nav.append(InlineKeyboardButton(text=f"{page+1}/{last_page+1}", callback_data="usr:perms:noop"))
+    if page < last_page:
+        nav.append(InlineKeyboardButton(text="➡️", callback_data=f"usr:perms:{uid}:{page+1}"))
+    if nav:
+        rows.append(nav)
+    rows.append([InlineKeyboardButton(text="⬅️ К пользователю", callback_data=f"usr:sel:{uid}:0")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def notifications_menu_kb(user_id: int) -> InlineKeyboardMarkup:
+    enabled = notification_enabled(user_id, "new_users")
+    rows = [[
+        InlineKeyboardButton(
+            text=f"{'✅' if enabled else '❌'} Новые пользователи",
+            callback_data=f"notify:toggle:new_users:{1 if enabled else 0}",
+        )
+    ], [InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")]]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def overdue_menu_kb() -> InlineKeyboardMarkup:
@@ -2080,6 +2466,8 @@ def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int,
 def _client_cards_for_user(user_id: int, role: str) -> List[Dict[str, Any]]:
     if role == "admin":
         return CLIENTS_DB.list_clients()
+    if role == "moderator":
+        return CLIENTS_DB.list_clients()
     if role == "sales_rep":
         return CLIENTS_DB.list_clients(sales_rep_user_id=user_id)
     direct = CLIENTS_DB.list_clients(owner_user_id=user_id)
@@ -2156,6 +2544,8 @@ def _client_cards_for_client(user_id: int, *, direct: Optional[List[Dict[str, An
     return []
 
 def _has_client_card_access(user_id: int, role: str, client_id: str) -> bool:
+    if role == "moderator":
+        return CLIENTS_DB.get_client(client_id) is not None
     if role == "client":
         ids = {it.get("id") for it in _client_cards_for_user(user_id, role)}
         return client_id in ids
@@ -2713,6 +3103,8 @@ def menu_for_role(role: str, user_id: Optional[int] = None) -> ReplyKeyboardMark
     role = (role or "").strip().lower()
     if role == "admin":
         return main_menu_kb(user_id)
+    if role == "moderator":
+        return moderator_menu_kb(user_id)
     if role == "sales_rep":
         return sales_rep_menu_kb(user_id)
     if role == "guest":
@@ -2729,19 +3121,30 @@ def menu_for_callback(cq: CallbackQuery) -> ReplyKeyboardMarkup:
     return menu_for_user_id(getattr(cq.from_user, "id", None))
 
 ACCESS_MATRIX: Dict[str, set] = {
+    "prices.view": {"guest", "client", "sales_rep", "moderator", "admin"},
+    "promos.view": {"guest", "client", "sales_rep", "moderator", "admin"},
+    "schedule.view": {"guest", "client", "sales_rep", "moderator", "admin"},
+    "search.debt": {"client", "sales_rep", "moderator", "admin"},
+    "search.tara": {"client", "sales_rep", "moderator", "admin"},
     "reports.general": {"admin"},
-    "reports.overdue": {"admin", "sales_rep"},
-    "reports.overpaid": {"admin", "sales_rep"},
+    "reports.overdue": {"admin", "sales_rep", "moderator"},
+    "reports.overpaid": {"admin", "sales_rep", "moderator"},
     "reports.tara": {"admin"},
     "updates.mail": {"admin"},
-    "ttn.lookup": {"admin", "sales_rep"},
-    "client_cards.view": {"admin", "sales_rep", "client"},
+    "ttn.lookup": {"admin", "sales_rep", "moderator"},
+    "client_cards.view": {"admin", "sales_rep", "moderator", "client"},
     "client_cards.manage": {"admin", "sales_rep"},
     "technicians.manage": {"admin"},
     "users.manage": {"admin"},
+    "notifications.manage": {"admin", "moderator"},
 }
 
 ACCESS_LABELS: Dict[str, str] = {
+    "prices.view": "прайсы",
+    "promos.view": "акции",
+    "schedule.view": "график развоза",
+    "search.debt": "поиск по дебиторке",
+    "search.tara": "поиск по таре",
     "reports.general": "общий отчёт",
     "reports.overdue": "отчёт по просрочке",
     "reports.overpaid": "отчёт по переплатам",
@@ -2752,6 +3155,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "client_cards.manage": "управление карточками клиентов",
     "technicians.manage": "управление техниками",
     "users.manage": "управление пользователями",
+    "notifications.manage": "управление уведомлениями",
 }
 
 
@@ -2760,7 +3164,14 @@ def _allowed_roles_for(action: str) -> set:
 
 
 def role_allows_action(role: Optional[str], action: str) -> bool:
-    return normalize_role(role) in _allowed_roles_for(action)
+    role = get_user_role(user_id)
+    base_allowed = role_allows_action(role, action)
+    if user_id is None:
+        return base_allowed
+    overrides = get_user_access_overrides(user_id)
+    if action in overrides:
+        return overrides[action]
+    return base_allowed
 
 
 def user_allows_action(user_id: Optional[int], action: str) -> bool:
@@ -2794,8 +3205,9 @@ async def ensure_message_access(
         *,
         state: Optional[FSMContext] = None,
 ) -> Optional[str]:
-    role = get_user_role(getattr(m.from_user, "id", None))
-    if role_allows_action(role, action):
+    user_id = getattr(m.from_user, "id", None)
+    role = get_user_role(user_id)
+    if user_allows_action(user_id, action):
         return role
     if state is not None:
         await state.clear()
@@ -2810,8 +3222,9 @@ async def ensure_callback_access(
         state: Optional[FSMContext] = None,
         show_alert: bool = True,
 ) -> Optional[str]:
-    role = get_user_role(getattr(cq.from_user, "id", None))
-    if role_allows_action(role, action):
+    user_id = getattr(cq.from_user, "id", None)
+    role = get_user_role(user_id)
+    if user_allows_action(user_id, action):
         return role
     if state is not None:
         await state.clear()
@@ -2837,6 +3250,9 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
 
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+        return
+    if role == "moderator":
+        await m.answer(help_text_moderator(), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
@@ -2864,7 +3280,7 @@ async def on_start(m: Message, state: FSMContext):
     rec = (_USER_ROLES.get(key) if key else {}) or {}
     role = normalize_role(rec.get("role") or "guest")
     if rec.get("blocked"):
-        await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
+        await m.answer(BLOCKED_USER_TEXT)
         return
 
     # Админ по whitelist (_ADMIN_IDS) — фиксируем и сохраняем, чтобы не спрашивать снова.
@@ -2889,6 +3305,9 @@ async def on_start(m: Message, state: FSMContext):
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
+    if role == "moderator":
+        await m.answer(help_text_moderator(), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
+        return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
@@ -2906,12 +3325,15 @@ async def on_start(m: Message, state: FSMContext):
 @router.message(Command("help"))
 async def on_help(m: Message):
     if is_user_blocked(getattr(m.from_user, "id", None)):
-        await m.answer("Ваш доступ заблокирован. Обратитесь к администратору.")
+        await m.answer(BLOCKED_USER_TEXT)
         return
     update_user_profile_from_message(m)
     role = get_user_role(getattr(m.from_user, "id", None))
     if role == "admin":
         await m.answer(help_text_admin(), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+        return
+    if role == "moderator":
+        await m.answer(help_text_moderator(), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
         await m.answer(help_text_sales_rep(), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
@@ -2938,6 +3360,7 @@ async def ob_client(cq: CallbackQuery, state: FSMContext):
 
 @router.message(OnboardStates.waiting_phone_contact, F.contact)
 async def ob_phone_contact(m: Message, state: FSMContext):
+    is_new_user = not bool(_user_record(m.from_user.id))
     contact = m.contact
     if contact.user_id and contact.user_id != m.from_user.id:
         await m.answer("Пожалуйста, отправьте <b>ваш</b> контакт через кнопку.")
@@ -2949,10 +3372,13 @@ async def ob_phone_contact(m: Message, state: FSMContext):
     set_user_phone(m.from_user.id, e164, verified=True)
     await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
     await state.clear()
+    if is_new_user:
+        await notify_admins_about_new_user(m.from_user.id)
     await _continue_after_phone(m, state)
 
 @router.message(OnboardStates.waiting_phone_contact)
 async def ob_phone_contact_text(m: Message, state: FSMContext):
+    is_new_user = not bool(_user_record(m.from_user.id))
     ok, e164, disp = normalize_phone_ru(m.text or "")
     if not ok:
         await m.answer("Нужно отправить контакт кнопкой или введите номер в формате +7XXXXXXXXXX.")
@@ -2960,6 +3386,8 @@ async def ob_phone_contact_text(m: Message, state: FSMContext):
     set_user_phone(m.from_user.id, e164, verified=False)
     await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
     await state.clear()
+    if is_new_user:
+        await notify_admins_about_new_user(m.from_user.id)
     await _continue_after_phone(m, state)
 
 @router.message(OnboardStates.waiting_admin_password)
@@ -3000,6 +3428,8 @@ async def ob_client_name(m: Message, state: FSMContext):
 # Кнопка в меню
 @router.message(F.text == "📑 Прайсы", StateFilter(None))
 async def btn_prices(m: Message):
+    if not await ensure_message_access(m, "prices.view"):
+        return
     admin = is_admin(getattr(m.from_user, "id", None))
     items = _price_get_all()
     kb = _price_list_page(items, page=0, admin=admin)
@@ -3012,6 +3442,8 @@ async def btn_prices(m: Message):
 # Пагинация списка
 @router.callback_query(F.data.startswith("pr:list:"), StateFilter(None))
 async def cb_prices_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "prices.view"):
+        return
     page = int(cq.data.split(":")[-1])
     admin = is_admin(getattr(cq.from_user, "id", None))
     items = _price_get_all()
@@ -3023,6 +3455,8 @@ async def cb_prices_list(cq: CallbackQuery):
 # Клиент: отправка файла (и в админском подменю тоже)
 @router.callback_query(F.data.startswith("pr:send:"))
 async def cb_price_send(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "prices.view"):
+        return
     pid = cq.data.split(":")[-1]
     it = _price_find(pid)
     if not it:
@@ -3287,6 +3721,8 @@ async def btn_overpaid(m: Message):
 
 @router.message(F.text == "🔎 Поиск")
 async def btn_search(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "search.debt", state=state):
+        return
     if _is_client_only(m):
         cname = get_client_name(getattr(m.from_user, "id", None))
         if cname:
@@ -3306,6 +3742,8 @@ async def btn_search(m: Message, state: FSMContext):
 
 @router.message(SearchStates.waiting_query)
 async def search_flow(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "search.debt", state=state):
+        return
     q = (m.text or "").strip()
     if not q or q.startswith("/"):
         await state.clear()
@@ -3392,6 +3830,8 @@ async def render_tara_search(chat: Message, keywords: List[str]):
 
 @router.message(F.text == "🔎 Поиск тары")
 async def btn_search_tara(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "search.tara", state=state):
+        return
     # Клиент: ищем по сохранённому названию клиента
     if _is_client_only(m):
         cname = get_client_name(getattr(m.from_user, "id", None))
@@ -3411,6 +3851,8 @@ async def btn_search_tara(m: Message, state: FSMContext):
     )
 @router.message(SearchTaraStates.waiting_query)
 async def search_tara_flow(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "search.tara", state=state):
+        return
     q = (m.text or "").strip()
     if not q or q.startswith("/"):
         await state.clear()
@@ -5605,6 +6047,29 @@ async def admin_users_list(m: Message):
         return
     await m.answer("Список пользователей:", reply_markup=users_list_kb())
 
+@router.message(F.text == "🔔 Уведомления")
+async def notifications_menu(m: Message):
+    if not await ensure_message_access(m, "notifications.manage"):
+        return
+    await m.answer("Управление уведомлениями:", reply_markup=notifications_menu_kb(getattr(m.from_user, "id", 0)))
+
+@router.callback_query(F.data == "notify:menu")
+async def notifications_menu_callback(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "notifications.manage"):
+        return
+    await cq.message.answer("Управление уведомлениями:", reply_markup=notifications_menu_kb(getattr(cq.from_user, "id", 0)))
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("notify:toggle:new_users:"))
+async def notifications_toggle_new_users(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "notifications.manage"):
+        return
+    user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    enabled = notification_enabled(user_id, "new_users")
+    set_user_notification_setting(user_id, "new_users", not enabled)
+    await cq.message.edit_text("Управление уведомлениями:", reply_markup=notifications_menu_kb(user_id))
+    await cq.answer("Настройка обновлена.")
+
 @router.callback_query(F.data.startswith("usr:list:"))
 async def admin_users_list_page(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "users.manage"):
@@ -5631,13 +6096,18 @@ async def admin_users_select(cq: CallbackQuery):
     verified = "✅" if rec.get("phone_verified") else "❌"
     is_authorized = bool(rec.get("phone_verified"))
     blocked = "⛔" if rec.get("blocked") else "✅"
+    custom_rights = len(_normalize_access_overrides(rec.get("access_overrides")))
+    notify_enabled = notification_enabled(int(uid), "new_users") if uid.isdigit() else False
+    notify_new_users = "✅" if notify_enabled else "❌"
     text = (
         f"<b>Пользователь</b>\n"
         f"ID: <code>{esc(uid)}</code>\n"
-        f"Роль: <b>{esc(role)}</b>\n"
+        f"Роль: <b>{esc(role_label(role))}</b>\n"
         f"Имя: <b>{esc(name)}</b>\n"
         f"Телефон: <b>{esc(phone)}</b> ({verified})\n"
-        f"Доступ: {blocked}"
+        f"Доступ: {blocked}\n"
+        f"Индивидуальных прав: <b>{custom_rights}</b>\n"
+        f"Уведомления о новых пользователях: {notify_new_users}"
     )
     await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page, is_authorized=is_authorized))
     await cq.answer()
@@ -5671,7 +6141,82 @@ async def admin_users_set_role(cq: CallbackQuery):
         return
     update_user_record(uid, {"role": normalize_role(role)})
     await cq.answer("Роль обновлена.")
+    if cq.message and cq.message.reply_markup:
+        markup = cq.message.reply_markup
+        is_permissions_screen = any(
+            btn.callback_data and btn.callback_data.startswith("usr:permtoggle:")
+            for row in markup.inline_keyboard for btn in row
+        )
+        if is_permissions_screen:
+            await cq.message.edit_text(
+                f"Права пользователя <code>{esc(uid)}</code> обновлены.\n"
+                f"Текущая роль: <b>{esc(role_label(role))}</b>",
+                reply_markup=user_permissions_kb(uid)
+            )
+            return
     await admin_users_select(cq)
+
+@router.callback_query(F.data == "usr:perms:noop")
+async def admin_users_permissions_noop(cq: CallbackQuery):
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:perms:"))
+async def admin_users_permissions(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.manage"):
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    if not uid:
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    rec = _user_record(int(uid)) if uid.isdigit() else {}
+    role = normalize_role(rec.get("role") or "guest")
+    await cq.message.edit_text(
+        f"Права пользователя <code>{esc(uid)}</code>\n"
+        f"Роль по умолчанию: <b>{esc(role_label(role))}</b>\n"
+        "Нажимайте на пункты, чтобы включать или выключать доступ.",
+        reply_markup=user_permissions_kb(uid, page=page)
+    )
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("usr:permtoggle:"))
+async def admin_users_permission_toggle(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.manage"):
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    token = parts[3] if len(parts) > 3 else ""
+    page = int(parts[4]) if len(parts) > 4 and parts[4].isdigit() else 0
+    if not uid or not uid.isdigit():
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    action = MANAGED_ACTIONS_BY_TOKEN.get(token)
+    if not action:
+        await cq.answer("Право не найдено.", show_alert=True)
+        return
+    user_id = int(uid)
+    base_allowed = role_allows_action(get_user_role(user_id), action)
+    current_allowed = user_allows_action(user_id, action)
+    new_allowed = not current_allowed
+    override = None if new_allowed == base_allowed else new_allowed
+    set_user_action_override(user_id, action, override)
+    await cq.message.edit_reply_markup(reply_markup=user_permissions_kb(uid, page=page))
+    await cq.answer(f"{MANAGED_ACTIONS_LABELS[action]}: {'включено' if new_allowed else 'выключено'}")
+
+@router.callback_query(F.data.startswith("usr:permreset:"))
+async def admin_users_permission_reset(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.manage"):
+        return
+    parts = cq.data.split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    if not uid or not uid.isdigit():
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    reset_user_action_overrides(int(uid))
+    await cq.message.edit_reply_markup(reply_markup=user_permissions_kb(uid, page=page))
+    await cq.answer("Пользовательские права сброшены до роли по умолчанию.")
 
 @router.callback_query(F.data.startswith("usr:block:"))
 async def admin_users_block(cq: CallbackQuery):
@@ -6270,6 +6815,8 @@ async def _promo_finish_create(
 
 @router.message(F.text == "🎁 Акции", StateFilter(None))
 async def btn_promos(m: Message):
+    if not await ensure_message_access(m, "promos.view"):
+        return
     admin = is_admin(getattr(m.from_user, "id", None))
     items = _promo_get_all(include_inactive=admin)  # админ видит всё
     await m.answer("<b>Акции</b>\nВыберите пункт:",
@@ -6278,6 +6825,8 @@ async def btn_promos(m: Message):
 #пагинация
 @router.callback_query(F.data.startswith("promo:list:"))
 async def cb_promos_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     if cq.data.endswith(":noop"):
         await cq.answer(); return
     page = int(cq.data.split(":")[-1])
@@ -6290,6 +6839,8 @@ async def cb_promos_list(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("promo:view:"))
 async def cb_promo_view(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
     pid = cq.data.split(":")[-1]
     it = _promo_find(pid)
     if not it:

@@ -45,5 +45,18 @@
       "view_schedule",
       "view_ttn"
     ]
+  },
+  "moderator": {
+    "label": "Модератор",
+    "description": "Расширенный просмотр данных и уведомления без доступа к настройкам администратора.",
+    "permissions": [
+      "view_prices",
+      "view_promos",
+      "view_schedule",
+      "view_reports",
+      "view_ttn",
+      "view_clients",
+      "receive_notifications"
+    ]
   }
 }
