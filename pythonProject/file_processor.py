@@ -160,6 +160,7 @@ def _is_valid_excel_file(path: str) -> bool:
         return False
 
 def _read_excel_safe(path: str, header=None):
+    _unblock_motw(path)  # файл может быть из недоверенного источника
     _ox_kwargs = dict(engine="openpyxl", engine_kwargs={"data_only": True, "read_only": True})
     ext = os.path.splitext(path)[1].lower()
 
@@ -334,8 +335,7 @@ def read_debt_file(path: str) -> Tuple[pd.DataFrame, Optional[str]]:
     if start is None:
         raise ValueError("Не удалось найти шапку детальной таблицы (Клиент/Объект/Долг клиента).")
 
-    engine = _detect_engine(path)
-    df = pd.read_excel(path, header=[start, start+1], engine=engine)
+    df = _read_excel_safe(path, header=[start, start+1])
 
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = _flatten_columns(df.columns)
@@ -661,6 +661,15 @@ def _guess_is_tara(path: str) -> bool:
     name = os.path.basename(path).lower()
     return ("тара" in name) or ("возвратн" in name)
 
+def _guess_is_tara_by_name(path: str) -> Optional[bool]:
+    """Фоллбек по имени файла, когда содержимое не удалось прочитать."""
+    name = os.path.basename(path).lower()
+    if any(k in name for k in ("тара", "таре", "тары", "возвратн")):
+        return True
+    if any(k in name for k in ("дебитор", "дз")):
+        return False
+    return None
+
 # ------------------ Внешние функции ------------------
 
 def process_file(path: str) -> Dict[str, Any]:
@@ -717,8 +726,12 @@ def find_latest_downloads(download_dir: str = "downloads",
             try:
                 is_tara = _guess_is_tara(p)
             except Exception:
-                # грубый фоллбек: считаем .xlsx — вероятно тара, .xls — дебиторка
-                is_tara = p.lower().endswith(".xlsx")
+                # Формат тары больше нельзя определять по расширению:
+                # отчёт может приходить как .xls, так и .xlsx.
+                guessed = _guess_is_tara_by_name(p)
+                if guessed is None:
+                    continue
+                is_tara = guessed
 
             if report_type == "tara" and is_tara:
                 cands.append(p)
@@ -729,5 +742,3 @@ def find_latest_downloads(download_dir: str = "downloads",
     # финальный фильтр (ещё раз) — уберём временные/битые/недописанные
     cands = [p for p in cands if _is_valid_excel_file(p)]
     return cands[:max_count]
-
-

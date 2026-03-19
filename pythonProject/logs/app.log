@@ -22921,3 +22921,266 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: messa
 2026-02-16 01:20:26 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
 2026-02-16 01:20:26 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
 2026-02-16 01:20:26 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-16 08:44:28 | INFO | __main__ | BOT_TOKEN валиден.
+2026-02-16 08:44:30 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-16 08:44:30 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-16 08:44:31 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 08:44:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 08:44:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 08:44:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 08:44:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 08:44:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 08:44:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 08:44:31 | INFO | root | Собрано клиентов: 123
+2026-02-16 08:44:31 | INFO | __main__ | Отчёт на 15.02.2026 | клиентов: 123
+2026-02-16 08:44:31 | INFO | __main__ | 01. ЗАРЯ ООО - Колягин (Вокзальная магистраль ул, дом № 16) "РЕСПУБЛИКА" | сум: 181402.12 | проср: 181402.12 | наш долг: 0.00 | доков: 7
+2026-02-16 08:44:31 | INFO | __main__ | 02. ЗАРЯ ООО - Колягин (Дуси Ковальчук ул, дом № 179/2) "РЕСПУБЛИКА" | сум: 154132.08 | проср: 154132.08 | наш долг: 0.00 | доков: 5
+2026-02-16 08:44:31 | INFO | __main__ | 03. ЗАРЯ ООО - Колягин (Советская ул, дом № 18) "РЕСПУБЛИКА" | сум: 150277.96 | проср: 150277.96 | наш долг: 0.00 | доков: 6
+2026-02-16 08:44:31 | INFO | __main__ | 04. ЗАРЯ ООО - Колягин (Покрышкина ул, дом № 6) "РЕСПУБЛИКА" | сум: 136591.84 | проср: 136591.84 | наш долг: 0.00 | доков: 6
+2026-02-16 08:44:31 | INFO | __main__ | 05. ЗАРЯ ООО - Колягин (Карла Маркса пр-кт, дом № 37/2, помещение 3) "РЕСПУБЛИКА" | сум: 132627.28 | проср: 132627.28 | наш долг: 0.00 | доков: 6
+2026-02-16 08:44:31 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 118836.44 | проср: 118836.44 | наш долг: 0.00 | доков: 5
+2026-02-16 08:44:31 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 118743.00 | проср: 118743.00 | наш долг: 0.00 | доков: 5
+2026-02-16 08:44:31 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 101934.68 | проср: 101934.68 | наш долг: 0.00 | доков: 6
+2026-02-16 08:44:31 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 90260.08 | проср: 90260.08 | наш долг: 0.00 | доков: 6
+2026-02-16 08:44:31 | INFO | __main__ | 10. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 89125.64 | проср: 89125.64 | наш долг: 0.00 | доков: 4
+2026-02-16 08:44:32 | INFO | aiogram.dispatcher | Start polling
+2026-02-16 08:44:32 | INFO | telegram_bot | Daily fetch: next run in 6388 sec (now 2026-02-16 08:44:32, tz Asia/Novosibirsk)
+2026-02-16 08:44:32 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-02-16 08:52:34 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 992, 'req': '15851c72', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1715, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 08:52:34 | INFO | aiogram.event | Update id=104056782 is handled. Duration 995 ms by bot id=8304099970
+2026-02-16 08:52:36 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 481, 'req': '20531afa', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1717, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Моя карточка', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 08:52:36 | INFO | aiogram.event | Update id=104056783 is handled. Duration 486 ms by bot id=8304099970
+2026-02-16 08:52:58 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 08:52:58 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 08:52:58 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 08:52:58 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 08:52:58 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 08:52:58 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 08:52:58 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 08:52:58 | INFO | root | Собрано клиентов: 123
+2026-02-16 08:53:15 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 17574, 'req': '5e0c6b89', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1719, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 08:53:15 | INFO | aiogram.event | Update id=104056784 is handled. Duration 17577 ms by bot id=8304099970
+2026-02-16 09:44:02 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 725, 'req': '064c7cd3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1760, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (00:00)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 09:44:02 | INFO | aiogram.event | Update id=104056785 is handled. Duration 729 ms by bot id=8304099970
+2026-02-16 09:44:29 | INFO | root | Скачан файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).xlsx
+2026-02-16 09:44:30 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 2720, 'req': 'afbdc03b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731452379823', 'msg_id': 1761, 'data': 'upd:tara', 'state': None}
+2026-02-16 09:44:30 | INFO | aiogram.event | Update id=104056786 is handled. Duration 2726 ms by bot id=8304099970
+2026-02-16 09:44:54 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 113, 'req': '5a0f6174', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1763, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (00:00)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 09:44:54 | INFO | aiogram.event | Update id=104056787 is handled. Duration 116 ms by bot id=8304099970
+2026-02-16 09:45:16 | INFO | root | Скачан файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).xlsx
+2026-02-16 09:45:17 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 3404, 'req': '445532a3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729500138129', 'msg_id': 1764, 'data': 'upd:tara', 'state': None}
+2026-02-16 09:45:17 | INFO | aiogram.event | Update id=104056788 is handled. Duration 3410 ms by bot id=8304099970
+2026-02-16 09:46:05 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 308, 'req': '44eda93a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1766, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-02-16 09:46:05 | INFO | aiogram.event | Update id=104056789 is handled. Duration 311 ms by bot id=8304099970
+2026-02-16 09:46:15 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-02-16 09:46:15 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-02-16 09:46:16 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1956, 'req': 'f04e0440', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1768, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Смирнов', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 09:46:16 | INFO | aiogram.event | Update id=104056790 is handled. Duration 1959 ms by bot id=8304099970
+2026-02-16 10:10:10 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 962, 'req': '5f0539c1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1771, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск', 'caption_len': 0, 'entities': 0, 'state': 'SearchStates:waiting_query'}
+2026-02-16 10:10:10 | INFO | aiogram.event | Update id=104056791 is handled. Duration 965 ms by bot id=8304099970
+2026-02-16 10:31:01 | INFO | root | Скачан файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-16 10:31:01 | INFO | telegram_bot | Daily fetch: downloaded downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-02-16 10:31:03 | INFO | telegram_bot | Daily fetch: next run in 17997 sec (now 2026-02-16 10:31:03, tz Asia/Novosibirsk)
+2026-02-16 11:40:23 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1018, 'req': '7858e534', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1773, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 11:40:23 | INFO | aiogram.event | Update id=104056792 is handled. Duration 1021 ms by bot id=8304099970
+2026-02-16 12:07:10 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 731, 'req': '565f14f6', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1775, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Моя карточка', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 12:07:10 | INFO | aiogram.event | Update id=104056793 is handled. Duration 735 ms by bot id=8304099970
+2026-02-16 13:23:49 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-02-16 13:23:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-02-16 13:23:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-02-16 13:23:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-02-16 13:23:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-02-16 13:23:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-02-16 13:23:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Белошейкина Наталья Валерьевна ИП - Колягин': шапка=18871.28, по строкам=0.00
+2026-02-16 13:23:49 | INFO | root | Собрано клиентов: 123
+2026-02-16 13:23:51 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 3361, 'req': 'e91fe9dd', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1777, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 13:23:51 | INFO | aiogram.event | Update id=104056794 is handled. Duration 3364 ms by bot id=8304099970
+2026-02-16 13:23:54 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 634, 'req': '86872aef', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1780, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 13:23:54 | INFO | aiogram.event | Update id=104056795 is handled. Duration 642 ms by bot id=8304099970
+2026-02-16 13:23:59 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 369, 'req': '6696fb13', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729792065849', 'msg_id': 1781, 'data': 'usr:sel:727411283:0', 'state': None}
+2026-02-16 13:23:59 | INFO | aiogram.event | Update id=104056796 is handled. Duration 376 ms by bot id=8304099970
+2026-02-16 13:24:15 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1040, 'req': '327c6dda', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1782, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-02-16 13:24:15 | INFO | aiogram.event | Update id=104056797 is handled. Duration 1044 ms by bot id=8304099970
+2026-02-16 13:24:19 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 1151, 'req': '8977f6bf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731677397508', 'msg_id': 1783, 'data': 'cc:view:2ffc3441-dd6c-4f16-afc8-8d8a0654af0f', 'state': None}
+2026-02-16 13:24:19 | INFO | aiogram.event | Update id=104056798 is handled. Duration 1154 ms by bot id=8304099970
+2026-02-16 14:11:13 | INFO | aiogram.dispatcher | Polling stopped
+2026-02-16 14:11:14 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-08 11:59:10 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-08 11:59:13 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-03-08 11:59:13 | INFO | root | Скачан и проверен файл: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-08 11:59:13 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-08 11:59:14 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-03-08 11:59:14 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-08 11:59:14 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-08 11:59:14 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-08 11:59:14 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-08 11:59:14 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-08 11:59:14 | INFO | root | Собрано клиентов: 126
+2026-03-08 11:59:14 | INFO | __main__ | Отчёт на 08.03.2026 | клиентов: 126
+2026-03-08 11:59:14 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 204336.00 | проср: 204336.00 | наш долг: 0.00 | доков: 4
+2026-03-08 11:59:14 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 107665.00 | проср: 107665.00 | наш долг: 0.00 | доков: 5
+2026-03-08 11:59:14 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 99913.12 | проср: 99913.12 | наш долг: 0.00 | доков: 6
+2026-03-08 11:59:14 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 96765.52 | проср: 96765.52 | наш долг: 0.00 | доков: 8
+2026-03-08 11:59:14 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 89737.88 | проср: 89737.88 | наш долг: 0.00 | доков: 7
+2026-03-08 11:59:14 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 87385.24 | проср: 87385.24 | наш долг: 0.00 | доков: 7
+2026-03-08 11:59:14 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 84746.08 | проср: 84746.08 | наш долг: 0.00 | доков: 4
+2026-03-08 11:59:14 | INFO | __main__ | 08. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 79088.26 | проср: 79088.26 | наш долг: 4970.40 | доков: 8
+2026-03-08 11:59:14 | INFO | __main__ | 09. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-08 11:59:14 | INFO | __main__ | 10. Морозова Оксана Владимировна ИП - Колягин (Новосибирск г, Связистов ул, дом № 153) | сум: 71284.50 | проср: 71284.50 | наш долг: 0.00 | доков: 2
+2026-03-08 11:59:15 | INFO | aiogram.dispatcher | Start polling
+2026-03-08 11:59:15 | INFO | telegram_bot | Daily fetch: next run in 12705 sec (now 2026-03-08 11:59:15, tz Asia/Novosibirsk)
+2026-03-08 11:59:15 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-08 12:03:14 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 438, 'req': 'aa83a9b2', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1784, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:03:14 | INFO | aiogram.event | Update id=104056799 is handled. Duration 440 ms by bot id=8304099970
+2026-03-08 12:03:19 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-08 12:03:19 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-08 12:03:19 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1429, 'req': 'b7ee5e60', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1786, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:03:19 | INFO | aiogram.event | Update id=104056800 is handled. Duration 1432 ms by bot id=8304099970
+2026-03-08 12:03:23 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 144, 'req': '6579f955', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1788, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Моя карточка', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:03:23 | INFO | aiogram.event | Update id=104056801 is handled. Duration 148 ms by bot id=8304099970
+2026-03-08 12:04:32 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 143, 'req': '20f8e0d0', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1790, 'kind': <ContentType.TEXT: 'text'>, 'text': '✏️ Изменить название', 'caption_len': 0, 'entities': 0, 'state': 'ClientEditStates:waiting_new_name'}
+2026-03-08 12:04:32 | INFO | aiogram.event | Update id=104056802 is handled. Duration 146 ms by bot id=8304099970
+2026-03-08 12:04:39 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 144, 'req': 'b57a22c0', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1792, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Колядина', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:04:39 | INFO | aiogram.event | Update id=104056803 is handled. Duration 148 ms by bot id=8304099970
+2026-03-08 12:04:43 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-08 12:04:43 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-08 12:04:43 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1444, 'req': 'ce1589c3', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 1794, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:04:43 | INFO | aiogram.event | Update id=104056804 is handled. Duration 1447 ms by bot id=8304099970
+2026-03-08 12:05:10 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 152, 'req': 'aeca2dec', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1796, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:05:10 | INFO | aiogram.event | Update id=104056805 is handled. Duration 154 ms by bot id=8304099970
+2026-03-08 12:05:14 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 228, 'req': '9a3f9565', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1798, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:05:14 | INFO | aiogram.event | Update id=104056806 is handled. Duration 232 ms by bot id=8304099970
+2026-03-08 12:05:20 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 192, 'req': '5b61940b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1800, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (11:59)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:05:20 | INFO | aiogram.event | Update id=104056807 is handled. Duration 196 ms by bot id=8304099970
+2026-03-08 12:05:25 | INFO | root | Скачан и проверен файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).xlsx
+2026-03-08 12:05:26 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 3459, 'req': 'a384dd29', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729914215726', 'msg_id': 1801, 'data': 'upd:tara', 'state': None}
+2026-03-08 12:05:26 | INFO | aiogram.event | Update id=104056808 is handled. Duration 3464 ms by bot id=8304099970
+2026-03-08 12:05:38 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 141, 'req': '5a996454', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1803, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-03-08 12:05:38 | INFO | aiogram.event | Update id=104056809 is handled. Duration 144 ms by bot id=8304099970
+2026-03-08 12:05:48 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-08 12:05:48 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-08 12:05:48 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1698, 'req': '1cc67001', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1805, 'kind': <ContentType.TEXT: 'text'>, 'text': 'смирнов', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:05:48 | INFO | aiogram.event | Update id=104056810 is handled. Duration 1702 ms by bot id=8304099970
+2026-03-08 12:06:57 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-08 12:06:58 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-08 12:08:42 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-08 12:08:46 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-03-08 12:08:46 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-08 12:08:46 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-08 12:08:47 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-03-08 12:08:47 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-08 12:08:47 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-08 12:08:47 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-08 12:08:47 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-08 12:08:47 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-08 12:08:47 | INFO | root | Собрано клиентов: 126
+2026-03-08 12:08:47 | INFO | __main__ | Отчёт на 08.03.2026 | клиентов: 126
+2026-03-08 12:08:47 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 204336.00 | проср: 204336.00 | наш долг: 0.00 | доков: 4
+2026-03-08 12:08:47 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 107665.00 | проср: 107665.00 | наш долг: 0.00 | доков: 5
+2026-03-08 12:08:47 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 99913.12 | проср: 99913.12 | наш долг: 0.00 | доков: 6
+2026-03-08 12:08:47 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 96765.52 | проср: 96765.52 | наш долг: 0.00 | доков: 8
+2026-03-08 12:08:47 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 89737.88 | проср: 89737.88 | наш долг: 0.00 | доков: 7
+2026-03-08 12:08:47 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 87385.24 | проср: 87385.24 | наш долг: 0.00 | доков: 7
+2026-03-08 12:08:47 | INFO | __main__ | 07. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 84746.08 | проср: 84746.08 | наш долг: 0.00 | доков: 4
+2026-03-08 12:08:47 | INFO | __main__ | 08. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 79088.26 | проср: 79088.26 | наш долг: 4970.40 | доков: 8
+2026-03-08 12:08:47 | INFO | __main__ | 09. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-08 12:08:47 | INFO | __main__ | 10. Морозова Оксана Владимировна ИП - Колягин (Новосибирск г, Связистов ул, дом № 153) | сум: 71284.50 | проср: 71284.50 | наш долг: 0.00 | доков: 2
+2026-03-08 12:08:48 | INFO | aiogram.dispatcher | Start polling
+2026-03-08 12:08:48 | INFO | telegram_bot | Daily fetch: next run in 12132 sec (now 2026-03-08 12:08:48, tz Asia/Novosibirsk)
+2026-03-08 12:08:48 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-08 12:08:51 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 394, 'req': 'ebc40893', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1808, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:08:51 | INFO | aiogram.event | Update id=104056811 is handled. Duration 397 ms by bot id=8304099970
+2026-03-08 12:09:55 | INFO | root | Скачан файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).xlsx
+2026-03-08 12:09:55 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 3251, 'req': '4ee1b94a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1810, 'kind': <ContentType.TEXT: 'text'>, 'text': '/refresh tara', 'caption_len': 0, 'entities': 1, 'state': None}
+2026-03-08 12:09:55 | INFO | aiogram.event | Update id=104056812 is handled. Duration 3258 ms by bot id=8304099970
+2026-03-08 12:09:59 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 144, 'req': '710a24bc', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1813, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (12:09)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-08 12:09:59 | INFO | aiogram.event | Update id=104056813 is handled. Duration 148 ms by bot id=8304099970
+2026-03-08 12:10:11 | INFO | root | Скачан файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).xlsx
+2026-03-08 12:10:11 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 3602, 'req': '4ab5d9f0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731331145710', 'msg_id': 1814, 'data': 'upd:tara', 'state': None}
+2026-03-08 12:10:11 | INFO | aiogram.event | Update id=104056814 is handled. Duration 3608 ms by bot id=8304099970
+2026-03-08 12:26:12 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 10054] Удаленный хост принудительно разорвал существующее подключение
+2026-03-08 12:26:12 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-03-08 12:26:24 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-03-08 12:36:50 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-08 12:36:51 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-19 15:38:26 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-19 15:38:29 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-19 15:38:29 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-19 15:38:29 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-19 15:38:31 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-19 15:38:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-19 15:38:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-19 15:38:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-19 15:38:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-19 15:38:31 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-19 15:38:31 | INFO | root | Собрано клиентов: 114
+2026-03-19 15:38:31 | INFO | __main__ | Отчёт на 19.03.2026 | клиентов: 114
+2026-03-19 15:38:31 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 212592.00 | проср: 212592.00 | наш долг: 0.00 | доков: 5
+2026-03-19 15:38:31 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 128184.48 | проср: 128184.48 | наш долг: 0.00 | доков: 8
+2026-03-19 15:38:31 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 121390.00 | проср: 121390.00 | наш долг: 0.00 | доков: 7
+2026-03-19 15:38:31 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 113660.08 | проср: 95360.08 | наш долг: 0.00 | доков: 9
+2026-03-19 15:38:31 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 103462.88 | проср: 103462.88 | наш долг: 0.00 | доков: 7
+2026-03-19 15:38:31 | INFO | __main__ | 06. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 88601.10 | проср: 88601.10 | наш долг: 70.38 | доков: 3
+2026-03-19 15:38:31 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-03-19 15:38:31 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 77775.00 | проср: 77775.00 | наш долг: 0.00 | доков: 6
+2026-03-19 15:38:31 | INFO | __main__ | 09. Титовская Наталия Александровна ИП - Воротников Д (Комсомольская ул, дом № 12) | сум: 76909.50 | проср: 76909.50 | наш долг: 0.00 | доков: 4
+2026-03-19 15:38:31 | INFO | __main__ | 10. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-19 15:38:31 | INFO | aiogram.dispatcher | Start polling
+2026-03-19 15:38:31 | INFO | telegram_bot | Daily fetch: next run in 67948 sec (now 2026-03-19 15:38:31, tz Asia/Novosibirsk)
+2026-03-19 15:38:31 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-19 15:39:12 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 379, 'req': 'c0d58bf0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1816, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 15:39:12 | INFO | aiogram.event | Update id=104056815 is handled. Duration 382 ms by bot id=8304099970
+2026-03-19 15:39:46 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 187, 'req': 'b0e4d0ea', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1818, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-03-19 15:39:46 | INFO | aiogram.event | Update id=104056816 is handled. Duration 190 ms by bot id=8304099970
+2026-03-19 15:39:50 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-19 15:39:50 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-03-19 15:39:50 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1603, 'req': '5d30778e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1820, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (15:38)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 15:39:50 | INFO | aiogram.event | Update id=104056817 is handled. Duration 1605 ms by bot id=8304099970
+2026-03-19 15:39:53 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 160, 'req': '92a6660d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1823, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (15:38)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 15:39:53 | INFO | aiogram.event | Update id=104056818 is handled. Duration 163 ms by bot id=8304099970
+2026-03-19 15:40:09 | INFO | root | Скачан файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).xlsx
+2026-03-19 15:40:10 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 13202, 'req': '9ec670a7', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730503032484', 'msg_id': 1824, 'data': 'upd:tara', 'state': None}
+2026-03-19 15:40:10 | INFO | aiogram.event | Update id=104056819 is handled. Duration 13208 ms by bot id=8304099970
+2026-03-19 15:53:17 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 10054] Удаленный хост принудительно разорвал существующее подключение
+2026-03-19 15:53:17 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-03-19 15:53:53 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-03-19 17:04:08 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 10054] Удаленный хост принудительно разорвал существующее подключение
+2026-03-19 17:04:08 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-03-19 17:04:40 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-03-19 17:05:52 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-19 17:05:53 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-19 17:10:11 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-19 17:10:15 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-19 17:10:15 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-19 17:10:15 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-19 17:10:16 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-19 17:10:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-19 17:10:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-19 17:10:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-19 17:10:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-19 17:10:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-19 17:10:16 | INFO | root | Собрано клиентов: 113
+2026-03-19 17:10:16 | INFO | __main__ | Отчёт на 19.03.2026 | клиентов: 113
+2026-03-19 17:10:16 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 212592.00 | проср: 212592.00 | наш долг: 0.00 | доков: 5
+2026-03-19 17:10:16 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 128184.48 | проср: 128184.48 | наш долг: 0.00 | доков: 8
+2026-03-19 17:10:16 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 121390.00 | проср: 121390.00 | наш долг: 0.00 | доков: 7
+2026-03-19 17:10:16 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 113660.08 | проср: 95360.08 | наш долг: 0.00 | доков: 9
+2026-03-19 17:10:16 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 103462.88 | проср: 103462.88 | наш долг: 0.00 | доков: 7
+2026-03-19 17:10:16 | INFO | __main__ | 06. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 88601.10 | проср: 88601.10 | наш долг: 70.38 | доков: 3
+2026-03-19 17:10:16 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-03-19 17:10:16 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 77775.00 | проср: 77775.00 | наш долг: 0.00 | доков: 6
+2026-03-19 17:10:16 | INFO | __main__ | 09. Титовская Наталия Александровна ИП - Воротников Д (Комсомольская ул, дом № 12) | сум: 76909.50 | проср: 76909.50 | наш долг: 0.00 | доков: 4
+2026-03-19 17:10:16 | INFO | __main__ | 10. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-19 17:10:16 | INFO | aiogram.dispatcher | Start polling
+2026-03-19 17:10:16 | INFO | telegram_bot | Daily fetch: next run in 62443 sec (now 2026-03-19 17:10:16, tz Asia/Novosibirsk)
+2026-03-19 17:10:17 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-19 17:14:51 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 420, 'req': '41301c5f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1826, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔄 Обновить (15:40)', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 17:14:51 | INFO | aiogram.event | Update id=104056820 is handled. Duration 424 ms by bot id=8304099970
+2026-03-19 17:14:58 | INFO | root | Скачан файл: downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLS).xls
+2026-03-19 17:14:58 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 4149, 'req': '1dd56c03', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732253518959', 'msg_id': 1827, 'data': 'upd:tara', 'state': None}
+2026-03-19 17:14:58 | INFO | aiogram.event | Update id=104056821 is handled. Duration 4157 ms by bot id=8304099970
+2026-03-19 17:15:01 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 143, 'req': '8661c50f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1829, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-03-19 17:15:01 | INFO | aiogram.event | Update id=104056822 is handled. Duration 147 ms by bot id=8304099970
+2026-03-19 17:15:06 | INFO | root | Тара: собрано клиентов: 157
+2026-03-19 17:15:07 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2334, 'req': 'cb5e3f31', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 1831, 'kind': <ContentType.TEXT: 'text'>, 'text': 'анохина', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-19 17:15:07 | INFO | aiogram.event | Update id=104056823 is handled. Duration 2338 ms by bot id=8304099970

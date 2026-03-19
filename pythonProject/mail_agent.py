@@ -12,7 +12,7 @@ import logging
 import email.utils
 import pytz
 from dotenv import load_dotenv
-from typing import Optional
+from typing import Optional, List, Tuple
 
 load_dotenv()
 
@@ -26,7 +26,7 @@ FILTERS = {
     "ТАРА": {
         "subject_contains": ["тара"],
         "attachment_contains": ["Ведомость по переданной возвратной таре"],
-        "extensions": [".xlsx"],
+        "extensions": [".xls", ".xlsx"],
         "sender": "supbeer@mail.ru",
     },
     "ДЕБИТОРКА": {
@@ -111,6 +111,7 @@ def fetch_latest_file(mail_type: str = "ДЕБИТОРКА") -> Optional[str]:
             if not any(x in subject for x in flt["subject_contains"]):
                 continue
 
+            matched_attachments: List[Tuple[str, str, bytes]] = []
             for part in msg.walk():
                 fn = part.get_filename()
                 if not fn:
@@ -122,11 +123,35 @@ def fetch_latest_file(mail_type: str = "ДЕБИТОРКА") -> Optional[str]:
                 if not any(k.lower() in fn_dec.lower() for k in flt["attachment_contains"]):
                     continue
 
-                path = os.path.join(SAVE_PATH, fn_dec)
                 payload = part.get_payload(decode=True)
-                path = _safe_write(path, payload)
-                logging.info("Скачан файл: %s", path)
-                return path
+                if not payload:
+                    continue
+                matched_attachments.append((fn_dec, ext, payload))
+
+            if not matched_attachments:
+                continue
+
+            # Для дебиторки сначала пробуем .xls, затем .xlsx.
+            if mail_type == "ДЕБИТОРКА":
+                ordered = sorted(matched_attachments, key=lambda x: 0 if x[1] == ".xls" else 1)
+                for fn_dec, _, payload in ordered:
+                    path = _safe_write(os.path.join(SAVE_PATH, fn_dec), payload)
+                    try:
+                        # Ленивая проверка читаемости: если .xls не открылся,
+                        # пробуем следующий вариант (обычно .xlsx из того же письма).
+                        from file_processor import read_debt_file
+                        read_debt_file(path)
+                        logging.info("Скачан и валидирован файл дебиторки: %s", path)
+                        return path
+                    except Exception as e:
+                        logging.warning("Файл дебиторки не удалось прочитать (%s): %s", path, e)
+                continue
+
+            # Для остальных типов берём первое подходящее вложение.
+            fn_dec, _, payload = matched_attachments[0]
+            path = _safe_write(os.path.join(SAVE_PATH, fn_dec), payload)
+            logging.info("Скачан файл: %s", path)
+            return path
 
         logging.warning("Подходящих вложений не найдено.")
         return None
