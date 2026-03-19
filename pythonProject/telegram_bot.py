@@ -1848,8 +1848,8 @@ async def schedule_show_button(m: Message):
 
 @router.callback_query(F.data == "schedule:show")
 async def sch_admin_show(cq: CallbackQuery):
-    if is_user_blocked(getattr(m.from_user, "id", None)):
-        await m.answer(BLOCKED_USER_TEXT)
+    if is_user_blocked(getattr(cq.from_user, "id", None)):
+        await cq.answer(BLOCKED_USER_TEXT, show_alert=True)
         return
     if not await ensure_callback_access(cq, "schedule.view"):
         return
@@ -3164,6 +3164,9 @@ def _allowed_roles_for(action: str) -> set:
 
 
 def role_allows_action(role: Optional[str], action: str) -> bool:
+    return role in _allowed_roles_for(action)
+
+def user_allows_action(user_id: Optional[int], action: str) -> bool:
     role = get_user_role(user_id)
     base_allowed = role_allows_action(role, action)
     if user_id is None:
@@ -3172,11 +3175,6 @@ def role_allows_action(role: Optional[str], action: str) -> bool:
     if action in overrides:
         return overrides[action]
     return base_allowed
-
-
-def user_allows_action(user_id: Optional[int], action: str) -> bool:
-    return role_allows_action(get_user_role(user_id), action)
-
 
 def _deny_text(action: str, role: Optional[str]) -> str:
     label = ACCESS_LABELS.get(action) or "это действие"
