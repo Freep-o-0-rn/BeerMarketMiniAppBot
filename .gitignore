@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Sensitive local bot data
+pythonProject/settings/user_roles.json
+pythonProject/settings/user_roles.json.bak
+pythonProject/settings/user_roles.json.tmp
+user_roles.json
+user_roles.json.bak
