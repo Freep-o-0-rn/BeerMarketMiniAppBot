@@ -2153,7 +2153,8 @@ def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
         rows.append([InlineKeyboardButton(text="🗑 Удалить", callback_data=f"cc:del:{client_id}")])
     else:
         rows = []
-    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="cc:list")])
+    back_target = "menu:back" if role == "client" else "cc:list"
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=back_target)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, page_size: int = 20) -> InlineKeyboardMarkup:
@@ -2441,13 +2442,16 @@ def _client_cards_for_client(user_id: int, *, direct: Optional[List[Dict[str, An
         return [best_direct]
     if len(direct) == 1:
         return direct
-
-    best_global = _pick_best_client_card(CLIENTS_DB.list_clients(), query)
-    if best_global:
-        return [best_global]
     if direct:
         return [direct[0]]
     return []
+
+def _format_client_card_for_user(card: Dict[str, Any], *, user_id: int, role: str) -> str:
+    return format_client_card(
+        card,
+        viewer_role=role,
+        viewer_user_id=user_id,
+    )
 
 def _has_client_card_access(user_id: int, role: str, client_id: str) -> bool:
     if role == "moderator":
@@ -3957,6 +3961,19 @@ async def client_cards_entry(m: Message, state: FSMContext):
     if not items:
         await m.answer("Вам пока не назначена карточка клиента. Обратитесь к администратору.", reply_markup=menu_for_message(m))
         return
+    if role == "client":
+        card = CLIENTS_DB.get_client(items[0]["id"])
+        if not card:
+            await m.answer("Карточка не найдена. Обратитесь к администратору.", reply_markup=menu_for_message(m))
+            return
+        await m.answer(
+            "Моя карточка. Показываем только ваш профиль, а юрлица сети — только если у сети один владелец.",
+        )
+        await m.answer(
+            _format_client_card_for_user(card, user_id=uid, role=role),
+            reply_markup=client_card_actions_kb(card["id"], role),
+        )
+        return
     title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
     await m.answer(title, reply_markup=client_cards_list_kb(items, role, page=0))
 
@@ -3993,7 +4010,10 @@ async def cc_view(cq: CallbackQuery):
     if not card:
         await cq.answer("Карточка не найдена", show_alert=True)
         return
-    await cq.message.edit_text(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+    await cq.message.edit_text(
+        _format_client_card_for_user(card, user_id=uid, role=role),
+        reply_markup=client_card_actions_kb(client_id, role),
+    )
     await cq.answer()
 
 @router.callback_query(F.data == "cc:new")
@@ -4234,7 +4254,10 @@ async def cc_add_contact_position(m: Message, state: FSMContext):
         await state.clear()
         card = CLIENTS_DB.get_client(edit_client_id)
         await m.answer("✅ Контакт добавлен.")
-        await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(edit_client_id, role))
+        await m.answer(
+            _format_client_card_for_user(card, user_id=int(getattr(m.from_user, "id", 0) or 0), role=role),
+            reply_markup=client_card_actions_kb(edit_client_id, role),
+        )
         return
     contacts = data.get("client_contacts") or []
     contacts.append({
@@ -4311,7 +4334,10 @@ async def cc_finish_create(m: Message, state: FSMContext):
         await state.clear()
         card = CLIENTS_DB.get_client(edit_client_id)
         await m.answer("✅ Сеть клиента обновлена.")
-        await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(edit_client_id, role))
+        await m.answer(
+            _format_client_card_for_user(card, user_id=int(getattr(m.from_user, "id", 0) or 0), role=role),
+            reply_markup=client_card_actions_kb(edit_client_id, role),
+        )
         return
 
     payload = {
@@ -4339,7 +4365,10 @@ async def cc_finish_create(m: Message, state: FSMContext):
     await state.clear()
     card = CLIENTS_DB.get_client(cid)
     await m.answer("✅ Карточка клиента создана.", reply_markup=ReplyKeyboardRemove())
-    await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(cid, role))
+    await m.answer(
+        _format_client_card_for_user(card, user_id=int(getattr(m.from_user, "id", 0) or 0), role=role),
+        reply_markup=client_card_actions_kb(cid, role),
+    )
 
 @router.callback_query(F.data == "cc:import:debt")
 async def cc_import_debt(cq: CallbackQuery):
@@ -4494,7 +4523,10 @@ async def cc_edit_technician_pick(cq: CallbackQuery, state: FSMContext):
     await state.clear()
     card = CLIENTS_DB.get_client(client_id)
     await cq.message.answer("✅ Техник обновлён.")
-    await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+    await cq.message.answer(
+        _format_client_card_for_user(card, user_id=uid, role=role),
+        reply_markup=client_card_actions_kb(client_id, role),
+    )
     await cq.answer()
 
 
@@ -4527,7 +4559,10 @@ async def cc_edit_technician_skip(cq: CallbackQuery):
         })
     card = CLIENTS_DB.get_client(client_id)
     await cq.message.answer("✅ Техник обновлён.")
-    await cq.message.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+    await cq.message.answer(
+        _format_client_card_for_user(card, user_id=uid, role=role),
+        reply_markup=client_card_actions_kb(client_id, role),
+    )
     await cq.answer()
 
 
@@ -4592,7 +4627,10 @@ async def cc_edit_field_value(m: Message, state: FSMContext):
     await state.clear()
     card = CLIENTS_DB.get_client(client_id)
     await m.answer("✅ Карточка обновлена.")
-    await m.answer(format_client_card(card), reply_markup=client_card_actions_kb(client_id, role))
+    await m.answer(
+        _format_client_card_for_user(card, user_id=int(getattr(m.from_user, "id", 0) or 0), role=role),
+        reply_markup=client_card_actions_kb(client_id, role),
+    )
 
 
 @router.callback_query(F.data.startswith("cc:del:"))

@@ -373,7 +373,12 @@ class ClientCardsDB:
             linked_clients = []
             if row.get("network_id"):
                 linked_clients = conn.execute(
-                    "SELECT id, legal_form, legal_name, store_name FROM clients WHERE network_id = ? ORDER BY legal_name",
+                    """
+                    SELECT id, legal_form, legal_name, store_name, owner_user_id
+                    FROM clients
+                    WHERE network_id = ?
+                    ORDER BY legal_name
+                    """,
                     (row["network_id"],),
                 ).fetchall()
             row["contacts"] = contacts
@@ -586,8 +591,12 @@ class ClientCardsDB:
             clients = conn.execute("SELECT legal_form, legal_name, store_name, address, overdue_days, sales_rep_name FROM clients").fetchall()
         return {"clients_count": len(clients), "clients": clients}
 
-
-def format_client_card(card: Dict[str, Any]) -> str:
+def format_client_card(
+    card: Dict[str, Any],
+    *,
+    viewer_role: str = "admin",
+    viewer_user_id: Optional[int] = None,
+) -> str:
     network_name = ((card.get("network") or {}).get("name") if isinstance(card.get("network"), dict) else None) or "—"
     contacts = card.get("contacts") or []
     tech = card.get("technician") if isinstance(card.get("technician"), dict) else None
@@ -616,8 +625,13 @@ def format_client_card(card: Dict[str, Any]) -> str:
             t_name = row.get("technician_name") or "ТЕСТ"
             t_phone = row.get("technician_phone") or "+79999999999"
             lines.append(f"• {row.get('address')}: {t_name} ({t_phone})")
-    if card.get("network_clients") and len(card["network_clients"]) > 1:
+    visible_network_clients = _network_clients_visible(
+        card,
+        viewer_role=viewer_role,
+        viewer_user_id=viewer_user_id,
+    )
+    if visible_network_clients:
         lines.append("\n<b>Юрлица в сети:</b>")
-        for c in card["network_clients"]:
+        for c in visible_network_clients:
             lines.append(f"• {c.get('legal_form')} {c.get('legal_name')} ({c.get('store_name')})")
     return "\n".join(lines)
