@@ -356,11 +356,35 @@ DOC_PATTERNS = [
     r"№\s*[\w\-]+",
 ]
 
+
+def split_report_client_label(raw: str) -> Dict[str, str]:
+    """Разбирает строку вида '<клиент> - <торговый> (<адрес>)' на отдельные поля."""
+    txt = re.sub(r"\s+", " ", (raw or "").strip())
+    if not txt:
+        return {"client_name": "", "sales_rep": "", "address": ""}
+
+    address = ""
+    m = re.search(r"\(([^()]*)\)\s*$", txt)
+    if m:
+        address = re.sub(r"\s+", " ", (m.group(1) or "").strip())
+        txt = txt[:m.start()].strip()
+
+    sales_rep = ""
+    m = re.search(r"\s+-\s+([^()-][^()]*)$", txt)
+    if m:
+        sales_rep = re.sub(r"\s+", " ", (m.group(1) or "").strip(" -"))
+        txt = txt[:m.start()].strip()
+
+    client_name = re.sub(r"\s+", " ", txt).strip(" -")
+    return {
+        "client_name": client_name,
+        "sales_rep": sales_rep,
+        "address": address,
+    }
+
+
 def _extract_address_from_name(name: str) -> str:
-    if not name:
-        return ""
-    m = re.search(r"\(([^)]+)\)", name)
-    return m.group(1).strip() if m else ""
+    return split_report_client_label(name).get("address", "")
 
 def _extract_doc_numbers(text: str) -> List[str]:
     if not text:
@@ -460,9 +484,12 @@ def parse_clients(df: pd.DataFrame) -> List[Dict[str, Any]]:
             max_days = int(days_val) if not pd.isna(days_val) else 0
             our_debt_hdr = _to_float(row.get(col_our_debt, float("nan"))) if col_our_debt else float("nan")
 
+            parts = split_report_client_label(txt)
             current = {
                 "client": txt,
-                "address": _extract_address_from_name(txt),
+                "client_name": parts.get("client_name") or txt,
+                "sales_rep_name": parts.get("sales_rep") or "",
+                "address": parts.get("address") or "",
                 "realizations_count": 0,
                 "realization_numbers": [],
                 "docs": [],
@@ -646,7 +673,15 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
                 current["items"] = _merge_tara_items(current["items"])
                 if current["total"] > 0 or current["items"]:
                     results.append(current)
-            current = {"client": text, "items": [], "total": q_end}
+            parts = split_report_client_label(text)
+            current = {
+                "client": text,
+                "client_name": parts.get("client_name") or text,
+                "sales_rep_name": parts.get("sales_rep") or "",
+                "address": parts.get("address") or "",
+                "items": [],
+                "total": q_end,
+            }
             continue
 
         # служебная строка (реализация, акт и т.п.)

@@ -48,7 +48,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from config import BOT_TOKEN, update_setting
-from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads, read_debt_file, parse_clients
+from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads, read_debt_file, parse_clients, split_report_client_label
 from mail_agent import fetch_latest_file
 from pathlib import Path
 from dataclasses import dataclass
@@ -411,8 +411,6 @@ DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
         "description": "Ограниченный доступ до назначения роли администратором.",
         "permissions": [
             "view_prices",
-            "view_promos",
-            "view_schedule",
         ],
     },
     "admin": {
@@ -979,43 +977,39 @@ async def cmd_logs(m: Message):
 #----------Конец Логов----------------------------
 
 # --- Группировка тары по клиенту и адресам ---
-_TARA_PARENS_RE = re.compile(r"\(([^)]*)\)")
-
-def _strip_rep(full: str) -> str:
-    """Убираем суффикс торгового представителя ' - Колягин'."""
-    if not full:
-        return ""
-    return full.replace(" - Колягин", "").replace("- Колягин", "")
+def _tara_client_parts(entry_or_name: Any) -> Dict[str, str]:
+    if isinstance(entry_or_name, dict):
+        client_name = (entry_or_name.get("client_name") or "").strip()
+        sales_rep = (entry_or_name.get("sales_rep_name") or "").strip()
+        address = (entry_or_name.get("address") or "").strip()
+        if client_name or sales_rep or address:
+            return {"client_name": client_name, "sales_rep": sales_rep, "address": address}
+        raw = entry_or_name.get("client") or ""
+    else:
+        raw = entry_or_name or ""
+    return split_report_client_label(str(raw))
 
 def _tara_base_name(full: str) -> str:
-    """Базовое имя клиента без адреса и без суффикса представителя."""
-    if not full:
-        return ""
-    s = _strip_rep(full)
-    s = _TARA_PARENS_RE.sub("", s)
-    s = re.sub(r"\s+", " ", s).strip(" \u00A0-")
-    return s
+    """Базовое имя клиента без адреса и без торгового представителя."""
+    return _tara_client_parts(full).get("client_name", "")
 
 def _tara_address(full: str) -> str:
-    """Адрес из круглых скобок. Если его нет — возвращаем пустую строку."""
-    if not full:
-        return ""
-    m = _TARA_PARENS_RE.search(full)
-    return (m.group(1) or "").strip() if m else ""
+    """Адрес клиента из круглых скобок."""
+    return _tara_client_parts(full).get("address", "")
 
 def build_tara_group_text(base_name: str, entries: list) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
     total_all = sum(float(e.get("total", 0) or 0) for e in entries)
 
     def _key_addr(e):
-        a = _tara_address(e.get("client") or "")
+        a = _tara_client_parts(e).get("address", "")
         return a.casefold().replace("ё", "е")
 
     entries_sorted = sorted(entries, key=_key_addr)
 
     lines = [f"<b>{esc(base_name)}</b> — всего: {fmt_qty_units(total_all)}"]
     for e in entries_sorted:
-        addr = _tara_address(e.get("client") or "")
+        addr = _tara_client_parts(e).get("address", "")
         if addr:
             lines.append(f"• <b>({esc(addr)})</b> — {fmt_qty_units(e.get('total', 0))}")
             prefix = "    — "
@@ -2677,8 +2671,14 @@ def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str]
     else:
         status_line = f"Статус: {'🔴 Просрочка' if has_any_overdue else '🟢 Ок'} (порог: >{threshold} дн.)"
 
-    # заголовок карточки (добавили badge клиента)
-    head = f"<b>{idx:02d}. {esc(item['client'])}</b>\n"
+    # заголовок карточки с разделёнными полями клиента/торгового/адреса
+    client_name = (item.get("client_name") or item.get("client") or "").strip()
+    sales_rep_name = (item.get("sales_rep_name") or "").strip()
+    title = client_name or (item.get("client") or "")
+    if sales_rep_name:
+        title += f" — {sales_rep_name}"
+
+    head = f"<b>{idx:02d}. {esc(title)}</b>\n"
     if item.get("address"):
         head += f"{esc(item['address'])}\n"
     head += status_line + "\n"
@@ -2786,7 +2786,7 @@ def parse_report_args(text: str) -> Tuple[str, List[str], Optional[float]]:
 def client_matches_any_keyword(item: Dict[str, Any], keywords: List[str]) -> bool:
     if not keywords:
         return True
-    name = (item.get("client") or "").casefold()
+    name = (item.get("client_name") or item.get("client") or "").casefold()
     addr = (item.get("address") or "").casefold()
     for kw in keywords:
         if kw and (kw in name or kw in addr):
@@ -3774,10 +3774,11 @@ async def render_tara_search(chat: Message, keywords: List[str]):
 
             kws = [k for k in (keywords or []) if k]
             def match(b: dict) -> bool:
-                name = (b.get("client") or "").strip().casefold()
+                name = (b.get("client_name") or b.get("client") or "").strip().casefold()
+                addr = (b.get("address") or "").strip().casefold()
                 if not kws:
                     return False
-                return any(k in name for k in kws)
+                return any(k in name or k in addr for k in kws)
 
             filtered = [b for b in items if match(b)]
             if filtered:
@@ -6393,7 +6394,7 @@ async def run_client_search(m: Message, raw_query: str):
     report_date = (res or {}).get("report_date")
 
     def _match(it: Dict[str, Any]) -> bool:
-        name = (it.get("client") or "").casefold()
+        name = (it.get("client_name") or it.get("client") or "").casefold()
         addr = (it.get("address") or "").casefold()
         return (q in name) or (q in addr)
 
