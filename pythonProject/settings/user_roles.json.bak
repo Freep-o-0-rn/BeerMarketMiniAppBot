@@ -81,7 +81,7 @@
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "role": "admin",
+    "role": "client",
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79965440806",

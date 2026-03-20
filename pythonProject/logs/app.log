@@ -27791,3 +27791,50 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: messa
 2026-03-20 00:43:07 | INFO | aiogram.event | Update id=104057112 is handled. Duration 8003 ms by bot id=8304099970
 2026-03-20 00:43:20 | INFO | aiogram.dispatcher | Polling stopped
 2026-03-20 00:43:20 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-20 15:46:58 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-20 15:47:01 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-20 15:47:01 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-20 15:47:01 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-20 15:47:02 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-20 15:47:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-20 15:47:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-20 15:47:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-20 15:47:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-20 15:47:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-20 15:47:02 | INFO | root | Собрано клиентов: 117
+2026-03-20 15:47:02 | INFO | __main__ | Отчёт на 20.03.2026 | клиентов: 117
+2026-03-20 15:47:02 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 171312.00 | проср: 171312.00 | наш долг: 0.00 | доков: 4
+2026-03-20 15:47:02 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 128184.48 | проср: 128184.48 | наш долг: 0.00 | доков: 8
+2026-03-20 15:47:02 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 126337.88 | проср: 103462.88 | наш долг: 0.00 | доков: 8
+2026-03-20 15:47:02 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 121390.00 | проср: 121390.00 | наш долг: 0.00 | доков: 7
+2026-03-20 15:47:02 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 103104.64 | проср: 103104.64 | наш долг: 0.00 | доков: 8
+2026-03-20 15:47:02 | INFO | __main__ | 06. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 88601.10 | проср: 88601.10 | наш долг: 70.38 | доков: 3
+2026-03-20 15:47:02 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-03-20 15:47:02 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 77775.00 | проср: 77775.00 | наш долг: 0.00 | доков: 6
+2026-03-20 15:47:02 | INFO | __main__ | 09. Титовская Наталия Александровна ИП - Воротников Д (Комсомольская ул, дом № 12) | сум: 76909.50 | проср: 76909.50 | наш долг: 0.00 | доков: 4
+2026-03-20 15:47:02 | INFO | __main__ | 10. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-20 15:47:03 | INFO | aiogram.dispatcher | Start polling
+2026-03-20 15:47:03 | INFO | telegram_bot | Daily fetch: next run in 67437 sec (now 2026-03-20 15:47:03, tz Asia/Novosibirsk)
+2026-03-20 15:47:03 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-20 15:47:56 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 430, 'req': 'f9925380', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2245, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 15:47:56 | INFO | aiogram.event | Update id=104057114 is handled. Duration 434 ms by bot id=8304099970
+2026-03-20 15:48:04 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 127, 'req': '2e5d8a0c', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2247, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 15:48:04 | INFO | aiogram.event | Update id=104057115 is handled. Duration 137 ms by bot id=8304099970
+2026-03-20 15:48:15 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 245, 'req': '9adc2998', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687269432564843', 'msg_id': 2248, 'data': 'usr:sel:237087423:0', 'state': None}
+2026-03-20 15:48:15 | INFO | aiogram.event | Update id=104057116 is handled. Duration 254 ms by bot id=8304099970
+2026-03-20 15:48:18 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 256, 'req': 'c8f380ae', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687271049487826', 'msg_id': 2248, 'data': 'usr:perms:237087423:0', 'state': None}
+2026-03-20 15:48:18 | INFO | aiogram.event | Update id=104057117 is handled. Duration 267 ms by bot id=8304099970
+2026-03-20 15:48:20 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 231, 'req': '3ea1c1e2', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687270684725464', 'msg_id': 2248, 'data': 'usr:perms:237087423:1', 'state': None}
+2026-03-20 15:48:20 | INFO | aiogram.event | Update id=104057118 is handled. Duration 241 ms by bot id=8304099970
+2026-03-20 15:48:20 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 248, 'req': '5655079c', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687270255238237', 'msg_id': 2248, 'data': 'usr:perms:237087423:2', 'state': None}
+2026-03-20 15:48:20 | INFO | aiogram.event | Update id=104057119 is handled. Duration 258 ms by bot id=8304099970
+2026-03-20 15:48:24 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 247, 'req': '1b491e7c', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687269002489589', 'msg_id': 2248, 'data': 'usr:perms:237087423:1', 'state': None}
+2026-03-20 15:48:24 | INFO | aiogram.event | Update id=104057120 is handled. Duration 257 ms by bot id=8304099970
+2026-03-20 15:48:24 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 111, 'req': '75daa6c3', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687272361099344', 'msg_id': 2248, 'data': 'usr:perms:noop', 'state': None}
+2026-03-20 15:48:24 | INFO | aiogram.event | Update id=104057121 is handled. Duration 121 ms by bot id=8304099970
+2026-03-20 15:53:39 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 240, 'req': '1d5ae434', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687271670859464', 'msg_id': 2248, 'data': 'usr:sel:237087423:0', 'state': None}
+2026-03-20 15:53:39 | INFO | aiogram.event | Update id=104057122 is handled. Duration 247 ms by bot id=8304099970
+2026-03-20 15:54:19 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 137, 'req': '4782c29f', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2249, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 15:54:19 | INFO | aiogram.event | Update id=104057123 is handled. Duration 142 ms by bot id=8304099970
+2026-03-20 16:05:26 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-20 16:05:26 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
