@@ -637,12 +637,22 @@ def _base_client_name_for_debt(full: str) -> str:
 def normalize_client_name(raw: str) -> str:
     name = (raw or "").strip()
     name = re.sub(r"\s+", " ", name)
-    name = re.sub(r"^(ооо|ип)\.?\s+", "", name, flags=re.IGNORECASE)
+    name = re.sub(
+        r'^(?:(?:["«“„\']\s*)?(?:ооо|ип)\.?(?:\s*["»”"\'])?\s*)+',
+        "",
+        name,
+        flags=re.IGNORECASE,
+    )
     name = name.strip()
     if name:
         name = re.sub(r'^[«"“”„\']+|[»"“”„\']+$', "", name).strip()
     name = re.sub(r"\s+", " ", name)
     return name
+
+def client_name_was_corrected(raw: str, normalized: str) -> bool:
+    raw_clean = re.sub(r"\s+", " ", (raw or "").strip())
+    normalized_clean = re.sub(r"\s+", " ", (normalized or "").strip())
+    return raw_clean.casefold() != normalized_clean.casefold()
 
 def client_key(full_client_name: str) -> str:
     base = _base_client_name_for_debt(full_client_name)
@@ -1171,6 +1181,14 @@ def _user_record(user_id: Optional[int]) -> Dict[str, Any]:
     if not user_id:
         return {}
     return (_roles_load().get(str(user_id)) or {})
+
+def _has_user_onboarding_data(rec: Optional[Dict[str, Any]]) -> bool:
+    if not isinstance(rec, dict):
+        return False
+    return any(
+        rec.get(key)
+        for key in ("phone", "role", "name", "organization_type", "onboard_completed")
+    )
 
 def update_user_profile_from_message(m: Message) -> None:
     user = getattr(m, "from_user", None)
@@ -1716,6 +1734,13 @@ def onboard_role_kb() -> InlineKeyboardMarkup:
 def phone_request_kb() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[[KeyboardButton(text="📱 Отправить контакт", request_contact=True)]],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+
+def organization_guest_choice_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="👋 Остаться гостем")]],
         resize_keyboard=True,
         one_time_keyboard=True,
     )
@@ -3150,8 +3175,9 @@ async def ensure_callback_access(
 
 def client_name_prompt_text() -> str:
     return (
-        "Введите название вашей организации (без «ИП»/«ООО»), например: "
-        "<code>себекин</code> или <code>большая рыба</code>."
+        "Введите название вашей организации без «ИП»/«ООО», "
+        "например: <code>себекин</code> или <code>большая рыба</code>.\n\n"
+        "Если пока хотите пользоваться ботом без привязки к организации, нажмите «👋 Остаться гостем»."
     )
 
 async def _continue_after_phone(m: Message, state: FSMContext) -> None:
@@ -3161,7 +3187,11 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     data = _roles_load()
     rec = (data.get(key) if key else {}) or {}
     role = normalize_role(rec.get("role") or "guest")
-    if not rec.get("role") and key:
+    if uid is not None and _ADMIN_IDS and uid in _ADMIN_IDS and key and role != "admin":
+        rec["role"] = "admin"
+        _roles_merge_and_save({key: rec})
+        role = "admin"
+    elif not rec.get("role") and key:
         rec["role"] = role
         _roles_merge_and_save({key: rec})
 
@@ -3180,7 +3210,7 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
         await state.set_state(OnboardStates.waiting_client_name)
-        await m.answer(client_name_prompt_text())
+        await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
         return
     await m.answer(help_text_client(cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
@@ -3234,7 +3264,7 @@ async def on_start(m: Message, state: FSMContext):
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
         await state.set_state(OnboardStates.waiting_client_name)
-        await m.answer(client_name_prompt_text())
+        await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
         return
     await m.answer(help_text_client(cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
@@ -3288,6 +3318,11 @@ async def ob_phone_contact(m: Message, state: FSMContext):
         return
     set_user_phone(m.from_user.id, e164, verified=True)
     await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
+    if is_new_user and not (_ADMIN_IDS and m.from_user.id in _ADMIN_IDS):
+        await notify_admins_about_new_user(m.from_user.id)
+        await state.set_state(OnboardStates.waiting_client_name)
+        await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
+        return
     await state.clear()
     if is_new_user:
         await notify_admins_about_new_user(m.from_user.id)
@@ -3302,6 +3337,11 @@ async def ob_phone_contact_text(m: Message, state: FSMContext):
         return
     set_user_phone(m.from_user.id, e164, verified=False)
     await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
+    if is_new_user and not (_ADMIN_IDS and m.from_user.id in _ADMIN_IDS):
+        await notify_admins_about_new_user(m.from_user.id)
+        await state.set_state(OnboardStates.waiting_client_name)
+        await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
+        return
     await state.clear()
     if is_new_user:
         await notify_admins_about_new_user(m.from_user.id)
@@ -3321,9 +3361,23 @@ async def ob_admin_pwd(m: Message, state: FSMContext):
 @router.message(OnboardStates.waiting_client_name)
 async def ob_client_name(m: Message, state: FSMContext):
     raw_name = (m.text or "").strip()
+    if raw_name == "👋 Остаться гостем":
+        set_user_role(m.from_user.id, "guest")
+        await state.clear()
+        await m.answer(
+            "✅ Оставил вас гостем. Название организации можно добавить позже.",
+            reply_markup=guest_menu_kb(getattr(m.from_user, "id", None))
+        )
+        await on_start(m, state)
+        return
     name = normalize_client_name(raw_name)
+    was_corrected = client_name_was_corrected(raw_name, name)
     if not name or len(name) < 2:
-        await m.answer("Введите корректное название (минимум 2 символа).")
+        await m.answer(
+            "Введите корректное название организации (минимум 2 символа) "
+            "или нажмите «👋 Остаться гостем».",
+            reply_markup=organization_guest_choice_kb(),
+        )
         return
 
     # сохраняем роль и имя клиента
@@ -3333,8 +3387,15 @@ async def ob_client_name(m: Message, state: FSMContext):
     await state.clear()
 
     # Сообщение + клиентское меню
+    saved_text = f"✅ Сохранено: «{esc(name)}». Режим клиента активирован."
+    if was_corrected:
+        saved_text = (
+            f"✅ Сохранено: «{esc(name)}». "
+            "Убрал из названия префикс «ООО/ИП», чтобы сохранить только имя организации. "
+            "Режим клиента активирован."
+        )
     await m.answer(
-        f"✅ Сохранено: «{esc(name)}». Режим клиента активирован.",
+        saved_text,
         reply_markup=client_menu_kb(getattr(m.from_user, "id", None))
     )
 
@@ -3794,12 +3855,16 @@ async def client_change_name(m: Message, state: FSMContext):
 async def client_set_new_name(m: Message, state: FSMContext):
     raw_name = (m.text or "").strip()
     name = normalize_client_name(raw_name)
+    was_corrected = client_name_was_corrected(raw_name, name)
     if not name or len(name) < 2:
         await m.answer("Введите корректное название (минимум 2 символа).", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
     set_client_name(m.from_user.id, name)
     await state.clear()
-    await m.answer(f"✅ Обновлено. Название: «{esc(name)}».", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    text = f"✅ Обновлено. Название: «{esc(name)}»."
+    if was_corrected:
+        text += " Убрал из названия «ООО/ИП»."
+    await m.answer(text, reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 # --- Обновить (кнопка всегда разрешена), /refresh — только админ ---
 async def _do_mail_refresh(m: Message):
