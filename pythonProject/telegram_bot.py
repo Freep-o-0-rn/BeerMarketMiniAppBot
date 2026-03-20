@@ -229,7 +229,6 @@ class ClientCardStates(StatesGroup):
     waiting_additional_contact_phone = State()
     waiting_additional_contact_position = State()
     waiting_edit_value = State()
-    waiting_search_query = State()
 
 class TechnicianStates(StatesGroup):
     waiting_full_name = State()
@@ -1119,7 +1118,6 @@ def help_text_client(current_name: str) -> str:
         "📌 <b>Кнопки (клиент)</b>:\n"
         "• 🔎<b> Поиск</b> — найти свои данные по задолженности\n"
         "• 🔎<b> Поиск тары</b> — найти свои остатки по кегам и оборудованию\n"
-        "• 🏢<b> Поиск по Сети</b> — найти дебиторку и тару по всем юрлицам сети\n"
         "•🎨 Обозначения задолженности:\n"
         "   • 🟢 младше персональной отсрочки\n"
         "   • 🟡 просрочка 1-6 дней\n"
@@ -1652,8 +1650,6 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if user_allows_action(user_id, "search.tara"):
         row.append(KeyboardButton(text="🔎 Поиск тары"))
     _append_button_row_if_any(keyboard, row)
-    if role == "client" and user_allows_action(user_id, "search.network"):
-        keyboard.append([KeyboardButton(text="🏢 Поиск по Сети")])
     row = []
     if user_allows_action(user_id, "reports.general"):
         row.append(KeyboardButton(text="🧾 Общий отчёт"))
@@ -1962,7 +1958,6 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("schedule.view", "🚚 График"),
     ("search.debt", "🔎 Поиск"),
     ("search.tara", "🔎 Поиск тары"),
-    ("search.network", "🏢 Поиск по Сети"),
     ("reports.general", "🧾 Общий отчёт"),
     ("reports.overdue", "⏰ Просрочено"),
     ("reports.overpaid", "💰 Переплаты"),
@@ -2181,7 +2176,6 @@ def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, 
         rows.append(nav)
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
-    rows.append([InlineKeyboardButton(text="🔎 Поиск карточки", callback_data="cc:search")])
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
@@ -2454,71 +2448,6 @@ def _client_cards_for_client(user_id: int, *, direct: Optional[List[Dict[str, An
     if direct:
         return [direct[0]]
     return []
-
-def _normalize_search_text(value: str) -> str:
-    value = (value or "").replace("ё", "е").replace("Ё", "Е")
-    value = re.sub(r"[«»\"'“”„]", " ", value)
-    value = re.sub(r"\s+", " ", value)
-    return value.strip().casefold()
-
-
-def _append_client_search_alias(aliases: List[str], seen: set, value: str) -> None:
-    normalized = _normalize_search_text(value)
-    if not normalized or normalized in seen:
-        return
-    seen.add(normalized)
-    aliases.append(normalized)
-
-
-def _collect_client_network_scope(user_id: Optional[int]) -> Dict[str, Any]:
-    saved_name = (get_client_name(user_id) or "").strip()
-    if not user_id:
-        return {"title": saved_name or "клиент", "aliases": [], "members": []}
-
-    direct_cards = CLIENTS_DB.list_clients(owner_user_id=int(user_id))
-    seed_cards = list(direct_cards)
-    if not seed_cards:
-        seed_cards = _client_cards_for_user(int(user_id), "client")
-
-    aliases: List[str] = []
-    members: List[str] = []
-    seen_aliases = set()
-    seen_members = set()
-    network_name = ""
-
-    def register_member(legal_form: str, legal_name: str, store_name: str = "") -> None:
-        legal_form = (legal_form or "").strip()
-        legal_name = (legal_name or "").strip()
-        store_name = (store_name or "").strip()
-        if not legal_name:
-            return
-        display = " ".join(part for part in [legal_form, legal_name] if part).strip()
-        member_key = _normalize_search_text(display)
-        if member_key and member_key not in seen_members:
-            seen_members.add(member_key)
-            members.append(display)
-        _append_client_search_alias(aliases, seen_aliases, legal_name)
-        _append_client_search_alias(aliases, seen_aliases, display)
-        _append_client_search_alias(aliases, seen_aliases, store_name)
-
-    for seed in seed_cards:
-        card = CLIENTS_DB.get_client(seed.get("id") or "") if seed.get("id") else None
-        card = card or seed
-        register_member(card.get("legal_form") or "", card.get("legal_name") or "", card.get("store_name") or "")
-        network = card.get("network") if isinstance(card.get("network"), dict) else None
-        if network and not network_name:
-            network_name = (network.get("name") or "").strip()
-        for linked in card.get("network_clients") or []:
-            register_member(linked.get("legal_form") or "", linked.get("legal_name") or "", linked.get("store_name") or "")
-
-    _append_client_search_alias(aliases, seen_aliases, saved_name)
-
-    title = network_name or saved_name or (members[0] if members else "клиент")
-    return {
-        "title": title,
-        "aliases": aliases,
-        "members": members,
-    }
 
 def _has_client_card_access(user_id: int, role: str, client_id: str) -> bool:
     if role == "moderator":
@@ -3106,14 +3035,12 @@ async def push_user_menu_refresh(user_id: Any, text: str = "🔄 Ваше мен
     except Exception:
         logger.exception("menu-refresh: failed for user=%s", uid)
 
-#ДОСТУП КНОПОК
 ACCESS_MATRIX: Dict[str, set] = {
     "prices.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "promos.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "schedule.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "search.debt": {"client", "sales_rep", "moderator", "admin"},
     "search.tara": {"client", "sales_rep", "moderator", "admin"},
-    "search.network": {"client", "sales_rep", "moderator", "admin"},
     "reports.general": {"admin"},
     "reports.overdue": {"admin", "sales_rep", "moderator"},
     "reports.overpaid": {"admin", "sales_rep", "moderator"},
@@ -3133,7 +3060,6 @@ ACCESS_LABELS: Dict[str, str] = {
     "schedule.view": "график развоза",
     "search.debt": "поиск по дебиторке",
     "search.tara": "поиск по таре",
-    "search.network": "поиск по сети",
     "reports.general": "общий отчёт",
     "reports.overdue": "отчёт по просрочке",
     "reports.overpaid": "отчёт по переплатам",
@@ -3748,13 +3674,7 @@ async def search_flow(m: Message, state: FSMContext):
     await m.answer("Готово.", reply_markup=menu_for_message(m))
 
 # --- Поиск по возвратной таре ---
-async def render_tara_search(
-            chat: Message,
-            keywords: List[str],
-            *,
-            aliases: Optional[List[str]] = None,
-            title: Optional[str] = None,
-    ):
+async def render_tara_search(chat: Message, keywords: List[str]):
     role = get_user_role(getattr(chat.from_user, 'id', None))
     kb = menu_for_role(role, getattr(chat.from_user, "id", None))
     paths = find_latest_downloads(report_type="tara", max_count=5)
@@ -3775,11 +3695,8 @@ async def render_tara_search(
             report_date = (res or {}).get("report_date")
 
             kws = [k for k in (keywords or []) if k]
-            alias_keys = [a for a in (aliases or []) if a]
             def match(b: dict) -> bool:
-                name = _normalize_search_text(b.get("client") or "")
-                if alias_keys:
-                    return any(alias in name for alias in alias_keys)
+                name = (b.get("client") or "").strip().casefold()
                 if not kws:
                     return False
                 return any(k in name for k in kws)
@@ -3787,8 +3704,6 @@ async def render_tara_search(
             filtered = [b for b in items if match(b)]
             if filtered:
                 chips = []
-                if alias_keys:
-                    chips.append("сеть: " + esc(title or "клиент"))
                 if kws:
                     chips.append("ключи: " + ", ".join(f"«{esc(k)}»" for k in kws))
                 title_suffix = (" (" + "; ".join(chips) + ")") if chips else ""
@@ -3823,10 +3738,7 @@ async def render_tara_search(
             last_err = str(e)
             continue
 
-    nothing_text = "Ничего не найдено по заданным ключам."
-    if aliases:
-        nothing_text = f"По сети «{esc(title or 'клиент')}» по таре ничего не найдено."
-    await chat.answer(nothing_text, reply_markup=kb)
+    await chat.answer("Ничего не найдено по заданным ключам.", reply_markup=kb)
 
 
 @router.message(F.text == "🔎 Поиск тары")
@@ -3864,39 +3776,6 @@ async def search_tara_flow(m: Message, state: FSMContext):
     await state.clear()
     await m.answer("Готово.", reply_markup=menu_for_message(m))
 
-@router.message(F.text == "🏢 Поиск по Сети")
-async def btn_search_network(m: Message):
-    async def btn_search_network(m: Message, state: FSMContext):
-        if not await ensure_message_access(m, "search.network", state=state):
-            return
-    if not _is_client_only(m):
-        await m.answer("Эта команда доступна только клиенту.", reply_markup=menu_for_message(m))
-        return
-
-    scope = _collect_client_network_scope(getattr(m.from_user, "id", None))
-    aliases = scope.get("aliases") or []
-    if not aliases:
-        await m.answer(
-            "Не удалось определить юрлица сети. Проверьте привязку карточки клиента и название организации.",
-            reply_markup=client_menu_kb(getattr(m.from_user, "id", None)),
-        )
-        return
-
-    members = scope.get("members") or []
-    title = scope.get("title") or "клиент"
-    members_text = "\n".join(f"• {esc(member)}" for member in members[:15])
-    if len(members) > 15:
-        members_text += f"\n• и ещё {len(members) - 15}"
-
-    await m.answer(
-        f"<b>Поиск по сети: {esc(title)}</b>\n"
-        f"Юрлица в поиске: {len(members)}\n"
-        f"{members_text or '• Используется сохранённое название клиента'}",
-        reply_markup=client_menu_kb(getattr(m.from_user, "id", None)),
-        disable_web_page_preview=True,
-    )
-    await run_client_search(m, title, aliases=aliases, title=title)
-    await render_tara_search(m, [], aliases=aliases, title=title)
 
 # --- Клиент: изменить название ---
 @router.message(F.text == "✏️ Изменить название")
@@ -4080,89 +3959,6 @@ async def client_cards_entry(m: Message, state: FSMContext):
         return
     title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
     await m.answer(title, reply_markup=client_cards_list_kb(items, role, page=0))
-
-def _client_card_search_score(query: str, item: Dict[str, Any]) -> int:
-    query = _normalize_client_card_lookup(query)
-    if not query:
-        return -1
-    candidates = [
-        item.get("legal_name") or "",
-        item.get("store_name") or "",
-        f"{item.get('legal_form') or ''} {item.get('legal_name') or ''}",
-        item.get("address") or "",
-    ]
-    best = -1
-    for raw_candidate in candidates:
-        candidate = _normalize_client_card_lookup(raw_candidate)
-        if not candidate:
-            continue
-        if candidate == query:
-            best = max(best, 300)
-        elif candidate.startswith(query):
-            best = max(best, 220)
-        elif query in candidate:
-            best = max(best, 120)
-    return best
-
-
-def _search_client_cards(items: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
-    scored = []
-    for item in items:
-        score = _client_card_search_score(query, item)
-        if score >= 0:
-            scored.append((score, item))
-    scored.sort(
-        key=lambda pair: (
-            pair[0],
-            _normalize_client_card_lookup(pair[1].get("legal_name") or ""),
-            _normalize_client_card_lookup(pair[1].get("store_name") or ""),
-            pair[1].get("updated_at") or "",
-        ),
-        reverse=True,
-    )
-    return [item for _, item in scored]
-
-
-@router.callback_query(F.data == "cc:search")
-async def cc_search_start(cq: CallbackQuery, state: FSMContext):
-    role = await ensure_callback_access(cq, "client_cards.view", state=state)
-    if not role:
-        return
-    await state.clear()
-    await state.set_state(ClientCardStates.waiting_search_query)
-    await cq.message.answer(
-        "Введите название юрлица, магазина или адрес для поиска по карточкам клиентов.",
-        reply_markup=back_only_kb(),
-    )
-    await cq.answer()
-
-
-@router.message(ClientCardStates.waiting_search_query)
-async def cc_search_query(m: Message, state: FSMContext):
-    role = await ensure_message_access(m, "client_cards.view", state=state)
-    if not role:
-        return
-    query = (m.text or "").strip()
-    uid = int(getattr(m.from_user, "id", 0) or 0)
-    if not query or query.startswith("/") or query == "⬅️ Назад":
-        await state.clear()
-        items = _client_cards_for_user(uid, role)
-        title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
-        await m.answer(
-            f"Поиск отменён.\n\n{title}",
-            reply_markup=client_cards_list_kb(items, role, page=0),
-        )
-        return
-    items = _client_cards_for_user(uid, role)
-    found = _search_client_cards(items, query)
-    await state.clear()
-    if not found:
-        await m.answer("Ничего не найдено по запросу.", reply_markup=client_cards_list_kb(items, role, page=0))
-        return
-    await m.answer(
-        f"Найдено карточек: {len(found)}.",
-        reply_markup=client_cards_list_kb(found, role, page=0),
-    )
 
 @router.callback_query(F.data.func(lambda d: d and d.startswith("cc:list")))
 async def cc_list(cq: CallbackQuery):
@@ -6459,16 +6255,9 @@ async def admin_users_save_phone(m: Message, state: FSMContext):
     await m.answer(f"✅ Телефон обновлён: {disp}")
 
 # --- Клиентский узкий поиск ---
-async def run_client_search(
-        m: Message,
-        raw_query: str,
-        *,
-        aliases: Optional[List[str]] = None,
-        title: Optional[str] = None,
-):
-    q = _normalize_search_text(raw_query)
-    alias_keys = [a for a in (aliases or []) if a]
-    if not q and not alias_keys:
+async def run_client_search(m: Message, raw_query: str):
+    q = (raw_query or "").strip().casefold()
+    if not q:
         await m.answer("Пустой запрос.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
 
@@ -6488,11 +6277,8 @@ async def run_client_search(
     report_date = (res or {}).get("report_date")
 
     def _match(it: Dict[str, Any]) -> bool:
-        name = _normalize_search_text(it.get("client") or "")
-        addr = _normalize_search_text(it.get("address") or "")
-        if alias_keys:
-            haystacks = [name, addr]
-            return any(alias in hay for alias in alias_keys for hay in haystacks)
+        name = (it.get("client") or "").casefold()
+        addr = (it.get("address") or "").casefold()
         return (q in name) or (q in addr)
 
     filtered = [it for it in items if _match(it)]
@@ -6500,9 +6286,8 @@ async def run_client_search(
         await m.answer("Ничего не найдено.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
 
-    heading = title or raw_query
     await m.answer(
-        f"<b>Результаты по «{esc(heading)}»</b>"
+        f"<b>Результаты по «{esc(raw_query)}»</b>"
         f"{(' на '+esc(report_date)) if report_date else ''}",
         disable_web_page_preview=True,
         reply_markup=client_menu_kb(getattr(m.from_user, "id", None))

@@ -81,12 +81,12 @@
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "role": "client",
+    "role": "admin",
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79965440806",
     "phone_verified": true,
-    "name": "Смирнов",
+    "name": "Колягин",
     "blocked": false
   },
   "288807506": {
@@ -99,5 +99,13 @@
     "notification_settings": {},
     "phone": "+79232235848",
     "phone_verified": true
+  },
+  "1012151863": {
+    "role": "client",
+    "name": "ООО Фартерия"
+  },
+  "1018441489": {
+    "name": "Колядина",
+    "role": "client"
   }
 }
