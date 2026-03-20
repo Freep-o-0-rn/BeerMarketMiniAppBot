@@ -19762,3 +19762,190 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: messa
 2026-03-20 00:43:07 | INFO | aiogram.event | Update id=104057112 is handled. Duration 8003 ms by bot id=8304099970
 2026-03-20 00:43:20 | INFO | aiogram.dispatcher | Polling stopped
 2026-03-20 00:43:20 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-20 18:25:32 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-20 18:25:35 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-20 18:25:35 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-20 18:25:35 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-20 18:25:37 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-20 18:25:37 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-20 18:25:37 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-20 18:25:37 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-20 18:25:37 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-20 18:25:37 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-20 18:25:37 | INFO | root | Собрано клиентов: 117
+2026-03-20 18:25:37 | INFO | __main__ | Отчёт на 20.03.2026 | клиентов: 117
+2026-03-20 18:25:37 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 171312.00 | проср: 171312.00 | наш долг: 0.00 | доков: 4
+2026-03-20 18:25:37 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 128184.48 | проср: 128184.48 | наш долг: 0.00 | доков: 8
+2026-03-20 18:25:37 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 126337.88 | проср: 103462.88 | наш долг: 0.00 | доков: 8
+2026-03-20 18:25:37 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 121390.00 | проср: 121390.00 | наш долг: 0.00 | доков: 7
+2026-03-20 18:25:37 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 103104.64 | проср: 103104.64 | наш долг: 0.00 | доков: 8
+2026-03-20 18:25:37 | INFO | __main__ | 06. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 88601.10 | проср: 88601.10 | наш долг: 70.38 | доков: 3
+2026-03-20 18:25:37 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-03-20 18:25:37 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 77775.00 | проср: 77775.00 | наш долг: 0.00 | доков: 6
+2026-03-20 18:25:37 | INFO | __main__ | 09. Титовская Наталия Александровна ИП - Воротников Д (Комсомольская ул, дом № 12) | сум: 76909.50 | проср: 76909.50 | наш долг: 0.00 | доков: 4
+2026-03-20 18:25:37 | INFO | __main__ | 10. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-20 18:25:37 | INFO | aiogram.dispatcher | Start polling
+2026-03-20 18:25:37 | INFO | telegram_bot | Daily fetch: next run in 57922 sec (now 2026-03-20 18:25:37, tz Asia/Novosibirsk)
+2026-03-20 18:25:37 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-20 18:26:34 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 343, 'req': '61886657', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2495, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:26:34 | INFO | aiogram.event | Update id=104057139 is handled. Duration 346 ms by bot id=8304099970
+2026-03-20 18:26:56 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 150, 'req': 'a2c5cbfb', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2497, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:26:56 | INFO | aiogram.event | Update id=104057140 is handled. Duration 157 ms by bot id=8304099970
+2026-03-20 18:26:58 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 248, 'req': '9089a5a4', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'admin', 'chat': 1188061961, 'cb_id': '5102687272153949414', 'msg_id': 2498, 'data': 'usr:sel:1188061961:0', 'state': None}
+2026-03-20 18:26:58 | INFO | aiogram.event | Update id=104057141 is handled. Duration 255 ms by bot id=8304099970
+2026-03-20 18:27:07 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 528, 'req': '09c3f1ed', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'moderator', 'chat': 1188061961, 'cb_id': '5102687268172453556', 'msg_id': 2498, 'data': 'usr:setrole:1188061961:moderator', 'state': None}
+2026-03-20 18:27:07 | INFO | aiogram.event | Update id=104057142 is handled. Duration 535 ms by bot id=8304099970
+2026-03-20 18:27:31 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 125, 'req': '5097cb96', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2501, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:27:31 | INFO | aiogram.event | Update id=104057143 is handled. Duration 132 ms by bot id=8304099970
+2026-03-20 18:27:34 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 229, 'req': '1dc6ed16', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731941090662', 'msg_id': 2502, 'data': 'usr:sel:1188061961:0', 'state': None}
+2026-03-20 18:27:34 | INFO | aiogram.event | Update id=104057144 is handled. Duration 236 ms by bot id=8304099970
+2026-03-20 18:27:37 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 501, 'req': '335ba3fe', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730170376289', 'msg_id': 2502, 'data': 'usr:setrole:1188061961:client', 'state': None}
+2026-03-20 18:27:37 | INFO | aiogram.event | Update id=104057145 is handled. Duration 508 ms by bot id=8304099970
+2026-03-20 18:27:50 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 164, 'req': 'fbf0366f', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2504, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:27:50 | INFO | aiogram.event | Update id=104057146 is handled. Duration 167 ms by bot id=8304099970
+2026-03-20 18:27:57 | ERROR | telegram_bot | Unhandled exception (req_id=c86fc432)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 849, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 3973, in client_cards_entry
+    _format_client_card_for_user(card, user_id=uid, role=role),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 2450, in _format_client_card_for_user
+    return format_client_card(
+        card,
+        viewer_role=role,
+        viewer_user_id=user_id,
+    )
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\client_cards_db.py", line 628, in format_client_card
+    visible_network_clients = _network_clients_visible(
+                              ^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name '_network_clients_visible' is not defined
+2026-03-20 18:27:57 | INFO | audit | {'t': 'msg', 'ok': False, 'ms': 127, 'req': 'c86fc432', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2506, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Моя карточка', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:27:57 | INFO | audit | {'t': 'error', 'req': 'c86fc432', 'exc': "NameError: name '_network_clients_visible' is not defined"}
+2026-03-20 18:27:57 | INFO | aiogram.event | Update id=104057147 is not handled. Duration 131 ms by bot id=8304099970
+2026-03-20 18:27:57 | ERROR | aiogram.event | Cause exception while process update id=104057147 by bot id=8304099970
+NameError: name '_network_clients_visible' is not defined
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        observer=observer, update_type=update_type, event=telegram_event, **data
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 819, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 849, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 3973, in client_cards_entry
+    _format_client_card_for_user(card, user_id=uid, role=role),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\telegram_bot.py", line 2450, in _format_client_card_for_user
+    return format_client_card(
+        card,
+        viewer_role=role,
+        viewer_user_id=user_id,
+    )
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.91\pythonProject\client_cards_db.py", line 628, in format_client_card
+    visible_network_clients = _network_clients_visible(
+                              ^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name '_network_clients_visible' is not defined
+2026-03-20 18:31:37 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-20 18:31:37 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-03-20 18:31:37 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-03-20 18:31:38 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-20 18:35:59 | INFO | __main__ | BOT_TOKEN валиден.
+2026-03-20 18:36:04 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-20 18:36:04 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-20 18:36:04 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-03-20 18:36:05 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-03-20 18:36:05 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-03-20 18:36:05 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-03-20 18:36:05 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-03-20 18:36:05 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-03-20 18:36:05 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-03-20 18:36:05 | INFO | root | Собрано клиентов: 117
+2026-03-20 18:36:05 | INFO | __main__ | Отчёт на 20.03.2026 | клиентов: 117
+2026-03-20 18:36:05 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 171312.00 | проср: 171312.00 | наш долг: 0.00 | доков: 4
+2026-03-20 18:36:05 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 128184.48 | проср: 128184.48 | наш долг: 0.00 | доков: 8
+2026-03-20 18:36:05 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 126337.88 | проср: 103462.88 | наш долг: 0.00 | доков: 8
+2026-03-20 18:36:05 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 121390.00 | проср: 121390.00 | наш долг: 0.00 | доков: 7
+2026-03-20 18:36:05 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 103104.64 | проср: 103104.64 | наш долг: 0.00 | доков: 8
+2026-03-20 18:36:05 | INFO | __main__ | 06. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 88601.10 | проср: 88601.10 | наш долг: 70.38 | доков: 3
+2026-03-20 18:36:05 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-03-20 18:36:05 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 77775.00 | проср: 77775.00 | наш долг: 0.00 | доков: 6
+2026-03-20 18:36:05 | INFO | __main__ | 09. Титовская Наталия Александровна ИП - Воротников Д (Комсомольская ул, дом № 12) | сум: 76909.50 | проср: 76909.50 | наш долг: 0.00 | доков: 4
+2026-03-20 18:36:05 | INFO | __main__ | 10. АРРАКИС ООО - Колягин (Гурьевская ул, дом № 64/1) | сум: 74061.60 | проср: 74061.60 | наш долг: 0.00 | доков: 2
+2026-03-20 18:36:06 | INFO | aiogram.dispatcher | Start polling
+2026-03-20 18:36:06 | INFO | telegram_bot | Daily fetch: next run in 57294 sec (now 2026-03-20 18:36:06, tz Asia/Novosibirsk)
+2026-03-20 18:36:06 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-03-20 18:36:08 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 542, 'req': '860d1ba2', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2508, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:36:08 | INFO | aiogram.event | Update id=104057148 is handled. Duration 545 ms by bot id=8304099970
+2026-03-20 18:36:14 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 267, 'req': '9c36eeec', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2510, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Моя карточка', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:36:14 | INFO | aiogram.event | Update id=104057149 is handled. Duration 271 ms by bot id=8304099970
+2026-03-20 18:37:15 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 146, 'req': '0ec807f9', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2513, 'kind': <ContentType.TEXT: 'text'>, 'text': '✏️ Изменить название', 'caption_len': 0, 'entities': 0, 'state': 'ClientEditStates:waiting_new_name'}
+2026-03-20 18:37:15 | INFO | aiogram.event | Update id=104057150 is handled. Duration 151 ms by bot id=8304099970
+2026-03-20 18:37:19 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 139, 'req': '49010259', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2515, 'kind': <ContentType.TEXT: 'text'>, 'text': 'смирнов', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:37:19 | INFO | aiogram.event | Update id=104057151 is handled. Duration 143 ms by bot id=8304099970
+2026-03-20 18:37:24 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 280, 'req': 'dd0bb1e8', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 2517, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Моя карточка', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-03-20 18:37:24 | INFO | aiogram.event | Update id=104057152 is handled. Duration 284 ms by bot id=8304099970
+2026-03-20 18:47:52 | INFO | aiogram.dispatcher | Polling stopped
+2026-03-20 18:47:52 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'

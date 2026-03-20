@@ -591,6 +591,46 @@ class ClientCardsDB:
             clients = conn.execute("SELECT legal_form, legal_name, store_name, address, overdue_days, sales_rep_name FROM clients").fetchall()
         return {"clients_count": len(clients), "clients": clients}
 
+def _network_clients_visible(
+    card: Dict[str, Any],
+    *,
+    viewer_role: str = "admin",
+    viewer_user_id: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Return the list of network clients visible to the current viewer.
+
+    Clients can only see the full network block when every linked card belongs
+    to the same owner. This prevents leaking other customers from a shared
+    network. Elevated roles keep the previous behaviour and can see every linked
+    legal entity in the network.
+    """
+    network_clients = [
+        client for client in (card.get("network_clients") or [])
+        if isinstance(client, dict) and client.get("id")
+    ]
+    if not network_clients:
+        return []
+
+    viewer_role = (viewer_role or "").strip()
+    if viewer_role in {"admin", "moderator", "sales_rep"}:
+        return network_clients
+
+    if viewer_role != "client" or viewer_user_id is None:
+        return []
+
+    owner_ids = {
+        int(owner_id)
+        for owner_id in (client.get("owner_user_id") for client in network_clients)
+        if owner_id is not None
+    }
+    if not owner_ids or len(owner_ids) != 1:
+        return []
+
+    owner_id = next(iter(owner_ids))
+    if owner_id != int(viewer_user_id):
+        return []
+    return network_clients
+
 def format_client_card(
     card: Dict[str, Any],
     *,
