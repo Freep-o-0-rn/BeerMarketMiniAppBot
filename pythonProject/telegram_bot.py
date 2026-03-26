@@ -9,7 +9,11 @@ import io
 import calendar as _cal
 import contextlib
 from aiogram.types import InputMediaPhoto
-import aiohttp, asyncio, time,os, re, json
+import aiohttp
+import time
+import os
+import re
+import json
 from io import BytesIO
 from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 from aiogram.fsm.state import StatesGroup, State
@@ -42,7 +46,6 @@ from aiogram.types import (
 from aiogram.client.default import DefaultBotProperties
 from aiogram.utils.token import validate_token, TokenValidationError
 from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest  # retry на флуд-контроль
-from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -1110,7 +1113,7 @@ def help_text_moderator(first_name: Optional[str]) -> str:
         "• 🎁 <b>Акции</b> — просмотр акций\n"
         "• 🚚 <b>График развоза</b> — фото и правила приёма заявок\n"
         "• 📦 <b>Проверить ТТН</b> — проверка статуса фактуры в ЕГАИС\n"
-        "• 🔔 <b>Уведомления</b> — включить или отключить уведомления о новых пользователях\n\n"
+        "• 🔔 <b>Уведомления</b> — включить или отключить уведомления (новые пользователи, смена ролей, авторизация)\n\n"
         "🧰 <b>Команды</b>:\n"
         "• /help — эта справка\n"
     )
@@ -1328,6 +1331,18 @@ def reset_user_action_overrides(user_id: Any) -> None:
 def get_user_notification_settings(user_id: Optional[int]) -> Dict[str, bool]:
     return _normalize_notification_settings(_user_record(user_id).get("notification_settings"))
 
+
+NOTIFICATION_META: Dict[str, Dict[str, str]] = {
+    "new_users": {"label": "Новые пользователи"},
+    "role_changes": {"label": "Смена ролей"},
+    "auth_changes": {"label": "Авторизация/блокировка"},
+}
+NOTIFICATION_ORDER: List[str] = ["new_users", "role_changes", "auth_changes"]
+
+
+def notification_label(key: str) -> str:
+    return str((NOTIFICATION_META.get(key) or {}).get("label") or key)
+
 def notification_enabled(user_id: Optional[int], key: str, *, default: Optional[bool] = None) -> bool:
     rec = _user_record(user_id)
     settings = _normalize_notification_settings(rec.get("notification_settings"))
@@ -1338,6 +1353,8 @@ def notification_enabled(user_id: Optional[int], key: str, *, default: Optional[
         return default
     if key == "new_users":
         return role in {"admin", "moderator"}
+    if key in {"role_changes", "auth_changes"}:
+        return True
     return False
 
 def set_user_notification_setting(user_id: Any, key: str, enabled: bool) -> None:
@@ -1345,6 +1362,65 @@ def set_user_notification_setting(user_id: Any, key: str, enabled: bool) -> None
     settings = _normalize_notification_settings(rec.get("notification_settings"))
     settings[key] = bool(enabled)
     update_user_record(user_id, {"notification_settings": settings})
+
+def _notification_toggle_text(user_id: int, key: str) -> str:
+    enabled = notification_enabled(user_id, key)
+    return f"{'✅' if enabled else '❌'} {notification_label(key)}"
+
+
+def _notification_recipients_role_changes() -> List[int]:
+    data = _roles_load()
+    recipients = {int(uid) for uid in _ADMIN_IDS if isinstance(uid, int)}
+    for uid, rec in data.items():
+        if uid == "client_phones" or not isinstance(rec, dict) or not uid.isdigit():
+            continue
+        role = normalize_role(rec.get("role"))
+        if role not in {"admin", "moderator"}:
+            continue
+        if notification_enabled(int(uid), "role_changes"):
+            recipients.add(int(uid))
+    return sorted(recipients)
+
+
+async def notify_about_role_change(
+    *,
+    actor_id: Optional[int],
+    target_user_id: int,
+    old_role: str,
+    new_role: str,
+) -> None:
+    if normalize_role(old_role) == normalize_role(new_role):
+        return
+    actor_name = "Система"
+    if actor_id:
+        actor = _user_record(actor_id)
+        actor_name = (actor.get("name") or actor.get("username") or str(actor_id)).strip()
+    old_label = role_label(old_role)
+    new_label = role_label(new_role)
+    text_for_user = (
+        "🔐 <b>Изменение роли</b>\n"
+        f"Ваша роль изменена: <b>{esc(old_label)}</b> → <b>{esc(new_label)}</b>.\n"
+        f"Инициатор: <b>{esc(actor_name)}</b>."
+    )
+    if notification_enabled(target_user_id, "role_changes"):
+        try:
+            await bot.send_message(target_user_id, text_for_user)
+        except Exception:
+            logger.exception("role-change-notify: failed target=%s", target_user_id)
+    text_for_admins = (
+        "🔔 <b>Смена роли пользователя</b>\n"
+        f"Пользователь: <code>{target_user_id}</code>\n"
+        f"Роль: <b>{esc(old_label)}</b> → <b>{esc(new_label)}</b>\n"
+        f"Инициатор: <b>{esc(actor_name)}</b>"
+    )
+    for recipient in _notification_recipients_role_changes():
+        if recipient in {target_user_id, int(actor_id or 0)}:
+            continue
+        try:
+            await bot.send_message(recipient, text_for_admins)
+        except Exception:
+            logger.exception("role-change-notify: failed recipient=%s target=%s", recipient, target_user_id)
+
 
 def delete_user_record(user_id: Any) -> bool:
     uid = str(user_id)
@@ -1985,6 +2061,9 @@ def user_detail_kb(
                 InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
                 InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"usr:editphone:{uid}"),
             ],
+            [
+                InlineKeyboardButton(text="🔔 Уведомления пользователя", callback_data=f"usr:notifymenu:{uid}:{page}"),
+            ],
         ])
     rows.append([InlineKeyboardButton(text="🔐 Права доступа", callback_data=f"usr:perms:{uid}:0")])
     if can_manage:
@@ -2093,13 +2172,29 @@ def safe_user_permissions_kb(uid: str, page: int, *, can_manage: bool) -> Inline
     ])
 
 def notifications_menu_kb(user_id: int) -> InlineKeyboardMarkup:
-    enabled = notification_enabled(user_id, "new_users")
-    rows = [[
-        InlineKeyboardButton(
-            text=f"{'✅' if enabled else '❌'} Новые пользователи",
-            callback_data=f"notify:toggle:new_users:{1 if enabled else 0}",
-        )
-    ], [InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")]]
+    rows: List[List[InlineKeyboardButton]] = []
+    for key in NOTIFICATION_ORDER:
+        rows.append([
+            InlineKeyboardButton(
+                text=_notification_toggle_text(user_id, key),
+                callback_data=f"notify:toggle:{key}:{user_id}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def admin_user_notifications_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    user_id = int(uid) if uid.isdigit() else 0
+    for key in NOTIFICATION_ORDER:
+        rows.append([
+            InlineKeyboardButton(
+                text=_notification_toggle_text(user_id, key),
+                callback_data=f"usr:notify:{uid}:{key}:{page}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ К пользователю", callback_data=f"usr:sel:{uid}:{page}")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -6139,14 +6234,59 @@ async def notifications_menu_callback(cq: CallbackQuery):
     await cq.message.answer("Управление уведомлениями:", reply_markup=notifications_menu_kb(getattr(cq.from_user, "id", 0)))
     await cq.answer()
 
-@router.callback_query(F.data.startswith("notify:toggle:new_users:"))
-async def notifications_toggle_new_users(cq: CallbackQuery):
+@router.callback_query(F.data.startswith("notify:toggle:"))
+async def notifications_toggle(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "notifications.manage"):
         return
-    user_id = int(getattr(cq.from_user, "id", 0) or 0)
-    enabled = notification_enabled(user_id, "new_users")
-    set_user_notification_setting(user_id, "new_users", not enabled)
-    await cq.message.edit_text("Управление уведомлениями:", reply_markup=notifications_menu_kb(user_id))
+        parts = (cq.data or "").split(":")
+        key = parts[2] if len(parts) > 2 else ""
+        target_user_id = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else int(
+            getattr(cq.from_user, "id", 0) or 0)
+        if key not in NOTIFICATION_ORDER:
+            await cq.answer("Неизвестный тип уведомления.", show_alert=True)
+            return
+        enabled = notification_enabled(target_user_id, key)
+        set_user_notification_setting(target_user_id, key, not enabled)
+        await cq.message.edit_text("Управление уведомлениями:", reply_markup=notifications_menu_kb(target_user_id))
+        await cq.answer("Настройка обновлена.")
+
+    @router.callback_query(F.data.startswith("usr:notifymenu:"))
+    async def admin_user_notifications_menu(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "users.manage"):
+            return
+        parts = (cq.data or "").split(":")
+        uid = parts[2] if len(parts) > 2 else ""
+        page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+        if not uid or not uid.isdigit():
+            await cq.answer("Пользователь не найден.", show_alert=True)
+            return
+        await cq.message.edit_text(
+            f"🔔 Уведомления пользователя <code>{uid}</code>",
+            reply_markup=admin_user_notifications_kb(uid, page=page),
+        )
+        await cq.answer()
+
+    @router.callback_query(F.data.startswith("usr:notify:"))
+    async def admin_user_notification_toggle(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "users.manage"):
+            return
+        parts = (cq.data or "").split(":")
+        uid = parts[2] if len(parts) > 2 else ""
+        key = parts[3] if len(parts) > 3 else ""
+        page = int(parts[4]) if len(parts) > 4 and parts[4].isdigit() else 0
+        if not uid or not uid.isdigit():
+            await cq.answer("Пользователь не найден.", show_alert=True)
+            return
+        if key not in NOTIFICATION_ORDER:
+            await cq.answer("Неизвестный тип уведомления.", show_alert=True)
+            return
+        user_id = int(uid)
+        enabled = notification_enabled(user_id, key)
+        set_user_notification_setting(user_id, key, not enabled)
+        await cq.message.edit_text(
+            f"🔔 Уведомления пользователя <code>{uid}</code>",
+            reply_markup=admin_user_notifications_kb(uid, page=page),
+        )
     await cq.answer("Настройка обновлена.")
 
 @router.callback_query(F.data.startswith("usr:list:"))
@@ -6176,8 +6316,9 @@ async def admin_users_select(cq: CallbackQuery):
     is_authorized = bool(rec.get("phone_verified"))
     blocked = "⛔" if rec.get("blocked") else "✅"
     custom_rights = len(_normalize_access_overrides(rec.get("access_overrides")))
-    notify_enabled = notification_enabled(int(uid), "new_users") if uid.isdigit() else False
-    notify_new_users = "✅" if notify_enabled else "❌"
+    notify_new_users = "✅" if (notification_enabled(int(uid), "new_users") if uid.isdigit() else False) else "❌"
+    notify_role_changes = "✅" if (notification_enabled(int(uid), "role_changes") if uid.isdigit() else False) else "❌"
+    notify_auth_changes = "✅" if (notification_enabled(int(uid), "auth_changes") if uid.isdigit() else False) else "❌"
     username = f"@{rec.get('username')}" if rec.get("username") else "—"
     first_name = (rec.get("first_name") or "—").strip()
     last_name = (rec.get("last_name") or "—").strip()
@@ -6201,7 +6342,7 @@ async def admin_users_select(cq: CallbackQuery):
         f"Ручная авторизация: {manual_auth}\n"
         f"Доступ: {blocked}\n"
         f"Индивидуальных прав: <b>{custom_rights}</b>\n"
-        f"Уведомления о новых пользователях: {notify_new_users}"
+        f"Уведомления (новые/роли/авторизация): {notify_new_users}/{notify_role_changes}/{notify_auth_changes}"
     )
     await cq.message.edit_text(
         text,
@@ -6236,8 +6377,17 @@ async def admin_users_set_role(cq: CallbackQuery):
     if not uid:
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
-    update_user_record(uid, {"role": normalize_role(role)})
+    old_role = normalize_role((_roles_load().get(uid, {}) or {}).get("role") or "guest")
+    new_role = normalize_role(role)
+    update_user_record(uid, {"role": new_role})
     await push_user_menu_refresh(uid, "🔄 Ваши права обновлены. Новое меню уже доступно.")
+    if uid.isdigit():
+        await notify_about_role_change(
+            actor_id=getattr(cq.from_user, "id", None),
+            target_user_id=int(uid),
+            old_role=old_role,
+            new_role=new_role,
+        )
     await cq.answer("Роль обновлена.")
     if cq.message and cq.message.reply_markup:
         markup = cq.message.reply_markup
@@ -6248,7 +6398,7 @@ async def admin_users_set_role(cq: CallbackQuery):
         if is_permissions_screen:
             await cq.message.edit_text(
                 f"Права пользователя <code>{esc(uid)}</code> обновлены.\n"
-                f"Текущая роль: <b>{esc(role_label(role))}</b>",
+                                f"Текущая роль: <b>{esc(role_label(new_role))}</b>",
                 reply_markup=user_permissions_kb(uid)
             )
             return
