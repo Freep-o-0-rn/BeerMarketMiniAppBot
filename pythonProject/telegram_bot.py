@@ -1422,6 +1422,31 @@ async def notify_about_role_change(
             logger.exception("role-change-notify: failed recipient=%s target=%s", recipient, target_user_id)
 
 
+async def notify_about_access_change(
+    *,
+    actor_id: Optional[int],
+    target_user_id: int,
+    event_label: str,
+    new_value_label: str,
+) -> None:
+    if not notification_enabled(target_user_id, "auth_changes"):
+        return
+    actor_name = "Система"
+    if actor_id:
+        actor = _user_record(actor_id)
+        actor_name = (actor.get("name") or actor.get("username") or str(actor_id)).strip()
+    text = (
+        "🔔 <b>Изменение доступа</b>\n"
+        f"Событие: <b>{esc(event_label)}</b>\n"
+        f"Новое состояние: <b>{esc(new_value_label)}</b>\n"
+        f"Инициатор: <b>{esc(actor_name)}</b>"
+    )
+    try:
+        await bot.send_message(target_user_id, text)
+    except Exception:
+        logger.exception("access-change-notify: failed target=%s event=%s", target_user_id, event_label)
+
+
 def delete_user_record(user_id: Any) -> bool:
     uid = str(user_id)
     data = _roles_load()
@@ -2177,7 +2202,7 @@ def notifications_menu_kb(user_id: int) -> InlineKeyboardMarkup:
         rows.append([
             InlineKeyboardButton(
                 text=_notification_toggle_text(user_id, key),
-                callback_data=f"notify:toggle:{key}:{user_id}",
+                callback_data=f"notify:toggle:{key}",
             )
         ])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
@@ -6240,8 +6265,7 @@ async def notifications_toggle(cq: CallbackQuery):
         return
         parts = (cq.data or "").split(":")
         key = parts[2] if len(parts) > 2 else ""
-        target_user_id = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else int(
-            getattr(cq.from_user, "id", 0) or 0)
+        target_user_id = int(getattr(cq.from_user, "id", 0) or 0)
         if key not in NOTIFICATION_ORDER:
             await cq.answer("Неизвестный тип уведомления.", show_alert=True)
             return
@@ -6287,7 +6311,7 @@ async def notifications_toggle(cq: CallbackQuery):
             f"🔔 Уведомления пользователя <code>{uid}</code>",
             reply_markup=admin_user_notifications_kb(uid, page=page),
         )
-    await cq.answer("Настройка обновлена.")
+        await cq.answer("Настройка обновлена.")
 
 @router.callback_query(F.data.startswith("usr:list:"))
 async def admin_users_list_page(cq: CallbackQuery):
@@ -6364,6 +6388,13 @@ async def admin_users_toggle_auth(cq: CallbackQuery):
         rec = {"role": "guest", "name": str(rec)}
     new_auth_state = not bool(rec.get("phone_verified"))
     update_user_record(uid, {"phone_verified": new_auth_state})
+    if uid.isdigit():
+        await notify_about_access_change(
+            actor_id=getattr(cq.from_user, "id", None),
+            target_user_id=int(uid),
+            event_label="Ручная авторизация",
+            new_value_label="Включена" if new_auth_state else "Отключена",
+        )
     await cq.answer("Авторизация выдана." if new_auth_state else "Авторизация снята.")
     await admin_users_select(cq)
 
@@ -6398,7 +6429,7 @@ async def admin_users_set_role(cq: CallbackQuery):
         if is_permissions_screen:
             await cq.message.edit_text(
                 f"Права пользователя <code>{esc(uid)}</code> обновлены.\n"
-                                f"Текущая роль: <b>{esc(role_label(new_role))}</b>",
+                    f"Текущая роль: <b>{esc(role_label(new_role))}</b>",
                 reply_markup=user_permissions_kb(uid)
             )
             return
@@ -6478,6 +6509,13 @@ async def admin_users_block(cq: CallbackQuery):
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     update_user_record(uid, {"blocked": True})
+    if uid.isdigit():
+        await notify_about_access_change(
+            actor_id=getattr(cq.from_user, "id", None),
+            target_user_id=int(uid),
+            event_label="Блокировка",
+            new_value_label="Заблокирован",
+        )
     await cq.answer("Пользователь заблокирован.")
     await admin_users_select(cq)
 
@@ -6490,6 +6528,13 @@ async def admin_users_unblock(cq: CallbackQuery):
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     update_user_record(uid, {"blocked": False})
+    if uid.isdigit():
+        await notify_about_access_change(
+            actor_id=getattr(cq.from_user, "id", None),
+            target_user_id=int(uid),
+            event_label="Блокировка",
+            new_value_label="Разблокирован",
+        )
     await cq.answer("Пользователь разблокирован.")
     await admin_users_select(cq)
 
