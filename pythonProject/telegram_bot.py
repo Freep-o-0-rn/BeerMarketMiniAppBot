@@ -1702,7 +1702,7 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if role in {"admin", "sales_rep"}:
         keyboard.append([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
     management_row: List[KeyboardButton] = []
-    if user_allows_action(user_id, "users.manage"):
+    if user_allows_action(user_id, "users.manage") or user_allows_action(user_id, "users.view"):
         management_row.append(KeyboardButton(text="👥 Пользователи"))
     if user_allows_action(user_id, "client_cards.view"):
         management_row.append(KeyboardButton(text=_management_button_text(role)))
@@ -1954,35 +1954,47 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def user_detail_kb(uid: str, page: int = 0, is_authorized: bool = False) -> InlineKeyboardMarkup:
+
+def user_detail_kb(
+    uid: str,
+    page: int = 0,
+    is_authorized: bool = False,
+    *,
+    can_manage: bool = True,
+) -> InlineKeyboardMarkup:
     auth_btn_text = "🚫 Снять авторизацию" if is_authorized else "✅ Авторизовать"
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
-            InlineKeyboardButton(text="👤 Сделать клиентом", callback_data=f"usr:setrole:{uid}:client"),
-        ],
-        [
-            InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
-            InlineKeyboardButton(text="👋 Сделать гостем", callback_data=f"usr:setrole:{uid}:guest"),
-        ],
-        [
-            InlineKeyboardButton(text="🛡 Сделать модератором", callback_data=f"usr:setrole:{uid}:moderator"),
-        ],
-        [
-            InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
-            InlineKeyboardButton(text=auth_btn_text, callback_data=f"usr:auth:{uid}:{page}"),
-        ],
-        [
-            InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
-            InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"usr:editphone:{uid}"),
-        ],
-        [InlineKeyboardButton(text="🔐 Права доступа", callback_data=f"usr:perms:{uid}:0")],
-        [
+    rows: List[List[InlineKeyboardButton]] = []
+    if can_manage:
+        rows.extend([
+            [
+                InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
+                InlineKeyboardButton(text="👤 Сделать клиентом", callback_data=f"usr:setrole:{uid}:client"),
+            ],
+            [
+                InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
+                InlineKeyboardButton(text="👋 Сделать гостем", callback_data=f"usr:setrole:{uid}:guest"),
+            ],
+            [
+                InlineKeyboardButton(text="🛡 Сделать модератором", callback_data=f"usr:setrole:{uid}:moderator"),
+            ],
+            [
+                InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
+                InlineKeyboardButton(text=auth_btn_text, callback_data=f"usr:auth:{uid}:{page}"),
+            ],
+            [
+                InlineKeyboardButton(text="✏️ Изменить имя", callback_data=f"usr:editname:{uid}"),
+                InlineKeyboardButton(text="📞 Изменить телефон", callback_data=f"usr:editphone:{uid}"),
+            ],
+        ])
+    rows.append([InlineKeyboardButton(text="🔐 Права доступа", callback_data=f"usr:perms:{uid}:0")])
+    if can_manage:
+        rows.append([
             InlineKeyboardButton(text="⛔ Заблокировать", callback_data=f"usr:block:{uid}"),
             InlineKeyboardButton(text="✅ Разблокировать", callback_data=f"usr:unblock:{uid}"),
-        ],
-        [InlineKeyboardButton(text="⬅️ К списку", callback_data=f"usr:list:{page}")],
-    ])
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ К списку", callback_data=f"usr:list:{page}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 
 MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("prices.view", "📑 Прайсы"),
@@ -1999,14 +2011,15 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("client_cards.view", "🏢 Клиенты"),
     ("client_cards.manage", "✏️ Карточки"),
     ("technicians.manage", "🛠 Техники"),
-    ("users.manage", "👥 Пользователи"),
+    ("users.view", "👥 Пользователи (просмотр)"),
+    ("users.manage", "👥 Пользователи (управление)"),
     ("notifications.manage", "🔔 Уведомления"),
 ]
 MANAGED_ACTIONS_BY_TOKEN: Dict[str, str] = {str(i): action for i, (action, _) in enumerate(MANAGED_ACTIONS)}
 MANAGED_ACTIONS_LABELS: Dict[str, str] = {action: label for action, label in MANAGED_ACTIONS}
 MANAGED_ACTIONS_PAGE_SIZE = 6
 
-def user_permissions_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
+def user_permissions_kb(uid: str, page: int = 0, *, can_manage: bool = True) -> InlineKeyboardMarkup:
     rec = _roles_load().get(uid, {}) if uid else {}
     role = normalize_role((rec or {}).get("role") or "guest")
     total = len(MANAGED_ACTIONS)
@@ -2014,26 +2027,36 @@ def user_permissions_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
     page = max(0, min(page, last_page))
     start = page * MANAGED_ACTIONS_PAGE_SIZE
     end = min(total, start + MANAGED_ACTIONS_PAGE_SIZE)
-    rows: List[List[InlineKeyboardButton]] = [[
-        InlineKeyboardButton(text="👑 Админ", callback_data=f"usr:setrole:{uid}:admin"),
-        InlineKeyboardButton(text="🛡 Модератор", callback_data=f"usr:setrole:{uid}:moderator"),
-    ], [
-        InlineKeyboardButton(text="🧑‍💼 Торговый", callback_data=f"usr:setrole:{uid}:sales_rep"),
-        InlineKeyboardButton(text="👤 Клиент", callback_data=f"usr:setrole:{uid}:client"),
-    ], [
-        InlineKeyboardButton(text="👋 Гость", callback_data=f"usr:setrole:{uid}:guest"),
-        InlineKeyboardButton(text="♻️ Сбросить права", callback_data=f"usr:permreset:{uid}:{page}"),
-    ]]
+    rows: List[List[InlineKeyboardButton]] = []
+    if can_manage:
+        rows.extend([[
+            InlineKeyboardButton(text="👑 Админ", callback_data=f"usr:setrole:{uid}:admin"),
+            InlineKeyboardButton(text="🛡 Модератор", callback_data=f"usr:setrole:{uid}:moderator"),
+        ], [
+            InlineKeyboardButton(text="🧑‍💼 Торговый", callback_data=f"usr:setrole:{uid}:sales_rep"),
+            InlineKeyboardButton(text="👤 Клиент", callback_data=f"usr:setrole:{uid}:client"),
+        ], [
+            InlineKeyboardButton(text="👋 Гость", callback_data=f"usr:setrole:{uid}:guest"),
+            InlineKeyboardButton(text="♻️ Сбросить права", callback_data=f"usr:permreset:{uid}:{page}"),
+        ]])
     for idx in range(start, end):
         action, label = MANAGED_ACTIONS[idx]
         enabled = user_allows_action(int(uid), action) if uid.isdigit() else role_allows_action(role, action)
         icon = "✅" if enabled else "❌"
-        rows.append([
-            InlineKeyboardButton(
-                text=f"{icon} {label}",
-                callback_data=f"usr:permtoggle:{uid}:{idx}:{page}"
-            )
-        ])
+        if can_manage:
+            rows.append([
+                InlineKeyboardButton(
+                    text=f"{icon} {label}",
+                    callback_data=f"usr:permtoggle:{uid}:{idx}:{page}"
+                )
+            ])
+        else:
+            rows.append([
+                InlineKeyboardButton(
+                    text=f"{icon} {label}",
+                    callback_data="usr:perms:noop"
+                )
+            ])
     nav: List[InlineKeyboardButton] = []
     if page > 0:
         nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"usr:perms:{uid}:{page-1}"))
@@ -2044,6 +2067,30 @@ def user_permissions_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
         rows.append(nav)
     rows.append([InlineKeyboardButton(text="⬅️ К пользователю", callback_data=f"usr:sel:{uid}:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def safe_user_detail_kb(uid: str, page: int, is_authorized: bool, *, can_manage: bool) -> InlineKeyboardMarkup:
+    """
+    Защита от падения в рантайме, если в конкретной сборке отсутствует user_detail_kb.
+    """
+    builder = globals().get("user_detail_kb")
+    if callable(builder):
+        return builder(uid, page=page, is_authorized=is_authorized, can_manage=can_manage)
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔐 Права доступа", callback_data=f"usr:perms:{uid}:0")],
+        [InlineKeyboardButton(text="⬅️ К списку", callback_data=f"usr:list:{page}")],
+    ])
+
+
+def safe_user_permissions_kb(uid: str, page: int, *, can_manage: bool) -> InlineKeyboardMarkup:
+    """
+    Защита от падения в рантайме, если в конкретной сборке отсутствует user_permissions_kb.
+    """
+    builder = globals().get("user_permissions_kb")
+    if callable(builder):
+        return builder(uid, page=page, can_manage=can_manage)
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="⬅️ К пользователю", callback_data=f"usr:sel:{uid}:0")],
+    ])
 
 def notifications_menu_kb(user_id: int) -> InlineKeyboardMarkup:
     enabled = notification_enabled(user_id, "new_users")
@@ -3092,6 +3139,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "client_cards.view": {"admin", "sales_rep", "moderator", "client"},
     "client_cards.manage": {"admin", "sales_rep"},
     "technicians.manage": {"admin"},
+    "users.view": {"admin", "moderator"},
     "users.manage": {"admin"},
     "notifications.manage": {"admin", "moderator"},
 }
@@ -3111,6 +3159,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "client_cards.view": "карточки клиентов",
     "client_cards.manage": "управление карточками клиентов",
     "technicians.manage": "управление техниками",
+    "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
     "notifications.manage": "управление уведомлениями",
 }
@@ -6073,7 +6122,7 @@ async def reset_role_cmd(m: Message, state: FSMContext):
 @router.message(Command("users"))
 @router.message(F.text == "👥 Пользователи")
 async def admin_users_list(m: Message):
-    if not await ensure_message_access(m, "users.manage"):
+    if not await ensure_message_access(m, "users.view"):
         return
     await m.answer("Список пользователей:", reply_markup=users_list_kb())
 
@@ -6102,7 +6151,7 @@ async def notifications_toggle_new_users(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:list:"))
 async def admin_users_list_page(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.manage"):
+    if not await ensure_callback_access(cq, "users.view"):
         return
     try:
         page = int(cq.data.split(":")[2])
@@ -6113,7 +6162,7 @@ async def admin_users_list_page(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:sel:"))
 async def admin_users_select(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.manage"):
+    if not await ensure_callback_access(cq, "users.view"):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
@@ -6129,17 +6178,35 @@ async def admin_users_select(cq: CallbackQuery):
     custom_rights = len(_normalize_access_overrides(rec.get("access_overrides")))
     notify_enabled = notification_enabled(int(uid), "new_users") if uid.isdigit() else False
     notify_new_users = "✅" if notify_enabled else "❌"
+    username = f"@{rec.get('username')}" if rec.get("username") else "—"
+    first_name = (rec.get("first_name") or "—").strip()
+    last_name = (rec.get("last_name") or "—").strip()
+    language_code = (rec.get("language_code") or "—").strip()
+    premium = "✅" if rec.get("is_premium") else "❌"
+    onboard_done = "✅" if rec.get("onboard_completed") else "❌"
+    manual_auth = "✅" if rec.get("authorized_by_admin") else "❌"
+    can_manage = user_allows_action(getattr(cq.from_user, "id", None), "users.manage")
     text = (
         f"<b>Пользователь</b>\n"
         f"ID: <code>{esc(uid)}</code>\n"
         f"Роль: <b>{esc(role_label(role))}</b>\n"
         f"Имя: <b>{esc(name)}</b>\n"
+        f"Username: <b>{esc(username)}</b>\n"
+        f"Telegram имя: <b>{esc(first_name)}</b>\n"
+        f"Telegram фамилия: <b>{esc(last_name)}</b>\n"
+        f"Язык Telegram: <b>{esc(language_code)}</b>\n"
+        f"Telegram Premium: {premium}\n"
         f"Телефон: <b>{esc(phone)}</b> ({verified})\n"
+        f"Онбординг завершён: {onboard_done}\n"
+        f"Ручная авторизация: {manual_auth}\n"
         f"Доступ: {blocked}\n"
         f"Индивидуальных прав: <b>{custom_rights}</b>\n"
         f"Уведомления о новых пользователях: {notify_new_users}"
     )
-    await cq.message.edit_text(text, reply_markup=user_detail_kb(uid, page=page, is_authorized=is_authorized))
+    await cq.message.edit_text(
+        text,
+        reply_markup=user_detail_kb(uid, page=page, is_authorized=is_authorized, can_manage=can_manage),
+    )
     await cq.answer()
 
 @router.callback_query(F.data.startswith("usr:auth:"))
@@ -6193,7 +6260,7 @@ async def admin_users_permissions_noop(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("usr:perms:"))
 async def admin_users_permissions(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.manage"):
+    if not await ensure_callback_access(cq, "users.view"):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
@@ -6203,11 +6270,12 @@ async def admin_users_permissions(cq: CallbackQuery):
         return
     rec = _user_record(int(uid)) if uid.isdigit() else {}
     role = normalize_role(rec.get("role") or "guest")
+    can_manage = user_allows_action(getattr(cq.from_user, "id", None), "users.manage")
     await cq.message.edit_text(
         f"Права пользователя <code>{esc(uid)}</code>\n"
         f"Роль по умолчанию: <b>{esc(role_label(role))}</b>\n"
-        "Нажимайте на пункты, чтобы включать или выключать доступ.",
-        reply_markup=user_permissions_kb(uid, page=page)
+        f"{'Нажимайте на пункты, чтобы включать или выключать доступ.' if can_manage else 'Режим просмотра прав (без изменений).'}",
+        reply_markup=user_permissions_kb(uid, page=page, can_manage=can_manage)
     )
     await cq.answer()
 
