@@ -20738,3 +20738,94 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: keybo
 2026-04-01 00:16:28 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
 2026-04-01 00:16:36 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 417, 'req': '87bc2b29', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2589, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
 2026-04-01 00:16:36 | INFO | aiogram.event | Update id=104057229 is handled. Duration 421 ms by bot id=8304099970
+2026-04-01 00:36:26 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-01 00:36:29 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-01 00:36:29 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-01 00:36:29 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-01 00:36:30 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-01 00:36:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-01 00:36:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-01 00:36:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-01 00:36:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-01 00:36:30 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-04-01 00:36:30 | INFO | root | Собрано клиентов: 109
+2026-04-01 00:36:30 | INFO | __main__ | Отчёт на 31.03.2026 | клиентов: 109
+2026-04-01 00:36:30 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 4
+2026-04-01 00:36:30 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 130540.00 | проср: 130540.00 | наш долг: 0.00 | доков: 8
+2026-04-01 00:36:30 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 107429.84 | проср: 107429.84 | наш долг: 0.00 | доков: 8
+2026-04-01 00:36:30 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 100652.00 | проср: 100652.00 | наш долг: 0.00 | доков: 7
+2026-04-01 00:36:30 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 93954.64 | проср: 93954.64 | наш долг: 0.00 | доков: 7
+2026-04-01 00:36:30 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 91500.00 | проср: 91500.00 | наш долг: 0.00 | доков: 7
+2026-04-01 00:36:30 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-04-01 00:36:30 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 77718.88 | проср: 77718.88 | наш долг: 0.00 | доков: 3
+2026-04-01 00:36:30 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 71413.92 | проср: 71413.92 | наш долг: 0.00 | доков: 5
+2026-04-01 00:36:30 | INFO | __main__ | 10. Виикманн Игорь Олегович ИП - Воротников Д | сум: 68380.67 | проср: 68380.67 | наш долг: 0.00 | доков: 1
+2026-04-01 00:36:31 | INFO | aiogram.dispatcher | Start polling
+2026-04-01 00:36:31 | INFO | telegram_bot | Daily fetch: next run in 35669 sec (now 2026-04-01 00:36:31, tz Asia/Novosibirsk)
+2026-04-01 00:36:31 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-01 00:36:45 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 387, 'req': '6904edcd', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2591, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 00:36:45 | INFO | aiogram.event | Update id=104057230 is handled. Duration 391 ms by bot id=8304099970
+2026-04-01 00:37:08 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 147, 'req': '2d484144', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2593, 'kind': <ContentType.TEXT: 'text'>, 'text': '📰 Управление новостями', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 00:37:08 | INFO | aiogram.event | Update id=104057231 is handled. Duration 149 ms by bot id=8304099970
+2026-04-01 00:37:10 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 447, 'req': 'c1577c94', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731583849973', 'msg_id': 2594, 'data': 'news:list:published:0', 'state': None}
+2026-04-01 00:37:10 | INFO | aiogram.event | Update id=104057232 is handled. Duration 449 ms by bot id=8304099970
+2026-04-01 00:37:12 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 159, 'req': '83ac3e4e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729079767331', 'msg_id': 2594, 'data': 'news:noop', 'state': None}
+2026-04-01 00:37:12 | INFO | aiogram.event | Update id=104057233 is handled. Duration 161 ms by bot id=8304099970
+2026-04-01 00:37:14 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 412, 'req': '562a4449', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728342211378', 'msg_id': 2594, 'data': 'news:menu', 'state': None}
+2026-04-01 00:37:14 | INFO | aiogram.event | Update id=104057234 is handled. Duration 413 ms by bot id=8304099970
+2026-04-01 00:37:16 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 472, 'req': 'a04e4691', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731728737184', 'msg_id': 2594, 'data': 'news:create', 'state': 'NewsCreateStates:waiting_title'}
+2026-04-01 00:37:16 | INFO | aiogram.event | Update id=104057235 is handled. Duration 474 ms by bot id=8304099970
+2026-04-01 00:37:36 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 148, 'req': 'd81aba3d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2596, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Обновление! Добавлен МиниАпп с новостями', 'caption_len': 0, 'entities': 0, 'state': 'NewsCreateStates:waiting_text'}
+2026-04-01 00:37:36 | INFO | aiogram.event | Update id=104057236 is handled. Duration 150 ms by bot id=8304099970
+2026-04-01 00:37:58 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 237, 'req': '73de1ec4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2598, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Добавлено меню с новостями. Мелкие баг фиксы.', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 00:37:58 | INFO | aiogram.event | Update id=104057237 is handled. Duration 239 ms by bot id=8304099970
+2026-04-01 00:38:09 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 290, 'req': '8998ada9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729618522869', 'msg_id': 2599, 'data': 'news:addmedia:f79ba96bd70c4768aefaed4d3e9a1f3e', 'state': None}
+2026-04-01 00:38:09 | INFO | aiogram.event | Update id=104057238 is handled. Duration 292 ms by bot id=8304099970
+2026-04-01 00:38:39 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 928, 'req': 'c3bf2275', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2601, 'kind': 'photo', 'text': '', 'caption_len': 0, 'entities': 0, 'state': None, 'media': {'photo': {'w': 1920, 'h': 2560, 'size': 490456}}}
+2026-04-01 00:38:39 | INFO | aiogram.event | Update id=104057239 is handled. Duration 930 ms by bot id=8304099970
+2026-04-01 00:38:50 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 155, 'req': '1ab376b9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2603, 'kind': <ContentType.TEXT: 'text'>, 'text': '/cancel', 'caption_len': 0, 'entities': 1, 'state': None}
+2026-04-01 00:38:50 | INFO | aiogram.event | Update id=104057240 is handled. Duration 157 ms by bot id=8304099970
+2026-04-01 00:38:54 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 142, 'req': 'd705e02e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2605, 'kind': <ContentType.TEXT: 'text'>, 'text': '📰 Управление новостями', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 00:38:54 | INFO | aiogram.event | Update id=104057241 is handled. Duration 144 ms by bot id=8304099970
+2026-04-01 00:39:00 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 345, 'req': '3aeb9eb4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730373205127', 'msg_id': 2606, 'data': 'news:list:draft:0', 'state': None}
+2026-04-01 00:39:00 | INFO | aiogram.event | Update id=104057242 is handled. Duration 347 ms by bot id=8304099970
+2026-04-01 00:39:02 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 304, 'req': 'ae689d15', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731643944321', 'msg_id': 2606, 'data': 'news:item:f79ba96bd70c4768aefaed4d3e9a1f3e:0:draft', 'state': None}
+2026-04-01 00:39:02 | INFO | aiogram.event | Update id=104057243 is handled. Duration 305 ms by bot id=8304099970
+2026-04-01 00:39:09 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 294, 'req': '2778fe6d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728604385849', 'msg_id': 2606, 'data': 'news:toggle:f79ba96bd70c4768aefaed4d3e9a1f3e:0:draft', 'state': None}
+2026-04-01 00:39:09 | INFO | aiogram.event | Update id=104057244 is handled. Duration 295 ms by bot id=8304099970
+2026-04-01 00:41:32 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 277, 'req': 'a60022da', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731828023931', 'msg_id': 2606, 'data': 'news:list:draft:0', 'state': None}
+2026-04-01 00:41:32 | INFO | aiogram.event | Update id=104057245 is handled. Duration 278 ms by bot id=8304099970
+2026-04-01 00:41:36 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 423, 'req': '115cb579', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731226199099', 'msg_id': 2606, 'data': 'news:menu', 'state': None}
+2026-04-01 00:41:36 | INFO | aiogram.event | Update id=104057246 is handled. Duration 424 ms by bot id=8304099970
+2026-04-01 00:41:37 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 267, 'req': 'a5a83ef9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731654639816', 'msg_id': 2606, 'data': 'news:list:published:0', 'state': None}
+2026-04-01 00:41:37 | INFO | aiogram.event | Update id=104057247 is handled. Duration 268 ms by bot id=8304099970
+2026-04-01 00:41:39 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 318, 'req': 'a8f52241', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729271998119', 'msg_id': 2606, 'data': 'news:menu', 'state': None}
+2026-04-01 00:41:39 | INFO | aiogram.event | Update id=104057248 is handled. Duration 319 ms by bot id=8304099970
+2026-04-01 00:41:46 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 143, 'req': 'ace8d72f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2607, 'kind': <ContentType.TEXT: 'text'>, 'text': '📰 Управление новостями', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 00:41:46 | INFO | aiogram.event | Update id=104057249 is handled. Duration 145 ms by bot id=8304099970
+2026-04-01 00:41:51 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 260, 'req': 'da21ab36', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729054093709', 'msg_id': 2608, 'data': 'news:list:published:0', 'state': None}
+2026-04-01 00:41:51 | INFO | aiogram.event | Update id=104057250 is handled. Duration 261 ms by bot id=8304099970
+2026-04-01 00:41:53 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 276, 'req': 'ad6ee7f9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728714368611', 'msg_id': 2608, 'data': 'news:menu', 'state': None}
+2026-04-01 00:41:53 | INFO | aiogram.event | Update id=104057251 is handled. Duration 277 ms by bot id=8304099970
+2026-04-01 00:41:55 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 282, 'req': '92f51746', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730996292345', 'msg_id': 2608, 'data': 'news:list:draft:0', 'state': None}
+2026-04-01 00:41:55 | INFO | aiogram.event | Update id=104057252 is handled. Duration 284 ms by bot id=8304099970
+2026-04-01 00:41:57 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 267, 'req': 'bb4c4287', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728368276881', 'msg_id': 2608, 'data': 'news:menu', 'state': None}
+2026-04-01 00:41:57 | INFO | aiogram.event | Update id=104057253 is handled. Duration 269 ms by bot id=8304099970
+2026-04-01 00:41:59 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 326, 'req': '42d8b1d6', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729088417734', 'msg_id': 2608, 'data': 'news:create', 'state': 'NewsCreateStates:waiting_title'}
+2026-04-01 00:41:59 | INFO | aiogram.event | Update id=104057254 is handled. Duration 328 ms by bot id=8304099970
+2026-04-01 00:42:10 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 197, 'req': '27e162c0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2610, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Тест 0042', 'caption_len': 0, 'entities': 0, 'state': 'NewsCreateStates:waiting_text'}
+2026-04-01 00:42:10 | INFO | aiogram.event | Update id=104057255 is handled. Duration 199 ms by bot id=8304099970
+2026-04-01 00:42:13 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 162, 'req': '3c6b55f8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2612, 'kind': <ContentType.TEXT: 'text'>, 'text': '134', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 00:42:13 | INFO | aiogram.event | Update id=104057256 is handled. Duration 164 ms by bot id=8304099970
+2026-04-01 00:42:18 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 480, 'req': 'b63770c9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729525707461', 'msg_id': 2613, 'data': 'news:toggle:03c365108e914bb18b5f115586c40056:0:draft', 'state': None}
+2026-04-01 00:42:18 | INFO | aiogram.event | Update id=104057257 is handled. Duration 481 ms by bot id=8304099970
+2026-04-01 00:42:23 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 259, 'req': '194b7976', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728260402701', 'msg_id': 2613, 'data': 'news:list:draft:0', 'state': None}
+2026-04-01 00:42:23 | INFO | aiogram.event | Update id=104057258 is handled. Duration 260 ms by bot id=8304099970
+2026-04-01 00:42:24 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 257, 'req': '3c703e78', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728365951594', 'msg_id': 2613, 'data': 'news:menu', 'state': None}
+2026-04-01 00:42:24 | INFO | aiogram.event | Update id=104057259 is handled. Duration 258 ms by bot id=8304099970
+2026-04-01 00:42:26 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 266, 'req': '0b65afb0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728678022311', 'msg_id': 2613, 'data': 'news:list:published:0', 'state': None}
+2026-04-01 00:42:26 | INFO | aiogram.event | Update id=104057260 is handled. Duration 267 ms by bot id=8304099970
+2026-04-01 00:42:54 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-01 00:42:54 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-04-01 00:42:54 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-01 00:42:55 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'

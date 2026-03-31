@@ -7,7 +7,7 @@ if (tg) {
 const params = new URLSearchParams(location.search);
 const explicitApiBase = params.get('api_base');
 const projectBase = new URL('../../', window.location.href).href;
-const API_BASE = explicitApiBase ? new URL(explicitApiBase, window.location.href).href : projectBase;
+const sameOriginBase = `${window.location.origin}/`;
 const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
@@ -16,14 +16,42 @@ const tpl = document.getElementById('news-card-template');
 let offset = 0;
 const limit = 6;
 let usesStaticFeed = false;
+let resolvedApiBase = null;
+let lastLoadError = '';
 
 function joinUrl(base, path) {
   return new URL(path.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).href;
 }
 
+function normalizeBase(base) {
+  if (!base) return null;
+  try {
+    const normalized = new URL(base, window.location.href).href;
+    if (window.location.protocol === 'https:' && normalized.startsWith('http://')) {
+      console.warn('Ignoring insecure api_base on HTTPS page:', normalized);
+      return null;
+    }
+    return normalized;
+  } catch (error) {
+    console.warn('Invalid api_base value:', base, error);
+    return null;
+  }
+}
+
+function buildApiCandidates() {
+  const candidates = [
+    normalizeBase(explicitApiBase),
+    normalizeBase(projectBase),
+    normalizeBase(sameOriginBase),
+  ].filter(Boolean);
+  return [...new Set(candidates)];
+}
+
+
 function mediaElement(item) {
   const relativeUrl = item.url || '';
-  const url = relativeUrl.startsWith('http') ? relativeUrl : joinUrl(API_BASE, relativeUrl);
+  const fallbackBase = resolvedApiBase || sameOriginBase;
+  const url = relativeUrl.startsWith('http') ? relativeUrl : joinUrl(fallbackBase, relativeUrl);
   if (item.media_type === 'video') {
     const v = document.createElement('video');
     v.src = url;
@@ -63,7 +91,8 @@ function render(items) {
 }
 
 async function loadStaticNews() {
-  const staticCandidates = [joinUrl(API_BASE, 'news.json'), joinUrl(API_BASE, 'pythonProject/news.json')];
+  const bases = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
+  const staticCandidates = bases.flatMap((base) => [joinUrl(base, 'news.json'), joinUrl(base, 'pythonProject/news.json')]);
   for (const candidate of staticCandidates) {
     try {
       const response = await fetch(candidate, { cache: 'no-store' });
@@ -82,9 +111,25 @@ async function loadStaticNews() {
       return true;
     } catch (error) {
       console.warn('Static feed failed:', candidate, error);
+      lastLoadError = `static:${candidate} -> ${error?.message || error}`;
     }
   }
   return false;
+}
+
+async function tryLoadFromApiBase(base) {
+  const response = await fetch(joinUrl(base, `api/news?status=published&limit=${limit}&offset=${offset}`), { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`API returned ${response.status}`);
+  }
+  const data = await response.json();
+  resolvedApiBase = base;
+  render(data.items || []);
+  offset += limit;
+  if (!data.items || data.items.length < limit) {
+    loadMoreBtn.style.display = 'none';
+  }
+  return true;
 }
 
 async function loadNews() {
@@ -95,26 +140,25 @@ async function loadNews() {
     return;
   }
 
-  try {
-    const response = await fetch(joinUrl(API_BASE, `api/news?status=published&limit=${limit}&offset=${offset}`), { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status}`);
+  const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
+  const apiErrors = [];
+
+  for (const base of apiCandidates) {
+    try {
+      await tryLoadFromApiBase(base);
+      statusEl.textContent = `Новости: ${feed.children.length}`;
+      return;
+    } catch (error) {
+      const reason = error?.message || String(error);
+      apiErrors.push(`${base} -> ${reason}`);
+      console.warn('API feed failed for base:', base, error);
     }
-    const data = await response.json();
-    render(data.items || []);
-    offset += limit;
-    if (!data.items || data.items.length < limit) {
-      loadMoreBtn.style.display = 'none';
-    }
-    statusEl.textContent = `Новости: ${feed.children.length}`;
-    return;
-  } catch (error) {
-    console.warn('API feed failed, trying static fallback:', error);
   }
 
   const loaded = await loadStaticNews();
   if (!loaded) {
-    throw new Error('Не удалось загрузить новости ни из API, ни из статического файла.');
+    const detail = [...apiErrors, lastLoadError].filter(Boolean).join('; ');
+    throw new Error(`Не удалось загрузить новости ни из API, ни из статического файла. ${detail}`.trim());
   }
   statusEl.textContent = `Новости: ${feed.children.length} (static)`;
 }
@@ -122,5 +166,5 @@ async function loadNews() {
 loadMoreBtn.addEventListener('click', loadNews);
 loadNews().catch((err) => {
   console.error(err);
-  statusEl.textContent = 'Ошибка загрузки. Проверьте API и HTTPS.';
+  statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность news.json.';
 });
