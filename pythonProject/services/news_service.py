@@ -138,6 +138,18 @@ class NewsService:
             conn.execute("DELETE FROM news WHERE id = ?", (news_id,))
         self._sync_static_files()
 
+    def delete_news_by_status(self, status: str) -> int:
+        with self._connect() as conn:
+            rows = conn.execute("SELECT id FROM news WHERE status = ?", (status,)).fetchall()
+            news_ids = [row["id"] for row in rows]
+            if not news_ids:
+                return 0
+            placeholders = ",".join(["?"] * len(news_ids))
+            conn.execute(f"DELETE FROM news_media WHERE news_id IN ({placeholders})", news_ids)
+            conn.execute("DELETE FROM news WHERE status = ?", (status,))
+        self._sync_static_files()
+        return len(news_ids)
+
     def add_media(self, news_id: str, media_type: str, file_path: str, mime_type: Optional[str] = None) -> str:
         media_id = uuid.uuid4().hex
         now = self._now_iso()

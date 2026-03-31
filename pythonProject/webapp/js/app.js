@@ -101,7 +101,11 @@ function render(items) {
 
 async function loadStaticNews() {
   const bases = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
-  const staticCandidates = bases.flatMap((base) => [joinUrl(base, 'news.json'), joinUrl(base, 'pythonProject/news.json')]);
+  const staticCandidates = bases.flatMap((base) => [
+   joinUrl(base, 'news.json'),
+   joinUrl(base, 'pythonProject/news.json'),
+   joinUrl(base, 'pythonProject/webapp/news.json'),
+  ]);
   for (const candidate of staticCandidates) {
     try {
       const response = await fetch(candidate, { cache: 'no-store' });

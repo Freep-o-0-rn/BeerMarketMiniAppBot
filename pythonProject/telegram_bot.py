@@ -186,6 +186,7 @@ NEWS_SERVICE = NewsService(
     NEWS_DB_PATH,
     static_export_paths=[
         ROOT_DIR / "news.json",
+        ROOT_DIR / "webapp" / "news.json",
         ROOT_DIR.parent / "news.json",
     ],
 )

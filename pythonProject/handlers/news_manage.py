@@ -29,6 +29,8 @@ def _news_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="➕ Создать новость", callback_data="news:create")],
         [InlineKeyboardButton(text="📋 Черновики", callback_data="news:list:draft:0")],
         [InlineKeyboardButton(text="📰 Опубликованные", callback_data="news:list:published:0")],
+        [InlineKeyboardButton(text="🗑 Удалить все черновики", callback_data="news:purgeask:draft")],
+        [InlineKeyboardButton(text="🧹 Удалить все опубликованные", callback_data="news:purgeask:published")],
     ])
 
 
@@ -75,6 +77,26 @@ def register_news_manage_handlers(
     menu_for_user_id,
 ) -> None:
     page_size = 6
+
+    async def render_news_list(cq: CallbackQuery, status: str, page: int) -> None:
+        offset = page * page_size
+        all_rows = news_service.list_news(status=status, limit=500, offset=0)
+        rows = news_service.list_news(status=status, limit=page_size, offset=offset)
+        kb_rows = []
+        for row in rows:
+            mark = "📌 " if row.get("is_pinned") else ""
+            kb_rows.append([
+                InlineKeyboardButton(
+                    text=f"{mark}{row.get('title', 'Без заголовка')[:50]}",
+                    callback_data=f"news:item:{row['id']}:{page}:{status}"
+                )
+            ])
+        kb_rows.extend(_pager(len(all_rows), page, status, page_size))
+        text = "Опубликованные" if status == "published" else "Черновики"
+        await cq.message.edit_text(
+            f"{text}: {len(all_rows)} шт.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=kb_rows),
+        )
 
     @router.message(F.text == NEWS_MANAGE_BTN_TEXT)
     async def news_manage_entry(m: Message):
@@ -136,21 +158,7 @@ def register_news_manage_handlers(
             return
         _, _, status, page_raw = (cq.data or "").split(":", 3)
         page = max(0, int(page_raw))
-        offset = page * page_size
-        all_rows = news_service.list_news(status=status, limit=500, offset=0)
-        rows = news_service.list_news(status=status, limit=page_size, offset=offset)
-        kb_rows = []
-        for row in rows:
-            mark = "📌 " if row.get("is_pinned") else ""
-            kb_rows.append([
-                InlineKeyboardButton(
-                    text=f"{mark}{row.get('title','Без заголовка')[:50]}",
-                    callback_data=f"news:item:{row['id']}:{page}:{status}"
-                )
-            ])
-        kb_rows.extend(_pager(len(all_rows), page, status, page_size))
-        text = "Опубликованные" if status == "published" else "Черновики"
-        await cq.message.edit_text(f"{text}: {len(all_rows)} шт.", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb_rows))
+        await render_news_list(cq, status, page)
         await cq.answer()
 
     @router.callback_query(F.data.startswith("news:item:"))
@@ -209,10 +217,69 @@ def register_news_manage_handlers(
                 media_service.delete_file_safe(media.get("file_path") or "")
             news_service.delete_news(news_id)
         await cq.answer("Новость удалена")
-        await cq.message.edit_text("Новость удалена.", reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="⬅️ К списку", callback_data=f"news:list:{list_status}:{page_raw}")],
-            [InlineKeyboardButton(text="🏠 Главное меню", callback_data="news:menu")],
-        ]))
+        await render_news_list(cq, list_status, max(0, int(page_raw)))
+
+        @router.callback_query(F.data.startswith("news:purgeask:"))
+        async def news_purge_ask(cq: CallbackQuery):
+            if not await ensure_callback_access(cq, "news.manage"):
+                return
+            status = (cq.data or "").split(":", 2)[2]
+            if status not in {"draft", "published"}:
+                await cq.answer("Некорректный статус", show_alert=True)
+                return
+            status_title = "черновики" if status == "draft" else "опубликованные"
+            await cq.message.edit_text(
+                f"Подтвердите удаление всех элементов в разделе: <b>{status_title}</b>.",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="✅ Продолжить", callback_data=f"news:purgeconfirm:{status}")],
+                    [InlineKeyboardButton(text="❌ Отмена", callback_data="news:menu")],
+                ])
+            )
+            await cq.answer()
+
+        @router.callback_query(F.data.startswith("news:purgeconfirm:"))
+        async def news_purge_confirm(cq: CallbackQuery):
+            if not await ensure_callback_access(cq, "news.manage"):
+                return
+            status = (cq.data or "").split(":", 2)[2]
+            if status not in {"draft", "published"}:
+                await cq.answer("Некорректный статус", show_alert=True)
+                return
+            status_title = "черновики" if status == "draft" else "опубликованные"
+            await cq.message.edit_text(
+                f"⚠️ ТОЧНО УДАЛИТЬ ВСЕ новости в разделе <b>{status_title}</b>?\n"
+                f"Действие необратимо.",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="🗑 ТОЧНО удалить все", callback_data=f"news:purge:{status}")],
+                    [InlineKeyboardButton(text="↩️ Назад", callback_data=f"news:purgeask:{status}")],
+                    [InlineKeyboardButton(text="❌ Отмена", callback_data="news:menu")],
+                ])
+            )
+            await cq.answer()
+
+        @router.callback_query(F.data.startswith("news:purge:"))
+        async def news_purge(cq: CallbackQuery):
+            if not await ensure_callback_access(cq, "news.manage"):
+                return
+            status = (cq.data or "").split(":", 2)[2]
+            if status not in {"draft", "published"}:
+                await cq.answer("Некорректный статус", show_alert=True)
+                return
+            rows = news_service.list_news(status=status, limit=500, offset=0)
+            for row in rows:
+                for media in row.get("media") or []:
+                    media_service.delete_file_safe(media.get("file_path") or "")
+            deleted = news_service.delete_news_by_status(status)
+            status_title = "черновиков" if status == "draft" else "опубликованных"
+            await cq.message.edit_text(
+                f"Удалено {deleted} {status_title}.",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="⬆️ Меню новостей", callback_data="news:menu")],
+                    [InlineKeyboardButton(text="📋 К черновикам", callback_data="news:list:draft:0")],
+                    [InlineKeyboardButton(text="📰 К опубликованным", callback_data="news:list:published:0")],
+                ])
+            )
+            await cq.answer("Удаление завершено")
 
     @router.callback_query(F.data.startswith("news:edit:"))
     async def news_edit_prompt(cq: CallbackQuery, state: FSMContext):
