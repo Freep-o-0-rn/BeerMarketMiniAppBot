@@ -1,7 +1,31 @@
 [
   {
-    "id": "93082cc4315a442992541ed2f6fef428",
+    "id": "7ec416196d6447ae9dd1eb349e97abe9",
     "seq": 1,
+    "title": "0307",
+    "category": "Новость",
+    "date": "2026-03-31",
+    "text": "Work?!",
+    "publishState": "published",
+    "createdAt": "2026-03-31T20:07:35.112507+00:00",
+    "updatedAt": "2026-03-31T20:08:17.385498+00:00",
+    "author_name": "Freep_o_0_rn",
+    "media": [
+      {
+        "id": "02ff7ea6ca434534bdb276f539924ab5",
+        "news_id": "7ec416196d6447ae9dd1eb349e97abe9",
+        "media_type": "video",
+        "file_path": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.94\\pythonProject\\data\\news\\media\\7ec416196d6447ae9dd1eb349e97abe9\\c195921a4a184be39d522a7d2be9396e.mp4",
+        "mime_type": "video/mp4",
+        "created_at": "2026-03-31T20:08:13.318570+00:00",
+        "sort_order": 0,
+        "url": "/media/7ec416196d6447ae9dd1eb349e97abe9/c195921a4a184be39d522a7d2be9396e.mp4"
+      }
+    ]
+  },
+  {
+    "id": "93082cc4315a442992541ed2f6fef428",
+    "seq": 2,
     "title": "0258",
     "category": "Новость",
     "date": "2026-03-31",
@@ -14,7 +38,7 @@
   },
   {
     "id": "c2ef4a097bf74709b7fca1280c72194a",
-    "seq": 2,
+    "seq": 3,
     "title": "0225",
     "category": "Новость",
     "date": "2026-03-31",
@@ -27,7 +51,7 @@
   },
   {
     "id": "b434f6cf671a4cfe990e043776278c81",
-    "seq": 3,
+    "seq": 4,
     "title": "0210",
     "category": "Новость",
     "date": "2026-03-31",
@@ -35,43 +59,6 @@
     "publishState": "published",
     "createdAt": "2026-03-31T19:10:11.467940+00:00",
     "updatedAt": "2026-03-31T19:10:14.188558+00:00",
-    "author_name": "Freep_o_0_rn",
-    "media": []
-  },
-  {
-    "id": "fd17318ebbe24ceb98661b7e8ac80cc6",
-    "seq": 4,
-    "title": "Тест после обновы",
-    "category": "Новость",
-    "date": "2026-03-31",
-    "text": "0156",
-    "publishState": "published",
-    "createdAt": "2026-03-31T18:56:52.841603+00:00",
-    "updatedAt": "2026-03-31T18:59:02.254245+00:00",
-    "author_name": "Freep_o_0_rn",
-    "media": [
-      {
-        "id": "2ad3ef372808442480b4784d4c5f2348",
-        "news_id": "fd17318ebbe24ceb98661b7e8ac80cc6",
-        "media_type": "photo",
-        "file_path": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.94\\pythonProject\\data\\news\\media\\fd17318ebbe24ceb98661b7e8ac80cc6\\3e59d49b470e4ae9abf80fe1027813f4.jpg",
-        "mime_type": "image/jpeg",
-        "created_at": "2026-03-31T18:57:06.950955+00:00",
-        "sort_order": 0,
-        "url": "/media/fd17318ebbe24ceb98661b7e8ac80cc6/3e59d49b470e4ae9abf80fe1027813f4.jpg"
-      }
-    ]
-  },
-  {
-    "id": "9e0aa102676c40c583deacc8352c34fa",
-    "seq": 5,
-    "title": "Ыыыыы",
-    "category": "Новость",
-    "date": "2026-03-31",
-    "text": "Лвлатататат",
-    "publishState": "published",
-    "createdAt": "2026-03-31T18:34:05.707237+00:00",
-    "updatedAt": "2026-03-31T18:34:08.255518+00:00",
     "author_name": "Freep_o_0_rn",
     "media": []
   }
