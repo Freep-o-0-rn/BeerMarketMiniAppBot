@@ -1,7 +1,20 @@
 [
   {
-    "id": "c2ef4a097bf74709b7fca1280c72194a",
+    "id": "93082cc4315a442992541ed2f6fef428",
     "seq": 1,
+    "title": "0258",
+    "category": "Новость",
+    "date": "2026-03-31",
+    "text": "123",
+    "publishState": "published",
+    "createdAt": "2026-03-31T19:58:54.189326+00:00",
+    "updatedAt": "2026-03-31T19:58:57.503612+00:00",
+    "author_name": "Freep_o_0_rn",
+    "media": []
+  },
+  {
+    "id": "c2ef4a097bf74709b7fca1280c72194a",
+    "seq": 2,
     "title": "0225",
     "category": "Новость",
     "date": "2026-03-31",
@@ -14,7 +27,7 @@
   },
   {
     "id": "b434f6cf671a4cfe990e043776278c81",
-    "seq": 2,
+    "seq": 3,
     "title": "0210",
     "category": "Новость",
     "date": "2026-03-31",
@@ -27,7 +40,7 @@
   },
   {
     "id": "fd17318ebbe24ceb98661b7e8ac80cc6",
-    "seq": 3,
+    "seq": 4,
     "title": "Тест после обновы",
     "category": "Новость",
     "date": "2026-03-31",
@@ -51,7 +64,7 @@
   },
   {
     "id": "9e0aa102676c40c583deacc8352c34fa",
-    "seq": 4,
+    "seq": 5,
     "title": "Ыыыыы",
     "category": "Новость",
     "date": "2026-03-31",
