@@ -43,6 +43,13 @@ def _news_item_kb(news_id: str, status: str, page: int, list_status: str) -> Inl
         [InlineKeyboardButton(text="⬅️ Назад", callback_data=f"news:list:{list_status}:{page}")],
     ])
 
+def _news_media_finish_kb(news_id: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="✅ Завершить и опубликовать", callback_data=f"news:finishmedia:publish:{news_id}")],
+        [InlineKeyboardButton(text="💾 Завершить (оставить черновик)", callback_data=f"news:finishmedia:draft:{news_id}")],
+        [InlineKeyboardButton(text="❌ Отмена", callback_data="news:finishmedia:cancel")],
+    ])
+
 
 def _pager(items_count: int, page: int, status: str, page_size: int) -> list[list[InlineKeyboardButton]]:
     rows: list[list[InlineKeyboardButton]] = []
@@ -246,7 +253,11 @@ def register_news_manage_handlers(
             return
         news_id = (cq.data or "").split(":", 2)[2]
         await state.update_data(upload_news_id=news_id)
-        await cq.message.answer("Отправьте фото/видео/GIF как обычное сообщение. Для выхода: /cancel")
+        await cq.message.answer(
+            "Отправьте фото/видео/GIF как обычное сообщение.\n"
+            "Когда закончите — нажмите кнопку ниже.",
+            reply_markup=_news_media_finish_kb(news_id),
+        )
         await cq.answer()
 
     @router.message(F.photo)
@@ -260,7 +271,7 @@ def register_news_manage_handlers(
         photo = m.photo[-1]
         path = await media_service.save_telegram_file(m.bot, photo.file_id, "photo.jpg", subdir=news_id)
         news_service.add_media(news_id, "photo", str(path), "image/jpeg")
-        await m.answer("Фото добавлено. Можно отправить ещё медиа или /cancel.")
+        await m.answer("Фото добавлено. Можно отправить ещё медиа или завершить.", reply_markup=_news_media_finish_kb(news_id))
 
     @router.message(F.video)
     async def news_media_video(m: Message, state: FSMContext):
@@ -273,7 +284,7 @@ def register_news_manage_handlers(
         video = m.video
         path = await media_service.save_telegram_file(m.bot, video.file_id, video.file_name or "video.mp4", subdir=news_id)
         news_service.add_media(news_id, "video", str(path), video.mime_type or "video/mp4")
-        await m.answer("Видео добавлено. Можно отправить ещё медиа или /cancel.")
+        await m.answer("Видео добавлено. Можно отправить ещё медиа или завершить.", reply_markup=_news_media_finish_kb(news_id))
 
     @router.message(F.animation)
     async def news_media_gif(m: Message, state: FSMContext):
@@ -286,7 +297,45 @@ def register_news_manage_handlers(
         anim = m.animation
         path = await media_service.save_telegram_file(m.bot, anim.file_id, anim.file_name or "animation.gif", subdir=news_id)
         news_service.add_media(news_id, "gif", str(path), anim.mime_type or "image/gif")
-        await m.answer("GIF добавлен. Можно отправить ещё медиа или /cancel.")
+        await m.answer("GIF добавлен. Можно отправить ещё медиа или завершить.", reply_markup=_news_media_finish_kb(news_id))
+
+    @router.callback_query(F.data.startswith("news:finishmedia:"))
+    async def news_finish_media(cq: CallbackQuery, state: FSMContext):
+        if not await ensure_callback_access(cq, "news.manage", state=state):
+            return
+        parts = (cq.data or "").split(":")
+        action = parts[2] if len(parts) > 2 else ""
+        news_id = parts[3] if len(parts) > 3 else ""
+        data = await state.get_data()
+        upload_news_id = data.get("upload_news_id")
+        if action == "cancel":
+            await state.clear()
+            await cq.message.edit_text("Добавление медиа отменено.", reply_markup=_news_menu_kb())
+            await cq.answer()
+            return
+        if upload_news_id and upload_news_id != news_id:
+            news_id = upload_news_id
+        row = news_service.get_news(news_id)
+        if not row:
+            await state.clear()
+            await cq.answer("Новость не найдена", show_alert=True)
+            return
+        if action == "publish":
+            news_service.set_status(news_id, "published", published_at=datetime.now(timezone.utc).isoformat())
+            row = news_service.get_news(news_id) or row
+            await cq.message.edit_text(
+                f"Новость опубликована:\n<b>{row['title']}</b>",
+                reply_markup=_news_item_kb(news_id, "published", 0, "published"),
+            )
+            await state.clear()
+            await cq.answer("Опубликовано")
+            return
+        await state.clear()
+        await cq.message.edit_text(
+            f"Добавление медиа завершено.\n<b>{row['title']}</b> осталось в черновиках.",
+            reply_markup=_news_item_kb(news_id, row.get("status", "draft"), 0, "draft"),
+        )
+        await cq.answer()
 
     @router.message(F.text == "/cancel")
     async def news_cancel_any(m: Message, state: FSMContext):
