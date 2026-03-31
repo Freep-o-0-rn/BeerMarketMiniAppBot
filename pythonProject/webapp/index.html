@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>BeerMarket News</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Новости BeerMarket</h1>
+    <p id="status">Загрузка...</p>
+  </header>
+  <main>
+    <section id="feed" class="feed"></section>
+    <button id="loadMore" class="load-more">Показать ещё</button>
+  </main>
+  <template id="news-card-template">
+    <article class="card">
+      <div class="card-meta"></div>
+      <h2 class="card-title"></h2>
+      <p class="card-text"></p>
+      <div class="carousel"></div>
+    </article>
+  </template>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

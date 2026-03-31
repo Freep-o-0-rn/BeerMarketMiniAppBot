@@ -37,6 +37,7 @@ from aiogram.types import (
     Message,
     KeyboardButton,
     ReplyKeyboardMarkup,
+    WebAppInfo,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
     CallbackQuery,
@@ -60,7 +61,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BufferedIn
 from aiogram import BaseMiddleware
 from typing import Optional, Tuple, Dict, Any
 from client_cards_db import ClientCardsDB, format_client_card, DEFAULT_POSITIONS, _split_addresses
-
+from handlers.miniapp import MINIAPP_WEB_BTN_TEXT, register_miniapp_handlers
+from handlers.news_manage import NEWS_MANAGE_BTN_TEXT, register_news_manage_handlers
+from services.media_service import MediaService
+from services.news_service import NewsService
+from services.permissions_service import extend_access_matrix
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
@@ -172,7 +177,12 @@ PRICES_INDEX = PRICES_DIR / "prices.json"
 PRICES_PAGE_SIZE = 10
 ALLOWED_PRICE_EXT = {"pdf","xls","xlsx","png","jpg","jpeg"}
 PRICES_INDEX.parent.mkdir(parents=True, exist_ok=True)
-
+MINIAPP_URL = os.getenv("MINIAPP_URL", "https://freep-o-0-rn.github.io/BeerMarketMiniAppBot/")
+NEWS_DATA_DIR = ROOT_DIR / "data" / "news"
+NEWS_DB_PATH = NEWS_DATA_DIR / "news.db"
+NEWS_MEDIA_DIR = NEWS_DATA_DIR / "media"
+NEWS_SERVICE = NewsService(NEWS_DB_PATH)
+MEDIA_SERVICE = MediaService(NEWS_MEDIA_DIR)
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
 
@@ -429,6 +439,7 @@ DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
             "refresh_data",
             "view_reports",
             "view_ttn",
+            "news_manage",
         ],
     },
     "client": {
@@ -463,6 +474,7 @@ DEFAULT_ROLE_DEFS: Dict[str, Dict[str, Any]] = {
             "view_ttn",
             "view_clients",
             "receive_notifications",
+            "news_manage",
         ],
     },
 }
@@ -1800,6 +1812,12 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if user_allows_action(user_id, "ttn.lookup"):
         row.append(KeyboardButton(text=TTN_BTN))
     _append_button_row_if_any(keyboard, row)
+    news_row: List[KeyboardButton] = []
+    if user_allows_action(user_id, "prices.view"):
+        news_row.append(KeyboardButton(text=MINIAPP_WEB_BTN_TEXT, web_app=WebAppInfo(url=MINIAPP_URL)))
+    if user_allows_action(user_id, "news.manage"):
+        news_row.append(KeyboardButton(text=NEWS_MANAGE_BTN_TEXT))
+    _append_button_row_if_any(keyboard, news_row)
     if role in {"admin", "sales_rep"}:
         keyboard.append([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
     management_row: List[KeyboardButton] = []
@@ -2122,6 +2140,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
 MANAGED_ACTIONS_BY_TOKEN: Dict[str, str] = {str(i): action for i, (action, _) in enumerate(MANAGED_ACTIONS)}
 MANAGED_ACTIONS_LABELS: Dict[str, str] = {action: label for action, label in MANAGED_ACTIONS}
 MANAGED_ACTIONS_PAGE_SIZE = 6
+extend_access_matrix({}, {}, MANAGED_ACTIONS)
 
 def user_permissions_kb(uid: str, page: int = 0, *, can_manage: bool = True) -> InlineKeyboardMarkup:
     rec = _roles_load().get(uid, {}) if uid else {}
@@ -3262,6 +3281,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "users.view": {"admin", "moderator"},
     "users.manage": {"admin"},
     "notifications.manage": {"admin", "moderator"},
+    "news.manage": {"admin", "moderator"},
 }
 
 ACCESS_LABELS: Dict[str, str] = {
@@ -3282,8 +3302,10 @@ ACCESS_LABELS: Dict[str, str] = {
     "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
     "notifications.manage": "управление уведомлениями",
+    "news.manage": "управление новостями Mini App",
 }
 
+extend_access_matrix(ACCESS_MATRIX, ACCESS_LABELS, MANAGED_ACTIONS)
 
 def _allowed_roles_for(action: str) -> set:
     return set(ACCESS_MATRIX.get(action) or set())
@@ -3338,7 +3360,6 @@ async def ensure_message_access(
     await deny_message_access(m, action)
     return None
 
-
 async def ensure_callback_access(
         cq: CallbackQuery,
         action: str,
@@ -3354,6 +3375,21 @@ async def ensure_callback_access(
         await state.clear()
     await deny_callback_access(cq, action, show_alert=show_alert)
     return None
+
+# Регистрация модулей Mini App и управления новостями.
+register_miniapp_handlers(
+    router,
+    ensure_message_access=ensure_message_access,
+    miniapp_url=MINIAPP_URL,
+)
+register_news_manage_handlers(
+    router,
+    news_service=NEWS_SERVICE,
+    media_service=MEDIA_SERVICE,
+    ensure_message_access=ensure_message_access,
+    ensure_callback_access=ensure_callback_access,
+    menu_for_user_id=menu_for_user_id,
+)
 
 def client_name_prompt_text() -> str:
     return (
