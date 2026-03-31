@@ -5,7 +5,7 @@ if (tg) {
 }
 
 const params = new URLSearchParams(location.search);
-const API_BASE = params.get('api_base') || 'https://freep-o-0-rn.github.io/BeerMarketMiniAppBot/';
+const API_BASE = (params.get('api_base') || `${location.protocol}//${location.host}`).replace(/\/+$/, '');
 const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
@@ -15,7 +15,8 @@ let offset = 0;
 const limit = 6;
 
 function mediaElement(item) {
-  const url = `${API_BASE}${item.url || ''}`;
+  const relativeUrl = item.url || '';
+  const url = relativeUrl.startsWith('http') ? relativeUrl : `${API_BASE}${relativeUrl}`;
   if (item.media_type === 'video') {
     const v = document.createElement('video');
     v.src = url;
