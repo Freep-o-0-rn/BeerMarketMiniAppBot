@@ -9,7 +9,11 @@ import io
 import calendar as _cal
 import contextlib
 from aiogram.types import InputMediaPhoto
-import aiohttp, asyncio, time,os, re, json
+import aiohttp
+import time
+import os
+import re
+import json
 from io import BytesIO
 from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 from aiogram.fsm.state import StatesGroup, State
@@ -42,7 +46,6 @@ from aiogram.types import (
 from aiogram.client.default import DefaultBotProperties
 from aiogram.utils.token import validate_token, TokenValidationError
 from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest  # retry на флуд-контроль
-from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
