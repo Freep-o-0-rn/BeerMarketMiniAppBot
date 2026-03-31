@@ -177,7 +177,8 @@ PRICES_INDEX = PRICES_DIR / "prices.json"
 PRICES_PAGE_SIZE = 10
 ALLOWED_PRICE_EXT = {"pdf","xls","xlsx","png","jpg","jpeg"}
 PRICES_INDEX.parent.mkdir(parents=True, exist_ok=True)
-MINIAPP_URL = os.getenv("MINIAPP_URL", "https://freep-o-0-rn.github.io/BeerMarketMiniAppBot/")
+DEFAULT_MINIAPP_URL = "https://freep-o-0-rn.github.io/BeerMarketMiniAppBot/"
+MINIAPP_URL = (os.getenv("MINIAPP_URL") or DEFAULT_MINIAPP_URL).strip()
 NEWS_DATA_DIR = ROOT_DIR / "data" / "news"
 NEWS_DB_PATH = NEWS_DATA_DIR / "news.db"
 NEWS_MEDIA_DIR = NEWS_DATA_DIR / "media"
@@ -1769,6 +1770,11 @@ def _append_button_row_if_any(keyboard: List[List[KeyboardButton]], buttons: Lis
     if buttons:
         keyboard.append(buttons)
 
+def _is_valid_webapp_url(url: str) -> bool:
+    if not url:
+        return False
+    parsed = urlparse(url)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 def _management_button_text(role: str) -> str:
     return "🏢 Моя карточка" if role == "client" else "🏢 Клиенты"
@@ -1814,7 +1820,15 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     _append_button_row_if_any(keyboard, row)
     news_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "prices.view"):
-        news_row.append(KeyboardButton(text=MINIAPP_WEB_BTN_TEXT, web_app=WebAppInfo(url=MINIAPP_URL)))
+        miniapp_button = KeyboardButton(text=MINIAPP_WEB_BTN_TEXT)
+        if _is_valid_webapp_url(MINIAPP_URL):
+            miniapp_button = KeyboardButton(
+                text=MINIAPP_WEB_BTN_TEXT,
+                web_app=WebAppInfo(url=MINIAPP_URL)
+            )
+        else:
+            logger.warning("MINIAPP_URL некорректен, web_app-кнопка отключена: %r", MINIAPP_URL)
+        news_row.append(miniapp_button)
     if user_allows_action(user_id, "news.manage"):
         news_row.append(KeyboardButton(text=NEWS_MANAGE_BTN_TEXT))
     _append_button_row_if_any(keyboard, news_row)

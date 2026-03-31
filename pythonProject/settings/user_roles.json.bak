@@ -82,7 +82,9 @@
     "language_code": "ru",
     "is_premium": true,
     "role": "client",
-    "access_overrides": {},
+    "access_overrides": {
+      "notifications.manage": true
+    },
     "notification_settings": {},
     "phone": "+79965440806",
     "phone_verified": true,
