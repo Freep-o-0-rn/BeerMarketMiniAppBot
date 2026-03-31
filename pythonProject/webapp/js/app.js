@@ -20,6 +20,7 @@ let usesStaticFeed = false;
 let resolvedApiBase = null;
 let lastLoadError = '';
 let isLoading = false;
+let resolvedStaticSource = null;
 
 function joinUrl(base, path) {
   return new URL(path.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).href;
@@ -49,9 +50,35 @@ function buildApiCandidates() {
   return [...new Set(candidates)];
 }
 
+function buildStaticCandidates(base) {
+  return [
+    joinUrl(base, 'news.json'),
+    joinUrl(base, 'pythonProject/news.json'),
+    joinUrl(base, 'pythonProject/webapp/news.json'),
+  ];
+}
+
+function resolveMediaUrl(item) {
+  if (item?.url) return item.url;
+  const filePath = item?.file_path || '';
+  if (!filePath) return '';
+  const normalized = String(filePath).replace(/\\/g, '/');
+  const marker = '/data/news/media/';
+  const markerIdx = normalized.lastIndexOf(marker);
+  if (markerIdx >= 0) {
+    return `/media/${normalized.slice(markerIdx + marker.length)}`;
+  }
+  if (normalized.startsWith('data/news/media/')) {
+    return `/media/${normalized.slice('data/news/media/'.length)}`;
+  }
+  return '';
+}
 
 function mediaElement(item) {
-  const relativeUrl = item.url || '';
+  const relativeUrl = resolveMediaUrl(item);
+  if (!relativeUrl) {
+    return null;
+  }
   const fallbackBase = resolvedApiBase || sameOriginBase;
   const url = relativeUrl.startsWith('http') ? relativeUrl : joinUrl(fallbackBase, relativeUrl);
   if (item.media_type === 'video') {
@@ -93,19 +120,18 @@ function render(items) {
     node.querySelector('.card-text').textContent = row.text || '';
     const carousel = node.querySelector('.carousel');
     for (const media of (row.media || [])) {
-      carousel.append(mediaElement(media));
+      const mediaNode = mediaElement(media);
+      if (mediaNode) {
+        carousel.append(mediaNode);
+      }
     }
     feed.append(node);
   }
 }
 
 async function loadStaticNews() {
-  const bases = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
-  const staticCandidates = bases.flatMap((base) => [
-   joinUrl(base, 'news.json'),
-   joinUrl(base, 'pythonProject/news.json'),
-   joinUrl(base, 'pythonProject/webapp/news.json'),
-  ]);
+  const bases = resolvedStaticSource ? [resolvedStaticSource] : (resolvedApiBase ? [resolvedApiBase] : buildApiCandidates());
+  const staticCandidates = bases.flatMap((base) => buildStaticCandidates(base));
   for (const candidate of staticCandidates) {
     try {
       const response = await fetch(candidate, { cache: 'no-store' });
@@ -121,6 +147,7 @@ async function loadStaticNews() {
         loadMoreBtn.style.display = 'none';
       }
       usesStaticFeed = true;
+      resolvedStaticSource = candidate;
       return true;
     } catch (error) {
       console.warn('Static feed failed:', candidate, error);
@@ -186,8 +213,9 @@ async function loadNews() {
 
 async function fetchLatestNewsId() {
   if (usesStaticFeed) {
-    const bases = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
-    const staticCandidates = bases.flatMap((base) => [joinUrl(base, 'news.json'), joinUrl(base, 'pythonProject/news.json')]);
+    const staticCandidates = resolvedStaticSource
+      ? [resolvedStaticSource]
+      : (resolvedApiBase ? [resolvedApiBase] : buildApiCandidates()).flatMap((base) => buildStaticCandidates(base));
     for (const candidate of staticCandidates) {
       try {
         const response = await fetch(candidate, { cache: 'no-store' });

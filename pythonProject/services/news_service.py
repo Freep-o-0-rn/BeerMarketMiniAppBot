@@ -202,9 +202,20 @@ class NewsService:
         if not self.static_export_paths:
             return
         rows = self.list_news(status="published", limit=500, offset=0)
+        media_root = (self.db_path.parent / "media").resolve()
         payload = []
         for idx, row in enumerate(rows, start=1):
             published_at = row.get("published_at") or row.get("created_at") or ""
+            media_payload = []
+            for media in row.get("media") or []:
+                media_item = dict(media)
+                raw_path = media_item.get("file_path") or ""
+                try:
+                    rel = Path(raw_path).resolve().relative_to(media_root)
+                    media_item["url"] = f"/media/{rel.as_posix()}"
+                except Exception:
+                    pass
+                media_payload.append(media_item)
             payload.append({
                 "id": row.get("id"),
                 "seq": idx,
@@ -216,7 +227,7 @@ class NewsService:
                 "createdAt": row.get("created_at") or "",
                 "updatedAt": row.get("updated_at") or "",
                 "author_name": row.get("author_name") or "BeerMarket",
-                "media": row.get("media") or [],
+                "media": media_payload,
             })
         for export_path in self.static_export_paths:
             try:

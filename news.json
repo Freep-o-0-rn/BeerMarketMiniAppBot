@@ -1,7 +1,20 @@
 [
   {
-    "id": "9e0aa102676c40c583deacc8352c34fa",
+    "id": "d731551235b1425b904b2a851ff686f2",
     "seq": 1,
+    "title": "Згзощоащращращоащоащоа",
+    "category": "Новость",
+    "date": "2026-03-31",
+    "text": "Зозощоаййййййййй",
+    "publishState": "published",
+    "createdAt": "2026-03-31T18:44:20.226715+00:00",
+    "updatedAt": "2026-03-31T18:44:22.816314+00:00",
+    "author_name": "Freep_o_0_rn",
+    "media": []
+  },
+  {
+    "id": "9e0aa102676c40c583deacc8352c34fa",
+    "seq": 2,
     "title": "Ыыыыы",
     "category": "Новость",
     "date": "2026-03-31",
