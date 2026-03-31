@@ -17,11 +17,8 @@ const syncNowBtn = document.getElementById('syncNow');
 let offset = 0;
 const limit = 6;
 const refreshIntervalMs = 30000;
-let usesStaticFeed = false;
 let resolvedApiBase = null;
-let lastLoadError = '';
 let isLoading = false;
-let resolvedStaticSource = null;
 let cacheBust = Date.now();
 
 function joinUrl(base, path) {
@@ -62,14 +59,6 @@ function buildApiCandidates() {
   return [...new Set(candidates)];
 }
 
-function buildStaticCandidates(base) {
-  return [
-    joinUrl(base, 'news.json'),
-    joinUrl(base, 'pythonProject/news.json'),
-    joinUrl(base, 'pythonProject/webapp/news.json'),
-  ];
-}
-
 function resolveMediaUrl(item) {
   if (item?.url) return item.url;
   const filePath = item?.file_path || '';
@@ -106,21 +95,6 @@ function mediaElement(item) {
   return img;
 }
 
-function normalizeStaticItems(rawPayload) {
-  const rows = Array.isArray(rawPayload) ? rawPayload : (Array.isArray(rawPayload?.items) ? rawPayload.items : []);
-  return rows
-    .filter((row) => !row.publishState || row.publishState === 'published')
-    .map((row) => ({
-    id: row.id || '',
-    author_name: row.author_name || 'BeerMarket',
-    published_at: row.published_at || row.date || row.createdAt || '',
-    created_at: row.created_at || row.createdAt || '',
-    title: row.title || 'Без заголовка',
-    text: row.text || '',
-    media: Array.isArray(row.media) ? row.media : [],
-  }));
-}
-
 function render(items) {
   for (const row of items) {
     const node = tpl.content.firstElementChild.cloneNode(true);
@@ -139,34 +113,6 @@ function render(items) {
     }
     feed.append(node);
   }
-}
-
-async function loadStaticNews() {
-  const bases = resolvedStaticSource ? [resolvedStaticSource] : (resolvedApiBase ? [resolvedApiBase] : buildApiCandidates());
-  const staticCandidates = bases.flatMap((base) => buildStaticCandidates(base));
-  for (const candidate of staticCandidates) {
-    try {
-      const response = await fetch(withCacheBust(candidate), { cache: 'no-store' });
-      if (!response.ok) {
-        continue;
-      }
-      const rows = await response.json();
-      const items = normalizeStaticItems(rows);
-      const page = items.slice(offset, offset + limit);
-      render(page);
-      offset += limit;
-      if (offset >= items.length) {
-        loadMoreBtn.style.display = 'none';
-      }
-      usesStaticFeed = true;
-      resolvedStaticSource = candidate;
-      return true;
-    } catch (error) {
-      console.warn('Static feed failed:', candidate, error);
-      lastLoadError = `static:${candidate} -> ${error?.message || error}`;
-    }
-  }
-  return false;
 }
 
 async function tryLoadFromApiBase(base) {
@@ -192,14 +138,7 @@ async function loadNews() {
   if (syncNowBtn) syncNowBtn.disabled = true;
   statusEl.textContent = 'Обновляем ленту...';
   try {
-    if (usesStaticFeed) {
-      await loadStaticNews();
-      statusEl.textContent = `Новости: ${feed.children.length} (static)`;
-      return;
-    }
-
     const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
-    const apiErrors = [];
 
     for (const base of apiCandidates) {
       try {
@@ -207,18 +146,10 @@ async function loadNews() {
         statusEl.textContent = `Новости: ${feed.children.length}`;
         return;
       } catch (error) {
-        const reason = error?.message || String(error);
-        apiErrors.push(`${base} -> ${reason}`);
         console.warn('API feed failed for base:', base, error);
       }
     }
-
-    const loaded = await loadStaticNews();
-    if (!loaded) {
-      const detail = [...apiErrors, lastLoadError].filter(Boolean).join('; ');
-      throw new Error(`Не удалось загрузить новости ни из API, ни из статического файла. ${detail}`.trim());
-    }
-    statusEl.textContent = `Новости: ${feed.children.length} (static)`;
+    throw new Error('Не удалось загрузить новости из API. Проверьте API_BASE и доступность /api/news.');
   } finally {
     if (syncNowBtn) syncNowBtn.disabled = false;
     isLoading = false;
@@ -226,23 +157,6 @@ async function loadNews() {
 }
 
 async function fetchLatestNewsId() {
-  if (usesStaticFeed) {
-    const staticCandidates = resolvedStaticSource
-      ? [resolvedStaticSource]
-      : (resolvedApiBase ? [resolvedApiBase] : buildApiCandidates()).flatMap((base) => buildStaticCandidates(base));
-    for (const candidate of staticCandidates) {
-      try {
-        const response = await fetch(withCacheBust(candidate), { cache: 'no-store' });
-        if (!response.ok) continue;
-        const rows = normalizeStaticItems(await response.json());
-        return rows[0]?.id || rows[0]?.created_at || rows[0]?.published_at || null;
-      } catch (error) {
-        console.warn('Latest static news check failed:', candidate, error);
-      }
-    }
-    return null;
-  }
-
   const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
   for (const base of apiCandidates) {
     try {
@@ -272,10 +186,7 @@ async function refreshFeedIfNeeded() {
 
 async function forceSyncFeed() {
   cacheBust = Date.now();
-  usesStaticFeed = false;
   resolvedApiBase = null;
-  resolvedStaticSource = null;
-  lastLoadError = '';
   feed.innerHTML = '';
   offset = 0;
   loadMoreBtn.style.display = '';
@@ -287,12 +198,12 @@ loadMoreBtn.addEventListener('click', loadNews);
 syncNowBtn?.addEventListener('click', () => {
   forceSyncFeed().catch((err) => {
     console.error(err);
-    statusEl.textContent = 'Ошибка синхронизации. Проверьте API/news.json и сеть телефона.';
+    statusEl.textContent = 'Ошибка синхронизации. Проверьте API и сеть телефона.';
   });
 });
 loadNews().catch((err) => {
   console.error(err);
-  statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность news.json.';
+  statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность API.';
 });
 setInterval(() => {
   refreshFeedIfNeeded().catch((err) => console.warn('Auto refresh failed:', err));

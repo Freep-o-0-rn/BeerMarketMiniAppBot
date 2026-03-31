@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from aiogram import F, Router
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
@@ -53,6 +54,14 @@ def _news_media_finish_kb(news_id: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="❌ Отмена", callback_data="news:finishmedia:cancel")],
     ])
 
+async def _safe_edit_text(message: Message, text: str, reply_markup: InlineKeyboardMarkup) -> bool:
+    try:
+        await message.edit_text(text, reply_markup=reply_markup)
+        return True
+    except TelegramBadRequest as error:
+        if "message is not modified" in str(error).lower():
+            return False
+        raise
 
 def _pager(items_count: int, page: int, status: str, page_size: int) -> list[list[InlineKeyboardButton]]:
     rows: list[list[InlineKeyboardButton]] = []
@@ -117,11 +126,15 @@ def register_news_manage_handlers(
         if not await ensure_callback_access(cq, "news.manage"):
             return
         published_count = news_service.sync_static_files()
-        await cq.message.edit_text(
+        updated = await _safe_edit_text(
+            cq.message,
             f"Синхронизация выполнена.\nОпубликовано новостей: {published_count}",
             reply_markup=_news_menu_kb(),
         )
-        await cq.answer("Лента синхронизирована")
+        if updated:
+            await cq.answer("Лента синхронизирована")
+        else:
+            await cq.answer("Данные уже актуальны")
     @router.callback_query(F.data == "news:create")
     async def news_create_start(cq: CallbackQuery, state: FSMContext):
         if not await ensure_callback_access(cq, "news.manage", state=state):
