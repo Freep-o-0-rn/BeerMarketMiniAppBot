@@ -1,74 +1,15 @@
 [
   {
-    "id": "52b93f16680b4a76ab19d49b9b7ba87c",
+    "id": "9e0aa102676c40c583deacc8352c34fa",
     "seq": 1,
-    "title": "11111111",
+    "title": "Ыыыыы",
     "category": "Новость",
     "date": "2026-03-31",
-    "text": ":8:8(:8(:&(:8(:85285",
+    "text": "Лвлатататат",
     "publishState": "published",
-    "createdAt": "2026-03-31T18:14:49.161714+00:00",
-    "updatedAt": "2026-03-31T18:15:06.143182+00:00",
-    "author_name": "Freep_o_0_rn",
-    "media": [
-      {
-        "id": "8c362cb839da4ac4b4e3f48d70d31245",
-        "news_id": "52b93f16680b4a76ab19d49b9b7ba87c",
-        "media_type": "photo",
-        "file_path": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.94\\pythonProject\\data\\news\\media\\52b93f16680b4a76ab19d49b9b7ba87c\\ff47296e81aa436f802fb0f020a70464.jpg",
-        "mime_type": "image/jpeg",
-        "created_at": "2026-03-31T18:15:02.516700+00:00",
-        "sort_order": 0
-      }
-    ]
-  },
-  {
-    "id": "5fdf9315e9024b8c9c2a752de8a9ccc3",
-    "seq": 2,
-    "title": "123",
-    "category": "Новость",
-    "date": "2026-03-31",
-    "text": "Йоу",
-    "publishState": "published",
-    "createdAt": "2026-03-31T17:58:08.922127+00:00",
-    "updatedAt": "2026-03-31T17:58:12.304480+00:00",
+    "createdAt": "2026-03-31T18:34:05.707237+00:00",
+    "updatedAt": "2026-03-31T18:34:08.255518+00:00",
     "author_name": "Freep_o_0_rn",
     "media": []
-  },
-  {
-    "id": "03c365108e914bb18b5f115586c40056",
-    "seq": 3,
-    "title": "Тест 0042",
-    "category": "Новость",
-    "date": "2026-03-31",
-    "text": "134",
-    "publishState": "published",
-    "createdAt": "2026-03-31T17:42:13.206787+00:00",
-    "updatedAt": "2026-03-31T17:56:53.421708+00:00",
-    "author_name": "Freep_o_0_rn",
-    "media": []
-  },
-  {
-    "id": "f79ba96bd70c4768aefaed4d3e9a1f3e",
-    "seq": 4,
-    "title": "Обновление! Добавлен МиниАпп с новостями",
-    "category": "Новость",
-    "date": "2026-03-31",
-    "text": "Добавлено меню с новостями. Мелкие баг фиксы.",
-    "publishState": "published",
-    "createdAt": "2026-03-31T17:37:58.726956+00:00",
-    "updatedAt": "2026-03-31T17:39:09.432528+00:00",
-    "author_name": "Freep_o_0_rn",
-    "media": [
-      {
-        "id": "e3d31175a1174bd59e8e063ae6378e91",
-        "news_id": "f79ba96bd70c4768aefaed4d3e9a1f3e",
-        "media_type": "photo",
-        "file_path": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.94\\pythonProject\\data\\news\\media\\f79ba96bd70c4768aefaed4d3e9a1f3e\\97003dc8363d4a46a96d7b2502562d44.jpg",
-        "mime_type": "image/jpeg",
-        "created_at": "2026-03-31T17:38:39.365801+00:00",
-        "sort_order": 0
-      }
-    ]
   }
 ]

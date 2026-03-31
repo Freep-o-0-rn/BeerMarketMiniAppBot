@@ -219,67 +219,66 @@ def register_news_manage_handlers(
         await cq.answer("Новость удалена")
         await render_news_list(cq, list_status, max(0, int(page_raw)))
 
-        @router.callback_query(F.data.startswith("news:purgeask:"))
-        async def news_purge_ask(cq: CallbackQuery):
-            if not await ensure_callback_access(cq, "news.manage"):
-                return
-            status = (cq.data or "").split(":", 2)[2]
-            if status not in {"draft", "published"}:
-                await cq.answer("Некорректный статус", show_alert=True)
-                return
-            status_title = "черновики" if status == "draft" else "опубликованные"
-            await cq.message.edit_text(
-                f"Подтвердите удаление всех элементов в разделе: <b>{status_title}</b>.",
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(text="✅ Продолжить", callback_data=f"news:purgeconfirm:{status}")],
-                    [InlineKeyboardButton(text="❌ Отмена", callback_data="news:menu")],
-                ])
-            )
-            await cq.answer()
+    @router.callback_query(F.data.startswith("news:purgeask:"))
+    async def news_purge_ask(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        status = (cq.data or "").split(":", 2)[2]
+        if status not in {"draft", "published"}:
+            await cq.answer("Некорректный статус", show_alert=True)
+            return
+        status_title = "черновики" if status == "draft" else "опубликованные"
+        await cq.message.edit_text(
+            f"Подтвердите удаление всех элементов в разделе: <b>{status_title}</b>.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="✅ Продолжить", callback_data=f"news:purgeconfirm:{status}")],
+                [InlineKeyboardButton(text="❌ Отмена", callback_data="news:menu")],
+            ])
+        )
+        await cq.answer()
 
-        @router.callback_query(F.data.startswith("news:purgeconfirm:"))
-        async def news_purge_confirm(cq: CallbackQuery):
-            if not await ensure_callback_access(cq, "news.manage"):
-                return
-            status = (cq.data or "").split(":", 2)[2]
-            if status not in {"draft", "published"}:
-                await cq.answer("Некорректный статус", show_alert=True)
-                return
-            status_title = "черновики" if status == "draft" else "опубликованные"
-            await cq.message.edit_text(
-                f"⚠️ ТОЧНО УДАЛИТЬ ВСЕ новости в разделе <b>{status_title}</b>?\n"
-                f"Действие необратимо.",
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(text="🗑 ТОЧНО удалить все", callback_data=f"news:purge:{status}")],
-                    [InlineKeyboardButton(text="↩️ Назад", callback_data=f"news:purgeask:{status}")],
-                    [InlineKeyboardButton(text="❌ Отмена", callback_data="news:menu")],
-                ])
-            )
-            await cq.answer()
-
-        @router.callback_query(F.data.startswith("news:purge:"))
-        async def news_purge(cq: CallbackQuery):
-            if not await ensure_callback_access(cq, "news.manage"):
-                return
-            status = (cq.data or "").split(":", 2)[2]
-            if status not in {"draft", "published"}:
-                await cq.answer("Некорректный статус", show_alert=True)
-                return
-            rows = news_service.list_news(status=status, limit=500, offset=0)
-            for row in rows:
-                for media in row.get("media") or []:
-                    media_service.delete_file_safe(media.get("file_path") or "")
-            deleted = news_service.delete_news_by_status(status)
-            status_title = "черновиков" if status == "draft" else "опубликованных"
-            await cq.message.edit_text(
-                f"Удалено {deleted} {status_title}.",
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(text="⬆️ Меню новостей", callback_data="news:menu")],
-                    [InlineKeyboardButton(text="📋 К черновикам", callback_data="news:list:draft:0")],
-                    [InlineKeyboardButton(text="📰 К опубликованным", callback_data="news:list:published:0")],
-                ])
-            )
-            await cq.answer("Удаление завершено")
+    @router.callback_query(F.data.startswith("news:purgeconfirm:"))
+    async def news_purge_confirm(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        status = (cq.data or "").split(":", 2)[2]
+        if status not in {"draft", "published"}:
+            await cq.answer("Некорректный статус", show_alert=True)
+            return
+        status_title = "черновики" if status == "draft" else "опубликованные"
+        await cq.message.edit_text(
+            f"⚠️ ТОЧНО УДАЛИТЬ ВСЕ новости в разделе <b>{status_title}</b>?\n"
+            f"Действие необратимо.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="🗑 ТОЧНО удалить все", callback_data=f"news:purge:{status}")],
+                [InlineKeyboardButton(text="↩️ Назад", callback_data=f"news:purgeask:{status}")],
+                [InlineKeyboardButton(text="❌ Отмена", callback_data="news:menu")],
+            ])
+        )
+        await cq.answer()
+    @router.callback_query(F.data.startswith("news:purge:"))
+    async def news_purge(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        status = (cq.data or "").split(":", 2)[2]
+        if status not in {"draft", "published"}:
+            await cq.answer("Некорректный статус", show_alert=True)
+            return
+        rows = news_service.list_news(status=status, limit=500, offset=0)
+        for row in rows:
+            for media in row.get("media") or []:
+                media_service.delete_file_safe(media.get("file_path") or "")
+        deleted = news_service.delete_news_by_status(status)
+        status_title = "черновиков" if status == "draft" else "опубликованных"
+        await cq.message.edit_text(
+            f"Удалено {deleted} {status_title}.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="⬆️ Меню новостей", callback_data="news:menu")],
+                [InlineKeyboardButton(text="📋 К черновикам", callback_data="news:list:draft:0")],
+                [InlineKeyboardButton(text="📰 К опубликованным", callback_data="news:list:published:0")],
+            ])
+        )
+        await cq.answer("Удаление завершено")
 
     @router.callback_query(F.data.startswith("news:edit:"))
     async def news_edit_prompt(cq: CallbackQuery, state: FSMContext):

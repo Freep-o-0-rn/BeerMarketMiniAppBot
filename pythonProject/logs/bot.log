@@ -20939,3 +20939,56 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: keybo
 2026-04-01 01:15:31 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
 2026-04-01 01:15:31 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
 2026-04-01 01:15:32 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-01 01:30:18 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-01 01:30:22 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-01 01:30:22 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-01 01:30:22 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-01 01:30:23 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-01 01:30:23 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-01 01:30:23 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-01 01:30:23 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-01 01:30:23 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-01 01:30:23 | WARNING | root | Несовпадение 'наш долг' у клиента 'Шахматов Константин Николаевич ИП -Воротников Д': шапка=7931.20, по строкам=0.00
+2026-04-01 01:30:23 | INFO | root | Собрано клиентов: 109
+2026-04-01 01:30:23 | INFO | __main__ | Отчёт на 31.03.2026 | клиентов: 109
+2026-04-01 01:30:23 | INFO | __main__ | 01. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 4
+2026-04-01 01:30:23 | INFO | __main__ | 02. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 130540.00 | проср: 130540.00 | наш долг: 0.00 | доков: 8
+2026-04-01 01:30:23 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 107429.84 | проср: 107429.84 | наш долг: 0.00 | доков: 8
+2026-04-01 01:30:23 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 100652.00 | проср: 100652.00 | наш долг: 0.00 | доков: 7
+2026-04-01 01:30:23 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (Ватутина ул, дом № 107) | сум: 93954.64 | проср: 93954.64 | наш долг: 0.00 | доков: 7
+2026-04-01 01:30:23 | INFO | __main__ | 06. БУРГЕР РУС ООО - Колягин (Красный пр-кт, дом № 101) | сум: 91500.00 | проср: 91500.00 | наш долг: 0.00 | доков: 7
+2026-04-01 01:30:23 | INFO | __main__ | 07. Ландыш ООО - Воротников Д (Ватутина ул, дом № 26) | сум: 78175.32 | проср: 78175.32 | наш долг: 0.00 | доков: 1
+2026-04-01 01:30:23 | INFO | __main__ | 08. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 77718.88 | проср: 77718.88 | наш долг: 0.00 | доков: 3
+2026-04-01 01:30:23 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Фрунзе ул, дом № 238) | сум: 71413.92 | проср: 71413.92 | наш долг: 0.00 | доков: 5
+2026-04-01 01:30:23 | INFO | __main__ | 10. Виикманн Игорь Олегович ИП - Воротников Д | сум: 68380.67 | проср: 68380.67 | наш долг: 0.00 | доков: 1
+2026-04-01 01:30:24 | INFO | aiogram.dispatcher | Start polling
+2026-04-01 01:30:24 | INFO | telegram_bot | Daily fetch: next run in 32436 sec (now 2026-04-01 01:30:24, tz Asia/Novosibirsk)
+2026-04-01 01:30:24 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-01 01:31:01 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 381, 'req': '7ffa82bc', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2635, 'kind': <ContentType.TEXT: 'text'>, 'text': '📰 Управление новостями', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 01:31:01 | INFO | aiogram.event | Update id=104057288 is handled. Duration 384 ms by bot id=8304099970
+2026-04-01 01:31:04 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 283, 'req': 'a9cffc08', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730137269803', 'msg_id': 2636, 'data': 'news:list:published:0', 'state': None}
+2026-04-01 01:31:04 | INFO | aiogram.event | Update id=104057289 is handled. Duration 285 ms by bot id=8304099970
+2026-04-01 01:31:06 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 279, 'req': 'ad560567', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728188554014', 'msg_id': 2636, 'data': 'news:menu', 'state': None}
+2026-04-01 01:31:06 | INFO | aiogram.event | Update id=104057290 is handled. Duration 281 ms by bot id=8304099970
+2026-04-01 01:31:08 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 124, 'req': '86332440', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730792089224', 'msg_id': 2636, 'data': 'news:purgeask:published', 'state': None}
+2026-04-01 01:31:08 | INFO | aiogram.event | Update id=104057291 is handled. Duration 133 ms by bot id=8304099970
+2026-04-01 01:31:11 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 145, 'req': 'b6daf08c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730989979655', 'msg_id': 2636, 'data': 'news:purgeask:published', 'state': None}
+2026-04-01 01:31:11 | INFO | aiogram.event | Update id=104057292 is handled. Duration 155 ms by bot id=8304099970
+2026-04-01 01:31:13 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 200, 'req': '654ffc91', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732024654720', 'msg_id': 2636, 'data': 'news:purgeask:draft', 'state': None}
+2026-04-01 01:31:13 | INFO | aiogram.event | Update id=104057293 is handled. Duration 210 ms by bot id=8304099970
+2026-04-01 01:31:16 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 187, 'req': '512f274c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 2637, 'kind': <ContentType.TEXT: 'text'>, 'text': '📰 Управление новостями', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-01 01:31:16 | INFO | aiogram.event | Update id=104057294 is handled. Duration 189 ms by bot id=8304099970
+2026-04-01 01:31:19 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 382, 'req': '9a7fd712', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731625145707', 'msg_id': 2638, 'data': 'news:list:published:0', 'state': None}
+2026-04-01 01:31:19 | INFO | aiogram.event | Update id=104057295 is handled. Duration 383 ms by bot id=8304099970
+2026-04-01 01:31:21 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 281, 'req': 'd0d02682', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728529667231', 'msg_id': 2638, 'data': 'news:item:52b93f16680b4a76ab19d49b9b7ba87c:0:published', 'state': None}
+2026-04-01 01:31:21 | INFO | aiogram.event | Update id=104057296 is handled. Duration 282 ms by bot id=8304099970
+2026-04-01 01:31:25 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 268, 'req': '5b03dfbf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728619511221', 'msg_id': 2638, 'data': 'news:delete:52b93f16680b4a76ab19d49b9b7ba87c:0:published', 'state': None}
+2026-04-01 01:31:25 | INFO | aiogram.event | Update id=104057297 is handled. Duration 270 ms by bot id=8304099970
+2026-04-01 01:31:27 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 271, 'req': 'be8410b8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729730013587', 'msg_id': 2638, 'data': 'news:menu', 'state': None}
+2026-04-01 01:31:27 | INFO | aiogram.event | Update id=104057298 is handled. Duration 272 ms by bot id=8304099970
+2026-04-01 01:31:30 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 146, 'req': 'd275142c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729858180373', 'msg_id': 2638, 'data': 'news:purgeask:draft', 'state': None}
+2026-04-01 01:31:30 | INFO | aiogram.event | Update id=104057299 is handled. Duration 156 ms by bot id=8304099970
+2026-04-01 01:31:31 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 137, 'req': '2282433e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728557156998', 'msg_id': 2638, 'data': 'news:purgeask:published', 'state': None}
+2026-04-01 01:31:31 | INFO | aiogram.event | Update id=104057300 is handled. Duration 147 ms by bot id=8304099970
+2026-04-01 01:33:02 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-01 01:33:02 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
