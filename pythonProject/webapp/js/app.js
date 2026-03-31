@@ -12,6 +12,7 @@ const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
 const tpl = document.getElementById('news-card-template');
+const syncNowBtn = document.getElementById('syncNow');
 
 let offset = 0;
 const limit = 6;
@@ -21,9 +22,20 @@ let resolvedApiBase = null;
 let lastLoadError = '';
 let isLoading = false;
 let resolvedStaticSource = null;
+let cacheBust = Date.now();
 
 function joinUrl(base, path) {
   return new URL(path.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).href;
+}
+
+function withCacheBust(url) {
+  try {
+    const nextUrl = new URL(url, window.location.href);
+    nextUrl.searchParams.set('_sync', String(cacheBust));
+    return nextUrl.href;
+  } catch (_) {
+    return url;
+  }
 }
 
 function normalizeBase(base) {
@@ -134,7 +146,7 @@ async function loadStaticNews() {
   const staticCandidates = bases.flatMap((base) => buildStaticCandidates(base));
   for (const candidate of staticCandidates) {
     try {
-      const response = await fetch(candidate, { cache: 'no-store' });
+      const response = await fetch(withCacheBust(candidate), { cache: 'no-store' });
       if (!response.ok) {
         continue;
       }
@@ -158,7 +170,7 @@ async function loadStaticNews() {
 }
 
 async function tryLoadFromApiBase(base) {
-  const response = await fetch(joinUrl(base, `api/news?status=published&limit=${limit}&offset=${offset}`), { cache: 'no-store' });
+  const response = await fetch(withCacheBust(joinUrl(base, `api/news?status=published&limit=${limit}&offset=${offset}`)), { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`API returned ${response.status}`);
   }
@@ -177,6 +189,7 @@ async function loadNews() {
     return;
   }
   isLoading = true;
+  if (syncNowBtn) syncNowBtn.disabled = true;
   statusEl.textContent = 'Обновляем ленту...';
   try {
     if (usesStaticFeed) {
@@ -207,6 +220,7 @@ async function loadNews() {
     }
     statusEl.textContent = `Новости: ${feed.children.length} (static)`;
   } finally {
+    if (syncNowBtn) syncNowBtn.disabled = false;
     isLoading = false;
   }
 }
@@ -218,7 +232,7 @@ async function fetchLatestNewsId() {
       : (resolvedApiBase ? [resolvedApiBase] : buildApiCandidates()).flatMap((base) => buildStaticCandidates(base));
     for (const candidate of staticCandidates) {
       try {
-        const response = await fetch(candidate, { cache: 'no-store' });
+        const response = await fetch(withCacheBust(candidate), { cache: 'no-store' });
         if (!response.ok) continue;
         const rows = normalizeStaticItems(await response.json());
         return rows[0]?.id || rows[0]?.created_at || rows[0]?.published_at || null;
@@ -232,7 +246,7 @@ async function fetchLatestNewsId() {
   const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
   for (const base of apiCandidates) {
     try {
-      const response = await fetch(joinUrl(base, 'api/news?status=published&limit=1&offset=0'), { cache: 'no-store' });
+      const response = await fetch(withCacheBust(joinUrl(base, 'api/news?status=published&limit=1&offset=0')), { cache: 'no-store' });
       if (!response.ok) continue;
       const data = await response.json();
       resolvedApiBase = base;
@@ -256,7 +270,26 @@ async function refreshFeedIfNeeded() {
   await loadNews();
 }
 
+async function forceSyncFeed() {
+  cacheBust = Date.now();
+  usesStaticFeed = false;
+  resolvedApiBase = null;
+  resolvedStaticSource = null;
+  lastLoadError = '';
+  feed.innerHTML = '';
+  offset = 0;
+  loadMoreBtn.style.display = '';
+  statusEl.textContent = 'Принудительная синхронизация...';
+  await loadNews();
+}
+
 loadMoreBtn.addEventListener('click', loadNews);
+syncNowBtn?.addEventListener('click', () => {
+  forceSyncFeed().catch((err) => {
+    console.error(err);
+    statusEl.textContent = 'Ошибка синхронизации. Проверьте API/news.json и сеть телефона.';
+  });
+});
 loadNews().catch((err) => {
   console.error(err);
   statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность news.json.';
