@@ -117,6 +117,9 @@
   "8668259399": {
     "username": "knvejabhiotrj",
     "first_name": "He Go I",
-    "language_code": "ru"
+    "language_code": "ru",
+    "role": "guest",
+    "access_overrides": {},
+    "notification_settings": {}
   }
 }
