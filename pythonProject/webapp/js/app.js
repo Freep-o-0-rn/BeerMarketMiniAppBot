@@ -5,7 +5,7 @@ if (tg) {
 }
 
 const params = new URLSearchParams(location.search);
-const API_BASE = (params.get('api_base') || `${location.protocol}//${location.host}`).replace(/\/+$/, '');
+const API_BASE = params.get('api_base') || 'https://freep-o-0-rn.github.io/BeerMarketMiniAppBot/';
 const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
