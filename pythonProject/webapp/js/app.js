@@ -65,8 +65,11 @@ function mediaElement(item) {
   return img;
 }
 
-function normalizeStaticItems(items = []) {
-  return items.map((row) => ({
+function normalizeStaticItems(rawPayload) {
+  const rows = Array.isArray(rawPayload) ? rawPayload : (Array.isArray(rawPayload?.items) ? rawPayload.items : []);
+  return rows
+    .filter((row) => !row.publishState || row.publishState === 'published')
+    .map((row) => ({
     author_name: row.author_name || 'BeerMarket',
     published_at: row.published_at || row.date || row.createdAt || '',
     created_at: row.created_at || row.createdAt || '',
@@ -100,7 +103,7 @@ async function loadStaticNews() {
         continue;
       }
       const rows = await response.json();
-      const items = normalizeStaticItems(Array.isArray(rows) ? rows : []);
+      const items = normalizeStaticItems(rows);
       const page = items.slice(offset, offset + limit);
       render(page);
       offset += limit;

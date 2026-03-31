@@ -44,9 +44,10 @@ class NewsItem:
 
 
 class NewsService:
-    def __init__(self, db_path: Path):
+    def __init__(self, db_path: Path, *, static_export_paths: Optional[List[Path]] = None):
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.static_export_paths = [Path(p) for p in (static_export_paths or [])]
         self._init_db()
 
     def _connect(self) -> sqlite3.Connection:
@@ -108,6 +109,7 @@ class NewsService:
                 """,
                 (news_id, title.strip(), text.strip(), author_id, author_name.strip() or "Unknown", status, now, now),
             )
+        self._sync_static_files()
         return news_id
 
     def update_news(self, news_id: str, **patch: Any) -> None:
@@ -122,6 +124,7 @@ class NewsService:
         values = [v for _, v in pairs] + [news_id]
         with self._connect() as conn:
             conn.execute(f"UPDATE news SET {set_sql} WHERE id = ?", values)
+        self._sync_static_files()
 
     def set_status(self, news_id: str, status: str, *, published_at: Optional[str] = None) -> None:
         if status == "published":
@@ -133,6 +136,7 @@ class NewsService:
         with self._connect() as conn:
             conn.execute("DELETE FROM news_media WHERE news_id = ?", (news_id,))
             conn.execute("DELETE FROM news WHERE id = ?", (news_id,))
+        self._sync_static_files()
 
     def add_media(self, news_id: str, media_type: str, file_path: str, mime_type: Optional[str] = None) -> str:
         media_id = uuid.uuid4().hex
@@ -147,6 +151,7 @@ class NewsService:
                 """,
                 (media_id, news_id, media_type, file_path, mime_type, now, sort_order),
             )
+        self._sync_static_files()
         return media_id
 
     def get_news(self, news_id: str) -> Optional[Dict[str, Any]]:
@@ -180,3 +185,33 @@ class NewsService:
                 item["is_pinned"] = bool(item.get("is_pinned"))
                 result.append(item)
             return result
+
+    def _sync_static_files(self) -> None:
+        if not self.static_export_paths:
+            return
+        rows = self.list_news(status="published", limit=500, offset=0)
+        payload = []
+        for idx, row in enumerate(rows, start=1):
+            published_at = row.get("published_at") or row.get("created_at") or ""
+            payload.append({
+                "id": row.get("id"),
+                "seq": idx,
+                "title": row.get("title") or "Без заголовка",
+                "category": row.get("category") or "Новость",
+                "date": str(published_at)[:10] if published_at else "",
+                "text": row.get("text") or "",
+                "publishState": "published",
+                "createdAt": row.get("created_at") or "",
+                "updatedAt": row.get("updated_at") or "",
+                "author_name": row.get("author_name") or "BeerMarket",
+                "media": row.get("media") or [],
+            })
+        for export_path in self.static_export_paths:
+            try:
+                export_path.parent.mkdir(parents=True, exist_ok=True)
+                export_path.write_text(
+                    json.dumps(payload, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+            except Exception:
+                continue

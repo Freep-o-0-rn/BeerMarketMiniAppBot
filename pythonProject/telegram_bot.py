@@ -182,7 +182,13 @@ MINIAPP_URL = (os.getenv("MINIAPP_URL") or DEFAULT_MINIAPP_URL).strip()
 NEWS_DATA_DIR = ROOT_DIR / "data" / "news"
 NEWS_DB_PATH = NEWS_DATA_DIR / "news.db"
 NEWS_MEDIA_DIR = NEWS_DATA_DIR / "media"
-NEWS_SERVICE = NewsService(NEWS_DB_PATH)
+NEWS_SERVICE = NewsService(
+    NEWS_DB_PATH,
+    static_export_paths=[
+        ROOT_DIR / "news.json",
+        ROOT_DIR.parent / "news.json",
+    ],
+)
 MEDIA_SERVICE = MediaService(NEWS_MEDIA_DIR)
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
