@@ -238,3 +238,8 @@ class NewsService:
                 )
             except Exception:
                 continue
+
+    def sync_static_files(self) -> int:
+        published_count = len(self.list_news(status="published", limit=500, offset=0))
+        self._sync_static_files()
+        return published_count

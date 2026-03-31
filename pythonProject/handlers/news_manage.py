@@ -29,6 +29,7 @@ def _news_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="➕ Создать новость", callback_data="news:create")],
         [InlineKeyboardButton(text="📋 Черновики", callback_data="news:list:draft:0")],
         [InlineKeyboardButton(text="📰 Опубликованные", callback_data="news:list:published:0")],
+        [InlineKeyboardButton(text="🔄 Синхронизировать ленту", callback_data="news:sync")],
         [InlineKeyboardButton(text="🗑 Удалить все черновики", callback_data="news:purgeask:draft")],
         [InlineKeyboardButton(text="🧹 Удалить все опубликованные", callback_data="news:purgeask:published")],
     ])
@@ -111,6 +112,16 @@ def register_news_manage_handlers(
         await cq.message.edit_text("Управление новостями Mini App", reply_markup=_news_menu_kb())
         await cq.answer()
 
+    @router.callback_query(F.data == "news:sync")
+    async def news_sync(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        published_count = news_service.sync_static_files()
+        await cq.message.edit_text(
+            f"Синхронизация выполнена.\nОпубликовано новостей: {published_count}",
+            reply_markup=_news_menu_kb(),
+        )
+        await cq.answer("Лента синхронизирована")
     @router.callback_query(F.data == "news:create")
     async def news_create_start(cq: CallbackQuery, state: FSMContext):
         if not await ensure_callback_access(cq, "news.manage", state=state):
