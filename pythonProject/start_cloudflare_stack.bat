@@ -18,6 +18,16 @@ echo   BeerMarket Mini App: запуск локального стека
 echo ==========================================================
 echo.
 
+rem --- Restart mode: stop old listeners on target ports ---
+echo [STEP] Проверяю и останавливаю старые процессы на портах 8081 и 8080...
+for %%P in (8081 8080) do (
+  for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":%%P .*LISTENING"') do (
+    echo [INFO] Останавливаю PID %%a (порт %%P)
+    taskkill /PID %%a /F >nul 2>&1
+  )
+)
+timeout /t 1 /nobreak >nul
+
 rem --- Find Python executable ---
 set "PYEXE="
 if exist "venv\Scripts\python.exe" set "PYEXE=venv\Scripts\python.exe"
