@@ -12,7 +12,6 @@ const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
 const tpl = document.getElementById('news-card-template');
-const syncNowBtn = document.getElementById('syncNow');
 
 let offset = 0;
 const limit = 6;
@@ -98,7 +97,7 @@ function mediaElement(item) {
 function render(items) {
   for (const row of items) {
     const node = tpl.content.firstElementChild.cloneNode(true);
-        if (row.id) {
+    if (row.id) {
       node.dataset.newsId = String(row.id);
     }
     node.querySelector('.card-meta').textContent = `${row.author_name || '—'} • ${row.published_at || row.created_at || ''}`;
@@ -135,7 +134,6 @@ async function loadNews() {
     return;
   }
   isLoading = true;
-  if (syncNowBtn) syncNowBtn.disabled = true;
   statusEl.textContent = 'Обновляем ленту...';
   try {
     const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
@@ -151,7 +149,6 @@ async function loadNews() {
     }
     throw new Error('Не удалось загрузить новости из API. Проверьте API_BASE и доступность /api/news.');
   } finally {
-    if (syncNowBtn) syncNowBtn.disabled = false;
     isLoading = false;
   }
 }
@@ -184,23 +181,7 @@ async function refreshFeedIfNeeded() {
   await loadNews();
 }
 
-async function forceSyncFeed() {
-  cacheBust = Date.now();
-  resolvedApiBase = null;
-  feed.innerHTML = '';
-  offset = 0;
-  loadMoreBtn.style.display = '';
-  statusEl.textContent = 'Принудительная синхронизация...';
-  await loadNews();
-}
-
 loadMoreBtn.addEventListener('click', loadNews);
-syncNowBtn?.addEventListener('click', () => {
-  forceSyncFeed().catch((err) => {
-    console.error(err);
-    statusEl.textContent = 'Ошибка синхронизации. Проверьте API и сеть телефона.';
-  });
-});
 loadNews().catch((err) => {
   console.error(err);
   statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность API.';

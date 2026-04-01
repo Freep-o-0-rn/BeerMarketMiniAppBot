@@ -121,5 +121,14 @@
     "role": "guest",
     "access_overrides": {},
     "notification_settings": {}
+  },
+  "5241893038": {
+    "first_name": "Бирмаркет-НСК (Артём)",
+    "language_code": "ru",
+    "role": "guest",
+    "access_overrides": {},
+    "notification_settings": {},
+    "phone": "+79137159676",
+    "phone_verified": true
   }
 }
