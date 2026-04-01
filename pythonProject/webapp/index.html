@@ -3,8 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>BeerMarket News</title>
-  <link rel="stylesheet" href="./css/styles.css?v=2026-04-01" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script>
+    (function forceFreshBuild() {
+      var BUILD_ID = "2026-04-01-2";
+      var KEY = "beermarket_webapp_build";
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved !== BUILD_ID) {
+          localStorage.setItem(KEY, BUILD_ID);
+          var url = new URL(window.location.href);
+          if (!url.searchParams.has("_reload")) {
+            url.searchParams.set("_reload", Date.now().toString());
+            window.location.replace(url.toString());
+          }
+        }
+      } catch (_) {}
+    })();
+  </script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -28,5 +48,6 @@
     </article>
   </template>
   <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/app.js?"></script>
 </body>
 </html>

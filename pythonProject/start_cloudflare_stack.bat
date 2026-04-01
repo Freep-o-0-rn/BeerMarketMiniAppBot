@@ -9,8 +9,7 @@ rem - Starts static web app on localhost:8080
 rem - Checks local health endpoints
 rem ==========================================================
 
-set "ROOT_DIR=%~dp0"
-cd /d "%ROOT_DIR%"
+cd /d "%~dp0"
 
 title BeerMarket MiniApp Stack Launcher
 
@@ -48,11 +47,11 @@ if /i "%~1"=="/setup" (
 
 rem --- Start API in dedicated window ---
 echo [STEP] Запускаю API: http://localhost:8081
-start "BeerMarket API :8081" /D "%ROOT_DIR%" cmd /k "%PYEXE% -m api.app"
+start "BeerMarket API :8081" cmd /k "cd /d "%~dp0" && %PYEXE% -m api.app"
 
 rem --- Start WebApp in dedicated window ---
 echo [STEP] Запускаю WebApp: http://localhost:8080
-start "BeerMarket WebApp :8080" /D "%ROOT_DIR%webapp" cmd /k "%PYEXE% -m http.server 8080 --directory ."
+start "BeerMarket WebApp :8080" cmd /k "cd /d "%~dp0webapp" && %PYEXE% -m http.server 8080"
 
 echo.
 echo [INFO] Ожидаю запуск сервисов (6 сек)...
