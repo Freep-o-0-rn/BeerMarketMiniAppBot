@@ -1,5 +1,4 @@
 import asyncio
-import subprocess
 import logging
 import html as _html
 import ssl
@@ -1765,7 +1764,6 @@ def fmt_hhmm(dt: Optional[datetime]) -> str:
 TTN_BTN  = "📦 Проверить ТТН"
 TARE_BTN = "📦 Тара"
 SCHEDULE_BTN = "🚚 График развоза"
-RESTART_CLOUDFLARE_BTN = "♻️ Рестарт Cloudflare"
 SCHEDULE_IMG_PATH = Path("settings/schedule_image.jpg")     # сюда сохраним картинку
 SCHEDULE_NOTE_PATH = Path("settings/schedule_note.txt")     # сюда сохраним подпись
 DEFAULT_SCHEDULE_NOTE = "Заявки за день понедельник-пятница до 15:00. Вс до 13:00."
@@ -1856,8 +1854,6 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     _append_button_row_if_any(keyboard, management_row)
     if user_allows_action(user_id, "notifications.manage"):
         keyboard.append([KeyboardButton(text="🔔 Уведомления")])
-    if role == "admin":
-        keyboard.append([KeyboardButton(text=RESTART_CLOUDFLARE_BTN)])
     start_row = [KeyboardButton(text="▶️ Старт")]
     if role == "admin" or user_allows_action(user_id, "updates.mail"):
         start_row.append(KeyboardButton(text=upd_label))
@@ -4128,39 +4124,11 @@ async def _do_mail_refresh(m: Message):
         await m.answer(f"Не удалось обновить: {e}",
                        reply_markup=main_menu_kb(getattr(m.from_user, "id", None)) if not _is_client(m) else client_menu_kb(getattr(m.from_user, "id", None)))
 
-def _run_cloudflare_stack_restart() -> Tuple[bool, str]:
-    if os.name != "nt":
-        return False, "Кнопка рестарта работает только на Windows (нужен запуск .bat на ПК)."
-    script_path = ROOT_DIR / "start_cloudflare_stack.bat"
-    if not script_path.exists():
-        return False, f"Файл не найден: {script_path}"
-    try:
-        subprocess.Popen(
-            ["cmd.exe", "/c", "start", "\"\"", str(script_path)],
-            cwd=str(ROOT_DIR),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) | getattr(subprocess, "DETACHED_PROCESS", 0),
-        )
-        return True, "Перезапуск запущен. На ПК откроется окно start_cloudflare_stack.bat."
-    except Exception as exc:
-        logger.exception("Cloudflare stack restart failed")
-        return False, f"Не удалось запустить рестарт: {exc}"
-
 @router.message(F.text.func(lambda t: isinstance(t, str) and t.startswith("🔄 Обновить")))
 async def btn_refresh(m: Message):
     if not await ensure_message_access(m, "updates.mail"):
         return
     await m.answer("Что обновить?", reply_markup=update_menu_kb())
-
-@router.message(F.text == RESTART_CLOUDFLARE_BTN)
-async def btn_restart_cloudflare_stack(m: Message):
-    if not is_admin(getattr(m.from_user, "id", None)):
-        await m.answer("Команда доступна только администратору.", reply_markup=menu_for_message(m))
-        return
-    ok, text = await asyncio.to_thread(_run_cloudflare_stack_restart)
-    prefix = "✅" if ok else "⚠️"
-    await m.answer(f"{prefix} {text}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.message(F.text == "🛠 Техники")
 async def technicians_menu(m: Message):
