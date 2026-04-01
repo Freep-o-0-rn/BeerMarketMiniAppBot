@@ -7,20 +7,14 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>BeerMarket News</title>
-  <link rel="stylesheet" href="./css/styles.css"/>
+  <link id="app-styles" rel="stylesheet" href="./css/styles.css"/>
   <script>
-    (function forceFreshBuild() {
-      var BUILD_ID = "2026-04-01-2";
-      var KEY = "beermarket_webapp_build";
+    (function forceFreshAssets() {
       try {
-        var saved = localStorage.getItem(KEY);
-        if (saved !== BUILD_ID) {
-          localStorage.setItem(KEY, BUILD_ID);
-          var url = new URL(window.location.href);
-          if (!url.searchParams.has("_reload")) {
-            url.searchParams.set("_reload", Date.now().toString());
-            window.location.replace(url.toString());
-          }
+        var styles = document.getElementById("app-styles");
+        if (styles) {
+          var href = styles.getAttribute("href") || "./css/styles.css";
+          styles.setAttribute("href", href + "?_ts=" + Date.now());
         }
       } catch (_) {}
     })();
