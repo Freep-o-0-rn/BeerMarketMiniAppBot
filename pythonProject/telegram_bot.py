@@ -6896,20 +6896,15 @@ def _epoch_safe(dt: datetime) -> float:
         return 0.0
 
 
-def _promo_sort_key(it: Dict[str, Any]):
+def _promo_sort_key(it: Dict[str, Any], now: Optional[datetime] = None):
     """
-    Сортируем по:
-      1) starts_at (позже — выше),
-      2) updated_at (новее — выше),
-      3) title (A..Z).
+    Сортировка списка акций:
+      1) сначала активные;
+      2) затем неактивные;
+      3) внутри каждой группы — по алфавиту.
     """
-    s_iso = it.get("starts_at") or ""
-    u_iso = it.get("updated_at") or it.get("created_at") or ""
-
-    s_date = _parse_iso_date_safe(s_iso)
-    u_dt   = _parse_iso_dt_safe(u_iso)
-
-    return (-s_date.toordinal(), -_epoch_safe(u_dt), (it.get("title") or "").casefold())
+    effective_active = _promo_is_active(it, dt=now)
+    return (0 if effective_active else 1, (it.get("title") or "").casefold())
 
 _RU_DATE_RX = re.compile(
     r"^\s*(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s*[-–]\s*(\d{1,2})\.(\d{1,2})\.(\d{4}))?\s*$"
@@ -6948,12 +6943,15 @@ def parse_ru_date_range(s: str) -> Tuple[Optional[str], Optional[str]]:
     # если нет второй даты — это "до d1" (end-only)
     return (None, _iso_from_ru(d1)) if not d2 else (_iso_from_ru(d1), _iso_from_ru(d2))
 
-def _promo_get_all(include_inactive: bool = False) -> List[Dict[str, Any]]:
+def _promo_get_all(include_inactive: bool = False, archive_only: bool = False) -> List[Dict[str, Any]]:
     items = _promos_load()
-    if not include_inactive:
-        items = [x for x in items if _promo_is_active(x)]
+    now = datetime.now(TZ)
+    if archive_only:
+        items = [x for x in items if not _promo_is_active(x, dt=now)]
+    elif not include_inactive:
+        items = [x for x in items if _promo_is_active(x, dt=now)]
     # фильтр «битых» файлов не нужен — превью опционально
-    items.sort(key=_promo_sort_key)
+    items.sort(key=lambda it: _promo_sort_key(it, now=now))
     return items
 
 def _promo_short(html_text: str, limit: int = 180) -> str:
@@ -7027,7 +7025,7 @@ def _promo_preview_16x9(img_bytes: bytes, w: int = 800, h: int = 450, pad: int =
         return img_bytes
 
 #------------клавиатуры акция
-def _promo_list_kb(items: List[Dict[str, Any]], page: int, admin: bool) -> InlineKeyboardMarkup:
+def _promo_list_kb(items: List[Dict[str, Any]], page: int, admin: bool, archive_only: bool = False) -> InlineKeyboardMarkup:
     total = len(items)
     last_page = max(0, (total - 1) // PROMO_PAGE_SIZE)
     page = max(0, min(page, last_page))
@@ -7057,6 +7055,10 @@ def _promo_list_kb(items: List[Dict[str, Any]], page: int, admin: bool) -> Inlin
 
     if admin:
         rows.append([InlineKeyboardButton(text="➕ Добавить", callback_data="promo:add")])
+        if archive_only:
+            rows.append([InlineKeyboardButton(text="📋 Все акции", callback_data="promo:list:all:0")])
+        else:
+            rows.append([InlineKeyboardButton(text="🗄 Архив", callback_data="promo:list:archive:0")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="back:main")])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -7174,7 +7176,7 @@ async def btn_promos(m: Message):
     admin = is_admin(getattr(m.from_user, "id", None))
     items = _promo_get_all(include_inactive=admin)  # админ видит всё
     await m.answer("<b>Акции</b>\nВыберите пункт:",
-                   reply_markup=_promo_list_kb(items, page=0, admin=admin))
+                   reply_markup=_promo_list_kb(items, page=0, admin=admin, archive_only=False))
 
 #пагинация
 @router.callback_query(F.data.startswith("promo:list:"))
@@ -7183,11 +7185,21 @@ async def cb_promos_list(cq: CallbackQuery):
         return
     if cq.data.endswith(":noop"):
         await cq.answer(); return
-    page = int(cq.data.split(":")[-1])
+    parts = cq.data.split(":")
+    page = 0
+    archive_only = False
+    if len(parts) >= 4 and parts[2] in {"all", "archive"}:
+        archive_only = parts[2] == "archive"
+        page = int(parts[3])
+    else:
+        page = int(parts[-1])
     admin = is_admin(getattr(cq.from_user, "id", None))
-    items = _promo_get_all(include_inactive=admin)
+    if archive_only and not admin:
+        await cq.answer("Недоступно", show_alert=True)
+        return
+    items = _promo_get_all(include_inactive=admin, archive_only=(archive_only and admin))
     await cq.message.edit_text("<b>Акции</b>\nВыберите пункт:",
-                               reply_markup=_promo_list_kb(items, page, admin),
+                               reply_markup=_promo_list_kb(items, page, admin, archive_only=(archive_only and admin)),
                                disable_web_page_preview=True)
     await cq.answer()
 
@@ -7711,7 +7723,7 @@ BAKALAR_IMG_CANDIDATES = (
     "bakalar.webp",
 )
 
-def find_bakalar_image() -> Path | None:
+def find_bakalar_image() -> Optional[Path]:
     for name in BAKALAR_IMG_CANDIDATES:
         p = ROOT_DIR / name
         if p.exists():

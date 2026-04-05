@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title BeerMarket Bot v0.0115
+title BeerMarket Bot v0.96
 setlocal ENABLEDELAYEDEXPANSION
 
 rem === Переход в папку, где лежит батник ===
