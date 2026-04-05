@@ -13,14 +13,40 @@ cd /d "%~dp0"
 
 title BeerMarket MiniApp Stack Launcher
 
+rem --- Configurable ports (env override + CLI override) ---
+set "API_PORT=%NEWS_API_PORT%"
+if not defined API_PORT set "API_PORT=8081"
+set "WEB_PORT=%WEBAPP_PORT%"
+if not defined WEB_PORT set "WEB_PORT=8080"
+set "DO_SETUP=0"
+
+rem Supported args:
+rem   /setup
+rem   /api_port:NNNN
+rem   /web_port:NNNN
+:parse_args
+if "%~1"=="" goto args_done
+if /i "%~1"=="/setup" (
+  set "DO_SETUP=1"
+) else if /i "%~1:~0,10%"=="/api_port:" (
+  set "API_PORT=%~1:~10%"
+) else if /i "%~1:~0,10%"=="/web_port:" (
+  set "WEB_PORT=%~1:~10%"
+)
+shift
+goto parse_args
+:args_done
+
 echo ==========================================================
 echo   BeerMarket Mini App: запуск локального стека
 echo ==========================================================
 echo.
+echo [INFO] API_PORT=%API_PORT%, WEB_PORT=%WEB_PORT%
+echo.
 
 rem --- Restart mode: stop old listeners on target ports ---
-echo [STEP] Проверяю и останавливаю старые процессы на портах 8081 и 8080...
-for %%P in (8081 8080) do (
+echo [STEP] Проверяю и останавливаю старые процессы на портах %API_PORT% и %WEB_PORT%...
+for %%P in (%API_PORT% %WEB_PORT%) do (
   for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":%%P .*LISTENING"') do (
     echo [INFO] Останавливаю PID %%a (порт %%P)
     taskkill /PID %%a /F >nul 2>&1
@@ -46,7 +72,7 @@ if not defined PYEXE (
 echo [INFO] Python: %PYEXE%
 
 rem --- Optional dependency install ---
-if /i "%~1"=="/setup" (
+if "%DO_SETUP%"=="1" (
   if exist "requirements.txt" (
     echo [INFO] Установка зависимостей из requirements.txt ...
     %PYEXE% -m pip install -r requirements.txt
@@ -56,12 +82,14 @@ if /i "%~1"=="/setup" (
 )
 
 rem --- Start API in dedicated window ---
-echo [STEP] Запускаю API: http://localhost:8081
-start "BeerMarket API :8081" cmd /k "cd /d "%~dp0" && %PYEXE% -m api.app"
+echo [STEP] Запускаю API: http://localhost:%API_PORT%
+start "BeerMarket API :%API_PORT%" cmd /k "cd /d "%~dp0" && set NEWS_API_PORT=%API_PORT% && %PYEXE% -m api.app"
 
 rem --- Start WebApp in dedicated window ---
-echo [STEP] Запускаю WebApp: http://localhost:8080
-start "BeerMarket WebApp :8080" cmd /k "cd /d "%~dp0webapp" && %PYEXE% -m http.server 8080"
+rem NOTE: явный bind на 127.0.0.1 обходит проблему WinError 10013 на части Windows-серверов,
+rem где bind на IPv6 any (::) может быть запрещён политиками/резервами.
+echo [STEP] Запускаю WebApp: http://localhost:%WEB_PORT%
+start "BeerMarket WebApp :%WEB_PORT%" cmd /k "cd /d "%~dp0webapp" && %PYEXE% -m http.server %WEB_PORT% --bind 127.0.0.1"
 
 echo.
 echo [INFO] Ожидаю запуск сервисов (6 сек)...
@@ -70,20 +98,20 @@ timeout /t 6 /nobreak >nul
 rem --- Health checks ---
 set "CHECK_OK=1"
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:8081/health -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:%API_PORT%/health -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
 if errorlevel 1 (
-  echo [WARN] API health-check не пройден: http://localhost:8081/health
+  echo [WARN] API health-check не пройден: http://localhost:%API_PORT%/health
   set "CHECK_OK=0"
 ) else (
-  echo [OK] API health-check: http://localhost:8081/health
+  echo [OK] API health-check: http://localhost:%API_PORT%/health
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:8080/ -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:%WEB_PORT%/ -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
 if errorlevel 1 (
-  echo [WARN] WebApp check не пройден: http://localhost:8080/
+  echo [WARN] WebApp check не пройден: http://localhost:%WEB_PORT%/
   set "CHECK_OK=0"
 ) else (
-  echo [OK] WebApp check: http://localhost:8080/
+  echo [OK] WebApp check: http://localhost:%WEB_PORT%/
 )
 
 echo.

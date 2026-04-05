@@ -92,6 +92,7 @@ logger = logging.getLogger(__name__)
 
 # ----------------- SINGLE INSTANCE LOCK -----------------
 LOCK_FILE = os.getenv("BOT_LOCK_FILE", os.path.join(tempfile.gettempdir(), "BeerMarketBot.lock"))
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 def _read_lock_pid() -> Optional[int]:
     try:
@@ -103,12 +104,37 @@ def _read_lock_pid() -> Optional[int]:
         return None
     return None
 
+def _is_same_bot_process(pid: int) -> bool:
+     """
+     Проверяет, что PID из lock относится именно к этому проекту/боту,
+     а не к произвольному процессу с переиспользованным PID.
+     """
+     try:
+         proc = psutil.Process(pid)
+         if not proc.is_running():
+             return False
+         cmd = " ".join(proc.cmdline() or []).lower()
+         cwd = ""
+         try:
+             cwd = (proc.cwd() or "").lower()
+         except Exception:
+             cwd = ""
+         marker = os.path.basename(__file__).lower()  # main.py
+         root = PROJECT_ROOT.lower()
+         return (marker in cmd) and ((root in cmd) or cwd.startswith(root))
+     except Exception:
+         return False
 def acquire_single_instance_lock() -> None:
     """Один экземпляр процесса."""
     pid = _read_lock_pid()
     if pid and psutil.pid_exists(pid):
-        logger.info("[LOCK] Bot already running (PID %s). Exit.", pid)
-        sys.exit(0)
+        if _is_same_bot_process(pid):
+            logger.info("[LOCK] Bot already running (PID %s). Exit.", pid)
+            sys.exit(0)
+        logger.warning(
+            "[LOCK] Найден lock с PID %s, но это не процесс текущего бота (PID reused/stale). Пересоздаю lock.",
+            pid,
+        )
     try:
         if os.path.exists(LOCK_FILE):
             os.remove(LOCK_FILE)
@@ -184,6 +210,10 @@ def cmd_stop() -> None:
         return
     if not psutil.pid_exists(pid):
         logger.info("Процесс %s уже не существует. Чищу lock.", pid)
+        release_single_instance_lock()
+        return
+    if not _is_same_bot_process(pid):
+        logger.warning("PID %s из lock не похож на текущий bot-процесс. Удаляю stale lock без остановки чужого процесса.", pid)
         release_single_instance_lock()
         return
     try:
