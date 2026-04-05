@@ -7217,9 +7217,26 @@ async def cb_promos_list(cq: CallbackQuery):
     include_inactive = admin and view_mode == "all"
     archive_only = admin and view_mode == "archive"
     items = _promo_get_all(include_inactive=include_inactive, archive_only=archive_only)
-    await cq.message.edit_text("<b>Акции</b>\nВыберите пункт:",
-                               reply_markup=_promo_list_kb(items, page, admin, view_mode=view_mode),
-                               disable_web_page_preview=True)
+    list_text = "<b>Акции</b>\nВыберите пункт:"
+    list_kb = _promo_list_kb(items, page, admin, view_mode=view_mode)
+    try:
+        await cq.message.edit_text(
+            list_text,
+            reply_markup=list_kb,
+            disable_web_page_preview=True
+        )
+    except TelegramBadRequest as e:
+        err = str(e).lower()
+        # Возврат "к списку" может быть на карточке с фото (у сообщения нет text, только caption).
+        # В этом случае edit_text падает, поэтому отправляем отдельное текстовое сообщение со списком.
+        if "there is no text in the message to edit" in err:
+            await cq.message.answer(
+                list_text,
+                reply_markup=list_kb,
+                disable_web_page_preview=True
+            )
+        else:
+            raise
     await cq.answer()
 
 @router.callback_query(F.data.startswith("promo:view:"))
