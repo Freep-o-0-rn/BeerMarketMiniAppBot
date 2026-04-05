@@ -7025,7 +7025,12 @@ def _promo_preview_16x9(img_bytes: bytes, w: int = 800, h: int = 450, pad: int =
         return img_bytes
 
 #------------клавиатуры акция
-def _promo_list_kb(items: List[Dict[str, Any]], page: int, admin: bool, archive_only: bool = False) -> InlineKeyboardMarkup:
+def _promo_list_kb(
+    items: List[Dict[str, Any]],
+    page: int,
+    admin: bool,
+    view_mode: str = "active",
+) -> InlineKeyboardMarkup:
     total = len(items)
     last_page = max(0, (total - 1) // PROMO_PAGE_SIZE)
     page = max(0, min(page, last_page))
@@ -7047,25 +7052,36 @@ def _promo_list_kb(items: List[Dict[str, Any]], page: int, admin: bool, archive_
 
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"promo:list:{page-1}"))
+        nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"promo:list:{view_mode}:{page-1}"))
     nav.append(InlineKeyboardButton(text=f"{page+1}/{last_page+1}", callback_data="promo:list:noop"))
     if page < last_page:
-        nav.append(InlineKeyboardButton(text="➡️", callback_data=f"promo:list:{page+1}"))
+        nav.append(InlineKeyboardButton(text="➡️", callback_data=f"promo:list:{view_mode}:{page+1}"))
     rows.append(nav)
 
     if admin:
         rows.append([InlineKeyboardButton(text="➕ Добавить", callback_data="promo:add")])
-        if archive_only:
-            rows.append([InlineKeyboardButton(text="📋 Все акции", callback_data="promo:list:all:0")])
-        else:
-            rows.append([InlineKeyboardButton(text="🗄 Архив", callback_data="promo:list:archive:0")])
+        mode_titles = {
+            "all": "📋 Все акции",
+            "active": "✅ Активные",
+            "archive": "🗄 Архив",
+        }
+        filter_row = []
+        for mode in ("all", "active", "archive"):
+            title = mode_titles[mode]
+            if mode == view_mode:
+                title = f"• {title}"
+            filter_row.append(InlineKeyboardButton(text=title, callback_data=f"promo:list:{mode}:0"))
+        rows.append(filter_row)
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="back:main")])
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def _promo_item_kb(pid: str, admin: bool) -> InlineKeyboardMarkup:
+def _promo_item_kb(it: Dict[str, Any], admin: bool) -> InlineKeyboardMarkup:
+    pid = it["id"]
     rows = [[InlineKeyboardButton(text="⬅️ Назад к списку", callback_data="promo:list:0")]]
     if admin:
+        is_hidden = not bool(it.get("active", True))
+        archive_btn_text = "♻️ Вернуть из архива" if is_hidden else "🗄 Убрать в архив"
         rows.insert(0, [
             InlineKeyboardButton(text="✏️ Название", callback_data=f"promo:rename:{pid}"),
             InlineKeyboardButton(text="📝 Текст", callback_data=f"promo:edittext:{pid}")
@@ -7075,7 +7091,7 @@ def _promo_item_kb(pid: str, admin: bool) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="📅 Даты", callback_data=f"promo:dates:{pid}"),
         ])
         rows.insert(2, [
-            InlineKeyboardButton(text="✅ Активна/⛔", callback_data=f"promo:toggle:{pid}"),
+            InlineKeyboardButton(text=archive_btn_text, callback_data=f"promo:archive_toggle:{pid}"),
             InlineKeyboardButton(text="🗑 Удалить", callback_data=f"promo:del:{pid}")
         ])
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -7114,14 +7130,15 @@ async def _send_promo_preview(m: Message, it: Dict[str, Any], admin: bool):
                 await m.answer_photo(
                     BufferedInputFile(prev, filename=f"promo_{pid}.png"),
                     caption=caption,
-                    reply_markup=_promo_item_kb(pid, admin)
+                    reply_markup=_promo_item_kb(it, admin)
                 )
                 return
             except Exception:
                 logger.exception("promo: preview send failed")
 
     # иначе просто текст + кнопки
-    await m.answer(caption, reply_markup=_promo_item_kb(pid, admin), disable_web_page_preview=True)
+    await m.answer(caption, reply_markup=_promo_item_kb(it, admin), disable_web_page_preview=True)
+
 
 
 async def _promo_finish_create(
@@ -7174,9 +7191,10 @@ async def btn_promos(m: Message):
     if not await ensure_message_access(m, "promos.view"):
         return
     admin = is_admin(getattr(m.from_user, "id", None))
+    mode = "all" if admin else "active"
     items = _promo_get_all(include_inactive=admin)  # админ видит всё
     await m.answer("<b>Акции</b>\nВыберите пункт:",
-                   reply_markup=_promo_list_kb(items, page=0, admin=admin, archive_only=False))
+                   reply_markup=_promo_list_kb(items, page=0, admin=admin, view_mode=mode))
 
 #пагинация
 @router.callback_query(F.data.startswith("promo:list:"))
@@ -7187,19 +7205,20 @@ async def cb_promos_list(cq: CallbackQuery):
         await cq.answer(); return
     parts = cq.data.split(":")
     page = 0
-    archive_only = False
-    if len(parts) >= 4 and parts[2] in {"all", "archive"}:
-        archive_only = parts[2] == "archive"
-        page = int(parts[3])
+    view_mode = "active"
+    if len(parts) >= 4 and parts[2] in {"all", "active", "archive"}:
+        view_mode = parts[2]
     else:
         page = int(parts[-1])
     admin = is_admin(getattr(cq.from_user, "id", None))
-    if archive_only and not admin:
+    if view_mode in {"all", "archive"} and not admin:
         await cq.answer("Недоступно", show_alert=True)
         return
-    items = _promo_get_all(include_inactive=admin, archive_only=(archive_only and admin))
+    include_inactive = admin and view_mode == "all"
+    archive_only = admin and view_mode == "archive"
+    items = _promo_get_all(include_inactive=include_inactive, archive_only=archive_only)
     await cq.message.edit_text("<b>Акции</b>\nВыберите пункт:",
-                               reply_markup=_promo_list_kb(items, page, admin, archive_only=(archive_only and admin)),
+                               reply_markup=_promo_list_kb(items, page, admin, view_mode=view_mode),
                                disable_web_page_preview=True)
     await cq.answer()
 
@@ -7619,8 +7638,8 @@ async def cb_back_main(cq: CallbackQuery):
     # реюзим уже существующий обработчик возврата в меню
     await cb_back(cq)
 
-@router.callback_query(F.data.startswith("promo:toggle:"))
-async def promo_toggle(cq: CallbackQuery):
+@router.callback_query(F.data.startswith("promo:archive_toggle:"))
+async def promo_archive_toggle(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "promos.view"):
         return
     if not is_admin_event(cq):
@@ -7632,7 +7651,7 @@ async def promo_toggle(cq: CallbackQuery):
     it["active"] = not bool(it.get("active", True))
     it["updated_at"] = datetime.now(TZ).isoformat()
     _promo_set(it)
-    await cq.answer("Готово")
+    await cq.answer("Акция убрана в архив" if not it["active"] else "Акция возвращена из архива")
     # перерисуем превью с актуальным статусом
     await _send_promo_preview(cq.message, it, is_admin(getattr(cq.from_user, "id", None)))
 
