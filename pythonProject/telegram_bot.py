@@ -14,6 +14,7 @@ import time
 import os
 import re
 import json
+import shutil
 from io import BytesIO
 from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 from aiogram.fsm.state import StatesGroup, State
@@ -7114,7 +7115,10 @@ def _promo_list_kb(
         else:
             badge = "🗂"
         rows.append([
-            InlineKeyboardButton(text=f"{badge} {title}", callback_data=f"promo:view:{it['id']}")
+            InlineKeyboardButton(
+                text=f"{badge} {title}",
+                callback_data=f"promo:view:{it['id']}:{view_mode}:{page}"
+            )
         ])
 
     nav = []
@@ -7143,9 +7147,13 @@ def _promo_list_kb(
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def _promo_item_kb(it: Dict[str, Any], admin: bool) -> InlineKeyboardMarkup:
+def _promo_item_kb(
+    it: Dict[str, Any],
+    admin: bool,
+    back_callback_data: str = "promo:list:active:0",
+) -> InlineKeyboardMarkup:
     pid = it["id"]
-    rows = [[InlineKeyboardButton(text="⬅️ Назад к списку", callback_data="promo:list:0")]]
+    rows = [[InlineKeyboardButton(text="⬅️ Назад к списку", callback_data=back_callback_data)]]
     if admin:
         is_hidden = not bool(it.get("active", True))
         archive_btn_text = "♻️ Вернуть из архива" if is_hidden else "🗄 Убрать в архив"
@@ -7161,11 +7169,66 @@ def _promo_item_kb(it: Dict[str, Any], admin: bool) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text=archive_btn_text, callback_data=f"promo:archive_toggle:{pid}"),
             InlineKeyboardButton(text="🗑 Удалить", callback_data=f"promo:del:{pid}")
         ])
+        rows.insert(3, [
+            InlineKeyboardButton(text="📰 Перенести в новость", callback_data=f"promo:tonews:{pid}")
+        ])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def _promo_to_news(promo: Dict[str, Any], author_id: int, author_name: str) -> Optional[str]:
+    title = (promo.get("title") or "").strip()
+    text = (promo.get("text") or "").strip()
+    if not title:
+        return None
+
+    news_id = NEWS_SERVICE.create_news(
+        title=title,
+        text=text,
+        author_id=author_id,
+        author_name=author_name or "Unknown",
+        status="draft",
+    )
+
+    image_name = (promo.get("image") or "").strip()
+    if not image_name:
+        return news_id
+
+    source_path = PROMO_DIR / image_name
+    if not source_path.exists() or not source_path.is_file():
+        return news_id
+
+    target_dir = NEWS_MEDIA_DIR / news_id
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target_path = target_dir / source_path.name
+    if target_path.exists():
+        target_path = target_dir / f"{uuid.uuid4().hex[:8]}_{source_path.name}"
+
+    try:
+        shutil.copy2(source_path, target_path)
+    except Exception:
+        logger.exception(
+            "promo: failed to copy image to news media (promo_id=%s, news_id=%s)",
+            promo.get("id"),
+            news_id,
+        )
+        return news_id
+
+    ext = source_path.suffix.lower()
+    mime_type = "image/jpeg"
+    if ext == ".png":
+        mime_type = "image/png"
+    elif ext == ".webp":
+        mime_type = "image/webp"
+
+    NEWS_SERVICE.add_media(news_id, "photo", str(target_path), mime_type)
+    return news_id
 
 #Просмотр акции (красивое превью):
-async def _send_promo_preview(m: Message, it: Dict[str, Any], admin: bool):
+async def _send_promo_preview(
+    m: Message,
+    it: Dict[str, Any],
+    admin: bool,
+    back_callback_data: str = "promo:list:active:0",
+):
     title = esc(it.get("title") or "Без названия")
     dates = []
     if it.get("starts_at"): dates.append(f"с {_ru_from_iso(it['starts_at'])}")
@@ -7197,14 +7260,18 @@ async def _send_promo_preview(m: Message, it: Dict[str, Any], admin: bool):
                 await m.answer_photo(
                     BufferedInputFile(prev, filename=f"promo_{pid}.png"),
                     caption=caption,
-                    reply_markup=_promo_item_kb(it, admin)
+                    reply_markup=_promo_item_kb(it, admin, back_callback_data=back_callback_data)
                 )
                 return
             except Exception:
                 logger.exception("promo: preview send failed")
 
     # иначе просто текст + кнопки
-    await m.answer(caption, reply_markup=_promo_item_kb(it, admin), disable_web_page_preview=True)
+    await m.answer(
+        caption,
+        reply_markup=_promo_item_kb(it, admin, back_callback_data=back_callback_data),
+        disable_web_page_preview=True
+    )
 
 
 
@@ -7275,6 +7342,7 @@ async def cb_promos_list(cq: CallbackQuery):
     view_mode = "active"
     if len(parts) >= 4 and parts[2] in {"all", "active", "archive"}:
         view_mode = parts[2]
+        page = int(parts[3])
     else:
         page = int(parts[-1])
     admin = is_admin(getattr(cq.from_user, "id", None))
@@ -7310,14 +7378,27 @@ async def cb_promos_list(cq: CallbackQuery):
 async def cb_promo_view(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "promos.view"):
         return
-    pid = cq.data.split(":")[-1]
+    parts = cq.data.split(":")
+    pid = parts[-1]
+    back_callback_data = "promo:list:active:0"
+    if len(parts) >= 5 and parts[3] in {"all", "active", "archive"}:
+        # новый формат: promo:view:<id>:<view_mode>:<page>
+        pid = parts[2]
+        view_mode = parts[3]
+        page = parts[4]
+        back_callback_data = f"promo:list:{view_mode}:{page}"
     it = _promo_find(pid)
     if not it:
         await cq.answer("Не найдено", show_alert=True); return
     # для клиентов скрываем неактивное
     if (not _promo_is_active(it)) and (not is_admin(getattr(cq.from_user, "id", None))):
         await cq.answer("Акция недоступна.", show_alert=True); return
-    await _send_promo_preview(cq.message, it, is_admin(getattr(cq.from_user, "id", None)))
+    await _send_promo_preview(
+        cq.message,
+        it,
+        is_admin(getattr(cq.from_user, "id", None)),
+        back_callback_data=back_callback_data,
+    )
     await cq.answer()
 
 
@@ -7756,6 +7837,37 @@ async def promo_del(cq: CallbackQuery, state: FSMContext):
     ]])
     await cq.message.answer(f"Удалить «{esc(it['title'])}»?", reply_markup=kb)
     await cq.answer()
+
+@router.callback_query(F.data.startswith("promo:tonews:"))
+async def promo_to_news(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "promos.view"):
+        return
+    if not await ensure_callback_access(cq, "news.manage"):
+        return
+    if not is_admin_event(cq):
+        await cq.answer("Только для админов", show_alert=True)
+        return
+    pid = (cq.data or "").split(":")[-1]
+    promo = _promo_find(pid)
+    if not promo:
+        await cq.answer("Акция не найдена", show_alert=True)
+        return
+
+    author_id = getattr(cq.from_user, "id", 0) or 0
+    author_name = (getattr(cq.from_user, "full_name", None) or "Unknown").strip()
+    news_id = _promo_to_news(promo, author_id, author_name)
+    if not news_id:
+        await cq.answer("Не удалось перенести акцию", show_alert=True)
+        return
+
+    await cq.message.answer(
+        "✅ Акция перенесена в новости как черновик.\n"
+        "Проверьте карточку и опубликуйте при необходимости.",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
+            InlineKeyboardButton(text="📰 Открыть новость", callback_data=f"news:item:{news_id}:0:draft")
+        ]]),
+    )
+    await cq.answer("Создан черновик новости")
 
 @router.callback_query(F.data.startswith("promo:confirm_del:"))
 async def promo_del_confirm(cq: CallbackQuery, state: FSMContext):
