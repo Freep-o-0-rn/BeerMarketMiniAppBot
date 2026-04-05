@@ -23116,3 +23116,6 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: there
 2026-04-05 21:21:35 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
 2026-04-05 21:21:35 | INFO | root | Собрано клиентов: 79
 2026-04-05 21:21:36 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 2271, 'req': '6d3eeba0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731036399613', 'msg_id': 2933, 'data': 'cc:import:debt', 'state': None}
+2026-04-05 21:21:36 | INFO | aiogram.event | Update id=104057601 is handled. Duration 2280 ms by bot id=8304099970
+2026-04-05 21:22:04 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-05 21:22:04 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'

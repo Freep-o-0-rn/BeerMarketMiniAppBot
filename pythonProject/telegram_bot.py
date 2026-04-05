@@ -251,6 +251,7 @@ class ClientCardStates(StatesGroup):
     waiting_additional_contact_phone = State()
     waiting_additional_contact_position = State()
     waiting_edit_value = State()
+    waiting_search_query = State()
 
 class TechnicianStates(StatesGroup):
     waiting_full_name = State()
@@ -2418,6 +2419,7 @@ def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, 
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
     if role in {"admin", "sales_rep"}:
+        rows.append([InlineKeyboardButton(text="🔎 Поиск по клиентам", callback_data="cc:search")])
         rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -4337,6 +4339,71 @@ async def cc_new(cq: CallbackQuery, state: FSMContext):
     ])
     await cq.message.answer("Создание карточки. Выберите форму: ООО или ИП.", reply_markup=kb)
     await cq.answer()
+
+
+@router.callback_query(F.data == "cc:search")
+async def cc_search_entry(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.view", state=state):
+        return
+    await state.set_state(ClientCardStates.waiting_search_query)
+    await cq.message.answer(
+        "Введите часть названия, формы или адреса клиента для поиска по карточкам."
+    )
+    await cq.answer()
+
+
+@router.message(ClientCardStates.waiting_search_query)
+async def cc_search_query(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.view", state=state):
+        return
+    query_raw = (m.text or "").strip()
+    uid = int(getattr(m.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    items = _client_cards_for_user(uid, role)
+    await state.clear()
+    if not query_raw:
+        await m.answer("Поиск отменён: пустой запрос.", reply_markup=client_cards_list_kb(items, role, page=0))
+        return
+
+    query = _normalize_client_card_lookup(query_raw)
+    matched: List[Tuple[int, Dict[str, Any]]] = []
+    for item in items:
+        haystack = " ".join(
+            [
+                item.get("legal_form") or "",
+                item.get("legal_name") or "",
+                item.get("store_name") or "",
+                item.get("address") or "",
+            ]
+        )
+        score = max(
+            _client_card_match_score(query, item),
+            120 if query and query in _normalize_client_card_lookup(haystack) else -1,
+        )
+        if score >= 0:
+            matched.append((score, item))
+
+    if not matched:
+        await m.answer(
+            f"По запросу «{esc(query_raw)}» карточки не найдены.",
+            reply_markup=client_cards_list_kb(items, role, page=0),
+        )
+        return
+
+    matched.sort(
+        key=lambda pair: (
+            pair[0],
+            _normalize_client_card_lookup(pair[1].get("legal_name") or ""),
+            _normalize_client_card_lookup(pair[1].get("store_name") or ""),
+            pair[1].get("updated_at") or "",
+        ),
+        reverse=True,
+    )
+    found_items = [item for _, item in matched]
+    await m.answer(
+        f"Найдено карточек: {len(found_items)}.",
+        reply_markup=client_cards_list_kb(found_items, role, page=0),
+    )
 
 @router.callback_query(F.data == "cc:create:cancel", ClientCardStates.waiting_legal_form)
 async def cc_create_cancel(cq: CallbackQuery, state: FSMContext):
