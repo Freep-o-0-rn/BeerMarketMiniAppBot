@@ -215,3 +215,5 @@ user_roles.json.bak
 /install/cloud.bat
 /install/cloudflared-windows-amd64.msi
 /install/install.bat
+/pythonProject/data/news/media/
+/pythonProject/data/news/news.db
