@@ -13,12 +13,41 @@ cd /d "%~dp0"
 
 title BeerMarket MiniApp Stack Launcher
 
-rem --- Configurable ports (env override + CLI override) ---
-set "API_PORT=%NEWS_API_PORT%"
-if not defined API_PORT set "API_PORT=8081"
-set "WEB_PORT=%WEBAPP_PORT%"
-if not defined WEB_PORT set "WEB_PORT=8080"
+rem --- Built-in defaults ---
+set "API_PORT=8081"
+set "WEB_PORT=8080"
+set "PUBLIC_API_URL=https://api.freep0rndeveloper.website/"
+set "PUBLIC_APP_URL=https://app.freep0rndeveloper.website/"
 set "DO_SETUP=0"
+
+rem --- Find Python executable ---
+set "PYEXE="
+if exist "venv\Scripts\python.exe" set "PYEXE=venv\Scripts\python.exe"
+if not defined PYEXE if exist ".venv\Scripts\python.exe" set "PYEXE=.venv\Scripts\python.exe"
+if not defined PYEXE (
+  where py >nul 2>&1 && (set "PYEXE=py -3")
+)
+if not defined PYEXE (
+  where python >nul 2>&1 && (set "PYEXE=python")
+)
+if not defined PYEXE (
+  echo [ERROR] Python не найден. Установи Python 3.8+ или активируй venv.
+  pause
+  exit /b 1
+)
+
+rem --- Load defaults from settings/launch_config.json ---
+if exist "launch_config.py" (
+  for /f "usebackq tokens=1,* delims==" %%A in (`%PYEXE% launch_config.py export-bat start_cloudflare_stack`) do (
+    set "%%A=%%B"
+  )
+  if defined CFG_API_PORT set "API_PORT=!CFG_API_PORT!"
+  if defined CFG_WEB_PORT set "WEB_PORT=!CFG_WEB_PORT!"
+)
+
+rem --- ENV overrides (backward compatible) ---
+if defined NEWS_API_PORT set "API_PORT=%NEWS_API_PORT%"
+if defined WEBAPP_PORT set "WEB_PORT=%WEBAPP_PORT%"
 
 rem Supported args:
 rem   /setup
@@ -43,6 +72,8 @@ echo ==========================================================
 echo.
 echo [INFO] API_PORT=%API_PORT%, WEB_PORT=%WEB_PORT%
 echo.
+echo [INFO] Python: %PYEXE%
+echo.
 
 rem --- Restart mode: stop old listeners on target ports ---
 echo [STEP] Проверяю и останавливаю старые процессы на портах %API_PORT% и %WEB_PORT%...
@@ -53,23 +84,6 @@ for %%P in (%API_PORT% %WEB_PORT%) do (
   )
 )
 timeout /t 1 /nobreak >nul
-
-rem --- Find Python executable ---
-set "PYEXE="
-if exist "venv\Scripts\python.exe" set "PYEXE=venv\Scripts\python.exe"
-if not defined PYEXE (
-  where py >nul 2>&1 && (set "PYEXE=py -3")
-)
-if not defined PYEXE (
-  where python >nul 2>&1 && (set "PYEXE=python")
-)
-if not defined PYEXE (
-  echo [ERROR] Python не найден. Установи Python 3.8+ или активируй venv.
-  pause
-  exit /b 1
-)
-
-echo [INFO] Python: %PYEXE%
 
 rem --- Optional dependency install ---
 if "%DO_SETUP%"=="1" (
@@ -116,11 +130,11 @@ if errorlevel 1 (
 
 echo.
 echo ===================== ПУБЛИЧНЫЕ URL =====================
-echo API: https://api.freep0rndeveloper.website/
-echo APP: https://app.freep0rndeveloper.website/
+echo API: %PUBLIC_API_URL%
+echo APP: %PUBLIC_APP_URL%
 echo.
 echo Рекомендуемый Main App URL в BotFather:
-echo https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+echo %PUBLIC_APP_URL%?api_base=%PUBLIC_API_URL%
 echo ==========================================================
 echo.
 

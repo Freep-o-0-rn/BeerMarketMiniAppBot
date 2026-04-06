@@ -178,7 +178,7 @@ PRICES_INDEX = PRICES_DIR / "prices.json"
 PRICES_PAGE_SIZE = 10
 ALLOWED_PRICE_EXT = {"pdf","xls","xlsx","png","jpg","jpeg"}
 PRICES_INDEX.parent.mkdir(parents=True, exist_ok=True)
-DEFAULT_MINIAPP_URL = "https://freep-o-0-rn.github.io/BeerMarketMiniAppBot/pythonProject/webapp/"
+DEFAULT_MINIAPP_URL = "https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/"
 MINIAPP_URL = (os.getenv("MINIAPP_URL") or DEFAULT_MINIAPP_URL).strip()
 logger.info("Mini App URL configured: %s", MINIAPP_URL)
 NEWS_DATA_DIR = ROOT_DIR / "data" / "news"
