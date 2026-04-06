@@ -97,13 +97,13 @@ if "%DO_SETUP%"=="1" (
 
 rem --- Start API in dedicated window ---
 echo [STEP] Запускаю API: http://localhost:%API_PORT%
-start "BeerMarket API :%API_PORT%" cmd /k "cd /d "%~dp0" && set NEWS_API_PORT=%API_PORT% && %PYEXE% -m api.app"
+start "BeerMarket API :%API_PORT%" cmd /k "cd /d ""%~dp0"" && set NEWS_API_PORT=%API_PORT% && %PYEXE% -m api.app"
 
 rem --- Start WebApp in dedicated window ---
 rem NOTE: явный bind на 127.0.0.1 обходит проблему WinError 10013 на части Windows-серверов,
 rem где bind на IPv6 any (::) может быть запрещён политиками/резервами.
 echo [STEP] Запускаю WebApp: http://localhost:%WEB_PORT%
-start "BeerMarket WebApp :%WEB_PORT%" cmd /k "cd /d "%~dp0webapp" && %PYEXE% -m http.server %WEB_PORT% --bind 127.0.0.1"
+start "BeerMarket WebApp :%WEB_PORT%" cmd /k "cd /d ""%~dp0webapp"" && %PYEXE% -m http.server %WEB_PORT% --bind 127.0.0.1"
 
 echo.
 echo [INFO] Ожидаю запуск сервисов (6 сек)...
@@ -142,9 +142,9 @@ if errorlevel 1 (
   set "CF_APP_LOG=!CF_LOG_DIR!\app_%RANDOM%%RANDOM%.log"
 
   echo [STEP] Поднимаю Cloudflare quick tunnel для API...
-  start "BeerMarket CF API :%API_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%API_PORT% > \"!CF_API_LOG!\" 2>&1"
+  start "BeerMarket CF API :%API_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%API_PORT% > \"!CF_API_LOG!\" 2>&1""
   echo [STEP] Поднимаю Cloudflare quick tunnel для WebApp...
-  start "BeerMarket CF APP :%WEB_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%WEB_PORT% > \"!CF_APP_LOG!\" 2>&1"
+  start "BeerMarket CF APP :%WEB_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%WEB_PORT% > \"!CF_APP_LOG!\" 2>&1""
 
   echo [INFO] Ожидаю выдачу публичных URL от Cloudflare ^(до 15 сек^)...
   timeout /t 6 /nobreak >nul
