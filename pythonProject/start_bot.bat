@@ -6,16 +6,21 @@ setlocal ENABLEDELAYEDEXPANSION
 rem === Переход в папку, где лежит батник ===
 cd /d "%~dp0"
 
-rem === Настройки (будут переопределены launch_config.py при наличии) ===
+rem === Настройки ===
 set "ENTRY=main.py"
 set "REQS=requirements.txt"
-set "SETUP_BY_DEFAULT=0"
-set "DO_SETUP=0"
 
-rem === Находим Python: venv -> .venv -> py -> python ===
+rem === Проверяем, существует ли main.py ===
+if not exist "%ENTRY%" (
+    echo [ERROR] main.py не найден в каталоге:
+    echo    %~dp0
+    pause
+    exit /b 1
+)
+
+rem === Находим Python: venv -> py -> python ===
 set "PYEXE="
 if exist "venv\Scripts\python.exe" set "PYEXE=venv\Scripts\python.exe"
-if not defined PYEXE if exist ".venv\Scripts\python.exe" set "PYEXE=.venv\Scripts\python.exe"
 if not defined PYEXE (
   where py >nul 2>&1 && (set "PYEXE=py -3")
 )
@@ -28,28 +33,8 @@ if not defined PYEXE (
   exit /b 1
 )
 
-rem === Подтягиваем дефолты запуска из settings/launch_config.json ===
-if exist "launch_config.py" (
-  for /f "usebackq tokens=1,* delims==" %%A in (`%PYEXE% launch_config.py export-bat start_bot`) do (
-    set "%%A=%%B"
-  )
-)
-
-rem === Переопределения через аргументы ===
-if /i "%~1"=="/setup" set "DO_SETUP=1"
-
-if "%DO_SETUP%"=="0" if "%SETUP_BY_DEFAULT%"=="1" set "DO_SETUP=1"
-
-rem === Проверяем, существует ли ENTRY ===
-if not exist "%ENTRY%" (
-    echo [ERROR] %ENTRY% не найден в каталоге:
-    echo    %~dp0
-    pause
-    exit /b 1
-)
-
 rem === Опционально: установка зависимостей ===
-if "%DO_SETUP%"=="1" (
+if /i "%~1"=="/setup" (
   if exist "%REQS%" (
     echo [INFO] Установка зависимостей из %REQS% ...
     %PYEXE% -m pip install -r "%REQS%"

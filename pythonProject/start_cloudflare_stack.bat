@@ -4,8 +4,8 @@ setlocal ENABLEDELAYEDEXPANSION
 
 rem ==========================================================
 rem BeerMarket Mini App stack launcher (Windows)
-rem - Starts API on localhost:8081
-rem - Starts static web app on localhost:8080
+rem - Starts API on localhost:8091
+rem - Starts static web app on localhost:8090
 rem - Checks local health endpoints
 rem ==========================================================
 
@@ -13,17 +13,24 @@ cd /d "%~dp0"
 
 title BeerMarket MiniApp Stack Launcher
 
-rem --- Built-in defaults ---
-set "API_PORT=8081"
-set "WEB_PORT=8080"
-set "PUBLIC_API_URL=https://api.freep0rndeveloper.website/"
-set "PUBLIC_APP_URL=https://app.freep0rndeveloper.website/"
-set "DO_SETUP=0"
+echo ==========================================================
+echo   BeerMarket Mini App: запуск локального стека
+echo ==========================================================
+echo.
+
+rem --- Restart mode: stop old listeners on target ports ---
+echo [STEP] Проверяю и останавливаю старые процессы на портах 8091 и 8090...
+for %%P in (8091 8090) do (
+  for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":%%P .*LISTENING"') do (
+    echo [INFO] Останавливаю PID %%a (порт %%P)
+    taskkill /PID %%a /F >nul 2>&1
+  )
+)
+timeout /t 1 /nobreak >nul
 
 rem --- Find Python executable ---
 set "PYEXE="
 if exist "venv\Scripts\python.exe" set "PYEXE=venv\Scripts\python.exe"
-if not defined PYEXE if exist ".venv\Scripts\python.exe" set "PYEXE=.venv\Scripts\python.exe"
 if not defined PYEXE (
   where py >nul 2>&1 && (set "PYEXE=py -3")
 )
@@ -36,57 +43,10 @@ if not defined PYEXE (
   exit /b 1
 )
 
-rem --- Load defaults from settings/launch_config.json ---
-if exist "launch_config.py" (
-  for /f "usebackq tokens=1,* delims==" %%A in (`%PYEXE% launch_config.py export-bat start_cloudflare_stack`) do (
-    set "%%A=%%B"
-  )
-  if defined CFG_API_PORT set "API_PORT=!CFG_API_PORT!"
-  if defined CFG_WEB_PORT set "WEB_PORT=!CFG_WEB_PORT!"
-)
-
-rem --- ENV overrides (backward compatible) ---
-if defined NEWS_API_PORT set "API_PORT=%NEWS_API_PORT%"
-if defined WEBAPP_PORT set "WEB_PORT=%WEBAPP_PORT%"
-
-rem Supported args:
-rem   /setup
-rem   /api_port:NNNN
-rem   /web_port:NNNN
-:parse_args
-if "%~1"=="" goto args_done
-if /i "%~1"=="/setup" (
-  set "DO_SETUP=1"
-) else if /i "%~1:~0,10%"=="/api_port:" (
-  set "API_PORT=%~1:~10%"
-) else if /i "%~1:~0,10%"=="/web_port:" (
-  set "WEB_PORT=%~1:~10%"
-)
-shift
-goto parse_args
-:args_done
-
-echo ==========================================================
-echo   BeerMarket Mini App: запуск локального стека
-echo ==========================================================
-echo.
-echo [INFO] API_PORT=%API_PORT%, WEB_PORT=%WEB_PORT%
-echo.
 echo [INFO] Python: %PYEXE%
-echo.
-
-rem --- Restart mode: stop old listeners on target ports ---
-echo [STEP] Проверяю и останавливаю старые процессы на портах %API_PORT% и %WEB_PORT%...
-for %%P in (%API_PORT% %WEB_PORT%) do (
-  for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":%%P .*LISTENING"') do (
-    echo [INFO] Останавливаю PID %%a (порт %%P)
-    taskkill /PID %%a /F >nul 2>&1
-  )
-)
-timeout /t 1 /nobreak >nul
 
 rem --- Optional dependency install ---
-if "%DO_SETUP%"=="1" (
+if /i "%~1"=="/setup" (
   if exist "requirements.txt" (
     echo [INFO] Установка зависимостей из requirements.txt ...
     %PYEXE% -m pip install -r requirements.txt
@@ -96,14 +56,12 @@ if "%DO_SETUP%"=="1" (
 )
 
 rem --- Start API in dedicated window ---
-echo [STEP] Запускаю API: http://localhost:%API_PORT%
-start "BeerMarket API :%API_PORT%" cmd /k "cd /d ""%~dp0"" && set NEWS_API_PORT=%API_PORT% && %PYEXE% -m api.app"
+echo [STEP] Запускаю API: http://localhost:8091
+start "BeerMarket API :8081" cmd /k "cd /d "%~dp0" && %PYEXE% -m api.app"
 
 rem --- Start WebApp in dedicated window ---
-rem NOTE: явный bind на 127.0.0.1 обходит проблему WinError 10013 на части Windows-серверов,
-rem где bind на IPv6 any (::) может быть запрещён политиками/резервами.
-echo [STEP] Запускаю WebApp: http://localhost:%WEB_PORT%
-start "BeerMarket WebApp :%WEB_PORT%" cmd /k "cd /d ""%~dp0webapp"" && %PYEXE% -m http.server %WEB_PORT% --bind 127.0.0.1"
+echo [STEP] Запускаю WebApp: http://localhost:8090
+start "BeerMarket WebApp :8080" cmd /k "cd /d "%~dp0webapp" && %PYEXE% -m http.server 8080"
 
 echo.
 echo [INFO] Ожидаю запуск сервисов (6 сек)...
@@ -111,79 +69,30 @@ timeout /t 6 /nobreak >nul
 
 rem --- Health checks ---
 set "CHECK_OK=1"
-set "CF_API_URL="
-set "CF_APP_URL="
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:%API_PORT%/health -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:8081/health -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
 if errorlevel 1 (
-  echo [WARN] API health-check не пройден: http://localhost:%API_PORT%/health
+  echo [WARN] API health-check не пройден: http://localhost:8091/health
   set "CHECK_OK=0"
 ) else (
-  echo [OK] API health-check: http://localhost:%API_PORT%/health
+  echo [OK] API health-check: http://localhost:8091/health
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:%WEB_PORT%/ -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:8080/ -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
 if errorlevel 1 (
-  echo [WARN] WebApp check не пройден: http://localhost:%WEB_PORT%/
+  echo [WARN] WebApp check не пройден: http://localhost:8090/
   set "CHECK_OK=0"
 ) else (
-  echo [OK] WebApp check: http://localhost:%WEB_PORT%/
-)
-
-rem --- Optional Cloudflare quick tunnels for internet access ---
-where cloudflared >nul 2>&1
-if errorlevel 1 (
-  echo [WARN] cloudflared не найден в PATH. Публичные URL не будут автоматически подняты.
-  echo [INFO] Установи cloudflared ^(install\install.bat^) для автопроброса в интернет.
-) else (
-  set "CF_LOG_DIR=%TEMP%\BeerMarketCloudflare"
-  if not exist "!CF_LOG_DIR!" mkdir "!CF_LOG_DIR!" >nul 2>&1
-  set "CF_API_LOG=!CF_LOG_DIR!\api_%RANDOM%%RANDOM%.log"
-  set "CF_APP_LOG=!CF_LOG_DIR!\app_%RANDOM%%RANDOM%.log"
-
-  echo [STEP] Поднимаю Cloudflare quick tunnel для API...
-  start "BeerMarket CF API :%API_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%API_PORT% > \"!CF_API_LOG!\" 2>&1""
-  echo [STEP] Поднимаю Cloudflare quick tunnel для WebApp...
-  start "BeerMarket CF APP :%WEB_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%WEB_PORT% > \"!CF_APP_LOG!\" 2>&1""
-
-  echo [INFO] Ожидаю выдачу публичных URL от Cloudflare ^(до 15 сек^)...
-  timeout /t 6 /nobreak >nul
-  for /l %%I in (1,1,3) do (
-    if not defined CF_API_URL (
-      for /f "usebackq delims=" %%L in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "$m=Select-String -Path '!CF_API_LOG!' -Pattern 'https://[-a-z0-9]+\.trycloudflare\.com' | Select-Object -First 1; if ($m) { $m.Matches[0].Value }"`) do (
-        set "CF_API_URL=%%L"
-      )
-    )
-    if not defined CF_APP_URL (
-      for /f "usebackq delims=" %%L in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "$m=Select-String -Path '!CF_APP_LOG!' -Pattern 'https://[-a-z0-9]+\.trycloudflare\.com' | Select-Object -First 1; if ($m) { $m.Matches[0].Value }"`) do (
-        set "CF_APP_URL=%%L"
-      )
-    )
-    timeout /t 3 /nobreak >nul
-  )
+  echo [OK] WebApp check: http://localhost:8090/
 )
 
 echo.
 echo ===================== ПУБЛИЧНЫЕ URL =====================
-echo API: %PUBLIC_API_URL%
-echo APP: %PUBLIC_APP_URL%
+echo API: https://api.freep0rndeveloper.website/
+echo APP: https://app.freep0rndeveloper.website/
 echo.
 echo Рекомендуемый Main App URL в BotFather:
-echo %PUBLIC_APP_URL%?api_base=%PUBLIC_API_URL%
-if defined CF_API_URL if defined CF_APP_URL (
-  echo.
-  echo =================== CLOUDFLARE QUICK URL ===================
-  echo API: !CF_API_URL!
-  echo APP: !CF_APP_URL!
-  echo.
-  echo Временный Main App URL ^(для проверки доступа из интернета^):
-  echo !CF_APP_URL!?api_base=!CF_API_URL!
-  echo ==========================================================
-) else (
-  echo.
-  echo [WARN] Quick tunnel URL пока не получен.
-  echo [INFO] Проверь окна "BeerMarket CF API" и "BeerMarket CF APP" на ошибки.
-)
+echo https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
 echo ==========================================================
 echo.
 
