@@ -7,12 +7,14 @@ from urllib.parse import urlsplit
 
 from aiohttp import web
 
+# Ensure package imports work regardless of launch directory.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from pythonProject.services.news_service import NewsService
+
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from services.news_service import NewsService
-
 DATA_DIR = ROOT / "data" / "news"
 MEDIA_DIR = DATA_DIR / "media"
 DB_PATH = DATA_DIR / "news.db"
