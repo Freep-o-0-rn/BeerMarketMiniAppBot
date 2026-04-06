@@ -16,6 +16,9 @@ DEFAULTS = {
     "start_cloudflare_stack": {
         "api_port": 8081,
         "web_port": 8080,
+        "api_host": "127.0.0.1",
+        "web_host": "127.0.0.1",
+        "open_firewall_ports": False,
         "public_api_url": "https://api.freep0rndeveloper.website/",
         "public_app_url": "https://app.freep0rndeveloper.website/",
     },
@@ -49,6 +52,12 @@ def _normalize(data: dict) -> dict:
             value = scs.get(key)
             if isinstance(value, int) and 1 <= value <= 65535:
                 cfg["start_cloudflare_stack"][key] = value
+        for key in ("api_host", "web_host"):
+            value = scs.get(key)
+            if isinstance(value, str) and value.strip():
+                cfg["start_cloudflare_stack"][key] = value.strip()
+        if isinstance(scs.get("open_firewall_ports"), bool):
+            cfg["start_cloudflare_stack"]["open_firewall_ports"] = scs["open_firewall_ports"]
         for key in ("public_api_url", "public_app_url"):
             value = scs.get(key)
             if isinstance(value, str) and value.strip():
@@ -118,6 +127,13 @@ def interactive_configure() -> int:
         except ValueError:
             print("[WARN] Порты должны быть числами от 1 до 65535. Повтори ввод.")
 
+    scs["api_host"] = _prompt("start_cloudflare_stack: API host (127.0.0.1 или 0.0.0.0)", str(scs["api_host"]))
+    scs["web_host"] = _prompt("start_cloudflare_stack: Web host (127.0.0.1 или 0.0.0.0)", str(scs["web_host"]))
+    scs_open_fw = _prompt(
+        "start_cloudflare_stack: открыть порты в Windows Firewall? (true/false)",
+        str(scs["open_firewall_ports"]).lower(),
+    )
+    scs["open_firewall_ports"] = _to_bool(scs_open_fw)
     scs["public_api_url"] = _prompt("start_cloudflare_stack: публичный API URL", str(scs["public_api_url"]))
     scs["public_app_url"] = _prompt("start_cloudflare_stack: публичный APP URL", str(scs["public_app_url"]))
 
@@ -139,6 +155,9 @@ def export_bat(target: str) -> int:
         scs = cfg["start_cloudflare_stack"]
         print(f"CFG_API_PORT={scs['api_port']}")
         print(f"CFG_WEB_PORT={scs['web_port']}")
+        print(f"CFG_API_HOST={scs['api_host']}")
+        print(f"CFG_WEB_HOST={scs['web_host']}")
+        print(f"CFG_OPEN_FIREWALL_PORTS={1 if scs['open_firewall_ports'] else 0}")
         print(f"PUBLIC_API_URL={scs['public_api_url']}")
         print(f"PUBLIC_APP_URL={scs['public_app_url']}")
         return 0

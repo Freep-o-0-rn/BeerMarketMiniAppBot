@@ -16,6 +16,9 @@
 ### `start_cloudflare_stack.bat`
 - `api_port` — порт API по умолчанию.
 - `web_port` — порт webapp по умолчанию.
+- - `api_host` — bind-host API (`127.0.0.1` только локально, `0.0.0.0` для внешнего доступа).
+- `web_host` — bind-host webapp (`127.0.0.1` только локально, `0.0.0.0` для внешнего доступа).
+- `open_firewall_ports` — автоматически создать inbound-правила Windows Firewall для `api_port` и `web_port`.
 - `public_api_url` — публичный URL API для вывода в подсказке.
 - `public_app_url` — публичный URL webapp для вывода в подсказке.
 
@@ -31,8 +34,8 @@
 3. Встроенные дефолты батника.
 
 ### `start_cloudflare_stack.bat`
-1. Аргументы командной строки (`/api_port:NNNN`, `/web_port:NNNN`, `/setup`).
-2. Переменные окружения (`NEWS_API_PORT`, `WEBAPP_PORT`).
+1. Аргументы командной строки (`/api_port:NNNN`, `/web_port:NNNN`, `/api_host:HOST`, `/web_host:HOST`, `/open_ports`, `/setup`).
+2. Переменные окружения (`NEWS_API_PORT`, `WEBAPP_PORT`, `NEWS_API_HOST`, `WEBAPP_HOST`, `OPEN_FIREWALL_PORTS`).
 3. `settings/launch_config.json`.
 4. Встроенные дефолты батника.
 
