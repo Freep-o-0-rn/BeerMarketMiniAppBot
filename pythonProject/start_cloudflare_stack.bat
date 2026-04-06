@@ -111,6 +111,8 @@ timeout /t 6 /nobreak >nul
 
 rem --- Health checks ---
 set "CHECK_OK=1"
+set "CF_API_URL="
+set "CF_APP_URL="
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:%API_PORT%/health -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
 if errorlevel 1 (
@@ -128,6 +130,39 @@ if errorlevel 1 (
   echo [OK] WebApp check: http://localhost:%WEB_PORT%/
 )
 
+rem --- Optional Cloudflare quick tunnels for internet access ---
+where cloudflared >nul 2>&1
+if errorlevel 1 (
+  echo [WARN] cloudflared не найден в PATH. Публичные URL не будут автоматически подняты.
+  echo [INFO] Установи cloudflared ^(install\install.bat^) для автопроброса в интернет.
+) else (
+  set "CF_LOG_DIR=%TEMP%\BeerMarketCloudflare"
+  if not exist "!CF_LOG_DIR!" mkdir "!CF_LOG_DIR!" >nul 2>&1
+  set "CF_API_LOG=!CF_LOG_DIR!\api_%RANDOM%%RANDOM%.log"
+  set "CF_APP_LOG=!CF_LOG_DIR!\app_%RANDOM%%RANDOM%.log"
+
+  echo [STEP] Поднимаю Cloudflare quick tunnel для API...
+  start "BeerMarket CF API :%API_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%API_PORT% > \"!CF_API_LOG!\" 2>&1"
+  echo [STEP] Поднимаю Cloudflare quick tunnel для WebApp...
+  start "BeerMarket CF APP :%WEB_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%WEB_PORT% > \"!CF_APP_LOG!\" 2>&1"
+
+  echo [INFO] Ожидаю выдачу публичных URL от Cloudflare ^(до 15 сек^)...
+  timeout /t 6 /nobreak >nul
+  for /l %%I in (1,1,3) do (
+    if not defined CF_API_URL (
+      for /f "usebackq delims=" %%L in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "$m=Select-String -Path '!CF_API_LOG!' -Pattern 'https://[-a-z0-9]+\.trycloudflare\.com' | Select-Object -First 1; if ($m) { $m.Matches[0].Value }"`) do (
+        set "CF_API_URL=%%L"
+      )
+    )
+    if not defined CF_APP_URL (
+      for /f "usebackq delims=" %%L in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "$m=Select-String -Path '!CF_APP_LOG!' -Pattern 'https://[-a-z0-9]+\.trycloudflare\.com' | Select-Object -First 1; if ($m) { $m.Matches[0].Value }"`) do (
+        set "CF_APP_URL=%%L"
+      )
+    )
+    timeout /t 3 /nobreak >nul
+  )
+)
+
 echo.
 echo ===================== ПУБЛИЧНЫЕ URL =====================
 echo API: %PUBLIC_API_URL%
@@ -135,6 +170,20 @@ echo APP: %PUBLIC_APP_URL%
 echo.
 echo Рекомендуемый Main App URL в BotFather:
 echo %PUBLIC_APP_URL%?api_base=%PUBLIC_API_URL%
+if defined CF_API_URL if defined CF_APP_URL (
+  echo.
+  echo =================== CLOUDFLARE QUICK URL ===================
+  echo API: !CF_API_URL!
+  echo APP: !CF_APP_URL!
+  echo.
+  echo Временный Main App URL ^(для проверки доступа из интернета^):
+  echo !CF_APP_URL!?api_base=!CF_API_URL!
+  echo ==========================================================
+) else (
+  echo.
+  echo [WARN] Quick tunnel URL пока не получен.
+  echo [INFO] Проверь окна "BeerMarket CF API" и "BeerMarket CF APP" на ошибки.
+)
 echo ==========================================================
 echo.
 

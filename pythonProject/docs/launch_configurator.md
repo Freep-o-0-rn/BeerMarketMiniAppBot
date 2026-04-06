@@ -19,6 +19,10 @@
 - `public_api_url` — публичный URL API для вывода в подсказке.
 - `public_app_url` — публичный URL webapp для вывода в подсказке.
 
+Дополнительно, если `cloudflared` установлен и доступен в `PATH`, `start_cloudflare_stack.bat`
+автоматически поднимает **два Cloudflare Quick Tunnel** (для API и webapp) и выводит
+временные публичные `*.trycloudflare.com` URL для быстрой проверки доступа из интернета.
+
 ## Приоритет источников
 
 ### `start_bot.bat`
