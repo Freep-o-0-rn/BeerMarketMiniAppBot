@@ -10,6 +10,8 @@ rem - Checks local health endpoints
 rem ==========================================================
 
 cd /d "%~dp0"
+set "ROOT_DIR=%~dp0"
+if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 
 title BeerMarket MiniApp Stack Launcher
 
@@ -119,11 +121,19 @@ if "%OPEN_FIREWALL_PORTS%"=="1" (
 
 rem --- Start API in dedicated window ---
 echo [STEP] Запускаю API: http://%API_HOST%:%API_PORT%
-start "BeerMarket API :%API_PORT%" cmd /k "cd /d "%~dp0" && set NEWS_API_PORT=%API_PORT% && set NEWS_API_HOST=%API_HOST% && %PYEXE% -m api.app"
+set "API_CMD=cd /d ""%ROOT_DIR%"" && set NEWS_API_PORT=%API_PORT% && set NEWS_API_HOST=%API_HOST% && %PYEXE% -m api.app"
+start "BeerMarket API :%API_PORT%" cmd /k "%API_CMD%"
 
 rem --- Start WebApp in dedicated window ---
 echo [STEP] Запускаю WebApp: http://%WEB_HOST%:%WEB_PORT%
-start "BeerMarket WebApp :%WEB_PORT%" cmd /k "cd /d "%~dp0webapp" && %PYEXE% -m http.server %WEB_PORT% --bind %WEB_HOST%"
+if not exist "%ROOT_DIR%\webapp" (
+  echo [ERROR] Не найдена директория webapp: %ROOT_DIR%\webapp
+  echo [HINT] Проверь структуру проекта рядом со start_cloudflare_stack.bat
+  pause
+  exit /b 1
+)
+set "WEB_CMD=cd /d ""%ROOT_DIR%\webapp"" && %PYEXE% -m http.server %WEB_PORT% --bind %WEB_HOST%"
+start "BeerMarket WebApp :%WEB_PORT%" cmd /k "%WEB_CMD%"
 
 echo.
 echo [INFO] Ожидаю запуск сервисов (6 сек)...
