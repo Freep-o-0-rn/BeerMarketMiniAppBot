@@ -142,9 +142,9 @@ if errorlevel 1 (
   set "CF_APP_LOG=!CF_LOG_DIR!\app_%RANDOM%%RANDOM%.log"
 
   echo [STEP] Поднимаю Cloudflare quick tunnel для API...
-  start "BeerMarket CF API :%API_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%API_PORT% > \"!CF_API_LOG!\" 2>&1"
+  start "BeerMarket CF API :%API_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%API_PORT% > ""!CF_API_LOG!"" 2>&1"
   echo [STEP] Поднимаю Cloudflare quick tunnel для WebApp...
-  start "BeerMarket CF APP :%WEB_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%WEB_PORT% > \"!CF_APP_LOG!\" 2>&1"
+  start "BeerMarket CF APP :%WEB_PORT%" cmd /k "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:%WEB_PORT% > ""!CF_APP_LOG!"" 2>&1"
 
   echo [INFO] Ожидаю выдачу публичных URL от Cloudflare ^(до 15 сек^)...
   timeout /t 6 /nobreak >nul

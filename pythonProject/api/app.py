@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from urllib.parse import urlsplit
 
 from aiohttp import web
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from services.news_service import NewsService
 
-ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "news"
 MEDIA_DIR = DATA_DIR / "media"
 DB_PATH = DATA_DIR / "news.db"
@@ -92,5 +96,5 @@ def build_app() -> web.Application:
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("NEWS_API_PORT", "8081"))
-    web.run_app(build_app(), host="0.0.0.0", port=port)
+    port = int(os.getenv("NEWS_API_PORT", "8091"))
+    web.run_app(build_app(), host="127.0.0.1", port=port)
