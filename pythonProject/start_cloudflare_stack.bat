@@ -32,24 +32,26 @@ set "DO_SETUP=0"
 
 rem --- Find Python executable early (needed for config import) ---
 
-set "PYEXE="
-if not defined PYEXE if exist ".venv\Scripts\python.exe" set "PYEXE=.venv\Scripts\python.exe"
-if not defined PYEXE (
-  where py >nul 2>&1 && (set "PYEXE=py -3")
+set "PYTHON_EXE="
+set "PYTHON_ARGS="
+if not defined PYTHON_EXE if exist ".venv\Scripts\python.exe" set "PYTHON_EXE=.venv\Scripts\python.exe"
+if not defined PYTHON_EXE if exist "venv\Scripts\python.exe" set "PYTHON_EXE=venv\Scripts\python.exe"
+if not defined PYTHON_EXE (
+  where py >nul 2>&1 && (set "PYTHON_EXE=py" & set "PYTHON_ARGS=-3")
 )
-if not defined PYEXE (
-  where python >nul 2>&1 && (set "PYEXE=python")
+if not defined PYTHON_EXE (
+  where python >nul 2>&1 && (set "PYTHON_EXE=python")
 )
-if not defined PYEXE (
+if not defined PYTHON_EXE (
   echo [ERROR] Python не найден. Установи Python 3.8+ или активируй venv.
   pause
   exit /b 1
 )
 
-echo [INFO] Python: %PYEXE%
+echo [INFO] Python: %PYTHON_EXE% %PYTHON_ARGS%
 
 rem --- Load launch config (defaults layer) ---
-for /f "usebackq tokens=1,* delims==" %%A in (`%PYEXE% launch_config.py export-bat start_cloudflare_stack 2^>nul`) do (
+for /f "usebackq tokens=1,* delims==" %%A in (`%PYTHON_EXE% %PYTHON_ARGS% launch_config.py export-bat start_cloudflare_stack 2^>nul`) do (
   if /I "%%A"=="CFG_API_PORT" set "API_PORT=%%B"
   if /I "%%A"=="CFG_WEB_PORT" set "WEB_PORT=%%B"
   if /I "%%A"=="CFG_API_HOST" set "API_HOST=%%B"
@@ -94,7 +96,7 @@ rem --- Optional dependency install ---
 if "%DO_SETUP%"=="1" (
   if exist "requirements.txt" (
     echo [INFO] Установка зависимостей из requirements.txt ...
-    %PYEXE% -m pip install -r requirements.txt
+    %PYTHON_EXE% %PYTHON_ARGS% -m pip install -r requirements.txt
   ) else (
     echo [WARN] requirements.txt не найден, пропускаю установку.
   )
@@ -121,7 +123,7 @@ if "%OPEN_FIREWALL_PORTS%"=="1" (
 
 rem --- Start API in dedicated window ---
 echo [STEP] Запускаю API: http://%API_HOST%:%API_PORT%
-set "API_CMD=cd /d ""%ROOT_DIR%"" && set NEWS_API_PORT=%API_PORT% && set NEWS_API_HOST=%API_HOST% && %PYEXE% -m api.app"
+set "API_CMD=cd /d ""%ROOT_DIR%"" && set NEWS_API_PORT=%API_PORT% && set NEWS_API_HOST=%API_HOST% && %PYTHON_EXE% %PYTHON_ARGS% -m api.app"
 start "BeerMarket API :%API_PORT%" cmd /k "%API_CMD%"
 
 rem --- Start WebApp in dedicated window ---
@@ -132,7 +134,7 @@ if not exist "%ROOT_DIR%\webapp" (
   pause
   exit /b 1
 )
-set "WEB_CMD=cd /d ""%ROOT_DIR%\webapp"" && %PYEXE% -m http.server %WEB_PORT% --bind %WEB_HOST%"
+set "WEB_CMD=cd /d ""%ROOT_DIR%\webapp"" && %PYTHON_EXE% %PYTHON_ARGS% -m http.server %WEB_PORT% --bind %WEB_HOST%"
 start "BeerMarket WebApp :%WEB_PORT%" cmd /k "%WEB_CMD%"
 
 echo.
