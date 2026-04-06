@@ -98,5 +98,5 @@ def build_app() -> web.Application:
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("NEWS_API_PORT", "8081"))
-    web.run_app(build_app(), host="0.0.0.0", port=port)
+    port = int(os.getenv("NEWS_API_PORT", "8091"))
+    web.run_app(build_app(), host="127.0.0.1", port=port)
