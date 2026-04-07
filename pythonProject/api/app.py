@@ -21,28 +21,62 @@ DB_PATH = DATA_DIR / "news.db"
 NEWS = NewsService(DB_PATH)
 
 
-def _is_allowed_origin(origin: str | None) -> bool:
+def _normalize_origin(origin: str) -> str | None:
     if not origin:
-        return False
+        return None
     try:
         parsed = urlsplit(origin)
     except Exception:
-        return False
-    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+        return None
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}".lower()
 
+def _allowed_origins() -> set[str]:
+    raw = (os.getenv("CORS_ALLOW_ORIGINS") or "").strip()
+    if raw:
+        items = [item.strip() for item in raw.split(",") if item.strip()]
+    else:
+        items = [
+            "https://app.freep0rndeveloper.website",
+            "http://localhost:8090",
+            "http://127.0.0.1:8090",
+        ]
+    normalized = set()
+    for item in items:
+        value = _normalize_origin(item)
+        if value:
+            normalized.add(value)
+    if "*" in items:
+        normalized.add("*")
+    return normalized
+
+_ALLOWED_ORIGINS = _allowed_origins()
+
+def _resolve_allow_origin(origin: str | None) -> str | None:
+    normalized = _normalize_origin(origin or "")
+    if not normalized:
+        return "*"
+    if "*" in _ALLOWED_ORIGINS:
+        return normalized
+    if normalized in _ALLOWED_ORIGINS:
+        return normalized
+    return None
 
 @web.middleware
 async def cors_middleware(request: web.Request, handler):
     origin = request.headers.get("Origin")
-    allow_origin = origin if _is_allowed_origin(origin) else "*"
+    allow_origin = _resolve_allow_origin(origin)
     if request.method == "OPTIONS":
         response = web.Response(status=204)
     else:
         response = await handler(request)
-    response.headers["Access-Control-Allow-Origin"] = allow_origin
+    if allow_origin:
+        response.headers["Access-Control-Allow-Origin"] = allow_origin
     response.headers["Vary"] = "Origin"
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+    response.headers["Access-Control-Max-Age"] = "86400"
     return response
 
 
@@ -61,8 +95,10 @@ def _build_media_url(file_path: str) -> str:
             return f"/media/{normalized[len('data/news/media/'):]}"
         return ""
 
+
 async def health(_: web.Request) -> web.Response:
     return web.json_response({"ok": True})
+
 
 async def list_news(request: web.Request) -> web.Response:
     status = request.query.get("status", "published")
@@ -89,6 +125,7 @@ def build_app() -> web.Application:
     app = web.Application(middlewares=[cors_middleware])
     app.add_routes([
         web.get("/health", health),
+        web.get("/healthz", health),
         web.get("/api/news", list_news),
         web.get("/api/news/{news_id}", get_news),
     ])
