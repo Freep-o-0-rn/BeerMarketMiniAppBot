@@ -14,8 +14,8 @@ DEFAULTS = {
         "setup_by_default": False,
     },
     "start_cloudflare_stack": {
-        "api_port": 8081,
-        "web_port": 8080,
+        "api_port": 8091,
+        "web_port": 8090,
         "api_host": "127.0.0.1",
         "web_host": "127.0.0.1",
         "open_firewall_ports": False,

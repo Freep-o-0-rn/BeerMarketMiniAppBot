@@ -57,6 +57,9 @@ def _resolve_allow_origin(origin: str | None) -> str | None:
     normalized = _normalize_origin(origin or "")
     if not normalized:
         return "*"
+    parsed = urlsplit(normalized)
+    if parsed.hostname in {"localhost", "127.0.0.1"}:
+        return normalized
     if "*" in _ALLOWED_ORIGINS:
         return normalized
     if normalized in _ALLOWED_ORIGINS:
