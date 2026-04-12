@@ -1,0 +1,1 @@
+msiexec i cloudflared-windows-amd64.msi
