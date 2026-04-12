@@ -3699,6 +3699,28 @@ def client_matches_any_keyword(item: Dict[str, Any], keywords: List[str]) -> boo
             return True
     return False
 
+def _sales_rep_surname_from_item(item: Dict[str, Any]) -> str:
+    explicit_name = str(item.get("sales_rep_name") or "").strip()
+    if explicit_name:
+        return _extract_surname(explicit_name)
+    parsed = split_report_client_label(str(item.get("client") or ""))
+    return _extract_surname(parsed.get("sales_rep") or "")
+
+
+def _is_sales_rep_item_visible_for_user(item: Dict[str, Any], user_id: int) -> bool:
+    rec = _user_record(user_id)
+    user_surname = (
+        _extract_surname(rec.get("name") or "")
+        or _extract_surname(rec.get("last_name") or "")
+        or _extract_surname(rec.get("first_name") or "")
+    )
+    if not user_surname:
+        return False
+    item_surname = _sales_rep_surname_from_item(item)
+    if not item_surname:
+        return False
+    return item_surname == user_surname
+
 # --- Авто-обновление из почты ---
 def _today_dt(h: int, m: int) -> datetime:
     now = datetime.now(TZ)
@@ -3733,6 +3755,8 @@ async def daily_fetch_worker():
 async def render_report(chat: Message, *, mode: str, keywords: List[str], min_debt: Optional[float] = None):
     path = find_latest_download()
     menu_kb = menu_for_message(chat)
+    user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
+    role = get_user_role(user_id)
     if not path:
         await chat.answer("Файл отчёта не найден. Сначала загрузите его (например, /refresh).", reply_markup=menu_kb)
         return
@@ -3752,7 +3776,8 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
     report_date = (res or {}).get("report_date")
 
     filtered = [it for it in items if client_matches_any_keyword(it, keywords)]
-
+    if role == "sales_rep":
+        filtered = [it for it in filtered if _is_sales_rep_item_visible_for_user(it, user_id)]
     if mode == "overdue":
         filtered = [it for it in filtered if client_has_overdue(it, report_date) and not client_is_overpaid(it)]
     elif mode == "overpaid":
