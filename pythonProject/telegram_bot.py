@@ -1875,12 +1875,25 @@ async def request_sales_rep_role(m: Message) -> None:
 
 def delete_user_record(user_id: Any) -> bool:
     uid = str(user_id)
+    found = False
     data = _roles_load()
-    if uid not in data:
-        return False
-    data.pop(uid, None)
+    if uid in data:
+        data.pop(uid, None)
+        found = True
+    requests = _role_requests_ref(data)
+    stale_request_ids = [
+        rid
+        for rid, request in requests.items()
+        if isinstance(request, dict) and str(request.get("user_id")) == uid
+    ]
+    for rid in stale_request_ids:
+        requests.pop(rid, None)
+        found = True
     _save_user_roles(data)
-    return True
+    if uid.isdigit():
+        CLIENTS_DB.delete_bot_user(int(uid))
+        found = True
+    return found
 
 ROLE_REQUESTS_PATH = Path(ROLE_REQUESTS_JSON)
 
@@ -2657,17 +2670,36 @@ def user_display_name(uid: str, rec: Dict[str, Any]) -> str:
         return f"@{username}"
     return str(uid or "unknown")
 
-def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+def _iter_known_users() -> List[Tuple[str, Dict[str, Any]]]:
     data = _roles_load()
-    items: List[Tuple[str, Dict[str, Any]]] = []
-    for k, v in data.items():
-        if k == "client_phones":
+    users: Dict[str, Dict[str, Any]] = {}
+    service_keys = {"client_phones", ROLE_REQUESTS_KEY}
+    for uid, rec in data.items():
+        uid_s = str(uid)
+        if uid_s in service_keys or not uid_s.isdigit():
             continue
-        if not isinstance(v, dict):
-            v = {"role": "guest", "name": str(v)}
-        items.append((k, v))
-    items.sort(key=_user_sort_key)
+        if not isinstance(rec, dict):
+            rec = {"role": "guest", "name": str(rec)}
+        users[uid_s] = dict(rec)
+    for db_user in CLIENTS_DB.list_bot_users():
+        uid_raw = db_user.get("tg_user_id")
+        if uid_raw is None:
+            continue
+        uid_s = str(int(uid_raw))
+        rec = users.setdefault(uid_s, {"role": "guest"})
+        if not rec.get("username") and db_user.get("username"):
+            rec["username"] = db_user.get("username")
+        if not rec.get("first_name") and db_user.get("first_name"):
+            rec["first_name"] = db_user.get("first_name")
+        if not rec.get("last_name") and db_user.get("last_name"):
+            rec["last_name"] = db_user.get("last_name")
+        if not rec.get("phone") and str(db_user.get("phone_e164") or "").strip():
+            rec["phone"] = str(db_user.get("phone_e164") or "").strip()
+            rec["phone_verified"] = bool(db_user.get("phone_verified"))
+    return sorted(users.items(), key=_user_sort_key)
 
+def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+    items = _iter_known_users()
     total = len(items)
     page = max(0, page)
     start = page * page_size
@@ -7693,12 +7725,23 @@ async def admin_users_select(cq: CallbackQuery):
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
     page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
-    data = _roles_load()
-    rec = data.get(uid, {}) if uid else {}
+    rec = (_roles_load().get(uid, {}) if uid else {}) or {}
+    bot_user = CLIENTS_DB.get_bot_user(int(uid)) if uid.isdigit() else None
+    if bot_user:
+        rec = dict(rec) if isinstance(rec, dict) else {}
+        rec.setdefault("username", bot_user.get("username"))
+        rec.setdefault("first_name", bot_user.get("first_name"))
+        rec.setdefault("last_name", bot_user.get("last_name"))
+        rec.setdefault("language_code", bot_user.get("language_code"))
+        rec.setdefault("is_premium", bool(bot_user.get("is_premium")))
     name = user_display_name(uid, rec)
     role = normalize_role(rec.get("role") or "guest")
-    phone = (rec.get("phone") or "—").strip()
-    verified = "✅" if rec.get("phone_verified") else "❌"
+    phone = (
+        str((bot_user or {}).get("phone_e164") or "").strip()
+        or str(rec.get("phone") or "").strip()
+        or "—"
+    )
+    verified = "✅" if ((bot_user or {}).get("phone_verified") or rec.get("phone_verified")) else "❌"
     is_authorized = is_user_authorized_record(rec)
     blocked = "⛔" if rec.get("blocked") else "✅"
     custom_rights = len(_normalize_access_overrides(rec.get("access_overrides")))
@@ -7752,7 +7795,7 @@ async def admin_users_toggle_auth(cq: CallbackQuery):
         return
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
-    if not uid:
+    if not uid or not uid.isdigit():
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     rec = _roles_load().get(uid, {})
@@ -7786,7 +7829,7 @@ async def admin_users_set_role(cq: CallbackQuery):
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
     role = parts[3] if len(parts) > 3 else "guest"
-    if not uid:
+    if not uid or not uid.isdigit():
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     old_role = normalize_role((_roles_load().get(uid, {}) or {}).get("role") or "guest")
@@ -7827,7 +7870,7 @@ async def admin_users_permissions(cq: CallbackQuery):
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
     page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
-    if not uid:
+    if not uid or not uid.isdigit():
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     rec = _user_record(int(uid)) if uid.isdigit() else {}
@@ -7886,7 +7929,7 @@ async def admin_users_block(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "users.manage"):
         return
     uid = cq.data.split(":")[2] if len(cq.data.split(":")) > 2 else ""
-    if not uid:
+    if not uid or not uid.isdigit():
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     update_user_record(uid, {"blocked": True})
@@ -7926,7 +7969,7 @@ async def admin_users_delete(cq: CallbackQuery, state: FSMContext):
     parts = cq.data.split(":")
     uid = parts[2] if len(parts) > 2 else ""
     page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
-    if not uid:
+    if not uid or not uid.isdigit():
         await cq.answer("Пользователь не найден.", show_alert=True)
         return
     await state.update_data(admin_del_uid=uid, admin_del_page=page)
@@ -7955,7 +7998,7 @@ async def admin_users_delete_confirm(cq: CallbackQuery, state: FSMContext):
         await cq.message.answer("❎ Отменено.")
         await cq.answer()
         return
-    if not uid:
+    if not uid or not str(uid).isdigit():
         await cq.message.answer("Пользователь не найден.")
         await cq.answer()
         return
@@ -8008,10 +8051,10 @@ async def admin_users_save_phone(m: Message, state: FSMContext):
     data = await state.get_data()
     uid = data.get("admin_edit_uid")
     ok, e164, disp = normalize_phone_ru(m.text or "")
-    if not uid or not ok:
+    if not uid or not str(uid).isdigit() or not ok:
         await m.answer("Некорректный телефон. Пример: +7XXXXXXXXXX.")
         return
-    update_user_record(uid, {"phone": e164, "phone_verified": False})
+    set_user_phone(int(uid), e164, verified=False)
     await state.clear()
     await m.answer(f"✅ Телефон обновлён: {disp}")
 

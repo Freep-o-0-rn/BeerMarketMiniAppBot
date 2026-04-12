@@ -214,6 +214,14 @@ class ClientCardsDB:
         with self._connect() as conn:
             return conn.execute("SELECT * FROM bot_users WHERE tg_user_id = ?", (int(tg_user_id),)).fetchone()
 
+    def list_bot_users(self) -> List[Dict[str, Any]]:
+        with self._connect() as conn:
+            return conn.execute("SELECT * FROM bot_users ORDER BY tg_user_id").fetchall()
+
+    def delete_bot_user(self, tg_user_id: int) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE FROM bot_users WHERE tg_user_id = ?", (int(tg_user_id),))
+
     def set_bot_user_phone(self, tg_user_id: int, phone_e164: str, *, verified: bool = False) -> None:
         now = _utcnow()
         with self._connect() as conn:
