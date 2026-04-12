@@ -679,38 +679,38 @@ def _merge_tara_items(items: List[Tuple[str, float]]) -> List[Tuple[str, float]]
 
 def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """Парсинг строк отчёта по возвратной таре"""
-    col_names = list(df.columns)
-    # Определяем, какие колонки содержат числа
-    col_qty_end = None
-    for c in col_names:
-        if "конеч" in str(c).lower() and "остат" in str(c).lower():
-            col_qty_end = c
-            break
-    if not col_qty_end:
-        raise ValueError("Не найдена колонка 'Количество Конечный остаток'")
+    col_client, col_item, col_reg, col_qty_end = _tara_find_cols(df)
 
     results: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
 
     for _, row in df.iterrows():
-        text = str(row.iloc[0] or "").strip()
-        if not text:
+        client_cell = str(row.get(col_client, "") or "").strip()
+        item_cell = str(row.get(col_item, "") or "").strip()
+        reg_cell = str(row.get(col_reg, "") or "").strip() if col_reg else ""
+        fallback_text = str(row.iloc[0] or "").strip()
+
+        text = client_cell or item_cell or fallback_text
+        if not text or str(text).lower() == "nan":
             continue
 
-        # количество по последней колонке
-        q_end = _to_float(row.get(col_qty_end, 0))
+        q_end = _to_float_ru(row.get(col_qty_end, 0))
+        is_client_like = bool(client_cell and not item_cell and not reg_cell)
+        if not is_client_like and client_cell and not TARA_DOC_MARKERS.search(client_cell):
+            parts_probe = split_report_client_label(client_cell)
+            is_client_like = bool(parts_probe.get("sales_rep") or parts_probe.get("address") or CLIENT_MARKERS.search(client_cell))
 
         # клиент␊
-        if CLIENT_MARKERS.search(text):
+        if is_client_like:
             # сохранить предыдущего␊
             if current:
                 current["items"] = _merge_tara_items(current["items"])
-                if current["total"] > 0 or current["items"]:
+                if abs(float(current.get("total") or 0.0)) > 1e-9 or current["items"]:
                     results.append(current)
-            parts = split_report_client_label(text)
+            parts = split_report_client_label(client_cell)
             current = {
-                "client": text,
-                "client_name": parts.get("client_name") or text,
+                "client": client_cell,
+                "client_name": parts.get("client_name") or client_cell,
                 "sales_rep_name": parts.get("sales_rep") or "",
                 "address": parts.get("address") or "",
                 "items": [],
@@ -724,13 +724,14 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
         # номенклатура
         if current and abs(q_end) > 0:
-            current["items"].append((text, q_end))
+            item_name = item_cell or text
+            current["items"].append((item_name, q_end))
 
     # финальный клиент
     # финальный клиент␊
     if current:
         current["items"] = _merge_tara_items(current["items"])
-        if current["total"] > 0 or current["items"]:
+        if abs(float(current.get("total") or 0.0)) > 1e-9 or current["items"]:
             results.append(current)
 
     results.sort(key=lambda x: x.get("total", 0.0), reverse=True)

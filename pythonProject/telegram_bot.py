@@ -3193,6 +3193,10 @@ def debt_import_queue_list_kb(items: List[Dict[str, Any]], page: int = 0, page_s
 def _debt_queue_item_text(item: Dict[str, Any]) -> str:
     parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
     reasons = item.get("reasons") if isinstance(item.get("reasons"), list) else []
+    selected_rep_uid, selected_rep_name = _queue_item_selected_sales_rep(item)
+    selected_rep_text = selected_rep_name or "—"
+    if selected_rep_uid:
+        selected_rep_text = f"{selected_rep_text} ({selected_rep_uid})"
     return (
         "🧩 <b>Ручная модерация импорта дебиторки</b>\n"
         f"ID: <code>{esc(str(item.get('id') or ''))}</code>\n"
@@ -3201,6 +3205,7 @@ def _debt_queue_item_text(item: Dict[str, Any]) -> str:
         f"Кандидат юрлица: <b>{esc(str(parsed.get('legal_form') or ''))} {esc(str(parsed.get('legal_name') or '—'))}</b>\n"
         f"Адрес: <b>{esc(str(parsed.get('address') or '—'))}</b>\n"
         f"Торговый (из отчёта): <b>{esc(str(parsed.get('sales_rep_name') or '—'))}</b>\n"
+        f"Торговый (выбран): <b>{esc(selected_rep_text)}</b>\n"
         f"Причины: <code>{esc(', '.join([str(r) for r in reasons]) or '—')}</code>\n"
         f"Повторов: <b>{int(item.get('seen_count') or 0)}</b>\n"
         f"Создано: <b>{esc(str(item.get('created_at') or '—'))}</b>\n"
@@ -3306,6 +3311,17 @@ def _debt_import_client_key(raw_client_name: str) -> str:
     return " ".join((raw_client_name or "").strip().casefold().split())
 
 
+def _debt_import_mapping_key(raw_client_name: str, sales_rep_name: str = "") -> str:
+    """
+    Ключ маппинга для связки «сырой клиент + торговый».
+    Это убирает коллизии, когда в отчёте одинаковый клиент встречается у разных торговых.
+    """
+    base = _debt_import_client_key(raw_client_name)
+    rep = _normalize_person_text(sales_rep_name or "")
+    if not base:
+        return ""
+    return f"{base}|{rep}" if rep else base
+
 def _load_debt_import_mappings() -> Dict[str, Any]:
     try:
         if DEBT_IMPORT_MAPPINGS_PATH.exists():
@@ -3395,7 +3411,7 @@ def _store_debt_mapping_for_item(
         sales_rep_name: str = "",
 ) -> None:
     raw_name = str(item.get("raw_client_name") or "")
-    key = _debt_import_client_key(raw_name)
+    key = _debt_import_mapping_key(raw_name, sales_rep_name)
     if not key:
         return
     state = _load_debt_import_mappings()
@@ -3469,6 +3485,22 @@ def _import_requires_manual_review(parsed: Optional[Dict[str, str]]) -> List[str
         reasons.append("address_missing")
     return reasons
 
+def _queue_item_selected_sales_rep(item: Dict[str, Any]) -> Tuple[Optional[int], str]:
+    """
+    Возвращает явно выбранного для элемента очереди торгового.
+    Если он не выбран вручную, берём торгового из распарсенной строки отчёта.
+    """
+    chosen_name = str(item.get("selected_sales_rep_name") or "").strip()
+    chosen_uid = item.get("selected_sales_rep_user_id")
+    if chosen_name:
+        return (int(chosen_uid) if str(chosen_uid or "").isdigit() else None), chosen_name
+    parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+    parsed_name = str(parsed.get("sales_rep_name") or "").strip()
+    if not parsed_name:
+        return None, ""
+    parsed_uid, parsed_resolved_name = _resolve_sales_rep_user_by_name(parsed_name)
+    return parsed_uid, (parsed_resolved_name or parsed_name).strip()
+
 def parse_client_row_for_card(raw: str) -> Optional[Dict[str, str]]:
     txt = (raw or "").strip()
     if not txt:
@@ -3541,12 +3573,19 @@ def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int,
     ignored = mapping_state.get("ignored") if isinstance(mapping_state.get("ignored"), dict) else {}
     for it in items:
         raw_client = it.get("client") or ""
-        raw_key = _debt_import_client_key(raw_client)
+        parsed = parse_client_row_for_card(raw_client)
+        parsed_sales_rep = str(parsed.get("sales_rep_name") or "").strip() if parsed else ""
+        raw_key = _debt_import_mapping_key(raw_client, parsed_sales_rep)
+        legacy_raw_key = _debt_import_client_key(raw_client)
         if raw_key and raw_key in ignored:
             skipped += 1
             continue
-        parsed = parse_client_row_for_card(raw_client)
+        if legacy_raw_key and legacy_raw_key in ignored:
+            skipped += 1
+            continue
         mapped = mappings.get(raw_key) if raw_key else None
+        if not isinstance(mapped, dict) and legacy_raw_key:
+            mapped = mappings.get(legacy_raw_key)
         if isinstance(mapped, dict):
             mapped_client_id = str(mapped.get("client_id") or "").strip()
             mapped_card = CLIENTS_DB.get_client(mapped_client_id) if mapped_client_id else None
@@ -6484,7 +6523,10 @@ async def cc_import_manual_queue_link(cq: CallbackQuery):
     address = str(parsed.get("address") or "").strip()
     if address:
         CLIENTS_DB.append_address(client_id, address)
-    rep_uid, rep_name = _resolve_sales_rep_user_by_name(str(parsed.get("sales_rep_name") or ""))
+    rep_uid, rep_name = _queue_item_selected_sales_rep(item)
+    if not (rep_uid or rep_name):
+        await cq.answer("Сначала укажите торгового для этой записи.", show_alert=True)
+        return
     rep_patch: Dict[str, Any] = {}
     if rep_uid:
         rep_patch["sales_rep_user_id"] = rep_uid
@@ -6537,7 +6579,10 @@ async def cc_import_manual_queue_create(cq: CallbackQuery):
     if not legal_name:
         await cq.answer("Недостаточно данных для создания карточки", show_alert=True)
         return
-    rep_uid, rep_name = _resolve_sales_rep_user_by_name(str(parsed.get("sales_rep_name") or ""))
+    rep_uid, rep_name = _queue_item_selected_sales_rep(item)
+    if not (rep_uid or rep_name):
+        await cq.answer("Сначала укажите торгового для этой записи.", show_alert=True)
+        return
     payload = {
         "legal_form": legal_form,
         "legal_name": legal_name,
@@ -6623,39 +6668,55 @@ async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
         await m.answer("Операция отменена.")
         return
     rep_uid, rep_name = _parse_sales_rep_input(m.text or "")
+    if not (rep_uid or rep_name):
+        await m.answer("Не удалось распознать торгового. Укажите ФИО или 'Имя (123456)'.")
+        return
     queue = _load_debt_import_manual_queue()
     item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
     if not item:
         await state.clear()
         await m.answer("Запись очереди не найдена.")
         return
+    _mark_manual_queue_item_status(
+        item_id=str(item_id),
+        status=str(item.get("status") or "pending"),
+        actor_user_id=int(getattr(m.from_user, "id", 0) or 0),
+        patch={
+            "selected_sales_rep_name": rep_name or "",
+            "selected_sales_rep_user_id": int(rep_uid) if rep_uid else None,
+        },
+    )
     queue_mapping = _load_debt_import_mappings()
-    key = _debt_import_client_key(str(item.get("raw_client_name") or ""))
-    mapping = queue_mapping.get("mappings", {}).get(key) if key else None
-    if not isinstance(mapping, dict) or not mapping.get("client_id"):
-        await state.clear()
-        await m.answer("Сначала привяжите запись к карточке клиента.")
-        return
-    client_id = str(mapping.get("client_id"))
-    card = CLIENTS_DB.get_client(client_id)
-    if not card:
-        await state.clear()
-        await m.answer("Карточка из маппинга не найдена.")
-        return
-    patch: Dict[str, Any] = {"sales_rep_name": rep_name or ""}
-    if rep_uid:
-        patch["sales_rep_user_id"] = rep_uid
-    CLIENTS_DB.update_client(client_id, patch)
+    raw_name = str(item.get("raw_client_name") or "")
+    keys = [
+        _debt_import_mapping_key(raw_name, rep_name or ""),
+        _debt_import_client_key(raw_name),  # legacy
+    ]
+    mapping = None
+    for key in keys:
+        if key:
+            maybe = queue_mapping.get("mappings", {}).get(key)
+            if isinstance(maybe, dict):
+                mapping = maybe
+                break
+    if isinstance(mapping, dict) and mapping.get("client_id"):
+        client_id = str(mapping.get("client_id"))
+        card = CLIENTS_DB.get_client(client_id)
+        if card:
+            patch: Dict[str, Any] = {"sales_rep_name": rep_name or ""}
+            if rep_uid:
+                patch["sales_rep_user_id"] = rep_uid
+            CLIENTS_DB.update_client(client_id, patch)
     _store_debt_mapping_for_item(
         item=item,
-        client_id=client_id,
+        client_id=str(mapping.get("client_id") or "") if isinstance(mapping, dict) else None,
         actor_user_id=int(getattr(m.from_user, "id", 0) or 0),
         ignored=False,
         sales_rep_user_id=rep_uid,
         sales_rep_name=rep_name or "",
     )
     await state.clear()
-    await m.answer("✅ Торговый закреплён за карточкой и сохранён в маппинге.")
+    await m.answer("✅ Торговый сохранён для записи очереди и маппинга.")
 
 @router.callback_query(F.data.startswith("cc:edit:"))
 async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
