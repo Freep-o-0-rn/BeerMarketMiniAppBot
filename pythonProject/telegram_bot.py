@@ -4038,7 +4038,7 @@ def client_matches_any_keyword(item: Dict[str, Any], keywords: List[str]) -> boo
     return False
 
 def _sales_rep_surname_from_item(item: Dict[str, Any]) -> str:
-    explicit_name = str(item.get("sales_rep_name") or "").strip()
+    explicit_name = _resolve_sales_rep_name_for_item(item)
     if explicit_name:
         return _extract_surname(explicit_name)
     parsed = split_report_client_label(str(item.get("client") or ""))
@@ -4058,6 +4058,87 @@ def _is_sales_rep_item_visible_for_user(item: Dict[str, Any], user_id: int) -> b
     if not item_surname:
         return False
     return item_surname == user_surname
+
+def _norm_text_key(value: str) -> str:
+    return " ".join((value or "").strip().casefold().replace("ё", "е").split())
+
+
+def _build_client_card_lookup() -> Dict[str, Dict[str, Any]]:
+    by_name: Dict[str, Dict[str, Any]] = {}
+    by_name_addr: Dict[str, Dict[str, Any]] = {}
+    for card in CLIENTS_DB.list_clients():
+        legal = _norm_text_key(str(card.get("legal_name") or ""))
+        store = _norm_text_key(str(card.get("store_name") or ""))
+        addresses = [_norm_text_key(x) for x in str(card.get("address") or "").split("\n") if _norm_text_key(x)]
+        names = [x for x in [legal, store] if x]
+        for name_key in names:
+            by_name.setdefault(name_key, card)
+            for addr_key in addresses:
+                by_name_addr.setdefault(f"{name_key}|{addr_key}", card)
+    return {"by_name": by_name, "by_name_addr": by_name_addr}
+
+
+def _resolve_card_for_report_client(raw_name: str, *, report_type: str) -> Optional[Dict[str, Any]]:
+    report_type = (report_type or "").strip().lower()
+    raw_name = str(raw_name or "").strip()
+    if not raw_name:
+        return None
+
+    if report_type == "debt":
+        mapping_state = _load_debt_import_mappings()
+        key = _debt_import_client_key(raw_name)
+        mapped = mapping_state.get("mappings", {}).get(key) if key else None
+        if isinstance(mapped, dict):
+            mapped_client_id = str(mapped.get("client_id") or "").strip()
+            if mapped_client_id:
+                card = CLIENTS_DB.get_client(mapped_client_id)
+                if card:
+                    return card
+
+    parsed = split_report_client_label(raw_name)
+    base_name = _norm_text_key(parsed.get("client_name") or raw_name)
+    address = _norm_text_key(parsed.get("address") or "")
+    lookup = _build_client_card_lookup()
+    if base_name and address:
+        by_name_addr = lookup.get("by_name_addr", {})
+        card = by_name_addr.get(f"{base_name}|{address}")
+        if card:
+            return card
+    if base_name:
+        by_name = lookup.get("by_name", {})
+        card = by_name.get(base_name)
+        if card:
+            return card
+    return None
+
+
+def _resolve_sales_rep_name_for_item(item: Dict[str, Any], *, report_type: str = "debt") -> str:
+    card = _resolve_card_for_report_client(str(item.get("client") or ""), report_type=report_type)
+    if card and str(card.get("sales_rep_name") or "").strip():
+        return str(card.get("sales_rep_name") or "").strip()
+    explicit_name = str(item.get("sales_rep_name") or "").strip()
+    if explicit_name:
+        return explicit_name
+    parsed = split_report_client_label(str(item.get("client") or ""))
+    parsed_rep = str(parsed.get("sales_rep") or "").strip()
+    if parsed_rep:
+        return parsed_rep
+    return ""
+
+
+def _is_sales_rep_tara_item_visible_for_user(item: Dict[str, Any], user_id: int) -> bool:
+    rec = _user_record(user_id)
+    user_surname = (
+        _extract_surname(rec.get("name") or "")
+        or _extract_surname(rec.get("last_name") or "")
+        or _extract_surname(rec.get("first_name") or "")
+    )
+    if not user_surname:
+        return False
+    rep_name = _resolve_sales_rep_name_for_item(item, report_type="tara")
+    if not rep_name:
+        return False
+    return _extract_surname(rep_name) == user_surname
 
 # --- Авто-обновление из почты ---
 def _today_dt(h: int, m: int) -> datetime:
@@ -4170,6 +4251,8 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
 async def render_tara_report(chat: Message):
     # было: path = find_latest_download(report_type="tara")
     paths = find_latest_downloads(report_type="tara", max_count=5)
+    user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
+    role = get_user_role(user_id)
     if not paths:
         await chat.answer(
             "Файл по таре не найден. Обновите: 🔄 Обновить → Тара или /refresh tara",
@@ -4184,6 +4267,10 @@ async def render_tara_report(chat: Message):
             res = process_tara_file(path)
             # успех — шлём заголовок
             items = (res or {}).get("items") or []
+            if not items:
+                continue
+            if role == "sales_rep":
+                items = [it for it in items if _is_sales_rep_tara_item_visible_for_user(it, user_id)]
             if not items:
                 continue
             report_date = (res or {}).get("report_date")
@@ -5258,8 +5345,9 @@ async def search_flow(m: Message, state: FSMContext):
 
 # --- Поиск по возвратной таре ---
 async def render_tara_search(chat: Message, keywords: List[str]):
-    role = get_user_role(getattr(chat.from_user, 'id', None))
-    kb = menu_for_role(role, getattr(chat.from_user, "id", None))
+    user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
+    role = get_user_role(user_id)
+    kb = menu_for_role(role, user_id)
     paths = find_latest_downloads(report_type="tara", max_count=5)
     if not paths:
         await chat.answer(
@@ -5286,6 +5374,8 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 return any(k in name or k in addr for k in kws)
 
             filtered = [b for b in items if match(b)]
+            if role == "sales_rep":
+                filtered = [b for b in filtered if _is_sales_rep_tara_item_visible_for_user(b, user_id)]
             if filtered:
                 chips = []
                 if kws:
@@ -6437,7 +6527,14 @@ async def cc_import_manual_queue_create(cq: CallbackQuery):
     parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
     legal_name = str(parsed.get("legal_name") or "").strip()
     legal_form = str(parsed.get("legal_form") or "").strip().upper()
+    raw_client_name = str(item.get("raw_client_name") or "").strip()
     if legal_form not in {"ООО", "ИП"} or not legal_name:
+        fallback_name = split_report_client_label(raw_client_name).get("client_name") or raw_client_name
+        fallback_form, fallback_legal_name = _extract_legal_form_and_name(fallback_name)
+        legal_form = legal_form if legal_form in {"ООО", "ИП"} else (
+            fallback_form if fallback_form in {"ООО", "ИП"} else "ООО")
+        legal_name = legal_name or fallback_legal_name or fallback_name
+    if not legal_name:
         await cq.answer("Недостаточно данных для создания карточки", show_alert=True)
         return
     rep_uid, rep_name = _resolve_sales_rep_user_by_name(str(parsed.get("sales_rep_name") or ""))

@@ -68,7 +68,7 @@
     },
     {
       "id": "5811c559-4c5e-4d52-85be-dac8c3a06428",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Токарев Е. А.  ИП - Токарев",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -83,7 +83,10 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:21Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T19:29:49Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "565e70d2-0d13-4c2c-961d-faa320c7d586"
     },
     {
       "id": "b8505d67-19eb-4ec7-8a62-52d7d4ebf6dc",
@@ -146,7 +149,7 @@
     },
     {
       "id": "4a58d390-f51c-476c-a6b7-e2bd15c18e31",
-      "status": "pending",
+      "status": "resolved_created",
       "raw_client_name": "Лосев М.С. - Токарев (Обь г, Ломоносова ул, дом № 48)",
       "parsed_candidate": {
         "legal_form": "",
@@ -161,7 +164,10 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:21Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T19:30:04Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65"
     },
     {
       "id": "f1232e5c-ca56-42a8-9b2a-bdadca13fe1c",
