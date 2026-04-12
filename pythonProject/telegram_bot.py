@@ -428,6 +428,7 @@ def build_tara_text(b: Dict[str, Any]) -> str:
 import os, json, re
 from pathlib import Path
 from hashlib import md5
+from uuid import uuid4
 from typing import Optional, Tuple, Dict, Any, List
 
 # используем единый файл ролей/имен/телефонов
@@ -588,12 +589,17 @@ def _normalize_user_auth_fields(record: Any) -> None:
 def _normalize_user_roles_schema(data: dict) -> dict:
     """Гарантируем структуру и не трогаем неизвестные ключи."""
     data = (data or {})
+    service_keys = {"client_phones", "role_requests"}
     # телефоны клиентов — словарь
     if not isinstance(data.get("client_phones"), dict):
         data["client_phones"] = {}
+    if not isinstance(data.get("role_requests"), dict):
+        data["role_requests"] = {}
     # записи по user_id должны быть словарями; если вдруг строка — мигрируем
     for k, v in list(data.items()):
-        if k == "client_phones":
+        if k in service_keys:
+            continue
+        if not str(k).isdigit():
             continue
         if not isinstance(v, dict):
             data[k] = {"role": "guest", "name": str(v)}
@@ -1167,9 +1173,8 @@ def help_text_guest(first_name: Optional[str]) -> str:
         "• 📑 <b>Прайсы</b> — посмотреть прайс-листы\n"
         "• 🎁 <b>Акции</b> — посмотреть акции\n"
         "• 🚚 <b>График развоза</b> — посмотреть график и правила приёма заявок\n"
-        "• 🏢 <b>Запросить роль клиента</b> — пройти проверку по базе клиентов\n"
-        "• 🧑‍💼 <b>Запросить роль торгового</b> — отправить заявку администратору\n\n"
-        "Роль повышается автоматически при уверенном совпадении или после проверки модератором/администратором."
+        "• 📝 <b>Заявка на роль</b> — отправить запрос на нужную роль\n\n"
+        "Чтобы получить роль клиента, торгового представителя или администратора, отправьте заявку."
     )
 
 
@@ -1379,10 +1384,11 @@ def get_user_notification_settings(user_id: Optional[int]) -> Dict[str, bool]:
 NOTIFICATION_META: Dict[str, Dict[str, str]] = {
     "new_users": {"label": "Новые пользователи"},
     "role_changes": {"label": "Смена ролей"},
-    "role_requests": {"label": "Заявки на роль"},
+    "role_requests": {"label": "Заявки на роли"},
     "auth_changes": {"label": "Авторизация/блокировка"},
 }
-NOTIFICATION_ORDER: List[str] = ["role_requests", "new_users", "role_changes", "auth_changes"]
+
+NOTIFICATION_ORDER: List[str] = ["new_users", "role_changes","role_requests", "auth_changes"]
 
 
 def notification_label(key: str) -> str:
@@ -1603,6 +1609,139 @@ async def notify_about_access_change(
         await bot.send_message(target_user_id, text)
     except Exception:
         logger.exception("access-change-notify: failed target=%s event=%s", target_user_id, event_label)
+
+ROLE_REQUESTS_KEY = "role_requests"
+ROLE_REQUEST_STATUS_PENDING = "pending"
+ROLE_REQUEST_STATUS_APPROVED = "approved"
+ROLE_REQUEST_STATUS_REJECTED = "rejected"
+ROLE_REQUEST_ACTIVE_STATUSES = {ROLE_REQUEST_STATUS_PENDING}
+_ROLE_REQUESTS_LOCK = asyncio.Lock()
+ROLE_REQUESTABLE_ROLES = ("client", "sales_rep", "moderator", "admin")
+
+
+def _role_requests_ref(data: dict) -> Dict[str, Dict[str, Any]]:
+    requests = data.get(ROLE_REQUESTS_KEY)
+    if not isinstance(requests, dict):
+        requests = {}
+        data[ROLE_REQUESTS_KEY] = requests
+    return requests
+
+
+def _role_request_notification_recipients() -> List[int]:
+    data = _roles_load()
+    recipients = {int(uid) for uid in _ADMIN_IDS if isinstance(uid, int)}
+    for uid, rec in data.items():
+        if uid in {"client_phones", ROLE_REQUESTS_KEY} or not isinstance(rec, dict) or not str(uid).isdigit():
+            continue
+        role = normalize_role(rec.get("role"))
+        if role not in {"admin", "moderator"}:
+            continue
+        if notification_enabled(int(uid), "role_requests"):
+            recipients.add(int(uid))
+    return sorted(recipients)
+
+
+def _format_role_request_created_at(raw_dt: Optional[str]) -> str:
+    if not raw_dt:
+        return "—"
+    try:
+        parsed = datetime.fromisoformat(str(raw_dt).replace("Z", "+00:00"))
+        return parsed.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    except Exception:
+        return str(raw_dt)
+
+
+def _role_request_notification_text(request: Dict[str, Any]) -> str:
+    user_id = int(request.get("user_id") or 0)
+    rec = _user_record(user_id)
+    display_name = (
+        rec.get("name")
+        or " ".join(x for x in [rec.get("first_name"), rec.get("last_name")] if x)
+        or "—"
+    )
+    username = (rec.get("username") or "").strip()
+    username_line = f"@{username}" if username else "отсутствует"
+    requested_role = role_label(request.get("requested_role"))
+    created_label = _format_role_request_created_at(request.get("created_at"))
+    return (
+        "📝 <b>Новая заявка на роль</b>\n"
+        f"user_id: <code>{user_id}</code>\n"
+        f"Имя: <b>{esc(str(display_name))}</b>\n"
+        f"Username: <b>{esc(username_line)}</b>\n"
+        f"Запрошенная роль: <b>{esc(requested_role)}</b>\n"
+        f"Создана: <b>{esc(created_label)}</b>"
+    )
+
+
+def role_request_actions_kb(request_id: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="✅ Принять", callback_data=f"rr:decide:{request_id}:approve"),
+                InlineKeyboardButton(text="❌ Отклонить", callback_data=f"rr:decide:{request_id}:reject"),
+            ]
+        ]
+    )
+
+
+async def notify_about_role_request(request: Dict[str, Any]) -> None:
+    text = _role_request_notification_text(request)
+    request_id = str(request.get("id") or "")
+    if not request_id:
+        return
+    for recipient in _role_request_notification_recipients():
+        if recipient == int(request.get("user_id") or 0):
+            continue
+        try:
+            await bot.send_message(
+                recipient,
+                text,
+                reply_markup=role_request_actions_kb(request_id) if user_allows_action(recipient, "role_requests.manage") else None,
+            )
+        except Exception:
+            logger.exception("role-request-notify: failed recipient=%s request=%s", recipient, request_id)
+
+
+def get_active_role_request(user_id: int) -> Optional[Dict[str, Any]]:
+    requests = _role_requests_ref(_roles_load())
+    for request in requests.values():
+        if not isinstance(request, dict):
+            continue
+        if int(request.get("user_id") or 0) != int(user_id):
+            continue
+        if request.get("status") in ROLE_REQUEST_ACTIVE_STATUSES:
+            return request
+    return None
+
+
+async def create_role_request(*, user_id: int, requested_role: str) -> Tuple[bool, Optional[Dict[str, Any]], str]:
+    role_key = normalize_role(requested_role)
+    if role_key not in ROLE_REQUESTABLE_ROLES:
+        return False, None, "Эта роль недоступна для заявки."
+    async with _ROLE_REQUESTS_LOCK:
+        data = _roles_load()
+        requests = _role_requests_ref(data)
+        for request in requests.values():
+            if not isinstance(request, dict):
+                continue
+            if int(request.get("user_id") or 0) != int(user_id):
+                continue
+            if request.get("status") in ROLE_REQUEST_ACTIVE_STATUSES:
+                return False, request, "У вас уже есть активная заявка. Дождитесь её обработки."
+        now_iso = datetime.now(timezone.utc).isoformat()
+        request_id = uuid4().hex[:12]
+        request = {
+            "id": request_id,
+            "user_id": int(user_id),
+            "requested_role": role_key,
+            "status": ROLE_REQUEST_STATUS_PENDING,
+            "created_at": now_iso,
+            "updated_at": now_iso,
+        }
+        requests[request_id] = request
+        _roles_save_atomic(data)
+    await notify_about_role_request(request)
+    return True, request, "Заявка отправлена. Мы уведомили администраторов и модераторов."
 
 def _request_recipients() -> List[int]:
     data = _roles_load()
@@ -2170,6 +2309,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if user_allows_action(user_id, "technicians.manage"):
         management_row.append(KeyboardButton(text="🛠 Техники"))
     _append_button_row_if_any(keyboard, management_row)
+    if role in {"guest", "client", "sales_rep"}:
+        keyboard.append([KeyboardButton(text="📝 Заявка на роль")])
     keyboard.append([KeyboardButton(text="🔔 Уведомления")])
     if role == "guest":
         keyboard.append(
@@ -2198,6 +2339,16 @@ def onboard_role_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="Я админ", callback_data="ob:admin")],
         [InlineKeyboardButton(text="Я клиент", callback_data="ob:client")]
     ])
+
+def role_request_target_kb(current_role: Optional[str]) -> InlineKeyboardMarkup:
+    current_role = normalize_role(current_role)
+    rows: List[List[InlineKeyboardButton]] = []
+    for role in ROLE_REQUESTABLE_ROLES:
+        if role == current_role:
+            continue
+        rows.append([InlineKeyboardButton(text=role_label(role), callback_data=f"rr:new:{role}")])
+    rows.append([InlineKeyboardButton(text="⬅️ Отмена", callback_data="rr:new:cancel")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def phone_request_kb() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
@@ -3692,6 +3843,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "users.view": {"admin", "moderator"},
     "users.manage": {"admin"},
     "notifications.manage": {"admin", "moderator"},
+    "role_requests.manage": {"admin", "moderator"},
     "news.manage": {"admin", "moderator"},
 }
 
@@ -3713,6 +3865,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
     "notifications.manage": "управление уведомлениями",
+    "role_requests.manage": "обработка заявок на роли",
     "news.manage": "управление новостями Mini App",
 }
 
@@ -4521,7 +4674,7 @@ async def btn_search_tara(m: Message, state: FSMContext):
     if _is_client_only(m):
         cname = get_client_name(getattr(m.from_user, "id", None))
         if not cname:
-            await m.answer("Сначала укажите название: кнопка «✏️ Изменить название».", reply_markup=menu_for_message(m))
+            await m.answer("Название вашей организации не заполнено. Обратитесь к администратору.", reply_markup=menu_for_message(m))
             return
         keywords = [t.casefold() for t in _tokenize_query(cname)]
         await render_tara_search(m, keywords)
@@ -4549,14 +4702,132 @@ async def search_tara_flow(m: Message, state: FSMContext):
     await m.answer("Готово.", reply_markup=menu_for_message(m))
 
 
-# --- Клиент: изменить название ---
+# --- Заявка на роль ---
+@router.message(F.text == "📝 Заявка на роль")
+async def role_request_open(m: Message):
+    uid = int(getattr(m.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role in {"admin", "moderator"}:
+        await m.answer("Для вашей роли заявки не требуются.", reply_markup=menu_for_message(m))
+        return
+    active = get_active_role_request(uid)
+    if active:
+        created_at = _format_role_request_created_at(active.get("created_at"))
+        await m.answer(
+            "У вас уже есть активная заявка.\n"
+            f"Роль: <b>{esc(role_label(active.get('requested_role')))}</b>\n"
+            f"Создана: <b>{esc(created_at)}</b>",
+            reply_markup=menu_for_message(m),
+        )
+        return
+    await m.answer(
+        "Выберите роль, на которую хотите подать заявку:",
+        reply_markup=role_request_target_kb(role),
+    )
+
+
+@router.callback_query(F.data.startswith("rr:new:"))
+async def role_request_create_callback(cq: CallbackQuery):
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    parts = (cq.data or "").split(":")
+    target_role = parts[2] if len(parts) > 2 else ""
+    if target_role == "cancel":
+        await cq.message.edit_text("Подача заявки отменена.")
+        await cq.answer()
+        return
+    if role in {"admin", "moderator"}:
+        await cq.answer("Для вашей роли заявки не требуются.", show_alert=True)
+        return
+    ok, request, message = await create_role_request(user_id=uid, requested_role=target_role)
+    if not ok:
+        await cq.answer(message, show_alert=True)
+        return
+    await cq.message.edit_text(
+        f"✅ {esc(message)}\n"
+        f"Запрошенная роль: <b>{esc(role_label(request.get('requested_role')))}</b>"
+    )
+    await cq.answer("Заявка отправлена.")
+
+
+@router.callback_query(F.data.startswith("rr:decide:"))
+async def role_request_decide_callback(cq: CallbackQuery):
+    actor_role = await ensure_callback_access(cq, "role_requests.manage")
+    if not actor_role:
+        return
+    parts = (cq.data or "").split(":")
+    request_id = parts[2] if len(parts) > 2 else ""
+    decision = parts[3] if len(parts) > 3 else ""
+    if decision not in {"approve", "reject"} or not request_id:
+        await cq.answer("Некорректные параметры.", show_alert=True)
+        return
+    actor_id = int(getattr(cq.from_user, "id", 0) or 0)
+    async with _ROLE_REQUESTS_LOCK:
+        data = _roles_load()
+        requests = _role_requests_ref(data)
+        request = requests.get(request_id)
+        if not isinstance(request, dict):
+            await cq.answer("Заявка не найдена.", show_alert=True)
+            return
+        if request.get("status") not in ROLE_REQUEST_ACTIVE_STATUSES:
+            await cq.answer("Заявка уже обработана другим сотрудником.", show_alert=True)
+            return
+        target_user_id = int(request.get("user_id") or 0)
+        old_role = get_user_role(target_user_id)
+        now_iso = datetime.now(timezone.utc).isoformat()
+        request["status"] = ROLE_REQUEST_STATUS_APPROVED if decision == "approve" else ROLE_REQUEST_STATUS_REJECTED
+        request["updated_at"] = now_iso
+        request["decided_at"] = now_iso
+        request["decided_by"] = actor_id
+        requests[request_id] = request
+        if decision == "approve":
+            user_rec = data.get(str(target_user_id))
+            if not isinstance(user_rec, dict):
+                user_rec = {"role": "guest"}
+            user_rec["role"] = normalize_role(request.get("requested_role"))
+            data[str(target_user_id)] = user_rec
+        _roles_save_atomic(data)
+    if decision == "approve":
+        await notify_about_role_change(
+            actor_id=actor_id,
+            target_user_id=target_user_id,
+            old_role=old_role,
+            new_role=request.get("requested_role") or old_role,
+        )
+    else:
+        try:
+            await bot.send_message(
+                target_user_id,
+                "❌ <b>Заявка на роль отклонена</b>\n"
+                f"Запрошенная роль: <b>{esc(role_label(request.get('requested_role')))}</b>."
+            )
+        except Exception:
+            logger.exception("role-request-reject: failed target=%s", target_user_id)
+    try:
+        await cq.message.edit_text(
+            _role_request_notification_text(request)
+            + "\n\n"
+            + (
+                f"✅ Статус: <b>Принята</b>\nОбработал: <code>{actor_id}</code>"
+                if decision == "approve"
+                else f"❌ Статус: <b>Отклонена</b>\nОбработал: <code>{actor_id}</code>"
+            )
+        )
+    except Exception:
+        logger.exception("role-request: failed to edit notification message")
+    await cq.answer("Заявка обработана.")
+
+
+# --- Клиент: изменить название (отключено) ---
 @router.message(F.text == "✏️ Изменить название")
 async def client_change_name(m: Message, state: FSMContext):
-    if not _is_client(m):
-        await m.answer("Эта команда для клиента.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
-        return
-    await state.set_state(ClientEditStates.waiting_new_name)
-    await m.answer("Введите новое название вашей организации:", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    #if not _is_client(m):
+    #    await m.answer("Эта команда для клиента.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+    #    return
+    #await state.set_state(ClientEditStates.waiting_new_name)
+    #await m.answer("Введите новое название вашей организации:", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    await state.clear()
+    await m.answer("Изменение названия для клиента отключено.", reply_markup=menu_for_message(m))
 
 @router.message(ClientEditStates.waiting_new_name)
 async def client_set_new_name(m: Message, state: FSMContext):
