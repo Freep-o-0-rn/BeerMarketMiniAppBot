@@ -1135,20 +1135,34 @@ def is_overdue(days: Optional[int], threshold: int) -> bool:
 
 #--------------------------Меню админа /start /help
 def _help_user_name(first_name: Optional[str], *, guest_mode: bool = False) -> str:
-    if guest_mode:
-        return "Гость"
     cleaned = (first_name or "").strip()
+    if guest_mode and not cleaned:
+        return "Гость"
     return cleaned or "Гость"
 
 
-def _help_title(role_label: str, first_name: Optional[str], *, guest_mode: bool = False) -> str:
+def _help_current_name_line(registered_name: Optional[str]) -> str:
+    current_name = (registered_name or "").strip() or "—"
+    return f"Текущее имя: <b>{esc(current_name)}</b>\n\n"
+
+
+def _help_title(
+    role_label: str,
+    first_name: Optional[str],
+    *,
+    registered_name: Optional[str] = None,
+    guest_mode: bool = False,
+) -> str:
     bot_name = _help_user_name(first_name, guest_mode=guest_mode)
-    return f"<b>BeerMarket🍺. {esc(role_label)} ({esc(bot_name)})</b>\n\n"
-
-
-def help_text_admin(first_name: Optional[str]) -> str:
     return (
-        f"{_help_title('Админ', first_name)}"
+        f"<b>BeerMarket🍺. {esc(role_label)} ({esc(bot_name)})</b>\n"
+        f"{_help_current_name_line(registered_name)}"
+    )
+
+
+def help_text_admin(first_name: Optional[str], registered_name: Optional[str] = None) -> str:
+    return (
+        f"{_help_title('Админ', first_name, registered_name=registered_name)}"
         "📌 <b>Кнопки</b>:\n"
         "• 🧾 <b>Общий отчёт</b> — все клиенты\n"
         "• ⏰ <b>Просрочено</b> — только с просрочкой\n"
@@ -1183,9 +1197,9 @@ def help_text_admin(first_name: Optional[str]) -> str:
         "• /help — эта справка\n"
     )
 
-def help_text_moderator(first_name: Optional[str]) -> str:
+def help_text_moderator(first_name: Optional[str], registered_name: Optional[str] = None)
     return (
-        f"{_help_title('Модератор', first_name)}"
+        f"{_help_title('Модератор', first_name, registered_name=registered_name)}"
         "📌 <b>Кнопки</b>:\n"
         "• 🔎 <b>Поиск</b> — поиск по части названия/адреса\n"
         "• 🔎 <b>Поиск тары</b> — поиск по ведомости тары\n"
@@ -1201,9 +1215,9 @@ def help_text_moderator(first_name: Optional[str]) -> str:
         "• /help — эта справка\n"
     )
 
-def help_text_guest(first_name: Optional[str]) -> str:
+def help_text_guest(first_name: Optional[str], registered_name: Optional[str] = None) -> str:
     return (
-        f"{_help_title('Гость', first_name, guest_mode=True)}"
+        f"{_help_title('Гость', first_name, guest_mode=True, registered_name=registered_name)}"
         "Сейчас вам доступен только базовый просмотр.\n\n"
         "📌 <b>Кнопки</b>:\n"
         "• 📑 <b>Прайсы</b> — посмотреть прайс-листы\n"
@@ -1214,10 +1228,10 @@ def help_text_guest(first_name: Optional[str]) -> str:
     )
 
 
-def help_text_client(first_name: Optional[str], current_name: str) -> str:
+def help_text_client(first_name: Optional[str], current_name: str, registered_name: Optional[str] = None) -> str:
     hint = f'Текущее название: <b>«{esc(current_name)}»</b>' if current_name else "<b>Название не задано.</b>"
     return (
-        f"{_help_title('Клиент', first_name)}"
+        f"{_help_title('Клиент', first_name, registered_name=registered_name)}"
         f"{hint}\n\n"
         "📌 <b>Кнопки (клиент)</b>:\n"
         "• 🔎<b> Поиск</b> — найти свои данные по задолженности\n"
@@ -1235,9 +1249,9 @@ def help_text_client(first_name: Optional[str], current_name: str) -> str:
         "• ✉️ <a href='https://t.me/Re1ze_r'>Написать администратору в Telegram</a>\n"
     )
 
-def help_text_sales_rep(first_name: Optional[str]) -> str:
+def help_text_sales_rep(first_name: Optional[str], registered_name: Optional[str] = None) -> str:
     return (
-        f"{_help_title('Торговый представитель', first_name)}"
+        f"{_help_title('Торговый представитель', first_name, registered_name=registered_name)}"
         "📌 <b>Кнопки</b>:\n"
         "• 🔎 <b>Поиск</b> — поиск по части названия/адреса\n"
         "• 🔎 <b>Поиск тары</b> — поиск по ведомости тары\n"
@@ -1375,6 +1389,12 @@ def get_client_name(user_id: Optional[int]) -> str:
         return ""
     uid = str(user_id)
     return str(((_USER_ROLES.get(uid) or {}).get("name")) or "").strip()
+
+def get_registered_name(user_id: Optional[int]) -> str:
+    if not user_id:
+        return ""
+    uid = str(user_id)
+    return str(((_roles_load().get(uid) or {}).get("name")) or "").strip()
 
 def set_user_phone(user_id: int, phone_e164: str, *, verified: bool = False) -> None:
     uid = str(user_id)
@@ -4160,6 +4180,7 @@ def client_name_prompt_text() -> str:
 async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     update_user_profile_from_message(m)
     uid = getattr(m.from_user, "id", None)
+    registered_name = get_registered_name(uid)
     key = str(uid) if uid is not None else None
     if uid is not None:
         ensure_user_record_exists(uid)
@@ -4175,27 +4196,27 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
         _roles_merge_and_save({key: rec})
 
     if role == "admin":
-        await m.answer(help_text_admin(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_admin(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "moderator":
-        await m.answer(help_text_moderator(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_moderator(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
-        await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "guest":
         if not bool(rec.get("onboard_completed")):
             await state.set_state(OnboardStates.waiting_role)
             await m.answer("Кто вы в нашей системе?", reply_markup=identity_choice_kb())
             return
-        await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
         await state.set_state(OnboardStates.waiting_client_name)
         await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
         return
-    await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname, registered_name=registered_name), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 # --- Хендлеры ---
 @router.message(CommandStart())
@@ -4204,6 +4225,7 @@ async def on_start(m: Message, state: FSMContext):
     update_user_profile_from_message(m)
 
     uid = getattr(m.from_user, "id", None)
+    registered_name = get_registered_name(uid)
     key = str(uid) if uid is not None else None
     if uid is not None:
         ensure_user_record_exists(uid)
@@ -4235,27 +4257,27 @@ async def on_start(m: Message, state: FSMContext):
 
     # Известная роль — показываем соответствующее меню.
     if role == "admin":
-        await m.answer(help_text_admin(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_admin(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "moderator":
-        await m.answer(help_text_moderator(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_moderator(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
-        await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "guest":
         if not bool(rec.get("onboard_completed")):
             await state.set_state(OnboardStates.waiting_role)
             await m.answer("Кто вы в нашей системе?", reply_markup=identity_choice_kb())
             return
-        await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
     if not cname:
         await state.set_state(OnboardStates.waiting_client_name)
         await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
         return
-    await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname, registered_name=registered_name), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 
 @router.message(Command("help"))
@@ -4264,21 +4286,23 @@ async def on_help(m: Message):
         await m.answer(BLOCKED_USER_TEXT)
         return
     update_user_profile_from_message(m)
-    role = get_user_role(getattr(m.from_user, "id", None))
+    user_id = getattr(m.from_user, "id", None)
+    role = get_user_role(user_id)
+    registered_name = get_registered_name(user_id)
     if role == "admin":
-        await m.answer(help_text_admin(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_admin(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "moderator":
-        await m.answer(help_text_moderator(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_moderator(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=moderator_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "sales_rep":
-        await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "guest":
-        await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None), registered_name=registered_name), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
-    cname = get_client_name(getattr(m.from_user, "id", None))
-    await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    cname = get_client_name(user_id)
+    await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname, registered_name=registered_name), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
 
 # --- Онбординг роли/пароля/названия ---
