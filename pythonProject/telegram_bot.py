@@ -72,6 +72,7 @@ from services.identity_matcher import IdentityMatcher
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
 CLIENTS_DB = ClientCardsDB(SETTINGS_DIR / "clients.sqlite3")
+DEBT_IMPORT_MANUAL_QUEUE_PATH = SETTINGS_DIR / "debt_import_manual_queue.json"
 
 logger = logging.getLogger(__name__)
 
@@ -3193,7 +3194,7 @@ def _extract_legal_form_and_name(raw: str) -> Tuple[str, str]:
             flags=re.IGNORECASE,
     ):
         return "ООО", txt
-    return "ООО", txt
+    return "", txt
 
 def _normalize_legal_name(legal_name: str) -> str:
     txt = (legal_name or "").strip()
@@ -3226,6 +3227,75 @@ def _extract_sales_rep_and_address(raw: str) -> Tuple[str, str, str]:
     address = inside
     return txt, sales_rep, address
 
+def _load_debt_import_manual_queue() -> Dict[str, Any]:
+    try:
+        if DEBT_IMPORT_MANUAL_QUEUE_PATH.exists():
+            data = json.loads(DEBT_IMPORT_MANUAL_QUEUE_PATH.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                items = data.get("items")
+                if isinstance(items, list):
+                    return {"items": items}
+    except Exception:
+        logger.exception("Failed to load debt import manual queue")
+    return {"items": []}
+
+
+def _save_debt_import_manual_queue(payload: Dict[str, Any]) -> None:
+    DEBT_IMPORT_MANUAL_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DEBT_IMPORT_MANUAL_QUEUE_PATH.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _enqueue_debt_manual_review(
+        *,
+        raw_client_name: str,
+        parsed: Optional[Dict[str, str]],
+        reasons: List[str],
+        imported_by_user_id: int,
+) -> None:
+    queue = _load_debt_import_manual_queue()
+    items = list(queue.get("items") or [])
+    now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    key = " ".join((raw_client_name or "").strip().casefold().split())
+    for item in items:
+        raw = str(item.get("raw_client_name") or "")
+        if " ".join(raw.casefold().split()) == key:
+            item["last_seen_at"] = now
+            item["reasons"] = reasons
+            item["seen_count"] = int(item.get("seen_count") or 1) + 1
+            if imported_by_user_id:
+                item["last_imported_by_user_id"] = int(imported_by_user_id)
+            _save_debt_import_manual_queue({"items": items})
+            return
+
+    items.append({
+        "id": str(uuid.uuid4()),
+        "status": "pending",
+        "raw_client_name": raw_client_name,
+        "parsed_candidate": parsed or {},
+        "reasons": reasons,
+        "seen_count": 1,
+        "created_at": now,
+        "last_seen_at": now,
+        "last_imported_by_user_id": int(imported_by_user_id) if imported_by_user_id else None,
+    })
+    _save_debt_import_manual_queue({"items": items})
+
+
+def _import_requires_manual_review(parsed: Optional[Dict[str, str]]) -> List[str]:
+    if not parsed:
+        return ["parse_failed"]
+    reasons: List[str] = []
+    legal_form = str(parsed.get("legal_form") or "").strip().upper()
+    if legal_form not in {"ООО", "ИП"}:
+        reasons.append("legal_form_unknown")
+    if not str(parsed.get("sales_rep_name") or "").strip():
+        reasons.append("sales_rep_missing")
+    if not str(parsed.get("address") or "").strip():
+        reasons.append("address_missing")
+    return reasons
 
 def parse_client_row_for_card(raw: str) -> Optional[Dict[str, str]]:
     txt = (raw or "").strip()
@@ -3239,7 +3309,7 @@ def parse_client_row_for_card(raw: str) -> Optional[Dict[str, str]]:
         return None
 
     return {
-        "legal_form": legal_form if legal_form in {"ООО", "ИП"} else "ООО",
+        "legal_form": legal_form if legal_form in {"ООО", "ИП"} else "",
         "legal_name": legal_name,
         "store_name": "",
         "address": address,
@@ -3285,17 +3355,29 @@ def _can_import_debt_row_for_user(*, user_id: int, role: str, raw_client_name: s
 
     return False
 
-def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int, int]:
+def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int, int, int]:
     path = find_latest_download(report_type="debt")
     if not path:
-        return 0, 0
+        return 0, 0, 0
     df, _ = read_debt_file(path)
     items = parse_clients(df)
     created = 0
     skipped = 0
+    manual_review = 0
     for it in items:
         raw_client = it.get("client") or ""
         parsed = parse_client_row_for_card(raw_client)
+        manual_reasons = _import_requires_manual_review(parsed)
+        if manual_reasons:
+            manual_review += 1
+            skipped += 1
+            _enqueue_debt_manual_review(
+                raw_client_name=raw_client,
+                parsed=parsed,
+                reasons=manual_reasons,
+                imported_by_user_id=owner_user_id,
+            )
+            continue
         if not parsed:
             skipped += 1
             continue
@@ -3346,7 +3428,7 @@ def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int,
         contact = [{"contact_name": "", "contact_phone": "", "contact_position": ""}]
         CLIENTS_DB.create_client(payload, contact)
         created += 1
-    return created, skipped
+    return created, skipped, manual_review
 
 
 def _user_can_view_other_sales_bases(user_id: int, role: str) -> bool:
@@ -5981,12 +6063,28 @@ async def cc_import_debt(cq: CallbackQuery):
     if not role:
         return
     try:
-        created, skipped = import_clients_from_latest_debt(uid, role)
+        created, skipped, manual_review = import_clients_from_latest_debt(uid, role)
     except Exception as e:
         await cq.message.answer(f"Не удалось выполнить импорт: {e}")
         await cq.answer()
         return
-    await cq.message.answer(f"✅ Импорт завершён. Добавлено: {created}, пропущено: {skipped}.")
+    await cq.message.answer(
+        f"✅ Импорт завершён. Добавлено: {created}, пропущено: {skipped}, на ручную модерацию: {manual_review}."
+    )
+    if manual_review > 0:
+        notice = (
+            "⚠️ Импорт дебиторки: есть клиенты для ручной привязки.\n"
+            f"Количество: {manual_review}.\n"
+            "Проверьте файл settings/debt_import_manual_queue.json и вручную создайте/скорректируйте карточки клиентов."
+        )
+        recipients = _notification_recipients_for_key("role_requests")
+        for recipient in recipients:
+            if recipient == uid:
+                continue
+            try:
+                await bot.send_message(recipient, notice)
+            except Exception:
+                pass
     mode = _resolve_client_cards_mode(uid, role, None)
     items = _client_cards_for_user(uid, role, mode=mode)
     await cq.message.answer(

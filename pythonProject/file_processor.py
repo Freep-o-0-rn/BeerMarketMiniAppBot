@@ -349,6 +349,31 @@ def read_debt_file(path: str) -> Tuple[pd.DataFrame, Optional[str]]:
 CLIENT_MARKERS = re.compile(r"\b(ооо|ип|зао|оао|ао|тоо)\b", re.IGNORECASE)
 REALIZATION_MARKERS = re.compile(r"(реализац|накладн|сч[её]т|отгруз)", re.IGNORECASE)
 
+
+def _looks_like_client_header(
+        txt: str,
+        *,
+        has_money: bool,
+        has_days: bool,
+) -> bool:
+    """
+    Фоллбек-эвристика: в части файлов 1С карточка клиента может не содержать явных маркеров ООО/ИП.
+    Тогда принимаем строку за клиента, если:
+      - это не документ реализации;
+      - строка не похожа на итог/служебную;
+      - в строке есть числовые показатели клиента.
+    """
+    low = (txt or "").strip().lower()
+    if not low:
+        return False
+    if low.startswith("итог"):
+        return False
+    if "в том числе" in low or "в т.ч" in low:
+        return False
+    if REALIZATION_MARKERS.search(low):
+        return False
+    return bool(has_money or has_days)
+
 DOC_PATTERNS = [
     r"\bбе\d{2,}-\d+\b",
     r"\bbe\d{2,}-\d+\b",
@@ -472,8 +497,17 @@ def parse_clients(df: pd.DataFrame) -> List[Dict[str, Any]]:
         if not txt or txt.lower().startswith("итог"):
             continue
 
+        total_val = _to_float(row.get(col_total, float("nan")))
+        overdue_val = _to_float(row.get(col_overd, float("nan"))) if col_overd else float("nan")
+        days_val = row.get(col_days, np.nan) if col_days else np.nan
+        has_money = np.isfinite(total_val) or np.isfinite(overdue_val)
+        has_days = not pd.isna(days_val)
+
         is_real = bool(REALIZATION_MARKERS.search(txt))
-        is_client = (not is_real) and bool(CLIENT_MARKERS.search(txt))
+        is_client = (not is_real) and (
+            bool(CLIENT_MARKERS.search(txt))
+            or _looks_like_client_header(txt, has_money=has_money, has_days=has_days)
+        )
 
         if is_client:
             flush()
