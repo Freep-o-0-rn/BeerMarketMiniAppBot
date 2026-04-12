@@ -24750,3 +24750,5 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: messa
 2026-04-12 12:08:22 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 299, 'req': 'a40d8ae2', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728578185057', 'msg_id': 3126, 'data': 'notify:toggle:new_users', 'state': None}
 2026-04-12 12:08:22 | INFO | aiogram.event | Update id=104057712 is handled. Duration 297 ms by bot id=8304099970
 2026-04-12 12:08:24 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 344, 'req': 'ad205a7a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731501068101', 'msg_id': 3126, 'data': 'notify:toggle:new_users', 'state': None}
+2026-04-12 20:22:31 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+2026-04-12 20:22:47 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/

@@ -170,8 +170,10 @@ LAST_UPDATE_FILE = os.getenv("LAST_UPDATE_FILE", os.path.join("downloads", ".las
 # Роли/онбординг
 USER_ROLES_JSON = os.getenv("USER_ROLES_JSON", "settings/user_roles.json")
 ROLE_DEFS_JSON = os.getenv("ROLE_DEFS_JSON", "settings/roles.json")
+ROLE_REQUESTS_JSON = os.getenv("ROLE_REQUESTS_JSON", "settings/role_requests.json")
 ADMIN_ONBOARD_PASSWORD = os.getenv("ADMIN_ONBOARD_PASSWORD", "99654511")
 LEGACY_USER_ROLES_JSON = os.path.join(os.getcwd(), "user_roles.json")
+ROLE_REQUEST_COOLDOWN_HOURS = int(os.getenv("ROLE_REQUEST_COOLDOWN_HOURS", "24"))
 
 #Константы/пути (в раздел настроек)
 PRICES_DIR = Path(os.getenv("PRICES_DIR", "Price"))
@@ -194,6 +196,7 @@ NEWS_SERVICE = NewsService(
     ],
 )
 MEDIA_SERVICE = MediaService(NEWS_MEDIA_DIR)
+IDENTITY_MATCHER = IdentityMatcher(download_dir="downloads", client_cards_db=CLIENTS_DB)
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
 
@@ -585,6 +588,7 @@ def _normalize_user_roles_schema(data: dict) -> dict:
             v["role"] = normalize_role(v.get("role"))
             v["access_overrides"] = _normalize_access_overrides(v.get("access_overrides"))
             v["notification_settings"] = _normalize_notification_settings(v.get("notification_settings"))
+            _normalize_user_auth_fields(v)
     return data
 
 def _roles_load() -> dict:
@@ -1149,8 +1153,10 @@ def help_text_guest(first_name: Optional[str]) -> str:
         "📌 <b>Кнопки</b>:\n"
         "• 📑 <b>Прайсы</b> — посмотреть прайс-листы\n"
         "• 🎁 <b>Акции</b> — посмотреть акции\n"
-        "• 🚚 <b>График развоза</b> — посмотреть график и правила приёма заявок\n\n"
-        "Чтобы получить роль клиента, торгового представителя или администратора, обратитесь к администратору."
+        "• 🚚 <b>График развоза</b> — посмотреть график и правила приёма заявок\n"
+        "• 🏢 <b>Запросить роль клиента</b> — пройти проверку по базе клиентов\n"
+        "• 🧑‍💼 <b>Запросить роль торгового</b> — отправить заявку администратору\n\n"
+        "Роль повышается автоматически при уверенном совпадении или после проверки модератором/администратором."
     )
 
 
@@ -1335,6 +1341,7 @@ def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     if "notification_settings" in patch:
         patch["notification_settings"] = _normalize_notification_settings(patch.get("notification_settings"))
     cur.update(patch)
+    _normalize_user_auth_fields(cur)
     _roles_merge_and_save({uid: cur})
 
 def get_user_access_overrides(user_id: Optional[int]) -> Dict[str, bool]:
@@ -1470,6 +1477,54 @@ async def notify_about_access_change(
     except Exception:
         logger.exception("access-change-notify: failed target=%s event=%s", target_user_id, event_label)
 
+def _request_recipients() -> List[int]:
+    data = _roles_load()
+    recipients = {int(uid) for uid in _ADMIN_IDS if isinstance(uid, int)}
+    for uid, rec in data.items():
+        if uid == "client_phones" or not isinstance(rec, dict) or not uid.isdigit():
+            continue
+        role = normalize_role(rec.get("role"))
+        if role in {"admin", "moderator"}:
+            recipients.add(int(uid))
+    return sorted(recipients)
+
+
+async def notify_role_request_created(req: Dict[str, Any]) -> None:
+    user_id = int(req.get("user_id") or 0)
+    target_role = normalize_role(req.get("target_role"))
+    rec = _user_record(user_id)
+    text = (
+        "📥 <b>Новая заявка на роль</b>\n"
+        f"ID заявки: <code>{esc(req.get('id'))}</code>\n"
+        f"Пользователь: <code>{user_id}</code>\n"
+        f"Текущая роль: <b>{esc(role_label(rec.get('role') or 'guest'))}</b>\n"
+        f"Запрошена роль: <b>{esc(role_label(target_role))}</b>\n"
+        f"Причина: <code>{esc(str(req.get('reason') or '—'))}</code>"
+    )
+    for recipient in _request_recipients():
+        if recipient == user_id:
+            continue
+        try:
+            await bot.send_message(recipient, text)
+        except Exception:
+            logger.exception("role-request-notify: recipient=%s request=%s", recipient, req.get("id"))
+
+
+async def request_sales_rep_role(m: Message) -> None:
+    user_id = int(getattr(m.from_user, "id", 0) or 0)
+    can_request, cooldown_until = can_create_role_request(user_id)
+    if not can_request:
+        until_txt = cooldown_until.isoformat() if cooldown_until else "позже"
+        await m.answer(f"⏳ Новую заявку можно отправить после <code>{esc(until_txt)}</code>.")
+        return
+    active = active_role_request_for_user(user_id, "sales_rep")
+    if active:
+        await m.answer("⌛ У вас уже есть активная заявка на роль торгового.")
+        return
+    req = create_role_request(user_id, "sales_rep", reason="manual_sales_rep_request")
+    update_user_record(user_id, {"auth_status": "pending", "auth_source": "self_declared", "onboard_completed": True})
+    await m.answer("📨 Заявка на роль торгового отправлена администратору.", reply_markup=guest_menu_kb(user_id))
+    await notify_role_request_created(req)
 
 def delete_user_record(user_id: Any) -> bool:
     uid = str(user_id)
@@ -1479,6 +1534,141 @@ def delete_user_record(user_id: Any) -> bool:
     data.pop(uid, None)
     _save_user_roles(data)
     return True
+
+ROLE_REQUESTS_PATH = Path(ROLE_REQUESTS_JSON)
+
+
+def utc_now_iso() -> str:
+    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+
+def parse_iso_dt(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    raw = str(value).strip()
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(raw)
+    except Exception:
+        return None
+
+
+def _normalize_auth_status(value: Any) -> str:
+    val = str(value or "").strip().lower()
+    return val if val in {"pending", "approved", "rejected", "manual_review"} else "approved"
+
+
+def _normalize_auth_source(value: Any) -> str:
+    val = str(value or "").strip().lower()
+    return val if val in {"self_declared", "debt_import", "client_cards_db", "manual_admin", "manual_moderator"} else "self_declared"
+
+
+def _normalize_user_auth_fields(rec: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(rec, dict):
+        return rec
+    rec.setdefault("auth_status", "approved")
+    rec.setdefault("auth_source", "self_declared")
+    rec.setdefault("auth_confidence", 0.0)
+    rec.setdefault("last_role_request_at", "")
+    rec.setdefault("request_cooldown_until", "")
+    rec.setdefault("rejection_count", 0)
+    rec["auth_status"] = _normalize_auth_status(rec.get("auth_status"))
+    rec["auth_source"] = _normalize_auth_source(rec.get("auth_source"))
+    try:
+        rec["auth_confidence"] = float(rec.get("auth_confidence") or 0.0)
+    except Exception:
+        rec["auth_confidence"] = 0.0
+    try:
+        rec["rejection_count"] = max(0, int(rec.get("rejection_count") or 0))
+    except Exception:
+        rec["rejection_count"] = 0
+    return rec
+
+
+def _ensure_role_requests_parent() -> None:
+    ROLE_REQUESTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+
+def _role_requests_load() -> List[Dict[str, Any]]:
+    _ensure_role_requests_parent()
+    try:
+        raw = ROLE_REQUESTS_PATH.read_text(encoding="utf-8")
+        data = json.loads(raw) if raw else []
+    except FileNotFoundError:
+        return []
+    except Exception:
+        return []
+    if not isinstance(data, list):
+        return []
+    out: List[Dict[str, Any]] = []
+    for item in data:
+        if isinstance(item, dict):
+            out.append(item)
+    return out
+
+
+def _role_requests_save_atomic(items: List[Dict[str, Any]]) -> None:
+    _ensure_role_requests_parent()
+    tmp = ROLE_REQUESTS_PATH.with_suffix(ROLE_REQUESTS_PATH.suffix + ".tmp")
+    tmp.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(tmp, ROLE_REQUESTS_PATH)
+
+
+def active_role_request_for_user(user_id: int, target_role: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    for req in reversed(_role_requests_load()):
+        if int(req.get("user_id") or 0) != int(user_id):
+            continue
+        if target_role and normalize_role(req.get("target_role")) != normalize_role(target_role):
+            continue
+        if req.get("status") == "pending":
+            return req
+    return None
+
+
+def can_create_role_request(user_id: int) -> Tuple[bool, Optional[datetime]]:
+    rec = _user_record(user_id)
+    until = parse_iso_dt(rec.get("request_cooldown_until"))
+    if until and until > datetime.utcnow().replace(tzinfo=until.tzinfo):
+        return False, until
+    return True, None
+
+
+def create_role_request(user_id: int, target_role: str, reason: str) -> Dict[str, Any]:
+    target = normalize_role(target_role)
+    now_iso = utc_now_iso()
+    req = {
+        "id": str(uuid.uuid4()),
+        "user_id": int(user_id),
+        "target_role": target,
+        "status": "pending",
+        "reason": (reason or "").strip(),
+        "created_at": now_iso,
+        "updated_at": now_iso,
+        "decided_by": None,
+    }
+    items = _role_requests_load()
+    items.append(req)
+    _role_requests_save_atomic(items)
+    update_user_record(user_id, {"auth_status": "pending", "last_role_request_at": now_iso})
+    AUDIT.info({"event": "role_request_created", "user_id": user_id, "target_role": target, "request_id": req["id"]})
+    return req
+
+
+def _request_role_allowed_for_decider(decider_role: str, target_role: str) -> bool:
+    decider_role = normalize_role(decider_role)
+    target_role = normalize_role(target_role)
+    if decider_role == "admin":
+        return True
+    if decider_role == "moderator":
+        return target_role in {"client", "sales_rep", "guest"}
+    return False
+
+
+def pending_role_requests() -> List[Dict[str, Any]]:
+    items = [x for x in _role_requests_load() if x.get("status") == "pending"]
+    items.sort(key=lambda it: it.get("created_at") or "", reverse=True)
+    return items
 
 def is_user_blocked(user_id: Optional[int]) -> bool:
     if not user_id:
@@ -1857,6 +2047,9 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     _append_button_row_if_any(keyboard, management_row)
     if user_allows_action(user_id, "notifications.manage"):
         keyboard.append([KeyboardButton(text="🔔 Уведомления")])
+    if role == "guest":
+        keyboard.append(
+            [KeyboardButton(text="🏢 Запросить роль клиента"), KeyboardButton(text="🧑‍💼 Запросить роль торгового")])
     start_row = [KeyboardButton(text="▶️ Старт")]
     if role == "admin" or user_allows_action(user_id, "updates.mail"):
         start_row.append(KeyboardButton(text=upd_label))
@@ -1891,7 +2084,10 @@ def phone_request_kb() -> ReplyKeyboardMarkup:
 
 def organization_guest_choice_kb() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="👋 Остаться гостем")]],
+        keyboard=[
+            [KeyboardButton(text="🏢 Запросить роль клиента"), KeyboardButton(text="🧑‍💼 Запросить роль торгового")],
+            [KeyboardButton(text="👋 Остаться гостем")],
+        ],
         resize_keyboard=True,
         one_time_keyboard=True,
     )
@@ -2095,6 +2291,7 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
         nav.append(InlineKeyboardButton(text="➡️", callback_data=f"usr:list:{page+1}"))
     if nav:
         rows.append(nav)
+    rows.append([InlineKeyboardButton(text="📥 Заявки на роли", callback_data="req:list:0")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -2239,6 +2436,45 @@ def safe_user_permissions_kb(uid: str, page: int, *, can_manage: bool) -> Inline
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ К пользователю", callback_data=f"usr:sel:{uid}:0")],
     ])
+
+def role_requests_list_kb(page: int = 0, page_size: int = 8) -> InlineKeyboardMarkup:
+    items = pending_role_requests()
+    total = len(items)
+    page = max(0, page)
+    start = page * page_size
+    end = min(total, start + page_size)
+    rows: List[List[InlineKeyboardButton]] = []
+    for req in items[start:end]:
+        user_id = int(req.get("user_id") or 0)
+        rec = _user_record(user_id)
+        name = (rec.get("name") or rec.get("username") or str(user_id)).strip()
+        role_name = role_label(req.get("target_role"))
+        rows.append([
+            InlineKeyboardButton(
+                text=f"{name} → {role_name}",
+                callback_data=f"req:view:{req.get('id')}:{page}",
+            )
+        ])
+    nav: List[InlineKeyboardButton] = []
+    if start > 0:
+        nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"req:list:{page-1}"))
+    if end < total:
+        nav.append(InlineKeyboardButton(text="➡️", callback_data=f"req:list:{page+1}"))
+    if nav:
+        rows.append(nav)
+    rows.append([InlineKeyboardButton(text="⬅️ К пользователям", callback_data="usr:list:0")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def role_request_detail_kb(request_id: str, page: int = 0, *, can_decide: bool = False) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    if can_decide:
+        rows.append([
+            InlineKeyboardButton(text="✅ Подтвердить", callback_data=f"req:approve:{request_id}:{page}"),
+            InlineKeyboardButton(text="❌ Отклонить", callback_data=f"req:reject:{request_id}:{page}"),
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ К заявкам", callback_data=f"req:list:{page}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def notifications_menu_kb(user_id: int) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
@@ -3605,14 +3841,24 @@ async def ob_admin_pwd(m: Message, state: FSMContext):
 @router.message(OnboardStates.waiting_client_name)
 async def ob_client_name(m: Message, state: FSMContext):
     raw_name = (m.text or "").strip()
+    user_id = int(getattr(m.from_user, "id", 0) or 0)
     if raw_name == "👋 Остаться гостем":
         set_user_role(m.from_user.id, "guest")
+        update_user_record(user_id, {"auth_status": "approved", "auth_source": "self_declared", "auth_confidence": 0.0})
         await state.clear()
         await m.answer(
             "✅ Оставил вас гостем. Название организации можно добавить позже.",
             reply_markup=guest_menu_kb(getattr(m.from_user, "id", None))
         )
         await on_start(m, state)
+        return
+    if raw_name == "🧑‍💼 Запросить роль торгового":
+        await state.clear()
+        await request_sales_rep_role(m)
+        return
+    if raw_name == "🏢 Запросить роль клиента":
+        await m.answer("Введите название вашей организации для проверки по базе.",
+                       reply_markup=organization_guest_choice_kb())
         return
     name = normalize_client_name(raw_name)
     was_corrected = client_name_was_corrected(raw_name, name)
@@ -3624,27 +3870,93 @@ async def ob_client_name(m: Message, state: FSMContext):
         )
         return
 
-    # сохраняем роль и имя клиента
-    set_user_role(m.from_user.id, "client")
-    set_client_name(m.from_user.id, name)
-
-    await state.clear()
-
-    # Сообщение + клиентское меню
-    saved_text = f"✅ Сохранено: «{esc(name)}». Режим клиента активирован."
-    if was_corrected:
-        saved_text = (
-            f"✅ Сохранено: «{esc(name)}». "
-            "Убрал из названия префикс «ООО/ИП», чтобы сохранить только имя организации. "
-            "Режим клиента активирован."
+    set_user_role(user_id, "guest")
+    set_client_name(user_id, name)
+    rec = _user_record(user_id)
+    matcher = IDENTITY_MATCHER.match(
+        phone=get_user_phone(user_id),
+        organization_name=name,
+        rejection_count=int(rec.get("rejection_count") or 0),
+        suspicious_activity=False,
+    )
+    confidence = float(matcher.get("confidence") or 0.0)
+    source_ref = matcher.get("client_ref") or ""
+    reason = matcher.get("reason") or "unknown"
+    match_source = str(matcher.get("source") or "debt_import").strip().lower()
+    auth_source = match_source if match_source in {"debt_import", "client_cards_db"} else "debt_import"
+    if matcher.get("matched"):
+        update_user_record(
+            user_id,
+            {
+                "role": "client",
+                "auth_status": "approved",
+                "auth_source": auth_source,
+                "auth_confidence": confidence,
+                "onboard_completed": True,
+            },
         )
+        await state.clear()
+        saved_text = f"✅ Сохранено: «{esc(name)}». Роль клиента выдана автоматически."
+        if was_corrected:
+            saved_text += "\nℹ️ Префикс «ООО/ИП» убран автоматически."
+        if source_ref:
+            source_label = "текущая база клиентов" if auth_source == "client_cards_db" else "импорт дебиторки"
+            saved_text += f"\nСовпадение ({esc(source_label)}): <b>{esc(source_ref)}</b>."
+        await m.answer(saved_text, reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+        AUDIT.info({"event": "client_auto_approved", "user_id": user_id, "confidence": confidence, "reason": reason})
+        await on_start(m, state)
+        return
+
+    can_request, cooldown_until = can_create_role_request(user_id)
+    if not can_request:
+        await state.clear()
+        until_txt = cooldown_until.isoformat() if cooldown_until else "позже"
+        await m.answer(
+            f"⏳ Повторная заявка пока недоступна. Можно снова запросить после: <code>{esc(until_txt)}</code>.",
+            reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)),
+        )
+        return
+    req = create_role_request(
+        user_id=user_id,
+        target_role="client",
+        reason=f"org={name}; matcher_reason={reason}; confidence={confidence}",
+    )
+    update_user_record(
+        user_id,
+        {
+            "auth_status": "manual_review" if confidence >= 0.30 else "pending",
+            "auth_source": "self_declared",
+            "auth_confidence": confidence,
+            "onboard_completed": True,
+        },
+    )
+    await state.clear()
     await m.answer(
-        saved_text,
-        reply_markup=client_menu_kb(getattr(m.from_user, "id", None))
+        "📨 Заявка на роль клиента отправлена на модерацию.\n"
+        f"Уверенность авто-проверки: <b>{int(confidence * 100)}%</b>.",
+        reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)),
     )
 
-    # Автоматически показать стартовый экран/хелп клиента
+    await notify_role_request_created(req)
     await on_start(m, state)
+
+@router.message(F.text == "🧑‍💼 Запросить роль торгового", StateFilter(None))
+async def guest_request_sales_rep(m: Message):
+    role = get_user_role(getattr(m.from_user, "id", None))
+    if role not in {"guest", "client"}:
+        await m.answer("Эта заявка доступна только для гостя или клиента.")
+        return
+    await request_sales_rep_role(m)
+
+
+@router.message(F.text == "🏢 Запросить роль клиента", StateFilter(None))
+async def guest_request_client(m: Message, state: FSMContext):
+    role = get_user_role(getattr(m.from_user, "id", None))
+    if role != "guest":
+        await m.answer("Запросить роль клиента можно только из режима гостя.")
+        return
+    await state.set_state(OnboardStates.waiting_client_name)
+    await m.answer("Введите название вашей организации для проверки по базе.", reply_markup=organization_guest_choice_kb())
 
 ##---------------Обработчики сообщений/колбэков “Прайсы”-------------------
 # Кнопка в меню
@@ -6373,6 +6685,165 @@ async def admin_users_list(m: Message):
         return
     await m.answer("Список пользователей:", reply_markup=users_list_kb())
 
+def _get_role_request(request_id: str) -> Optional[Dict[str, Any]]:
+    for req in _role_requests_load():
+        if str(req.get("id")) == str(request_id):
+            return req
+    return None
+
+
+def _save_role_request(updated: Dict[str, Any]) -> None:
+    request_id = str(updated.get("id") or "")
+    if not request_id:
+        return
+    items = _role_requests_load()
+    out: List[Dict[str, Any]] = []
+    replaced = False
+    for item in items:
+        if str(item.get("id")) == request_id:
+            out.append(updated)
+            replaced = True
+        else:
+            out.append(item)
+    if not replaced:
+        out.append(updated)
+    _role_requests_save_atomic(out)
+
+
+@router.message(F.text == "📥 Заявки на роли")
+async def requests_menu_button(m: Message):
+    if not await ensure_message_access(m, "users.view"):
+        return
+    await m.answer("Заявки на роли:", reply_markup=role_requests_list_kb())
+
+
+@router.callback_query(F.data.startswith("req:list:"))
+async def requests_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.view"):
+        return
+    parts = (cq.data or "").split(":")
+    page = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 0
+    await cq.message.edit_text("Заявки на роли:", reply_markup=role_requests_list_kb(page=page))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("req:view:"))
+async def requests_view(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.view"):
+        return
+    parts = (cq.data or "").split(":")
+    request_id = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    req = _get_role_request(request_id)
+    if not req:
+        await cq.answer("Заявка не найдена.", show_alert=True)
+        return
+    target_role = normalize_role(req.get("target_role"))
+    decider_role = get_user_role(getattr(cq.from_user, "id", None))
+    can_decide = _request_role_allowed_for_decider(decider_role, target_role)
+    user_id = int(req.get("user_id") or 0)
+    rec = _user_record(user_id)
+    text = (
+        "<b>Заявка на роль</b>\n"
+        f"ID: <code>{esc(request_id)}</code>\n"
+        f"Пользователь: <code>{user_id}</code>\n"
+        f"Текущее имя: <b>{esc(rec.get('name') or '—')}</b>\n"
+        f"Телефон: <b>{esc(rec.get('phone') or '—')}</b>\n"
+        f"Запрошенная роль: <b>{esc(role_label(target_role))}</b>\n"
+        f"Статус: <b>{esc(str(req.get('status') or 'pending'))}</b>\n"
+        f"Причина: <code>{esc(str(req.get('reason') or '—'))}</code>\n"
+        f"Создана: <code>{esc(str(req.get('created_at') or '—'))}</code>"
+    )
+    await cq.message.edit_text(text, reply_markup=role_request_detail_kb(request_id, page=page, can_decide=can_decide))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("req:approve:"))
+async def requests_approve(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.view"):
+        return
+    parts = (cq.data or "").split(":")
+    request_id = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    req = _get_role_request(request_id)
+    if not req or req.get("status") != "pending":
+        await cq.answer("Заявка уже обработана.", show_alert=True)
+        return
+    decider_id = int(getattr(cq.from_user, "id", 0) or 0)
+    decider_role = get_user_role(decider_id)
+    target_role = normalize_role(req.get("target_role"))
+    if not _request_role_allowed_for_decider(decider_role, target_role):
+        await cq.answer("Недостаточно прав для назначения этой роли.", show_alert=True)
+        return
+    user_id = int(req.get("user_id") or 0)
+    old_role = get_user_role(user_id)
+    update_user_record(
+        user_id,
+        {
+            "role": target_role,
+            "auth_status": "approved",
+            "auth_source": "manual_admin" if decider_role == "admin" else "manual_moderator",
+            "auth_confidence": max(float(_user_record(user_id).get("auth_confidence") or 0.0), 0.51),
+            "request_cooldown_until": "",
+        },
+    )
+    req["status"] = "approved"
+    req["updated_at"] = utc_now_iso()
+    req["decided_by"] = decider_id
+    _save_role_request(req)
+    AUDIT.info({"event": "role_request_approved", "request_id": request_id, "decider": decider_id, "target_user": user_id, "target_role": target_role})
+    await push_user_menu_refresh(str(user_id), "✅ Ваша заявка одобрена. Меню обновлено.")
+    await notify_about_role_change(actor_id=decider_id, target_user_id=user_id, old_role=old_role, new_role=target_role)
+    await cq.answer("Заявка подтверждена.")
+    await requests_list(cq)
+
+
+@router.callback_query(F.data.startswith("req:reject:"))
+async def requests_reject(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.view"):
+        return
+    parts = (cq.data or "").split(":")
+    request_id = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    req = _get_role_request(request_id)
+    if not req or req.get("status") != "pending":
+        await cq.answer("Заявка уже обработана.", show_alert=True)
+        return
+    decider_id = int(getattr(cq.from_user, "id", 0) or 0)
+    decider_role = get_user_role(decider_id)
+    target_role = normalize_role(req.get("target_role"))
+    if not _request_role_allowed_for_decider(decider_role, target_role):
+        await cq.answer("Недостаточно прав для обработки заявки.", show_alert=True)
+        return
+    user_id = int(req.get("user_id") or 0)
+    rec = _user_record(user_id)
+    new_reject_count = int(rec.get("rejection_count") or 0) + 1
+    cooldown_until = datetime.utcnow() + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
+    update_user_record(
+        user_id,
+        {
+            "auth_status": "rejected",
+            "auth_source": "manual_admin" if decider_role == "admin" else "manual_moderator",
+            "rejection_count": new_reject_count,
+            "request_cooldown_until": cooldown_until.replace(microsecond=0).isoformat() + "Z",
+        },
+    )
+    req["status"] = "rejected"
+    req["updated_at"] = utc_now_iso()
+    req["decided_by"] = decider_id
+    _save_role_request(req)
+    AUDIT.info({"event": "role_request_rejected", "request_id": request_id, "decider": decider_id, "target_user": user_id, "target_role": target_role})
+    try:
+        await bot.send_message(
+            user_id,
+            "❌ Заявка на роль отклонена.\n"
+            f"Повторная подача будет доступна после: <code>{esc(cooldown_until.replace(microsecond=0).isoformat() + 'Z')}</code>.",
+        )
+    except Exception:
+        logger.exception("role-request-reject-notify failed user=%s request=%s", user_id, request_id)
+    await cq.answer("Заявка отклонена.")
+    await cq.message.edit_text("Заявки на роли:", reply_markup=role_requests_list_kb(page=page))
+
 @router.message(F.text == "🔔 Уведомления")
 async def notifications_menu(m: Message):
     if not await ensure_message_access(m, "notifications.manage"):
@@ -6416,6 +6887,31 @@ async def admin_user_notifications_menu(cq: CallbackQuery):
         reply_markup=admin_user_notifications_kb(uid, page=page),
     )
     await cq.answer()
+
+
+@router.callback_query(F.data.startswith("usr:notify:"))
+async def admin_user_notification_toggle(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.manage"):
+        return
+    parts = (cq.data or "").split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    key = parts[3] if len(parts) > 3 else ""
+    page = int(parts[4]) if len(parts) > 4 and parts[4].isdigit() else 0
+    if not uid or not uid.isdigit():
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    if key not in NOTIFICATION_ORDER:
+        await cq.answer("Неизвестный тип уведомления.", show_alert=True)
+        return
+    user_id = int(uid)
+    enabled = notification_enabled(user_id, key)
+    set_user_notification_setting(user_id, key, not enabled)
+    await cq.message.edit_text(
+        f"🔔 Уведомления пользователя <code>{uid}</code>",
+        reply_markup=admin_user_notifications_kb(uid, page=page),
+    )
+    await cq.answer("Настройка обновлена.")
+
 @router.callback_query(F.data.startswith("usr:notify:"))
 async def admin_user_notification_toggle(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "users.manage"):
@@ -6476,6 +6972,11 @@ async def admin_users_select(cq: CallbackQuery):
     premium = "✅" if rec.get("is_premium") else "❌"
     onboard_done = "✅" if rec.get("onboard_completed") else "❌"
     manual_auth = "✅" if rec.get("authorized_by_admin") else "❌"
+    auth_status = rec.get("auth_status") or "approved"
+    auth_source = rec.get("auth_source") or "self_declared"
+    auth_confidence = float(rec.get("auth_confidence") or 0.0)
+    cooldown_until = rec.get("request_cooldown_until") or "—"
+    rejections = int(rec.get("rejection_count") or 0)
     can_manage = user_allows_action(getattr(cq.from_user, "id", None), "users.manage")
     text = (
         f"<b>Пользователь</b>\n"
@@ -6490,6 +6991,11 @@ async def admin_users_select(cq: CallbackQuery):
         f"Телефон: <b>{esc(phone)}</b> ({verified})\n"
         f"Онбординг завершён: {onboard_done}\n"
         f"Ручная авторизация: {manual_auth}\n"
+        f"Статус авторизации: <b>{esc(str(auth_status))}</b>\n"
+        f"Источник авторизации: <b>{esc(str(auth_source))}</b>\n"
+        f"Уверенность авторизации: <b>{auth_confidence:.2f}</b>\n"
+        f"Отклонений заявок: <b>{rejections}</b>\n"
+        f"Cooldown заявок до: <code>{esc(str(cooldown_until))}</code>\n"
         f"Доступ: {blocked}\n"
         f"Индивидуальных прав: <b>{custom_rights}</b>\n"
         f"Уведомления (новые/роли/авторизация): {notify_new_users}/{notify_role_changes}/{notify_auth_changes}"
