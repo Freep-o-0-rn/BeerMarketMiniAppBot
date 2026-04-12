@@ -5092,9 +5092,27 @@ async def role_request_decide_callback(cq: CallbackQuery):
             },
         )
         request["status"] = "approved"
+        request["updated_at"] = utc_now_iso()
+        request["decided_by"] = actor_id
+        _save_role_request(request)
+        await _sync_role_request_notification_messages(request)
+        AUDIT.info(
+            {
+                "event": "role_request_approved",
+                "request_id": request_id,
+                "decider": actor_id,
+                "target_user": target_user_id,
+                "target_role": target_role,
+                "source": "inline_notification",
+            }
+        )
         await push_user_menu_refresh(str(target_user_id), "✅ Ваша заявка одобрена. Меню обновлено.")
-        await notify_about_role_change(actor_id=actor_id, target_user_id=target_user_id, old_role=old_role,
-                                       new_role=target_role)
+        await notify_about_role_change(
+            actor_id=actor_id,
+            target_user_id=target_user_id,
+            old_role=old_role,
+            new_role=target_role,
+        )
     else:
         rec = _user_record(target_user_id)
         new_reject_count = int(rec.get("rejection_count") or 0) + 1
@@ -5121,7 +5139,17 @@ async def role_request_decide_callback(cq: CallbackQuery):
         request["decided_by"] = actor_id
         _save_role_request(request)
         await _sync_role_request_notification_messages(request)
-        await cq.answer("Заявка обработана.")
+        AUDIT.info(
+            {
+                "event": "role_request_rejected",
+                "request_id": request_id,
+                "decider": actor_id,
+                "target_user": target_user_id,
+                "target_role": target_role,
+                "source": "inline_notification",
+            }
+        )
+    await cq.answer("Заявка обработана.")
 
 
 # --- Клиент: изменить название (отключено) ---
