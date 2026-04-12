@@ -27,7 +27,7 @@
     "language_code": "ru",
     "access_overrides": {},
     "notification_settings": {
-      "new_users": false
+      "new_users": true
     }
   },
   "405433712": {

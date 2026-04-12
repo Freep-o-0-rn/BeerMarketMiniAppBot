@@ -235,6 +235,7 @@ class OnboardStates(StatesGroup):
     waiting_admin_password = State()
     waiting_client_name = State()
     waiting_phone_contact = State()
+    waiting_role_request_comment = State()
 
 class ClientEditStates(StatesGroup):
     waiting_new_name = State()
@@ -571,6 +572,18 @@ def _normalize_notification_settings(value: Any) -> Dict[str, bool]:
         if isinstance(key, str) and isinstance(enabled, bool):
             out[key] = enabled
     return out
+
+def _normalize_user_auth_fields(record: Any) -> None:
+    """
+    Нормализует auth/доступ-поля записи пользователя in-place.
+    Функция намеренно «мягкая»: приводит только известные булевы поля
+    и не удаляет/не меняет неизвестные ключи.
+    """
+    if not isinstance(record, dict):
+        return
+    for key in ("phone_verified", "authorized_by_admin", "blocked", "new_user_notified"):
+        if key in record:
+            record[key] = bool(record.get(key))
 
 def _normalize_user_roles_schema(data: dict) -> dict:
     """Гарантируем структуру и не трогаем неизвестные ключи."""
@@ -1174,7 +1187,7 @@ def help_text_client(first_name: Optional[str], current_name: str) -> str:
         "   • 🔴 просрочка 7+ и старше\n"
         "   • ⚪️💰 переплата по данной фактуре\n"
         "• 🚚 <b>График развоза</b> — фото графика и правила приёма заявок\n"
-        "• ✏️ Изменить название — изменить название Вашей организации ООО или ИП(<b>Без ООО, ИП</b>).\n\n\n"
+        "• Название организации заполняется на этапе авторизации.\n\n"
         "• <b>‼️ График обновлений‼️</b>\n"
         "• 📊 <b>Дебиторская задолженность</b> — ежедневно в <b>10:30</b> и <b>15:30</b>\n"
         "• 📦 <b>Отчёт по таре</b> — ежедневно в <b>12:00</b> (еженедельно).\n\n\n"
@@ -1366,9 +1379,10 @@ def get_user_notification_settings(user_id: Optional[int]) -> Dict[str, bool]:
 NOTIFICATION_META: Dict[str, Dict[str, str]] = {
     "new_users": {"label": "Новые пользователи"},
     "role_changes": {"label": "Смена ролей"},
+    "role_requests": {"label": "Заявки на роль"},
     "auth_changes": {"label": "Авторизация/блокировка"},
 }
-NOTIFICATION_ORDER: List[str] = ["new_users", "role_changes", "auth_changes"]
+NOTIFICATION_ORDER: List[str] = ["role_requests", "new_users", "role_changes", "auth_changes"]
 
 
 def notification_label(key: str) -> str:
@@ -1382,6 +1396,8 @@ def notification_enabled(user_id: Optional[int], key: str, *, default: Optional[
     role = normalize_role(rec.get("role") or get_user_role(user_id))
     if default is not None:
         return default
+    if key == "role_requests":
+        return role in {"admin", "moderator"}
     if key == "new_users":
         return role in {"admin", "moderator"}
     if key in {"role_changes", "auth_changes"}:
@@ -1412,6 +1428,117 @@ def _notification_recipients_role_changes() -> List[int]:
             recipients.add(int(uid))
     return sorted(recipients)
 
+def _notification_recipients_for_key(key: str) -> List[int]:
+    data = _roles_load()
+    recipients = {int(uid) for uid in _ADMIN_IDS if isinstance(uid, int)}
+    for uid, rec in data.items():
+        if uid == "client_phones" or not isinstance(rec, dict) or not uid.isdigit():
+            continue
+        role = normalize_role(rec.get("role"))
+        if role not in {"admin", "moderator"}:
+            continue
+        if notification_enabled(int(uid), key):
+            recipients.add(int(uid))
+    return sorted(recipients)
+
+
+def _profile_link_html(user_id: int) -> str:
+    rec = _user_record(user_id)
+    username = (rec.get("username") or "").strip()
+    if username:
+        safe_username = re.sub(r"[^A-Za-z0-9_]", "", username)
+        if safe_username:
+            return f'<a href="https://t.me/{safe_username}">@{esc(safe_username)}</a>'
+    return f'<a href="tg://user?id={user_id}">профиль</a>'
+
+
+def get_active_role_request(user_id: Any) -> Dict[str, Any]:
+    rec = _user_record(user_id)
+    req = rec.get("active_role_request")
+    if not isinstance(req, dict):
+        return {}
+    status = (req.get("status") or "pending").strip().lower()
+    if status != "pending":
+        return {}
+    target_role = normalize_role(req.get("target_role") or "")
+    if not target_role or target_role == "guest":
+        return {}
+    return {
+        "target_role": target_role,
+        "created_at": int(req.get("created_at") or 0),
+        "status": "pending",
+    }
+
+
+def set_active_role_request(user_id: Any, target_role: str) -> None:
+    update_user_record(
+        user_id,
+        {
+            "active_role_request": {
+                "target_role": normalize_role(target_role),
+                "created_at": int(time.time()),
+                "status": "pending",
+            }
+        },
+    )
+
+
+def clear_active_role_request(user_id: Any) -> None:
+    update_user_record(user_id, {"active_role_request": None})
+
+
+def role_request_actions_kb(requester_id: int, target_role: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Принять",
+                    callback_data=f"rolereq:approve:{requester_id}:{target_role}",
+                ),
+                InlineKeyboardButton(
+                    text="❌ Отклонить",
+                    callback_data=f"rolereq:reject:{requester_id}:{target_role}",
+                ),
+            ]
+        ]
+    )
+
+
+async def notify_about_role_request(
+    *,
+    user_id: int,
+    requested_role: str,
+    org_name: Optional[str] = None,
+) -> None:
+    rec = _user_record(user_id)
+    role_label_requested = role_label(requested_role)
+    phone = rec.get("phone") or "—"
+    full_name = " ".join(
+        x for x in [rec.get("first_name"), rec.get("last_name")] if isinstance(x, str) and x.strip()
+    ).strip() or "—"
+    contact_name = (rec.get("name") or "—").strip()
+    profile_link = _profile_link_html(user_id)
+    org_label = (org_name or "").strip() or "—"
+    text = (
+        "📝 <b>Заявка на роль</b>\n"
+        f"Запрошенная роль: <b>{esc(role_label_requested)}</b>\n"
+        f"Пользователь: {profile_link}\n"
+        f"ID: <code>{user_id}</code>\n"
+        f"Имя в Telegram: <b>{esc(full_name)}</b>\n"
+        f"Контактное имя: <b>{esc(contact_name)}</b>\n"
+        f"Организация: <b>{esc(org_label)}</b>\n"
+        f"Телефон: <b>{esc(str(phone))}</b>"
+    )
+    for recipient in _notification_recipients_for_key("role_requests"):
+        if recipient == user_id:
+            continue
+        try:
+            markup = None
+            if user_allows_action(recipient, "users.manage"):
+                markup = role_request_actions_kb(user_id, normalize_role(requested_role))
+            await bot.send_message(recipient, text, reply_markup=markup)
+        except Exception:
+            logger.exception("role-request-notify: failed recipient=%s requester=%s", recipient, user_id)
 
 async def notify_about_role_change(
     *,
@@ -2042,11 +2169,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
         management_row.append(KeyboardButton(text=_management_button_text(role)))
     if user_allows_action(user_id, "technicians.manage"):
         management_row.append(KeyboardButton(text="🛠 Техники"))
-    if role == "client":
-        management_row.append(KeyboardButton(text="✏️ Изменить название"))
     _append_button_row_if_any(keyboard, management_row)
-    if user_allows_action(user_id, "notifications.manage"):
-        keyboard.append([KeyboardButton(text="🔔 Уведомления")])
+    keyboard.append([KeyboardButton(text="🔔 Уведомления")])
     if role == "guest":
         keyboard.append(
             [KeyboardButton(text="🏢 Запросить роль клиента"), KeyboardButton(text="🧑‍💼 Запросить роль торгового")])
@@ -2488,6 +2612,31 @@ def notifications_menu_kb(user_id: int) -> InlineKeyboardMarkup:
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def role_request_target_roles(current_role: str) -> List[str]:
+    current = normalize_role(current_role)
+    if current == "admin":
+        return []
+    if current == "moderator":
+        return ["admin"]
+    if current == "sales_rep":
+        return ["moderator", "admin"]
+    if current == "client":
+        return ["sales_rep", "moderator", "admin"]
+    return ["client", "sales_rep", "moderator", "admin"]
+
+
+def role_request_menu_kb(user_id: int) -> InlineKeyboardMarkup:
+    role = get_user_role(user_id)
+    rows: List[List[InlineKeyboardButton]] = []
+    for target_role in role_request_target_roles(role):
+        rows.append([
+            InlineKeyboardButton(
+                text=f"📝 Запросить: {role_label(target_role)}",
+                callback_data=f"role:req:{target_role}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def admin_user_notifications_kb(uid: str, page: int = 0) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
@@ -3870,6 +4019,7 @@ async def ob_client_name(m: Message, state: FSMContext):
         )
         return
 
+    # Сохраняем имя, а роль меняется только после обработки заявки администратором.
     set_user_role(user_id, "guest")
     set_client_name(user_id, name)
     rec = _user_record(user_id)
