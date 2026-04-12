@@ -211,5 +211,6 @@
     "last_role_request_at": "",
     "request_cooldown_until": "",
     "rejection_count": 0
-  }
+  },
+  "role_requests": {}
 }

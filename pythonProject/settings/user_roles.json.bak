@@ -10,13 +10,25 @@
     "role": "client",
     "name": "себекин",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "8442184384": {
     "role": "client",
     "name": "Колядина",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "237087423": {
     "role": "admin",
@@ -28,13 +40,25 @@
     "access_overrides": {},
     "notification_settings": {
       "new_users": true
-    }
+    },
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "405433712": {
     "role": "client",
     "name": "Демидов",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "1153611285": {
     "phone": "+79994642108",
@@ -42,14 +66,26 @@
     "name": "Цветкова",
     "role": "client",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "750420118": {
     "role": "client",
     "name": "Вобла",
     "phone_verified": true,
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "727411283": {
     "username": "kontra93",
@@ -61,7 +97,13 @@
     "name": "Воротников Д",
     "blocked": false,
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "1438912261": {
     "username": "Vays_V",
@@ -74,7 +116,13 @@
     "name": "Саня Вайс",
     "blocked": false,
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "288807506": {
     "username": "Yudzhik",
@@ -85,19 +133,37 @@
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79232235848",
-    "phone_verified": true
+    "phone_verified": true,
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "1012151863": {
     "role": "client",
     "name": "Фартерия",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "1018441489": {
     "name": "Колядина",
     "role": "client",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "8668259399": {
     "username": "knvejabhiotrj",
@@ -105,7 +171,13 @@
     "language_code": "ru",
     "role": "guest",
     "access_overrides": {},
-    "notification_settings": {}
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "5241893038": {
     "first_name": "Бирмаркет-НСК (Артём)",
@@ -115,7 +187,13 @@
     "notification_settings": {},
     "phone": "+79137159676",
     "phone_verified": true,
-    "name": "Десятов"
+    "name": "Десятов",
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
   },
   "1188061961": {
     "username": "Re1ze_r",
@@ -126,6 +204,13 @@
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79965440806",
-    "phone_verified": true
-  }
+    "phone_verified": true,
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
+  },
+  "role_requests": {}
 }
