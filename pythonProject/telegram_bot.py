@@ -1757,23 +1757,31 @@ def _request_recipients() -> List[int]:
 
 async def notify_role_request_created(req: Dict[str, Any]) -> None:
     user_id = int(req.get("user_id") or 0)
-    target_role = normalize_role(req.get("target_role"))
-    rec = _user_record(user_id)
-    text = (
-        "📥 <b>Новая заявка на роль</b>\n"
-        f"ID заявки: <code>{esc(req.get('id'))}</code>\n"
-        f"Пользователь: <code>{user_id}</code>\n"
-        f"Текущая роль: <b>{esc(role_label(rec.get('role') or 'guest'))}</b>\n"
-        f"Запрошена роль: <b>{esc(role_label(target_role))}</b>\n"
-        f"Причина: <code>{esc(str(req.get('reason') or '—'))}</code>"
-    )
+    text = _role_request_notification_text_sync(req)
     for recipient in _request_recipients():
         if recipient == user_id:
             continue
         try:
-            await bot.send_message(recipient, text)
+            sent = await bot.send_message(
+                recipient,
+                text,
+                reply_markup=role_request_actions_kb(str(req.get("id") or ""))
+                if user_allows_action(recipient, "role_requests.manage")
+                else None,
+            )
+            refs = req.get("notification_messages")
+            if not isinstance(refs, list):
+                refs = []
+            refs.append(
+                {
+                    "chat_id": int(recipient),
+                    "message_id": int(getattr(sent, "message_id", 0) or 0),
+                }
+            )
+            req["notification_messages"] = refs
         except Exception:
             logger.exception("role-request-notify: recipient=%s request=%s", recipient, req.get("id"))
+    _save_role_request(req)
 
 
 async def request_sales_rep_role(m: Message) -> None:
@@ -1912,6 +1920,7 @@ def create_role_request(user_id: int, target_role: str, reason: str) -> Dict[str
         "created_at": now_iso,
         "updated_at": now_iso,
         "decided_by": None,
+        "notification_messages": [],
     }
     items = _role_requests_load()
     items.append(req)
@@ -4775,60 +4784,58 @@ async def role_request_decide_callback(cq: CallbackQuery):
         await cq.answer("Некорректные параметры.", show_alert=True)
         return
     actor_id = int(getattr(cq.from_user, "id", 0) or 0)
-    async with _ROLE_REQUESTS_LOCK:
-        data = _roles_load()
-        requests = _role_requests_ref(data)
-        request = requests.get(request_id)
-        if not isinstance(request, dict):
-            await cq.answer("Заявка не найдена.", show_alert=True)
-            return
-        if request.get("status") not in ROLE_REQUEST_ACTIVE_STATUSES:
-            await cq.answer("Заявка уже обработана другим сотрудником.", show_alert=True)
-            return
-        target_user_id = int(request.get("user_id") or 0)
-        old_role = get_user_role(target_user_id)
-        now_iso = datetime.now(timezone.utc).isoformat()
-        request["status"] = ROLE_REQUEST_STATUS_APPROVED if decision == "approve" else ROLE_REQUEST_STATUS_REJECTED
-        request["updated_at"] = now_iso
-        request["decided_at"] = now_iso
-        request["decided_by"] = actor_id
-        requests[request_id] = request
-        if decision == "approve":
-            user_rec = data.get(str(target_user_id))
-            if not isinstance(user_rec, dict):
-                user_rec = {"role": "guest"}
-            user_rec["role"] = normalize_role(request.get("requested_role"))
-            data[str(target_user_id)] = user_rec
-        _roles_save_atomic(data)
+    request = _get_role_request(request_id)
+    if not request or request.get("status") != "pending":
+        await cq.answer("Заявка уже обработана.", show_alert=True)
+        return
+    target_role = normalize_role(request.get("target_role"))
+    if not _request_role_allowed_for_decider(actor_role, target_role):
+        await cq.answer("Недостаточно прав для обработки заявки.", show_alert=True)
+        return
+    target_user_id = int(request.get("user_id") or 0)
+    old_role = get_user_role(target_user_id)
     if decision == "approve":
-        await notify_about_role_change(
-            actor_id=actor_id,
-            target_user_id=target_user_id,
-            old_role=old_role,
-            new_role=request.get("requested_role") or old_role,
+        update_user_record(
+            target_user_id,
+            {
+                "role": target_role,
+                "auth_status": "approved",
+                "auth_source": "manual_admin" if actor_role == "admin" else "manual_moderator",
+                "auth_confidence": max(float(_user_record(target_user_id).get("auth_confidence") or 0.0), 0.51),
+                "request_cooldown_until": "",
+            },
         )
+        request["status"] = "approved"
+        await push_user_menu_refresh(str(target_user_id), "✅ Ваша заявка одобрена. Меню обновлено.")
+        await notify_about_role_change(actor_id=actor_id, target_user_id=target_user_id, old_role=old_role,
+                                       new_role=target_role)
     else:
+        rec = _user_record(target_user_id)
+        new_reject_count = int(rec.get("rejection_count") or 0) + 1
+        cooldown_until = datetime.utcnow() + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
+        update_user_record(
+            target_user_id,
+            {
+                "auth_status": "rejected",
+                "auth_source": "manual_admin" if actor_role == "admin" else "manual_moderator",
+                "rejection_count": new_reject_count,
+                "request_cooldown_until": cooldown_until.replace(microsecond=0).isoformat() + "Z",
+            },
+        )
+        request["status"] = "rejected"
         try:
             await bot.send_message(
                 target_user_id,
-                "❌ <b>Заявка на роль отклонена</b>\n"
-                f"Запрошенная роль: <b>{esc(role_label(request.get('requested_role')))}</b>."
+                "❌ Заявка на роль отклонена.\n"
+                f"Повторная подача будет доступна после: <code>{esc(cooldown_until.replace(microsecond=0).isoformat() + 'Z')}</code>.",
             )
         except Exception:
-            logger.exception("role-request-reject: failed target=%s", target_user_id)
-    try:
-        await cq.message.edit_text(
-            _role_request_notification_text(request)
-            + "\n\n"
-            + (
-                f"✅ Статус: <b>Принята</b>\nОбработал: <code>{actor_id}</code>"
-                if decision == "approve"
-                else f"❌ Статус: <b>Отклонена</b>\nОбработал: <code>{actor_id}</code>"
-            )
-        )
-    except Exception:
-        logger.exception("role-request: failed to edit notification message")
-    await cq.answer("Заявка обработана.")
+            logger.exception("role-request-reject-notify failed user=%s request=%s", target_user_id, request_id)
+        request["updated_at"] = utc_now_iso()
+        request["decided_by"] = actor_id
+        _save_role_request(request)
+        await _sync_role_request_notification_messages(request)
+        await cq.answer("Заявка обработана.")
 
 
 # --- Клиент: изменить название (отключено) ---
@@ -7143,6 +7150,61 @@ def _save_role_request(updated: Dict[str, Any]) -> None:
         out.append(updated)
     _role_requests_save_atomic(out)
 
+def _role_request_status_human(status: str) -> str:
+    norm = str(status or "").strip().lower()
+    if norm == "approved":
+        return "✅ подтверждена"
+    if norm == "rejected":
+        return "❌ отклонена"
+    return "⏳ ожидает решения"
+
+
+def _role_request_notification_text_sync(req: Dict[str, Any]) -> str:
+    request_id = str(req.get("id") or "—")
+    user_id = int(req.get("user_id") or 0)
+    target_role = normalize_role(req.get("target_role"))
+    rec = _user_record(user_id)
+    return (
+        "📥 <b>Новая заявка на роль</b>\n"
+        f"ID заявки: <code>{esc(request_id)}</code>\n"
+        f"Пользователь: <code>{user_id}</code>\n"
+        f"Текущее имя: <b>{esc(rec.get('name') or '—')}</b>\n"
+        f"Телефон: <b>{esc(rec.get('phone') or '—')}</b>\n"
+        f"Запрошена роль: <b>{esc(role_label(target_role))}</b>\n"
+        f"Причина: <code>{esc(str(req.get('reason') or '—'))}</code>\n"
+        f"Статус: <b>{esc(_role_request_status_human(req.get('status') or 'pending'))}</b>"
+    )
+
+
+async def _sync_role_request_notification_messages(req: Dict[str, Any]) -> None:
+    refs = req.get("notification_messages")
+    if not isinstance(refs, list) or not refs:
+        return
+    request_id = str(req.get("id") or "")
+    is_pending = str(req.get("status") or "") == "pending"
+    markup = role_request_actions_kb(request_id) if (is_pending and request_id) else None
+    text = _role_request_notification_text_sync(req)
+    alive_refs: List[Dict[str, int]] = []
+    for ref in refs:
+        if not isinstance(ref, dict):
+            continue
+        chat_id = int(ref.get("chat_id") or 0)
+        message_id = int(ref.get("message_id") or 0)
+        if not chat_id or not message_id:
+            continue
+        try:
+            await bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=message_id,
+                text=text,
+                reply_markup=markup,
+            )
+            alive_refs.append({"chat_id": chat_id, "message_id": message_id})
+        except Exception:
+            logger.exception("role-request-notification-sync failed request=%s chat=%s msg=%s", request_id, chat_id, message_id)
+            alive_refs.append({"chat_id": chat_id, "message_id": message_id})
+    req["notification_messages"] = alive_refs
+    _save_role_request(req)
 
 @router.message(F.text == "📥 Заявки на роли")
 async def requests_menu_button(m: Message):
@@ -7225,6 +7287,7 @@ async def requests_approve(cq: CallbackQuery):
     req["updated_at"] = utc_now_iso()
     req["decided_by"] = decider_id
     _save_role_request(req)
+    await _sync_role_request_notification_messages(req)
     AUDIT.info({"event": "role_request_approved", "request_id": request_id, "decider": decider_id, "target_user": user_id, "target_role": target_role})
     await push_user_menu_refresh(str(user_id), "✅ Ваша заявка одобрена. Меню обновлено.")
     await notify_about_role_change(actor_id=decider_id, target_user_id=user_id, old_role=old_role, new_role=target_role)
@@ -7266,6 +7329,7 @@ async def requests_reject(cq: CallbackQuery):
     req["updated_at"] = utc_now_iso()
     req["decided_by"] = decider_id
     _save_role_request(req)
+    await _sync_role_request_notification_messages(req)
     AUDIT.info({"event": "role_request_rejected", "request_id": request_id, "decider": decider_id, "target_user": user_id, "target_role": target_role})
     try:
         await bot.send_message(
