@@ -73,6 +73,7 @@ ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
 CLIENTS_DB = ClientCardsDB(SETTINGS_DIR / "clients.sqlite3")
 DEBT_IMPORT_MANUAL_QUEUE_PATH = SETTINGS_DIR / "debt_import_manual_queue.json"
+DEBT_IMPORT_MAPPINGS_PATH = SETTINGS_DIR / "debt_import_mappings.json"
 
 logger = logging.getLogger(__name__)
 
@@ -259,6 +260,7 @@ class ClientCardStates(StatesGroup):
     waiting_additional_contact_position = State()
     waiting_edit_value = State()
     waiting_search_query = State()
+    waiting_import_queue_sales_rep = State()
 
 class TechnicianStates(StatesGroup):
     waiting_full_name = State()
@@ -3159,9 +3161,62 @@ def client_cards_list_kb(
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="🔎 Поиск по клиентам", callback_data="cc:search")])
         rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
+    if role in {"admin", "moderator"}:
+        rows.append([InlineKeyboardButton(text="🧩 Очередь импорта", callback_data="cc:imq:list:0")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def debt_import_queue_list_kb(items: List[Dict[str, Any]], page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+    pending = [it for it in items if str(it.get("status") or "pending") == "pending"]
+    total = len(pending)
+    last_page = max(0, (total - 1) // page_size) if total else 0
+    page = max(0, min(page, last_page))
+    start = page * page_size
+    end = min(total, start + page_size)
+    rows: List[List[InlineKeyboardButton]] = []
+    for it in pending[start:end]:
+        raw_name = str(it.get("raw_client_name") or "Без названия").strip()
+        title = f"• {raw_name}"[:60]
+        rows.append([InlineKeyboardButton(text=title, callback_data=f"cc:imq:view:{it.get('id')}")])
+    if total > page_size:
+        nav: List[InlineKeyboardButton] = []
+        if page > 0:
+            nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"cc:imq:list:{page - 1}"))
+        nav.append(InlineKeyboardButton(text=f"{page + 1}/{last_page + 1}", callback_data=f"cc:imq:list:{page}"))
+        if page < last_page:
+            nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:imq:list:{page + 1}"))
+        rows.append(nav)
+    rows.append([InlineKeyboardButton(text="⬅️ К карточкам", callback_data="cc:list:0")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def _debt_queue_item_text(item: Dict[str, Any]) -> str:
+    parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+    reasons = item.get("reasons") if isinstance(item.get("reasons"), list) else []
+    return (
+        "🧩 <b>Ручная модерация импорта дебиторки</b>\n"
+        f"ID: <code>{esc(str(item.get('id') or ''))}</code>\n"
+        f"Статус: <b>{esc(str(item.get('status') or 'pending'))}</b>\n"
+        f"Сырой клиент: <b>{esc(str(item.get('raw_client_name') or '—'))}</b>\n"
+        f"Кандидат юрлица: <b>{esc(str(parsed.get('legal_form') or ''))} {esc(str(parsed.get('legal_name') or '—'))}</b>\n"
+        f"Адрес: <b>{esc(str(parsed.get('address') or '—'))}</b>\n"
+        f"Торговый (из отчёта): <b>{esc(str(parsed.get('sales_rep_name') or '—'))}</b>\n"
+        f"Причины: <code>{esc(', '.join([str(r) for r in reasons]) or '—')}</code>\n"
+        f"Повторов: <b>{int(item.get('seen_count') or 0)}</b>\n"
+        f"Создано: <b>{esc(str(item.get('created_at') or '—'))}</b>\n"
+    )
+
+
+def debt_import_queue_item_kb(item_id: str, candidates: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for card in candidates[:8]:
+        title = f"🔗 {card.get('legal_form') or ''} {card.get('legal_name') or ''}"[:60]
+        rows.append([InlineKeyboardButton(text=title, callback_data=f"cc:imq:link:{item_id}:{card.get('id')}")])
+    rows.append([InlineKeyboardButton(text="➕ Создать карточку из записи", callback_data=f"cc:imq:create:{item_id}")])
+    rows.append([InlineKeyboardButton(text="👤 Привязать к торговому", callback_data=f"cc:imq:sales:{item_id}")])
+    rows.append([InlineKeyboardButton(text="🚫 Игнорировать импорт", callback_data=f"cc:imq:ignore:{item_id}")])
+    rows.append([InlineKeyboardButton(text="⬅️ К очереди", callback_data="cc:imq:list:0")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
     txt = (raw or "").strip()
@@ -3247,6 +3302,123 @@ def _save_debt_import_manual_queue(payload: Dict[str, Any]) -> None:
         encoding="utf-8",
     )
 
+def _debt_import_client_key(raw_client_name: str) -> str:
+    return " ".join((raw_client_name or "").strip().casefold().split())
+
+
+def _load_debt_import_mappings() -> Dict[str, Any]:
+    try:
+        if DEBT_IMPORT_MAPPINGS_PATH.exists():
+            data = json.loads(DEBT_IMPORT_MAPPINGS_PATH.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                mappings = data.get("mappings") if isinstance(data.get("mappings"), dict) else {}
+                ignored = data.get("ignored") if isinstance(data.get("ignored"), dict) else {}
+                return {"mappings": mappings, "ignored": ignored}
+    except Exception:
+        logger.exception("Failed to load debt import mappings")
+    return {"mappings": {}, "ignored": {}}
+
+
+def _save_debt_import_mappings(payload: Dict[str, Any]) -> None:
+    DEBT_IMPORT_MAPPINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DEBT_IMPORT_MAPPINGS_PATH.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _sales_rep_candidates() -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for uid, rec in _roles_load().items():
+        if uid == "client_phones" or not isinstance(rec, dict) or not str(uid).isdigit():
+            continue
+        if normalize_role(rec.get("role")) != "sales_rep":
+            continue
+        full_name = (
+            str(rec.get("name") or "").strip()
+            or " ".join(
+                [
+                    str(rec.get("first_name") or "").strip(),
+                    str(rec.get("last_name") or "").strip(),
+                ]
+            ).strip()
+        )
+        out.append({
+            "user_id": int(uid),
+            "name": full_name or f"Пользователь {uid}",
+        })
+    out.sort(key=lambda x: _normalize_person_text(x.get("name") or ""))
+    return out
+
+
+def _resolve_sales_rep_user_by_name(raw_name: str) -> Tuple[Optional[int], str]:
+    surname = _extract_surname(raw_name or "")
+    if not surname:
+        return None, (raw_name or "").strip()
+    candidates = _sales_rep_candidates()
+    for item in candidates:
+        if _extract_surname(item.get("name") or "") == surname:
+            return int(item["user_id"]), str(item["name"])
+    return None, (raw_name or "").strip()
+
+
+def _mark_manual_queue_item_status(
+        *,
+        item_id: str,
+        status: str,
+        actor_user_id: int,
+        patch: Optional[Dict[str, Any]] = None,
+) -> bool:
+    queue = _load_debt_import_manual_queue()
+    items = list(queue.get("items") or [])
+    now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    for item in items:
+        if str(item.get("id")) != str(item_id):
+            continue
+        item["status"] = status
+        item["moderated_at"] = now
+        item["moderated_by_user_id"] = int(actor_user_id)
+        if patch:
+            item.update(patch)
+        _save_debt_import_manual_queue({"items": items})
+        return True
+    return False
+
+
+def _store_debt_mapping_for_item(
+        *,
+        item: Dict[str, Any],
+        client_id: Optional[str],
+        actor_user_id: int,
+        ignored: bool = False,
+        sales_rep_user_id: Optional[int] = None,
+        sales_rep_name: str = "",
+) -> None:
+    raw_name = str(item.get("raw_client_name") or "")
+    key = _debt_import_client_key(raw_name)
+    if not key:
+        return
+    state = _load_debt_import_mappings()
+    now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    if ignored:
+        state["ignored"][key] = {
+            "raw_client_name": raw_name,
+            "reason": "manual_ignore",
+            "updated_at": now,
+            "updated_by_user_id": int(actor_user_id),
+        }
+        state["mappings"].pop(key, None)
+    else:
+        state["ignored"].pop(key, None)
+        state["mappings"][key] = {
+            "raw_client_name": raw_name,
+            "client_id": client_id,
+            "sales_rep_user_id": int(sales_rep_user_id) if sales_rep_user_id else None,
+            "sales_rep_name": (sales_rep_name or "").strip(),
+            "updated_at": now,
+            "updated_by_user_id": int(actor_user_id),
+        }
+    _save_debt_import_mappings(state)
 
 def _enqueue_debt_manual_review(
         *,
@@ -3258,7 +3430,7 @@ def _enqueue_debt_manual_review(
     queue = _load_debt_import_manual_queue()
     items = list(queue.get("items") or [])
     now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    key = " ".join((raw_client_name or "").strip().casefold().split())
+    key = _debt_import_client_key(raw_client_name)
     for item in items:
         raw = str(item.get("raw_client_name") or "")
         if " ".join(raw.casefold().split()) == key:
@@ -3364,9 +3536,35 @@ def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int,
     created = 0
     skipped = 0
     manual_review = 0
+    mapping_state = _load_debt_import_mappings()
+    mappings = mapping_state.get("mappings") if isinstance(mapping_state.get("mappings"), dict) else {}
+    ignored = mapping_state.get("ignored") if isinstance(mapping_state.get("ignored"), dict) else {}
     for it in items:
         raw_client = it.get("client") or ""
+        raw_key = _debt_import_client_key(raw_client)
+        if raw_key and raw_key in ignored:
+            skipped += 1
+            continue
         parsed = parse_client_row_for_card(raw_client)
+        mapped = mappings.get(raw_key) if raw_key else None
+        if isinstance(mapped, dict):
+            mapped_client_id = str(mapped.get("client_id") or "").strip()
+            mapped_card = CLIENTS_DB.get_client(mapped_client_id) if mapped_client_id else None
+            if mapped_card:
+                CLIENTS_DB.set_user_link(owner_user_id, mapped_client_id, can_edit=True)
+                if parsed and str(parsed.get("address") or "").strip():
+                    CLIENTS_DB.append_address(mapped_client_id, parsed["address"])
+                saved_rep_uid = mapped.get("sales_rep_user_id")
+                saved_rep_name = (mapped.get("sales_rep_name") or "").strip()
+                rep_patch: Dict[str, Any] = {}
+                if saved_rep_uid:
+                    rep_patch["sales_rep_user_id"] = int(saved_rep_uid)
+                if saved_rep_name:
+                    rep_patch["sales_rep_name"] = saved_rep_name
+                if rep_patch:
+                    CLIENTS_DB.update_client(mapped_client_id, rep_patch)
+                skipped += 1
+                continue
         manual_reasons = _import_requires_manual_review(parsed)
         if manual_reasons:
             manual_review += 1
@@ -6099,6 +6297,239 @@ async def cc_import_debt(cq: CallbackQuery):
     )
     await cq.answer()
 
+@router.callback_query(F.data.startswith("cc:imq:list:"))
+async def cc_import_manual_queue_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    page_raw = (cq.data or "").split(":")[-1]
+    page = int(page_raw) if page_raw.isdigit() else 0
+    queue = _load_debt_import_manual_queue()
+    items = list(queue.get("items") or [])
+    pending_count = len([x for x in items if str(x.get("status") or "pending") == "pending"])
+    await cq.message.edit_text(
+        f"🧩 Очередь ручной модерации дебиторки.\nОжидают обработки: <b>{pending_count}</b>.",
+        reply_markup=debt_import_queue_list_kb(items, page=page),
+    )
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:imq:view:"))
+async def cc_import_manual_queue_view(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    item_id = (cq.data or "").split(":", 3)[3]
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not item:
+        await cq.answer("Запись не найдена", show_alert=True)
+        return
+    parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+    legal_name = str(parsed.get("legal_name") or "").strip()
+    candidates = CLIENTS_DB.find_clients_by_name(legal_name) if legal_name else []
+    if not candidates:
+        candidates = CLIENTS_DB.list_clients()[:8]
+    await cq.message.edit_text(
+        _debt_queue_item_text(item),
+        reply_markup=debt_import_queue_item_kb(item_id, candidates),
+    )
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:imq:link:"))
+async def cc_import_manual_queue_link(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    _, _, _, item_id, client_id = (cq.data or "").split(":", 4)
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    card = CLIENTS_DB.get_client(client_id)
+    if not item or not card:
+        await cq.answer("Не удалось выполнить привязку", show_alert=True)
+        return
+    parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+    address = str(parsed.get("address") or "").strip()
+    if address:
+        CLIENTS_DB.append_address(client_id, address)
+    rep_uid, rep_name = _resolve_sales_rep_user_by_name(str(parsed.get("sales_rep_name") or ""))
+    rep_patch: Dict[str, Any] = {}
+    if rep_uid:
+        rep_patch["sales_rep_user_id"] = rep_uid
+    if rep_name:
+        rep_patch["sales_rep_name"] = rep_name
+    if rep_patch:
+        CLIENTS_DB.update_client(client_id, rep_patch)
+    _store_debt_mapping_for_item(
+        item=item,
+        client_id=client_id,
+        actor_user_id=uid,
+        ignored=False,
+        sales_rep_user_id=rep_uid,
+        sales_rep_name=rep_name,
+    )
+    _mark_manual_queue_item_status(
+        item_id=item_id,
+        status="resolved_mapped",
+        actor_user_id=uid,
+        patch={"mapped_client_id": client_id},
+    )
+    await cc_import_manual_queue_list(cq)
+
+
+@router.callback_query(F.data.startswith("cc:imq:create:"))
+async def cc_import_manual_queue_create(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    item_id = (cq.data or "").split(":", 3)[3]
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not item:
+        await cq.answer("Запись не найдена", show_alert=True)
+        return
+    parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+    legal_name = str(parsed.get("legal_name") or "").strip()
+    legal_form = str(parsed.get("legal_form") or "").strip().upper()
+    if legal_form not in {"ООО", "ИП"} or not legal_name:
+        await cq.answer("Недостаточно данных для создания карточки", show_alert=True)
+        return
+    rep_uid, rep_name = _resolve_sales_rep_user_by_name(str(parsed.get("sales_rep_name") or ""))
+    payload = {
+        "legal_form": legal_form,
+        "legal_name": legal_name,
+        "store_name": "",
+        "address": str(parsed.get("address") or "").strip(),
+        "overdue_days": IMPORTED_CLIENT_OVERDUE_DAYS_DEFAULT,
+        "technician_name": "",
+        "technician_phone": "",
+        "technician_id": None,
+        "sales_rep_user_id": rep_uid,
+        "sales_rep_name": rep_name,
+        "owner_user_id": uid,
+        "network_id": None,
+    }
+    contact = [{"contact_name": "", "contact_phone": "", "contact_position": ""}]
+    client_id = CLIENTS_DB.create_client(payload, contact)
+    _store_debt_mapping_for_item(
+        item=item,
+        client_id=client_id,
+        actor_user_id=uid,
+        ignored=False,
+        sales_rep_user_id=rep_uid,
+        sales_rep_name=rep_name,
+    )
+    _mark_manual_queue_item_status(
+        item_id=item_id,
+        status="resolved_created",
+        actor_user_id=uid,
+        patch={"mapped_client_id": client_id},
+    )
+    await cc_import_manual_queue_list(cq)
+
+
+@router.callback_query(F.data.startswith("cc:imq:ignore:"))
+async def cc_import_manual_queue_ignore(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    item_id = (cq.data or "").split(":", 3)[3]
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not item:
+        await cq.answer("Запись не найдена", show_alert=True)
+        return
+    _store_debt_mapping_for_item(item=item, client_id=None, actor_user_id=uid, ignored=True)
+    _mark_manual_queue_item_status(item_id=item_id, status="ignored", actor_user_id=uid)
+    await cc_import_manual_queue_list(cq)
+
+
+@router.callback_query(F.data.startswith("cc:imq:sales:"))
+async def cc_import_manual_queue_sales_prompt(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.view", state=state):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    item_id = (cq.data or "").split(":", 3)[3]
+    await state.update_data(import_queue_item_id=item_id)
+    await state.set_state(ClientCardStates.waiting_import_queue_sales_rep)
+    await cq.message.answer("Введите торгового в формате 'Имя (123456)' или просто ФИО. Для отмены отправьте 'отмена'.")
+    await cq.answer()
+
+
+@router.message(ClientCardStates.waiting_import_queue_sales_rep)
+async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
+    role = await ensure_message_access(m, "client_cards.view", state=state)
+    if not role:
+        return
+    if role not in {"admin", "moderator"}:
+        await state.clear()
+        await m.answer("Недостаточно прав.")
+        return
+    data = await state.get_data()
+    item_id = data.get("import_queue_item_id")
+    if _cc_is_cancel(m.text) or not item_id:
+        await state.clear()
+        await m.answer("Операция отменена.")
+        return
+    rep_uid, rep_name = _parse_sales_rep_input(m.text or "")
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not item:
+        await state.clear()
+        await m.answer("Запись очереди не найдена.")
+        return
+    queue_mapping = _load_debt_import_mappings()
+    key = _debt_import_client_key(str(item.get("raw_client_name") or ""))
+    mapping = queue_mapping.get("mappings", {}).get(key) if key else None
+    if not isinstance(mapping, dict) or not mapping.get("client_id"):
+        await state.clear()
+        await m.answer("Сначала привяжите запись к карточке клиента.")
+        return
+    client_id = str(mapping.get("client_id"))
+    card = CLIENTS_DB.get_client(client_id)
+    if not card:
+        await state.clear()
+        await m.answer("Карточка из маппинга не найдена.")
+        return
+    patch: Dict[str, Any] = {"sales_rep_name": rep_name or ""}
+    if rep_uid:
+        patch["sales_rep_user_id"] = rep_uid
+    CLIENTS_DB.update_client(client_id, patch)
+    _store_debt_mapping_for_item(
+        item=item,
+        client_id=client_id,
+        actor_user_id=int(getattr(m.from_user, "id", 0) or 0),
+        ignored=False,
+        sales_rep_user_id=rep_uid,
+        sales_rep_name=rep_name or "",
+    )
+    await state.clear()
+    await m.answer("✅ Торговый закреплён за карточкой и сохранён в маппинге.")
 
 @router.callback_query(F.data.startswith("cc:edit:"))
 async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
