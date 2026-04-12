@@ -1197,7 +1197,7 @@ def help_text_admin(first_name: Optional[str], registered_name: Optional[str] = 
         "• /help — эта справка\n"
     )
 
-def help_text_moderator(first_name: Optional[str], registered_name: Optional[str] = None)
+def help_text_moderator(first_name: Optional[str], registered_name: Optional[str] = None):
     return (
         f"{_help_title('Модератор', first_name, registered_name=registered_name)}"
         "📌 <b>Кнопки</b>:\n"
@@ -4303,7 +4303,7 @@ async def on_help(m: Message):
         return
     cname = get_client_name(user_id)
     await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname, registered_name=registered_name), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
-Л
+
 
 # --- Онбординг роли/пароля/названия ---
 @router.callback_query(F.data == "ob:admin")
