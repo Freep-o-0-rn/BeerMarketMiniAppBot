@@ -1837,6 +1837,11 @@ def _normalize_auth_source(value: Any) -> str:
     val = str(value or "").strip().lower()
     return val if val in {"self_declared", "debt_import", "client_cards_db", "manual_admin", "manual_moderator"} else "self_declared"
 
+def is_user_authorized_record(rec: Optional[Dict[str, Any]]) -> bool:
+    if not isinstance(rec, dict):
+        return False
+    auth_status = _normalize_auth_status(rec.get("auth_status"))
+    return auth_status == "approved" or bool(rec.get("authorized_by_admin"))
 
 def _normalize_user_auth_fields(rec: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(rec, dict):
@@ -7457,7 +7462,7 @@ async def admin_users_select(cq: CallbackQuery):
     role = normalize_role(rec.get("role") or "guest")
     phone = (rec.get("phone") or "—").strip()
     verified = "✅" if rec.get("phone_verified") else "❌"
-    is_authorized = bool(rec.get("phone_verified"))
+    is_authorized = is_user_authorized_record(rec)
     blocked = "⛔" if rec.get("blocked") else "✅"
     custom_rights = len(_normalize_access_overrides(rec.get("access_overrides")))
     notify_new_users = "✅" if (notification_enabled(int(uid), "new_users") if uid.isdigit() else False) else "❌"
@@ -7489,7 +7494,7 @@ async def admin_users_select(cq: CallbackQuery):
         f"Телефон: <b>{esc(phone)}</b> ({verified})\n"
         f"Онбординг завершён: {onboard_done}\n"
         f"Ручная авторизация: {manual_auth}\n"
-        f"Статус авторизации: <b>{esc(str(auth_status))}</b>\n"
+        f"Авторизован: {'✅' if is_authorized else '❌'}\n"
         f"Источник авторизации: <b>{esc(str(auth_source))}</b>\n"
         f"Уверенность авторизации: <b>{auth_confidence:.2f}</b>\n"
         f"Отклонений заявок: <b>{rejections}</b>\n"
@@ -7516,8 +7521,17 @@ async def admin_users_toggle_auth(cq: CallbackQuery):
     rec = _roles_load().get(uid, {})
     if not isinstance(rec, dict):
         rec = {"role": "guest", "name": str(rec)}
-    new_auth_state = not bool(rec.get("phone_verified"))
-    update_user_record(uid, {"phone_verified": new_auth_state})
+    actor_role = get_user_role(getattr(cq.from_user, "id", None))
+    manual_source = "manual_admin" if actor_role == "admin" else "manual_moderator"
+    new_auth_state = not is_user_authorized_record(rec)
+    patch = {
+        "auth_status": "approved" if new_auth_state else "rejected",
+        "auth_source": manual_source,
+        "authorized_by_admin": bool(new_auth_state),
+    }
+    if new_auth_state:
+        patch["auth_confidence"] = max(float(rec.get("auth_confidence") or 0.0), 0.51)
+    update_user_record(uid, patch)
     if uid.isdigit():
         await notify_about_access_change(
             actor_id=getattr(cq.from_user, "id", None),
