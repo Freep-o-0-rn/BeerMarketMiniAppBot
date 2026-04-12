@@ -14,8 +14,8 @@ DEFAULTS = {
         "setup_by_default": False,
     },
     "start_cloudflare_stack": {
-        "api_port": 8081,
-        "web_port": 8080,
+        "api_port": 8091,
+        "web_port": 8090,
         "public_api_url": "https://api.freep0rndeveloper.website/",
         "public_app_url": "https://app.freep0rndeveloper.website/",
     },

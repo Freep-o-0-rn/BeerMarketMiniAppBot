@@ -71,25 +71,10 @@
     "role": "sales_rep",
     "phone": "+79138993181",
     "phone_verified": true,
-    "name": "Колягин",
+    "name": "Саня Вайс",
     "blocked": false,
     "access_overrides": {},
     "notification_settings": {}
-  },
-  "1188061961": {
-    "username": "Re1ze_r",
-    "first_name": "Vadim BeerMarket",
-    "language_code": "ru",
-    "is_premium": true,
-    "role": "client",
-    "access_overrides": {
-      "notifications.manage": true
-    },
-    "notification_settings": {},
-    "phone": "+79965440806",
-    "phone_verified": true,
-    "name": "Дмитриева",
-    "blocked": false
   },
   "288807506": {
     "username": "Yudzhik",
@@ -129,6 +114,19 @@
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79137159676",
-    "phone_verified": true
+    "phone_verified": true,
+    "name": "Десятов"
+  },
+  "1188061961": {
+    "role": "client",
+    "access_overrides": {},
+    "notification_settings": {},
+    "username": "Re1ze_r",
+    "first_name": "Vadim BeerMarket",
+    "language_code": "ru",
+    "is_premium": true,
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "name": "Рабочий"
   }
 }
