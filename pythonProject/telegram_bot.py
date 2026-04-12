@@ -1403,6 +1403,11 @@ def ensure_user_record_exists(user_id: int) -> Dict[str, Any]:
         _roles_merge_and_save({uid: rec})
     return rec
 
+def user_record_exists(user_id: Any) -> bool:
+    uid = str(user_id)
+    rec = _roles_load().get(uid)
+    return isinstance(rec, dict)
+
 def is_phone_authorized(user_id: Optional[int]) -> bool:
     if not user_id:
         return False
@@ -1998,7 +2003,10 @@ def create_role_request(user_id: int, target_role: str, reason: str) -> Dict[str
     items = _role_requests_load()
     items.append(req)
     _role_requests_save_atomic(items)
-    update_user_record(user_id, {"auth_status": "pending", "last_role_request_at": now_iso})
+    # Не создаём "фантомных" пользователей только из факта заявки:
+    # обновляем профиль лишь если запись пользователя уже есть.
+    if user_record_exists(user_id):
+        update_user_record(user_id, {"auth_status": "pending", "last_role_request_at": now_iso})
     AUDIT.info({"event": "role_request_created", "user_id": user_id, "target_role": target, "request_id": req["id"]})
     return req
 
@@ -4993,7 +5001,8 @@ async def role_request_create_callback(cq: CallbackQuery):
         target_role=role_key,
         reason="role_request_menu",
     )
-    update_user_record(uid, {"auth_status": "pending", "auth_source": "self_declared", "onboard_completed": True})
+    if user_record_exists(uid):
+        update_user_record(uid, {"auth_status": "pending", "auth_source": "self_declared", "onboard_completed": True})
     await notify_role_request_created(request)
     message = "Заявка отправлена. Мы уведомили администраторов и модераторов."
     await cq.message.edit_text(
@@ -7504,16 +7513,17 @@ async def requests_approve(cq: CallbackQuery):
         return
     user_id = int(req.get("user_id") or 0)
     old_role = get_user_role(user_id)
-    update_user_record(
-        user_id,
-        {
-            "role": target_role,
-            "auth_status": "approved",
-            "auth_source": "manual_admin" if decider_role == "admin" else "manual_moderator",
-            "auth_confidence": max(float(_user_record(user_id).get("auth_confidence") or 0.0), 0.51),
-            "request_cooldown_until": "",
-        },
-    )
+    if user_record_exists(user_id):
+        update_user_record(
+            user_id,
+            {
+                "role": target_role,
+                "auth_status": "approved",
+                "auth_source": "manual_admin" if decider_role == "admin" else "manual_moderator",
+                "auth_confidence": max(float(_user_record(user_id).get("auth_confidence") or 0.0), 0.51),
+                "request_cooldown_until": "",
+            },
+        )
     req["status"] = "approved"
     req["updated_at"] = utc_now_iso()
     req["decided_by"] = decider_id
@@ -7547,15 +7557,16 @@ async def requests_reject(cq: CallbackQuery):
     rec = _user_record(user_id)
     new_reject_count = int(rec.get("rejection_count") or 0) + 1
     cooldown_until = datetime.utcnow() + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
-    update_user_record(
-        user_id,
-        {
-            "auth_status": "rejected",
-            "auth_source": "manual_admin" if decider_role == "admin" else "manual_moderator",
-            "rejection_count": new_reject_count,
-            "request_cooldown_until": cooldown_until.replace(microsecond=0).isoformat() + "Z",
-        },
-    )
+    if user_record_exists(user_id):
+        update_user_record(
+            user_id,
+            {
+                "auth_status": "rejected",
+                "auth_source": "manual_admin" if decider_role == "admin" else "manual_moderator",
+                "rejection_count": new_reject_count,
+                "request_cooldown_until": cooldown_until.replace(microsecond=0).isoformat() + "Z",
+            },
+        )
     req["status"] = "rejected"
     req["updated_at"] = utc_now_iso()
     req["decided_by"] = decider_id

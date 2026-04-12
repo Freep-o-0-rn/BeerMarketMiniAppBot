@@ -25499,3 +25499,40 @@ TypeError: object FSMContext can't be used in 'await' expression
 2026-04-12 23:34:22 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 383, 'req': '2cf429ac', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732023773770', 'msg_id': 3412, 'data': 'usr:del:role_requests:0', 'state': 'AdminUserEditStates:waiting_delete_confirm'}
 2026-04-12 23:34:22 | INFO | aiogram.event | Update id=104057944 is handled. Duration 391 ms by bot id=8304099970
 2026-04-12 23:34:24 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 326, 'req': '23cca1ac', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728813012124', 'msg_id': 3420, 'data': 'usr:confirm_del:yes', 'state': None}
+2026-04-12 23:34:24 | INFO | aiogram.event | Update id=104057945 is handled. Duration 327 ms by bot id=8304099970
+2026-04-12 23:35:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 779, 'req': 'bbb65947', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730850985190', 'msg_id': 3421, 'data': 'usr:sel:1188061961:0', 'state': None}
+2026-04-12 23:35:33 | INFO | aiogram.event | Update id=104057946 is handled. Duration 796 ms by bot id=8304099970
+2026-04-12 23:35:39 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 203, 'req': '61f287dc', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'guest', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 3422, 'kind': <ContentType.TEXT: 'text'>, 'text': '📝 Заявка на роль', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-12 23:35:39 | INFO | aiogram.event | Update id=104057947 is handled. Duration 203 ms by bot id=8304099970
+2026-04-12 23:35:45 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 377, 'req': '995b54c8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731267049799', 'msg_id': 3421, 'data': 'usr:list:0', 'state': None}
+2026-04-12 23:35:45 | INFO | aiogram.event | Update id=104057948 is handled. Duration 702 ms by bot id=8304099970
+2026-04-12 23:35:48 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 321, 'req': '5d0f75cb', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730064610517', 'msg_id': 3421, 'data': 'req:list:0', 'state': None}
+2026-04-12 23:35:48 | INFO | aiogram.event | Update id=104057949 is handled. Duration 437 ms by bot id=8304099970
+2026-04-12 23:35:50 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 331, 'req': '48c503f2', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730560157963', 'msg_id': 3421, 'data': 'req:view:dac8a5dc-38bb-4789-8ed9-0b6020e10997:0', 'state': None}
+2026-04-12 23:35:50 | INFO | aiogram.event | Update id=104057950 is handled. Duration 343 ms by bot id=8304099970
+2026-04-12 23:35:52 | INFO | audit | {'event': 'role_request_approved', 'request_id': 'dac8a5dc-38bb-4789-8ed9-0b6020e10997', 'decider': 237087423, 'target_user': 1188061961, 'target_role': 'client'}
+2026-04-12 23:35:52 | ERROR | telegram_bot | menu-refresh: failed to clear state for user=1188061961
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.1\pythonProject\telegram_bot.py", line 3935, in push_user_menu_refresh
+    fsm_ctx = await dp.fsm.get_context(bot=bot, chat_id=numeric_uid, user_id=numeric_uid)
+TypeError: object FSMContext can't be used in 'await' expression
+2026-04-12 23:35:53 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 1487, 'req': '6559c91c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730079116127', 'msg_id': 3421, 'data': 'req:approve:dac8a5dc-38bb-4789-8ed9-0b6020e10997:0', 'state': None}
+2026-04-12 23:35:53 | INFO | aiogram.event | Update id=104057951 is handled. Duration 1514 ms by bot id=8304099970
+2026-04-12 23:35:56 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 199, 'req': '0a4948f6', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 3427, 'kind': <ContentType.TEXT: 'text'>, 'text': '📝 Заявка на роль', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-12 23:35:56 | INFO | aiogram.event | Update id=104057952 is handled. Duration 218 ms by bot id=8304099970
+2026-04-12 23:35:58 | INFO | audit | {'event': 'role_request_created', 'user_id': 1188061961, 'target_role': 'sales_rep', 'request_id': 'e7afbd24-8278-4158-8676-f03a564885a4'}
+2026-04-12 23:35:59 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 848, 'req': 'c41c0d14', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'client', 'chat': 1188061961, 'cb_id': '5102687271115545488', 'msg_id': 3428, 'data': 'rr:new:sales_rep', 'state': None}
+2026-04-12 23:35:59 | INFO | aiogram.event | Update id=104057953 is handled. Duration 937 ms by bot id=8304099970
+2026-04-12 23:36:02 | ERROR | telegram_bot | menu-refresh: failed to clear state for user=1188061961
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.1\pythonProject\telegram_bot.py", line 3935, in push_user_menu_refresh
+    fsm_ctx = await dp.fsm.get_context(bot=bot, chat_id=numeric_uid, user_id=numeric_uid)
+TypeError: object FSMContext can't be used in 'await' expression
+2026-04-12 23:36:03 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 665, 'req': '5799f053', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728558758383', 'msg_id': 3429, 'data': 'rr:decide:e7afbd24-8278-4158-8676-f03a564885a4:approve', 'state': None}
+2026-04-12 23:36:03 | INFO | aiogram.event | Update id=104057954 is handled. Duration 781 ms by bot id=8304099970
+2026-04-12 23:36:05 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 310, 'req': '21bcc1cc', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'sales_rep', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 3434, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-12 23:36:05 | INFO | aiogram.event | Update id=104057955 is handled. Duration 312 ms by bot id=8304099970
+2026-04-12 23:36:13 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 168, 'req': 'e227754d', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'sales_rep', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 3436, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔔 Уведомления', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-12 23:36:13 | INFO | aiogram.event | Update id=104057956 is handled. Duration 171 ms by bot id=8304099970
+2026-04-12 23:38:35 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-12 23:38:35 | INFO | aiogram.dispatcher | Polling stopped
