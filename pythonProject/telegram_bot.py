@@ -6354,12 +6354,18 @@ async def cc_import_manual_queue_link(cq: CallbackQuery):
     if role not in {"admin", "moderator"}:
         await deny_callback_access(cq, "client_cards.view")
         return
-    parts = (cq.data or "").split(":")
-    if len(parts) < 6:
+    data = (cq.data or "")
+    prefix = "cc:imq:link:"
+    payload = data[len(prefix):] if data.startswith(prefix) else ""
+    if ":" not in payload:
         await cq.answer("Не удалось выполнить привязку", show_alert=True)
         return
-    item_id = parts[4]
-    link_ref = parts[5]
+    item_id, link_ref = payload.rsplit(":", 1)
+    item_id = item_id.strip()
+    link_ref = link_ref.strip()
+    if not item_id or not link_ref:
+        await cq.answer("Не удалось выполнить привязку", show_alert=True)
+        return
     queue = _load_debt_import_manual_queue()
     item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
     if not item:
