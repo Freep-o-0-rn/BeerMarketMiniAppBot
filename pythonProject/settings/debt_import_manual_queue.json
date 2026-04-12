@@ -2,7 +2,7 @@
   "items": [
     {
       "id": "ab5e61c5-9818-421b-9e85-94a18157f560",
-      "status": "pending",
+      "status": "ignored",
       "raw_client_name": "nan",
       "parsed_candidate": {
         "legal_form": "",
@@ -16,14 +16,16 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 4,
+      "seen_count": 6,
       "created_at": "2026-04-12T18:53:28Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T19:21:40Z",
+      "moderated_by_user_id": 237087423
     },
     {
       "id": "9545bee4-4a75-42bf-ba58-43576f5c545e",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "ФК ЛОГИСТИК ООО - Колягин",
       "parsed_candidate": {
         "legal_form": "ООО",
@@ -38,7 +40,10 @@
       "seen_count": 2,
       "created_at": "2026-04-12T18:53:28Z",
       "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_imported_by_user_id": 1188061961,
+      "moderated_at": "2026-04-12T19:21:04Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "858c4fb6-fce9-4b87-ad6a-46b21d40c73e"
     },
     {
       "id": "f163cfc1-2fc2-45fb-8cc7-6dffbaf57134",
@@ -56,10 +61,10 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:28Z",
-      "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "5811c559-4c5e-4d52-85be-dac8c3a06428",
@@ -75,10 +80,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "b8505d67-19eb-4ec7-8a62-52d7d4ebf6dc",
@@ -94,10 +99,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "a3a71ad9-fce6-4a33-bdd6-294971e1bac8",
@@ -113,10 +118,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "bb910567-4d1f-402a-9945-6183d5f6e589",
@@ -134,10 +139,10 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "4a58d390-f51c-476c-a6b7-e2bd15c18e31",
@@ -153,10 +158,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:16Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "f1232e5c-ca56-42a8-9b2a-bdadca13fe1c",
@@ -172,10 +177,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "b0d334c6-12fa-4386-a7d3-5c7f8a60ed2e",
@@ -191,10 +196,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "006a8c51-bdf0-4f3a-bb7c-23549f5f7250",
@@ -210,10 +215,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:21Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "587c14e2-a708-4ce0-a959-d625cff95be9",
@@ -229,10 +234,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "361f3cc2-3a54-4061-9125-a8efd9b832ed",
@@ -248,10 +253,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "5bf8faea-05f8-40d1-b18f-e7af460e76de",
@@ -268,10 +273,10 @@
         "legal_form_unknown",
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "b0abe506-372f-443e-8298-fcd46e68c76a",
@@ -287,10 +292,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "3e03db97-6723-447e-b1de-43f5fa407099",
@@ -306,10 +311,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "a6261450-5333-4d22-bc84-7d7e3ef64bea",
@@ -325,10 +330,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "c900058c-f1fc-4c8f-b6b0-bb9767ab3bea",
@@ -344,10 +349,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "95f12930-78df-4694-9ce4-23483c4e831a",
@@ -363,10 +368,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "ded21b5b-1673-42d8-b976-1bb6656b9a98",
@@ -382,10 +387,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "5a8725fb-daf4-4ce6-9345-4a6e68912d26",
@@ -401,10 +406,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "d3b89ea8-65df-411d-9ef9-310b110ecb57",
@@ -420,10 +425,10 @@
       "reasons": [
         "sales_rep_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "18810edc-d78c-4cc1-a813-209938017e8a",
@@ -439,10 +444,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "2120901c-17e0-498d-8a28-627d56e5fec9",
@@ -458,10 +463,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "2d6fb7c7-512a-4c4c-a2da-59f1c4edbbc5",
@@ -477,10 +482,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "1f2618f7-ec44-461d-a9fa-2d8b746e0ab1",
@@ -496,10 +501,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "e203d8e9-0735-45b6-a80e-56f7d4df827d",
@@ -515,10 +520,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "52b6ab9d-f025-495c-ae56-f69be643bdac",
@@ -534,10 +539,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "da1b53f0-105d-45e0-8031-e27eac8eea3f",
@@ -553,10 +558,10 @@
       "reasons": [
         "sales_rep_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "345781d8-5afa-44cf-b55a-32f184f1af52",
@@ -572,10 +577,10 @@
       "reasons": [
         "sales_rep_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "435137c1-dcd4-4d53-ad43-d7cf122bfa14",
@@ -591,10 +596,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "575c315a-2dc7-4066-9d86-083da27004a2",
@@ -610,10 +615,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "70506def-6606-4fe5-a13c-6c95daa78543",
@@ -629,10 +634,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "b5f1f57d-41be-4ca4-9907-b8a27a5506df",
@@ -648,10 +653,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "9f35d708-ebfa-46e5-b6ff-cf01f9eab1ae",
@@ -667,10 +672,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "3fd4da4b-9f79-4e26-8132-c99154b8a18e",
@@ -686,10 +691,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "8134fd6c-e9b6-4354-b1a3-3f983c328eed",
@@ -705,10 +710,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "672bea03-76ea-44f4-a729-fee2db687f67",
@@ -724,10 +729,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "3eae4022-9db0-4c8e-86bf-7db8e9654295",
@@ -743,10 +748,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "1cde6024-df5e-44b7-a016-6bd192aa91f8",
@@ -762,10 +767,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "bca28629-6edd-4248-8647-ed1064ea6b8c",
@@ -781,10 +786,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "13d3118b-92fb-43ea-90a0-5671eb815b6f",
@@ -800,10 +805,10 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "28b05931-8019-422a-bb10-ddc95fe5d39a",
@@ -819,10 +824,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "841d4b9d-93e9-463d-9012-0a08d4630e02",
@@ -838,10 +843,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "ef409138-b907-4e0d-b97b-b0d4b448b8f5",
@@ -857,10 +862,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "8c1e175e-f2de-421f-9557-68e5f84292e4",
@@ -876,10 +881,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "1a30d07f-2677-4fd0-9a93-f7c319acc281",
@@ -895,10 +900,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "274ec045-e4da-452d-bc53-3e78f7b2d705",
@@ -914,10 +919,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "5db3d2fc-53e8-402f-954a-fecb59e64a63",
@@ -934,10 +939,10 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "31931a8b-cf7c-472c-a568-961087332b12",
@@ -953,10 +958,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "4d24a6b9-e6ad-4d72-803e-edfcaeed5510",
@@ -972,10 +977,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "bf3a78f9-d3bf-4344-873a-06070cecf5d7",
@@ -991,10 +996,10 @@
       "reasons": [
         "sales_rep_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "84229921-b2bf-48e1-9e6b-2d4777f59699",
@@ -1011,10 +1016,10 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "8d552d1b-c4c0-4960-b04c-3594da4af52e",
@@ -1030,10 +1035,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "5b4efd1b-5772-4c22-a640-29438f5af192",
@@ -1049,10 +1054,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "2c7db68c-23d2-4f4c-8d9b-7fd6fbfc8448",
@@ -1068,10 +1073,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "6a2dd0db-8496-449f-91bc-90380d91d186",
@@ -1087,10 +1092,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "a24bbf56-20c4-472c-a9e0-d3c5a0dc5c54",
@@ -1106,10 +1111,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "d9d56ecd-c47b-4d74-b9ac-124baaa2ed5a",
@@ -1125,10 +1130,10 @@
       "reasons": [
         "sales_rep_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     },
     {
       "id": "1f04d948-ccba-4903-86fc-995a39bbe3a6",
@@ -1144,10 +1149,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:06:17Z",
-      "last_imported_by_user_id": 1188061961
+      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_imported_by_user_id": 237087423
     }
   ]
 }
