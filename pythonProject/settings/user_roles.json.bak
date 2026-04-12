@@ -177,7 +177,6 @@
     "request_cooldown_until": "",
     "rejection_count": 0
   },
-  "role_requests": {},
   "237087423": {
     "role": "admin",
     "access_overrides": {},
@@ -200,16 +199,17 @@
     "language_code": "ru",
     "is_premium": true,
     "auth_status": "approved",
-    "auth_source": "manual_admin",
-    "auth_confidence": 0.51,
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
     "last_role_request_at": "2026-04-12T15:36:37Z",
-    "request_cooldown_until": "",
-    "rejection_count": 0,
+    "request_cooldown_until": "2026-04-13T15:42:58Z",
+    "rejection_count": 1,
     "role": "client",
     "access_overrides": {},
     "notification_settings": {},
     "phone": "+79965440806",
     "phone_verified": true,
     "onboard_completed": true
-  }
+  },
+  "role_requests": {}
 }

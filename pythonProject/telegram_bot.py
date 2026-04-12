@@ -3830,8 +3830,14 @@ async def push_user_menu_refresh(user_id: Any, text: str = "🔄 Ваше мен
     uid = str(user_id or "").strip()
     if not uid.isdigit():
         return
+    numeric_uid = int(uid)
     try:
-        await bot.send_message(int(uid), text, reply_markup=menu_for_user_id(int(uid)))
+        fsm_ctx = await dp.fsm.get_context(bot=bot, chat_id=numeric_uid, user_id=numeric_uid)
+        await fsm_ctx.clear()
+    except Exception:
+        logger.exception("menu-refresh: failed to clear state for user=%s", uid)
+    try:
+        await bot.send_message(numeric_uid, text, reply_markup=menu_for_user_id(numeric_uid))
     except Exception:
         logger.exception("menu-refresh: failed for user=%s", uid)
 
@@ -4154,21 +4160,7 @@ async def ob_admin_pwd(m: Message, state: FSMContext):
 async def ob_client_name(m: Message, state: FSMContext):
     raw_name = (m.text or "").strip()
     user_id = int(getattr(m.from_user, "id", 0) or 0)
-    current_role = get_user_role(user_id)
-    # Пользователь мог получить роль в фоне (одобрение заявки админом/модератором),
-    # пока у него оставалось состояние waiting_client_name.
-    # В этом случае не продолжаем гостевой онбординг, а сразу обновляем меню.
-    if current_role != "guest":
-        await state.clear()
-        await on_start(m, state)
-        return
 
-    # Разрешаем безопасно выйти из шага онбординга через кнопку "Старт",
-    # чтобы не предлагать "остаться гостем" в неожиданных сценариях.
-    if raw_name.startswith("▶️") or "старт" in raw_name.lower():
-        await state.clear()
-        await on_start(m, state)
-        return
     if raw_name == "👋 Остаться гостем":
         set_user_role(m.from_user.id, "guest")
         update_user_record(user_id, {"auth_status": "approved", "auth_source": "self_declared", "auth_confidence": 0.0})
