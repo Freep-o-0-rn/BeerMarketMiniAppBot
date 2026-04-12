@@ -88,5 +88,25 @@
         "message_id": 3430
       }
     ]
+  },
+  {
+    "id": "44af4db9-a07d-4b1d-9aa4-2695a8934401",
+    "user_id": 1188061961,
+    "target_role": "client",
+    "status": "pending",
+    "reason": "org=Галкина; matcher_reason=score_rejected:20;source=client_cards_db; confidence=0.2",
+    "created_at": "2026-04-12T17:22:23Z",
+    "updated_at": "2026-04-12T17:22:23Z",
+    "decided_by": null,
+    "notification_messages": [
+      {
+        "chat_id": 237087423,
+        "message_id": 3503
+      },
+      {
+        "chat_id": 288807506,
+        "message_id": 3504
+      }
+    ]
   }
 ]

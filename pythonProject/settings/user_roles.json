@@ -199,10 +199,10 @@
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "auth_status": "approved",
+    "auth_status": "pending",
     "auth_source": "self_declared",
-    "auth_confidence": 0.0,
-    "last_role_request_at": "",
+    "auth_confidence": 0.2,
+    "last_role_request_at": "2026-04-12T17:22:23Z",
     "request_cooldown_until": "",
     "rejection_count": 0,
     "role": "guest",
@@ -210,6 +210,7 @@
     "notification_settings": {},
     "phone": "+79965440806",
     "phone_verified": true,
+    "name": "Галкина",
     "onboard_completed": true
   }
 }

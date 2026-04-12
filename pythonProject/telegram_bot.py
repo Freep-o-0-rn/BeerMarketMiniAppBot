@@ -2402,8 +2402,12 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if user_allows_action(user_id, "news.manage"):
         news_row.append(KeyboardButton(text=NEWS_MANAGE_BTN_TEXT))
     _append_button_row_if_any(keyboard, news_row)
-    if role in {"admin", "sales_rep"}:
-        keyboard.append([KeyboardButton(text="⚙️ Отсрочки"), KeyboardButton(text="⚙️ Фильтры")])
+    settings_row: List[KeyboardButton] = []
+    if user_allows_action(user_id, "settings.overdue"):
+        settings_row.append(KeyboardButton(text="⚙️ Отсрочки"))
+    if user_allows_action(user_id, "settings.filters"):
+        settings_row.append(KeyboardButton(text="⚙️ Фильтры"))
+    _append_button_row_if_any(keyboard, settings_row)
     management_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "users.manage") or user_allows_action(user_id, "users.view"):
         management_row.append(KeyboardButton(text="👥 Пользователи"))
@@ -2414,7 +2418,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     _append_button_row_if_any(keyboard, management_row)
     if role in {"guest", "client", "sales_rep"}:
         keyboard.append([KeyboardButton(text="📝 Заявка на роль")])
-    keyboard.append([KeyboardButton(text="🔔 Уведомления")])
+    if user_allows_action(user_id, "notifications.manage"):
+        keyboard.append([KeyboardButton(text="🔔 Уведомления")])
     start_row = [KeyboardButton(text="▶️ Старт")]
     if role == "admin" or user_allows_action(user_id, "updates.mail"):
         start_row.append(KeyboardButton(text=upd_label))
@@ -2769,6 +2774,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("prices.view", "📑 Прайсы"),
     ("promos.view", "🎁 Акции"),
     ("schedule.view", "🚚 График"),
+    ("schedule.manage", "🚚 График (управление)"),
     ("search.debt", "🔎 Поиск"),
     ("search.tara", "🔎 Поиск тары"),
     ("reports.general", "🧾 Общий отчёт"),
@@ -2783,6 +2789,8 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("users.view", "👥 Пользователи (просмотр)"),
     ("users.manage", "👥 Пользователи (управление)"),
     ("notifications.manage", "🔔 Уведомления"),
+    ("settings.overdue", "⚙️ Отсрочки"),
+    ("settings.filters", "⚙️ Фильтры"),
 ]
 MANAGED_ACTIONS_BY_TOKEN: Dict[str, str] = {str(i): action for i, (action, _) in enumerate(MANAGED_ACTIONS)}
 MANAGED_ACTIONS_LABELS: Dict[str, str] = {action: label for action, label in MANAGED_ACTIONS}
@@ -3985,6 +3993,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "prices.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "promos.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "schedule.view": {"guest", "client", "sales_rep", "moderator", "admin"},
+    "schedule.manage": {"admin"},
     "search.debt": {"client", "sales_rep", "moderator", "admin"},
     "search.tara": {"client", "sales_rep", "moderator", "admin"},
     "reports.general": {"admin"},
@@ -4001,12 +4010,15 @@ ACCESS_MATRIX: Dict[str, set] = {
     "notifications.manage": {"admin", "moderator"},
     "role_requests.manage": {"admin", "moderator"},
     "news.manage": {"admin", "moderator"},
+    "settings.overdue": {"admin", "sales_rep"},
+    "settings.filters": {"admin", "sales_rep"},
 }
 
 ACCESS_LABELS: Dict[str, str] = {
     "prices.view": "прайсы",
     "promos.view": "акции",
     "schedule.view": "график развоза",
+    "schedule.manage": "управление графиком",
     "search.debt": "поиск по дебиторке",
     "search.tara": "поиск по таре",
     "reports.general": "общий отчёт",
@@ -4023,6 +4035,8 @@ ACCESS_LABELS: Dict[str, str] = {
     "notifications.manage": "управление уведомлениями",
     "role_requests.manage": "обработка заявок на роли",
     "news.manage": "управление новостями Mini App",
+    "settings.overdue": "настройка отсрочек",
+    "settings.filters": "настройка фильтров",
 }
 
 extend_access_matrix(ACCESS_MATRIX, ACCESS_LABELS, MANAGED_ACTIONS)
@@ -6083,15 +6097,13 @@ async def cc_set_network_start(cq: CallbackQuery, state: FSMContext):
 
 @router.message(F.text == "⚙️ Отсрочки")
 async def btn_overdue_menu(m: Message):
-    if _is_client_only(m):
-        await m.answer("Доступно только для админов или торговых.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+    if not await ensure_message_access(m, "settings.overdue"):
         return
     await m.answer("Меню отсрочек:", reply_markup=overdue_menu_kb())
 
 @router.message(F.text.in_({"⚙️ Фильтры", "⚙️ Фильтры отображения"}))
 async def filters_entry(m: Message, state: FSMContext):
-    if _is_client_only(m):
-        await m.answer("Доступно только для админов или торговых.", reply_markup=menu_for_message(m))
+    if not await ensure_message_access(m, "settings.filters", state=state):
         return
     logger.info("filters: entry by %s (%s)", m.from_user.id, m.from_user.username)
     await state.clear()
