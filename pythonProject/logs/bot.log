@@ -26782,3 +26782,186 @@ TypeError: object FSMContext can't be used in 'await' expression
 2026-04-13 02:00:22 | INFO | aiogram.event | Update id=104058184 is handled. Duration 1921 ms by bot id=8304099970
 2026-04-13 02:00:30 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
 2026-04-13 02:00:30 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 02:06:05 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+2026-04-13 02:06:05 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 02:06:08 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-04-13 02:06:08 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 02:06:08 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 02:06:10 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 02:06:10 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=307032.08, по строкам=0.00
+2026-04-13 02:06:10 | INFO | root | Собрано клиентов: 228
+2026-04-13 02:06:10 | INFO | __main__ | Отчёт на 12.04.2026 | клиентов: 228
+2026-04-13 02:06:10 | INFO | __main__ | 01. nan | сум: 4372167.86 | проср: 4372167.86 | наш долг: 307032.08 | доков: 0
+2026-04-13 02:06:10 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 02:06:10 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 02:06:10 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 02:06:10 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 02:06:10 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 02:06:10 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 02:06:10 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 02:06:10 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 02:06:10 | INFO | __main__ | 10. Кекин Ф.Д. ИП - Щербатов (Марусино с, Благое мкр, Мечты ул, дом № 2) | сум: 80794.18 | проср: 80794.18 | наш долг: 0.96 | доков: 4
+2026-04-13 02:06:10 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 02:06:10 | INFO | telegram_bot | Daily fetch: next run in 30289 sec (now 2026-04-13 02:06:10, tz Asia/Novosibirsk)
+2026-04-13 02:06:10 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 02:06:12 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 518, 'req': 'd77ee8f9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3743, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 02:06:12 | INFO | aiogram.event | Update id=104058185 is handled. Duration 531 ms by bot id=8304099970
+2026-04-13 02:06:16 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 02:06:16 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=307032.08, по строкам=0.00
+2026-04-13 02:06:16 | INFO | root | Собрано клиентов: 228
+2026-04-13 02:06:18 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 2619, 'req': 'a0da7482', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'sales_rep', 'chat': 1188061961, 'cb_id': '5102687270165015398', 'msg_id': 3735, 'data': 'cc:import:debt', 'state': None}
+2026-04-13 02:06:18 | INFO | aiogram.event | Update id=104058186 is handled. Duration 2639 ms by bot id=8304099970
+2026-04-13 02:06:30 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 225, 'req': '146711e4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3749, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 02:06:30 | INFO | aiogram.event | Update id=104058187 is handled. Duration 250 ms by bot id=8304099970
+2026-04-13 02:06:33 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 184, 'req': '401e88de', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3751, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 02:06:33 | INFO | aiogram.event | Update id=104058188 is handled. Duration 186 ms by bot id=8304099970
+2026-04-13 02:06:35 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 428, 'req': '13ec4b0c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732177843418', 'msg_id': 3752, 'data': 'cc:imq:list:0', 'state': None}
+2026-04-13 02:06:35 | INFO | aiogram.event | Update id=104058189 is handled. Duration 438 ms by bot id=8304099970
+2026-04-13 02:06:40 | ERROR | telegram_bot | Unhandled exception (req_id=13133223)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.4\pythonProject\telegram_bot.py", line 944, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.4\pythonProject\telegram_bot.py", line 6341, in cc_import_manual_queue_view
+    await cq.message.edit_text(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTON_DATA_INVALID
+2026-04-13 02:06:40 | INFO | audit | {'t': 'cb', 'ok': False, 'ms': 157, 'req': '13133223', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728615113387', 'msg_id': 3752, 'data': 'cc:imq:view:9545bee4-4a75-42bf-ba58-43576f5c545e', 'state': None}
+2026-04-13 02:06:40 | INFO | audit | {'t': 'error', 'req': '13133223', 'exc': 'TelegramBadRequest: Telegram server says - Bad Request: BUTTON_DATA_INVALID'}
+2026-04-13 02:06:40 | INFO | aiogram.event | Update id=104058190 is not handled. Duration 171 ms by bot id=8304099970
+2026-04-13 02:06:40 | ERROR | aiogram.event | Cause exception while process update id=104058190 by bot id=8304099970
+TelegramBadRequest: Telegram server says - Bad Request: BUTTON_DATA_INVALID
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.4\pythonProject\telegram_bot.py", line 880, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.4\pythonProject\telegram_bot.py", line 911, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.4\pythonProject\telegram_bot.py", line 944, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.97.4\pythonProject\telegram_bot.py", line 6341, in cc_import_manual_queue_view
+    await cq.message.edit_text(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTON_DATA_INVALID
+2026-04-13 02:06:57 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 02:06:57 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 02:11:56 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+2026-04-13 02:11:56 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 02:12:00 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-04-13 02:12:00 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 02:12:00 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 02:12:01 | INFO | root | Нашли заголовки детальной таблицы на строке: 20
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 02:12:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=307032.08, по строкам=0.00
+2026-04-13 02:12:01 | INFO | root | Собрано клиентов: 228
+2026-04-13 02:12:01 | INFO | __main__ | Отчёт на 12.04.2026 | клиентов: 228
+2026-04-13 02:12:01 | INFO | __main__ | 01. nan | сум: 4372167.86 | проср: 4372167.86 | наш долг: 307032.08 | доков: 0
+2026-04-13 02:12:01 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 02:12:01 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 02:12:01 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 02:12:01 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 02:12:01 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 02:12:01 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 02:12:01 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 02:12:01 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 02:12:01 | INFO | __main__ | 10. Кекин Ф.Д. ИП - Щербатов (Марусино с, Благое мкр, Мечты ул, дом № 2) | сум: 80794.18 | проср: 80794.18 | наш долг: 0.96 | доков: 4
+2026-04-13 02:12:02 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 02:12:02 | INFO | telegram_bot | Daily fetch: next run in 29938 sec (now 2026-04-13 02:12:02, tz Asia/Novosibirsk)
+2026-04-13 02:12:02 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 02:12:06 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 476, 'req': 'fd12c7e2', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3753, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 02:12:06 | INFO | aiogram.event | Update id=104058191 is handled. Duration 484 ms by bot id=8304099970
+2026-04-13 02:12:08 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 162, 'req': '84a078bb', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3755, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 02:12:08 | INFO | aiogram.event | Update id=104058192 is handled. Duration 171 ms by bot id=8304099970
+2026-04-13 02:12:10 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 330, 'req': '4c6732e7', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729516757783', 'msg_id': 3756, 'data': 'cc:imq:list:0', 'state': None}
+2026-04-13 02:12:10 | INFO | aiogram.event | Update id=104058193 is handled. Duration 343 ms by bot id=8304099970
+2026-04-13 02:12:12 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 304, 'req': '877b8483', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728885843196', 'msg_id': 3756, 'data': 'cc:imq:view:9545bee4-4a75-42bf-ba58-43576f5c545e', 'state': None}
+2026-04-13 02:12:12 | INFO | aiogram.event | Update id=104058194 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 02:12:26 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 148, 'req': '70e69b65', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730902497952', 'msg_id': 3756, 'data': 'cc:imq:link:9545bee4-4a75-42bf-ba58-43576f5c545e:0', 'state': None}
+2026-04-13 02:12:26 | INFO | aiogram.event | Update id=104058195 is handled. Duration 156 ms by bot id=8304099970
+2026-04-13 02:12:30 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 299, 'req': '47c776e8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728782474526', 'msg_id': 3756, 'data': 'cc:imq:sales:9545bee4-4a75-42bf-ba58-43576f5c545e', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 02:12:30 | INFO | aiogram.event | Update id=104058196 is handled. Duration 296 ms by bot id=8304099970
+2026-04-13 02:12:35 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 153, 'req': 'd0b6f519', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3758, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Колягин', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 02:12:35 | INFO | aiogram.event | Update id=104058197 is handled. Duration 155 ms by bot id=8304099970
+2026-04-13 02:12:39 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 146, 'req': '97035d75', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730925326053', 'msg_id': 3756, 'data': 'cc:imq:link:9545bee4-4a75-42bf-ba58-43576f5c545e:0', 'state': None}
+2026-04-13 02:12:39 | INFO | aiogram.event | Update id=104058198 is handled. Duration 155 ms by bot id=8304099970
+2026-04-13 02:12:47 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 02:12:47 | INFO | aiogram.dispatcher | Polling stopped

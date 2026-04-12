@@ -3209,9 +3209,9 @@ def _debt_queue_item_text(item: Dict[str, Any]) -> str:
 
 def debt_import_queue_item_kb(item_id: str, candidates: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
-    for card in candidates[:8]:
+    for idx, card in enumerate(candidates[:8]):
         title = f"🔗 {card.get('legal_form') or ''} {card.get('legal_name') or ''}"[:60]
-        rows.append([InlineKeyboardButton(text=title, callback_data=f"cc:imq:link:{item_id}:{card.get('id')}")])
+        rows.append([InlineKeyboardButton(text=title, callback_data=f"cc:imq:link:{item_id}:{idx}")])
     rows.append([InlineKeyboardButton(text="➕ Создать карточку из записи", callback_data=f"cc:imq:create:{item_id}")])
     rows.append([InlineKeyboardButton(text="👤 Привязать к торговому", callback_data=f"cc:imq:sales:{item_id}")])
     rows.append([InlineKeyboardButton(text="🚫 Игнорировать импорт", callback_data=f"cc:imq:ignore:{item_id}")])
@@ -6354,11 +6354,34 @@ async def cc_import_manual_queue_link(cq: CallbackQuery):
     if role not in {"admin", "moderator"}:
         await deny_callback_access(cq, "client_cards.view")
         return
-    _, _, _, item_id, client_id = (cq.data or "").split(":", 4)
+    parts = (cq.data or "").split(":")
+    if len(parts) < 6:
+        await cq.answer("Не удалось выполнить привязку", show_alert=True)
+        return
+    item_id = parts[4]
+    link_ref = parts[5]
     queue = _load_debt_import_manual_queue()
     item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
-    card = CLIENTS_DB.get_client(client_id)
-    if not item or not card:
+    if not item:
+        await cq.answer("Не удалось выполнить привязку", show_alert=True)
+        return
+    card = None
+    if link_ref.isdigit():
+        idx = int(link_ref)
+        parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+        legal_name = str(parsed.get("legal_name") or "").strip()
+        candidates = CLIENTS_DB.find_clients_by_name(legal_name) if legal_name else []
+        if not candidates:
+            candidates = CLIENTS_DB.list_clients()[:8]
+        if 0 <= idx < len(candidates[:8]):
+            card = candidates[idx]
+    else:
+        card = CLIENTS_DB.get_client(link_ref)
+    if not card:
+        await cq.answer("Не удалось выполнить привязку", show_alert=True)
+        return
+    client_id = str(card.get("id") or "")
+    if not client_id:
         await cq.answer("Не удалось выполнить привязку", show_alert=True)
         return
     parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
