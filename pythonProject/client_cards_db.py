@@ -146,6 +146,20 @@ class ClientCardsDB:
                 CREATE INDEX IF NOT EXISTS idx_clients_network ON clients(network_id);
                 CREATE INDEX IF NOT EXISTS idx_links_user ON client_user_links(user_id);
                 CREATE INDEX IF NOT EXISTS idx_client_address_technicians_technician ON client_address_technicians(technician_id);
+                    
+                CREATE TABLE IF NOT EXISTS bot_users (
+                    tg_user_id INTEGER PRIMARY KEY,
+                    username TEXT,
+                    first_name TEXT,
+                    last_name TEXT,
+                    language_code TEXT,
+                    is_premium INTEGER NOT NULL DEFAULT 0,
+                    phone_e164 TEXT NOT NULL DEFAULT '',
+                    phone_verified INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_bot_users_phone ON bot_users(phone_e164);
                 """
             )
             cols = {r["name"] for r in conn.execute("PRAGMA table_info(clients)").fetchall()}
@@ -158,6 +172,69 @@ class ClientCardsDB:
             os.chmod(self.path, 0o600)
         except Exception:
             pass
+
+    def ensure_bot_user(
+            self,
+            tg_user_id: int,
+            *,
+            username: str = "",
+            first_name: str = "",
+            last_name: str = "",
+            language_code: str = "",
+            is_premium: bool = False,
+    ) -> None:
+        now = _utcnow()
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO bot_users(tg_user_id, username, first_name, last_name, language_code, is_premium,
+                                      phone_e164, phone_verified, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, '', 0, ?, ?) ON CONFLICT(tg_user_id) DO
+                UPDATE SET
+                    username = excluded.username,
+                    first_name = excluded.first_name,
+                    last_name = excluded.last_name,
+                    language_code = excluded.language_code,
+                    is_premium = excluded.is_premium,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    int(tg_user_id),
+                    (username or "").strip(),
+                    (first_name or "").strip(),
+                    (last_name or "").strip(),
+                    (language_code or "").strip(),
+                    1 if is_premium else 0,
+                    now,
+                    now,
+                ),
+            )
+
+    def get_bot_user(self, tg_user_id: int) -> Optional[Dict[str, Any]]:
+        with self._connect() as conn:
+            return conn.execute("SELECT * FROM bot_users WHERE tg_user_id = ?", (int(tg_user_id),)).fetchone()
+
+    def set_bot_user_phone(self, tg_user_id: int, phone_e164: str, *, verified: bool = False) -> None:
+        now = _utcnow()
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO bot_users(tg_user_id, username, first_name, last_name, language_code, is_premium,
+                                      phone_e164, phone_verified, created_at, updated_at)
+                VALUES (?, '', '', '', '', 0, ?, ?, ?, ?) ON CONFLICT(tg_user_id) DO
+                UPDATE SET
+                    phone_e164 = excluded.phone_e164,
+                    phone_verified = excluded.phone_verified,
+                    updated_at = excluded.updated_at
+                """,
+                (int(tg_user_id), (phone_e164 or "").strip(), 1 if verified else 0, now, now),
+            )
+
+    def has_bot_user_phone(self, tg_user_id: int) -> bool:
+        row = self.get_bot_user(tg_user_id)
+        if not row:
+            return False
+        return bool(str(row.get("phone_e164") or "").strip())
 
     def create_client(self, payload: Dict[str, Any], contacts: List[Dict[str, str]]) -> str:
         cid = str(uuid.uuid4())

@@ -896,6 +896,40 @@ class BlockedUserMiddleware(BaseMiddleware):
 
         return None
 
+class PhoneRequiredMiddleware(BaseMiddleware):
+    async def __call__(self, handler, event, data):
+        user = getattr(event, "from_user", None)
+        user_id = getattr(user, "id", None)
+        if not user_id:
+            return await handler(event, data)
+        if is_user_blocked(user_id):
+            return await handler(event, data)
+        if is_phone_authorized(user_id):
+            return await handler(event, data)
+
+        state: Optional[FSMContext] = data.get("state")
+        current_state = await state.get_state() if state is not None else None
+
+        if isinstance(event, Message):
+            text = (event.text or "").strip()
+            if text.startswith("/start"):
+                return await handler(event, data)
+            if current_state == OnboardStates.waiting_phone_contact.state:
+                return await handler(event, data)
+            if state is not None:
+                await state.set_state(OnboardStates.waiting_phone_contact)
+            await send_phone_request(event)
+            return None
+
+        if isinstance(event, CallbackQuery):
+            await event.answer("Сначала отправьте контакт через кнопку «📱 Отправить контакт».", show_alert=True)
+            if event.message is not None and state is not None:
+                await state.set_state(OnboardStates.waiting_phone_contact)
+                await send_phone_request(event.message)
+            return None
+
+        return await handler(event, data)
+
 class AuditMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         req_id = uuid.uuid4().hex[:8]
@@ -997,6 +1031,8 @@ class AuditMiddleware(BaseMiddleware):
 # Подключаем к вашему router (aiogram v3):
 router.message.middleware(BlockedUserMiddleware())
 router.callback_query.middleware(BlockedUserMiddleware())
+router.message.middleware(PhoneRequiredMiddleware())
+router.callback_query.middleware(PhoneRequiredMiddleware())
 router.message.middleware(AuditMiddleware())
 router.callback_query.middleware(AuditMiddleware())
 
@@ -1252,6 +1288,14 @@ def update_user_profile_from_message(m: Message) -> None:
     user = getattr(m, "from_user", None)
     if not user:
         return
+    CLIENTS_DB.ensure_bot_user(
+        int(user.id),
+        username=str(getattr(user, "username", "") or ""),
+        first_name=str(getattr(user, "first_name", "") or ""),
+        last_name=str(getattr(user, "last_name", "") or ""),
+        language_code=str(getattr(user, "language_code", "") or ""),
+        is_premium=bool(getattr(user, "is_premium", False)),
+    )
     patch: Dict[str, Any] = {}
     if user.username:
         patch["username"] = user.username
@@ -1338,13 +1382,37 @@ def set_user_phone(user_id: int, phone_e164: str, *, verified: bool = False) -> 
     cur["phone"] = (phone_e164 or "").strip()
     cur["phone_verified"] = bool(verified)
     _roles_merge_and_save({uid: cur})
+    CLIENTS_DB.set_bot_user_phone(user_id, phone_e164, verified=verified)
 
 def get_user_phone(user_id: Optional[int]) -> str:
     if not user_id:
         return ""
+    bot_user = CLIENTS_DB.get_bot_user(int(user_id))
+    if bot_user and str(bot_user.get("phone_e164") or "").strip():
+        return str(bot_user.get("phone_e164") or "").strip()
     uid = str(user_id)
     rec = _roles_load().get(uid, {})
     return str((rec or {}).get("phone") or "").strip()
+
+def ensure_user_record_exists(user_id: int) -> Dict[str, Any]:
+    uid = str(user_id)
+    data = _roles_load()
+    rec = data.get(uid)
+    if not isinstance(rec, dict):
+        rec = {"role": "guest"}
+        _roles_merge_and_save({uid: rec})
+    return rec
+
+def is_phone_authorized(user_id: Optional[int]) -> bool:
+    if not user_id:
+        return False
+    if CLIENTS_DB.has_bot_user_phone(int(user_id)):
+        return True
+    legacy_phone = str((_user_record(user_id) or {}).get("phone") or "").strip()
+    if legacy_phone:
+        CLIENTS_DB.set_bot_user_phone(int(user_id), legacy_phone, verified=bool((_user_record(user_id) or {}).get("phone_verified")))
+        return True
+    return False
 
 def update_user_record(user_id: Any, patch: Dict[str, Any]) -> None:
     uid = str(user_id)
@@ -2375,6 +2443,24 @@ def organization_guest_choice_kb() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,
         one_time_keyboard=True,
+    )
+
+def identity_choice_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="🏢 Я клиент"), KeyboardButton(text="🧑‍💼 Я торговый представитель")],
+            [KeyboardButton(text="👋 Остаться гостем")],
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+
+def identity_manual_prompt(identity: str) -> str:
+    if identity == "sales_rep":
+        return "Введите вашу фамилию для сверки с базой торговых представителей."
+    return (
+        "Введите название вашей организации без «ИП»/«ООО» "
+        "(например: <code>себекин</code>)."
     )
 
 async def send_phone_request(m: Message) -> None:
@@ -3982,6 +4068,8 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
     update_user_profile_from_message(m)
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
+    if uid is not None:
+        ensure_user_record_exists(uid)
     data = _roles_load()
     rec = (data.get(key) if key else {}) or {}
     role = normalize_role(rec.get("role") or "guest")
@@ -4003,6 +4091,10 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
         await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "guest":
+        if not bool(rec.get("onboard_completed")):
+            await state.set_state(OnboardStates.waiting_role)
+            await m.answer("Кто вы в нашей системе?", reply_markup=identity_choice_kb())
+            return
         await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
@@ -4020,6 +4112,8 @@ async def on_start(m: Message, state: FSMContext):
 
     uid = getattr(m.from_user, "id", None)
     key = str(uid) if uid is not None else None
+    if uid is not None:
+        ensure_user_record_exists(uid)
     global _USER_ROLES
     _USER_ROLES = _roles_load()
     rec = (_USER_ROLES.get(key) if key else {}) or {}
@@ -4036,7 +4130,7 @@ async def on_start(m: Message, state: FSMContext):
             _save_user_roles(_USER_ROLES)
         role = "admin"
     # Первый визит: запрос номера телефона
-    if uid is not None and not rec.get("phone"):
+    if uid is not None and not is_phone_authorized(uid):
         await state.set_state(OnboardStates.waiting_phone_contact)
         await send_phone_request(m)
         return
@@ -4057,6 +4151,10 @@ async def on_start(m: Message, state: FSMContext):
         await m.answer(help_text_sales_rep(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)))
         return
     if role == "guest":
+        if not bool(rec.get("onboard_completed")):
+            await state.set_state(OnboardStates.waiting_role)
+            await m.answer("Кто вы в нашей системе?", reply_markup=identity_choice_kb())
+            return
         await m.answer(help_text_guest(getattr(getattr(m, "from_user", None), "first_name", None)), reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
         return
     cname = rec.get("name") or get_client_name(uid)
@@ -4103,9 +4201,41 @@ async def ob_client(cq: CallbackQuery, state: FSMContext):
     await cq.message.edit_text(client_name_prompt_text())
     await cq.answer()
 
+@router.message(OnboardStates.waiting_role)
+async def ob_select_identity(m: Message, state: FSMContext):
+    choice = (m.text or "").strip()
+    if choice == "👋 Остаться гостем":
+        update_user_record(
+            m.from_user.id,
+            {
+                "role": "guest",
+                "auth_status": "approved",
+                "auth_source": "self_declared",
+                "auth_confidence": 0.0,
+                "onboard_completed": True,
+            },
+        )
+        await state.clear()
+        await m.answer("✅ Вы в режиме гостя.", reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)))
+        await on_start(m, state)
+        return
+    if choice == "🏢 Я клиент":
+        await state.set_state(OnboardStates.waiting_client_name)
+        await state.update_data(expected_identity="client")
+        await m.answer(identity_manual_prompt("client"), reply_markup=organization_guest_choice_kb())
+        return
+    if choice == "🧑‍💼 Я торговый представитель":
+        await state.set_state(OnboardStates.waiting_client_name)
+        await state.update_data(expected_identity="sales_rep")
+        await m.answer(identity_manual_prompt("sales_rep"), reply_markup=organization_guest_choice_kb())
+        return
+    await m.answer("Выберите вариант кнопкой ниже.", reply_markup=identity_choice_kb())
+
 @router.message(OnboardStates.waiting_phone_contact, F.contact)
 async def ob_phone_contact(m: Message, state: FSMContext):
-    is_new_user = not bool(_user_record(m.from_user.id))
+    ensure_user_record_exists(m.from_user.id)
+    rec = _user_record(m.from_user.id)
+    is_new_user = not _has_user_onboarding_data(rec)
     contact = m.contact
     if contact.user_id and contact.user_id != m.from_user.id:
         await m.answer("Пожалуйста, отправьте <b>ваш</b> контакт через кнопку.")
@@ -4118,8 +4248,8 @@ async def ob_phone_contact(m: Message, state: FSMContext):
     await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
     if is_new_user and not (_ADMIN_IDS and m.from_user.id in _ADMIN_IDS):
         await notify_admins_about_new_user(m.from_user.id)
-        await state.set_state(OnboardStates.waiting_client_name)
-        await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
+        await state.set_state(OnboardStates.waiting_role)
+        await m.answer("Кто вы в нашей системе?", reply_markup=identity_choice_kb())
         return
     await state.clear()
     if is_new_user:
@@ -4128,22 +4258,12 @@ async def ob_phone_contact(m: Message, state: FSMContext):
 
 @router.message(OnboardStates.waiting_phone_contact)
 async def ob_phone_contact_text(m: Message, state: FSMContext):
-    is_new_user = not bool(_user_record(m.from_user.id))
-    ok, e164, disp = normalize_phone_ru(m.text or "")
-    if not ok:
-        await m.answer("Нужно отправить контакт кнопкой или введите номер в формате +7XXXXXXXXXX.")
-        return
-    set_user_phone(m.from_user.id, e164, verified=False)
-    await m.answer(f"✅ Номер сохранён: {disp}", reply_markup=ReplyKeyboardRemove())
-    if is_new_user and not (_ADMIN_IDS and m.from_user.id in _ADMIN_IDS):
-        await notify_admins_about_new_user(m.from_user.id)
-        await state.set_state(OnboardStates.waiting_client_name)
-        await m.answer(client_name_prompt_text(), reply_markup=organization_guest_choice_kb())
-        return
-    await state.clear()
-    if is_new_user:
-        await notify_admins_about_new_user(m.from_user.id)
-    await _continue_after_phone(m, state)
+    await state.set_state(OnboardStates.waiting_phone_contact)
+    await m.answer(
+        "Для авторизации нужно отправить именно контакт через кнопку «📱 Отправить контакт». "
+        "Без этого доступ к функциям бота закрыт.",
+        reply_markup=phone_request_kb(),
+    )
 
 @router.message(OnboardStates.waiting_admin_password)
 async def ob_admin_pwd(m: Message, state: FSMContext):
@@ -4160,10 +4280,12 @@ async def ob_admin_pwd(m: Message, state: FSMContext):
 async def ob_client_name(m: Message, state: FSMContext):
     raw_name = (m.text or "").strip()
     user_id = int(getattr(m.from_user, "id", 0) or 0)
+    st = await state.get_data()
+    expected_identity = str(st.get("expected_identity") or "client").strip().lower()
 
     if raw_name == "👋 Остаться гостем":
         set_user_role(m.from_user.id, "guest")
-        update_user_record(user_id, {"auth_status": "approved", "auth_source": "self_declared", "auth_confidence": 0.0})
+        update_user_record(user_id, {"auth_status": "approved", "auth_source": "self_declared", "auth_confidence": 0.0, "onboard_completed": True})
         await state.clear()
         await m.answer(
             "✅ Оставил вас гостем. Название организации можно добавить позже.",
@@ -4178,6 +4300,70 @@ async def ob_client_name(m: Message, state: FSMContext):
     if raw_name == "🏢 Запросить роль клиента":
         await m.answer("Введите название вашей организации для проверки по базе.",
                        reply_markup=organization_guest_choice_kb())
+        return
+
+    if expected_identity == "sales_rep":
+        surname = re.sub(r"\s+", " ", raw_name).strip()
+        if len(surname) < 2:
+            await m.answer("Введите корректную фамилию (минимум 2 символа).", reply_markup=organization_guest_choice_kb())
+            return
+        matcher = IDENTITY_MATCHER.match_sales_rep(surname=surname)
+        confidence = float(matcher.get("confidence") or 0.0)
+        source_ref = str(matcher.get("sales_rep_ref") or "").strip()
+        reason = str(matcher.get("reason") or "sales_rep_unknown")
+        set_user_role(user_id, "guest")
+        set_client_name(user_id, surname)
+        if matcher.get("matched"):
+            update_user_record(
+                user_id,
+                {
+                    "role": "sales_rep",
+                    "name": source_ref or surname,
+                    "auth_status": "approved",
+                    "auth_source": "debt_import",
+                    "auth_confidence": confidence,
+                    "onboard_completed": True,
+                },
+            )
+            await state.clear()
+            await m.answer(
+                f"✅ Роль торгового представителя выдана автоматически.\n"
+                f"Совпадение: <b>{esc(source_ref or surname)}</b>.",
+                reply_markup=sales_rep_menu_kb(getattr(m.from_user, "id", None)),
+            )
+            await on_start(m, state)
+            return
+        can_request, cooldown_until = can_create_role_request(user_id)
+        if not can_request:
+            await state.clear()
+            until_txt = cooldown_until.isoformat() if cooldown_until else "позже"
+            await m.answer(
+                f"⏳ Повторная заявка пока недоступна. Можно снова запросить после: <code>{esc(until_txt)}</code>.",
+                reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)),
+            )
+            return
+        req = create_role_request(
+            user_id=user_id,
+            target_role="sales_rep",
+            reason=f"surname={surname}; matcher_reason={reason}; confidence={confidence}",
+        )
+        update_user_record(
+            user_id,
+            {
+                "auth_status": "manual_review" if confidence >= 0.30 else "pending",
+                "auth_source": "self_declared",
+                "auth_confidence": confidence,
+                "onboard_completed": True,
+            },
+        )
+        await state.clear()
+        await m.answer(
+            "📨 Заявка на роль торгового представителя отправлена на модерацию.\n"
+            f"Уверенность авто-проверки: <b>{int(confidence * 100)}%</b>.",
+            reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)),
+        )
+        await notify_role_request_created(req)
+        await on_start(m, state)
         return
     name = normalize_client_name(raw_name)
     was_corrected = client_name_was_corrected(raw_name, name)

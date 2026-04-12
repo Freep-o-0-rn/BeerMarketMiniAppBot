@@ -11,6 +11,10 @@ from file_processor import find_latest_download, parse_clients, read_debt_file
 def _norm_text(value: str) -> str:
     return " ".join((value or "").strip().lower().replace("ё", "е").split())
 
+def _surname(value: str) -> str:
+    norm = _norm_text(value)
+    return norm.split()[0] if norm else ""
+
 
 @dataclass
 class IdentityMatchResult:
@@ -71,6 +75,29 @@ class IdentityMatcher:
                     "store_name": store_name,
                     "source": "client_cards_db",
                 })
+        return out
+
+    def _load_sales_reps_from_sources(self) -> List[str]:
+        out: List[str] = []
+        seen = set()
+        try:
+            for row in self._client_cards_db.list_clients():
+                name = str(row.get("sales_rep_name") or "").strip()
+                key = _norm_text(name)
+                if key and key not in seen:
+                    seen.add(key)
+                    out.append(name)
+        except Exception:
+            pass
+        try:
+            for row in self._load_clients():
+                name = str(row.get("sales_rep_name") or "").strip()
+                key = _norm_text(name)
+                if key and key not in seen:
+                    seen.add(key)
+                    out.append(name)
+        except Exception:
+            pass
         return out
 
     def match(
@@ -158,3 +185,46 @@ class IdentityMatcher:
             score=score,
             risk_flags=risk_flags,
         ).as_dict() | {"source": (best_source or "debt_import")}
+
+    def match_sales_rep(self, *, surname: str) -> Dict[str, Any]:
+        sn = _surname(surname)
+        if not sn:
+            return {
+                "matched": False,
+                "confidence": 0.0,
+                "sales_rep_ref": "",
+                "reason": "sales_rep_surname_empty",
+                "score": 0,
+            }
+        candidates = self._load_sales_reps_from_sources()
+        if not candidates:
+            return {
+                "matched": False,
+                "confidence": 0.0,
+                "sales_rep_ref": "",
+                "reason": "sales_rep_sources_unavailable",
+                "score": 0,
+            }
+        best_ratio = 0.0
+        best_name = ""
+        for candidate in candidates:
+            ratio = SequenceMatcher(None, sn, _surname(candidate)).ratio()
+            if ratio > best_ratio:
+                best_ratio = ratio
+                best_name = candidate
+        if best_ratio >= 0.92:
+            score = 85
+        elif best_ratio >= 0.80:
+            score = 60
+        elif best_ratio >= 0.66:
+            score = 35
+        else:
+            score = 10
+        confidence = round(score / 100.0, 2)
+        return {
+            "matched": score >= 60,
+            "confidence": confidence,
+            "sales_rep_ref": best_name,
+            "reason": f"sales_rep_ratio={best_ratio:.3f}",
+            "score": score,
+        }
