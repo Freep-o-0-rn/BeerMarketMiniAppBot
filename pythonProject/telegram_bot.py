@@ -2632,8 +2632,22 @@ def client_menu_kb(user_id: Optional[int] = None) -> ReplyKeyboardMarkup:
 
 def _user_sort_key(item: Tuple[str, Dict[str, Any]]) -> Tuple[int, str]:
     uid, rec = item
-    name = (rec.get("name") or "").strip().casefold()
+    name = user_display_name(uid, rec).strip().casefold()
     return (0 if name else 1, name or uid)
+
+def user_display_name(uid: str, rec: Dict[str, Any]) -> str:
+    name = str((rec or {}).get("name") or "").strip()
+    if name:
+        return name
+    first_name = str((rec or {}).get("first_name") or "").strip()
+    last_name = str((rec or {}).get("last_name") or "").strip()
+    telegram_name = " ".join(part for part in (first_name, last_name) if part).strip()
+    if telegram_name:
+        return telegram_name
+    username = str((rec or {}).get("username") or "").strip()
+    if username:
+        return f"@{username}"
+    return str(uid or "unknown")
 
 def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
     data = _roles_load()
@@ -2652,7 +2666,7 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
     end = min(total, start + page_size)
     rows: List[List[InlineKeyboardButton]] = []
     for uid, rec in items[start:end]:
-        name = (rec.get("name") or "unknown").strip()
+        name = user_display_name(uid, rec)
         role = normalize_role(rec.get("role") or "guest")
         rows.append([InlineKeyboardButton(text=f"{name} · {role_label(role)}", callback_data=f"usr:sel:{uid}:{page}")])
     nav: List[InlineKeyboardButton] = []
@@ -4298,6 +4312,7 @@ async def ob_client_name(m: Message, state: FSMContext):
         await request_sales_rep_role(m)
         return
     if raw_name == "🏢 Запросить роль клиента":
+        await state.update_data(expected_identity="client")
         await m.answer("Введите название вашей организации для проверки по базе.",
                        reply_markup=organization_guest_choice_kb())
         return
@@ -4373,6 +4388,24 @@ async def ob_client_name(m: Message, state: FSMContext):
             "или нажмите «👋 Остаться гостем».",
             reply_markup=organization_guest_choice_kb(),
         )
+        return
+    current_role = normalize_role((_user_record(user_id) or {}).get("role") or "guest")
+    if current_role == "client":
+        set_client_name(user_id, name)
+        update_user_record(
+            user_id,
+            {
+                "auth_status": "approved",
+                "auth_source": "self_declared",
+                "onboard_completed": True,
+            },
+        )
+        await state.clear()
+        saved_text = f"✅ Сохранено название организации: «{esc(name)}»."
+        if was_corrected:
+            saved_text += "\nℹ️ Префикс «ООО/ИП» убран автоматически."
+        await m.answer(saved_text, reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
+        await on_start(m, state)
         return
 
     # Сохраняем имя, а роль меняется только после обработки заявки администратором.
@@ -7651,7 +7684,7 @@ async def admin_users_select(cq: CallbackQuery):
     page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
     data = _roles_load()
     rec = data.get(uid, {}) if uid else {}
-    name = (rec.get("name") or "unknown").strip()
+    name = user_display_name(uid, rec)
     role = normalize_role(rec.get("role") or "guest")
     phone = (rec.get("phone") or "—").strip()
     verified = "✅" if rec.get("phone_verified") else "❌"

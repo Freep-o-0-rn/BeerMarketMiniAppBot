@@ -48,5 +48,25 @@
         "message_id": 3328
       }
     ]
+  },
+  {
+    "id": "dac8a5dc-38bb-4789-8ed9-0b6020e10997",
+    "user_id": 1188061961,
+    "target_role": "client",
+    "status": "pending",
+    "reason": "role_request_menu",
+    "created_at": "2026-04-12T16:20:55Z",
+    "updated_at": "2026-04-12T16:20:55Z",
+    "decided_by": null,
+    "notification_messages": [
+      {
+        "chat_id": 237087423,
+        "message_id": 3385
+      },
+      {
+        "chat_id": 288807506,
+        "message_id": 3386
+      }
+    ]
   }
 ]
