@@ -1197,7 +1197,7 @@ def help_text_admin(first_name: Optional[str], registered_name: Optional[str] = 
         "• /help — эта справка\n"
     )
 
-def help_text_moderator(first_name: Optional[str], registered_name: Optional[str] = None):
+def help_text_moderator(first_name: Optional[str], registered_name: Optional[str] = None)-> str:
     return (
         f"{_help_title('Модератор', first_name, registered_name=registered_name)}"
         "📌 <b>Кнопки</b>:\n"
@@ -2805,6 +2805,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("updates.mail", "🔄 Обновить"),
     ("client_cards.view", "🏢 Клиенты"),
     ("client_cards.manage", "✏️ Карточки"),
+    ("client_cards.view_other_sales_bases", "🌐 Клиенты других торговых"),
     ("technicians.manage", "🛠 Техники"),
     ("users.view", "👥 Пользователи (просмотр)"),
     ("users.manage", "👥 Пользователи (управление)"),
@@ -3110,27 +3111,47 @@ def client_card_actions_kb(client_id: str, role: str) -> InlineKeyboardMarkup:
         rows.append([InlineKeyboardButton(text="🗑 Удалить", callback_data=f"cc:del:{client_id}")])
     else:
         rows = []
-    back_target = "menu:back" if role == "client" else "cc:list"
+    back_target = "menu:back" if role == "client" else "cc:list:0"
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=back_target)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def client_cards_list_kb(items: List[Dict[str, Any]], role: str, page: int = 0, page_size: int = 20) -> InlineKeyboardMarkup:
+def _client_cards_mode_label(mode: str) -> str:
+    return "🧑‍💼 Мои клиенты" if mode == "own" else "🌐 Все клиенты"
+
+
+def client_cards_list_kb(
+    items: List[Dict[str, Any]],
+    role: str,
+    *,
+    page: int = 0,
+    page_size: int = 20,
+    mode: str = "all",
+    mode_switch_available: bool = False,
+) -> InlineKeyboardMarkup:
     total = len(items)
     last_page = max(0, (total - 1) // page_size) if total else 0
     page = max(0, min(page, last_page))
     start = page * page_size
     end = min(total, start + page_size)
     rows: List[List[InlineKeyboardButton]] = []
+    if mode_switch_available:
+        toggle_mode = "own" if mode == "all" else "all"
+        rows.append([
+            InlineKeyboardButton(
+                text=f"Режим: {_client_cards_mode_label(mode)}",
+                callback_data=f"cc:mode:{toggle_mode}",
+            )
+        ])
     for it in items[start:end]:
         title = f"{it.get('legal_form')} {it.get('legal_name')}"
         rows.append([InlineKeyboardButton(text=title[:60], callback_data=f"cc:view:{it.get('id')}")])
     if total > page_size:
         nav: List[InlineKeyboardButton] = []
         if page > 0:
-            nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"cc:list:{page - 1}"))
-        nav.append(InlineKeyboardButton(text=f"{page + 1}/{last_page + 1}", callback_data="cc:list:noop"))
+            nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"cc:list:{page - 1}:{mode}"))
+        nav.append(InlineKeyboardButton(text=f"{page + 1}/{last_page + 1}", callback_data=f"cc:list:noop:{mode}"))
         if page < last_page:
-            nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:list:{page + 1}"))
+            nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:list:{page + 1}:{mode}"))
         rows.append(nav)
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
@@ -3328,12 +3349,29 @@ def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int,
     return created, skipped
 
 
-def _client_cards_for_user(user_id: int, role: str) -> List[Dict[str, Any]]:
-    if role == "admin":
-        return CLIENTS_DB.list_clients()
-    if role == "moderator":
+def _user_can_view_other_sales_bases(user_id: int, role: str) -> bool:
+    if role in {"admin", "moderator"}:
+        return True
+    return role == "sales_rep" and user_allows_action(user_id, "client_cards.view_other_sales_bases")
+
+
+def _resolve_client_cards_mode(user_id: int, role: str, requested_mode: Optional[str]) -> str:
+    requested = (requested_mode or "").strip().lower()
+    if requested not in {"all", "own"}:
+        requested = "all" if role in {"admin", "moderator"} else "own"
+    if requested == "all" and not _user_can_view_other_sales_bases(user_id, role):
+        return "own"
+    return requested
+
+
+def _client_cards_for_user(user_id: int, role: str, *, mode: str = "own") -> List[Dict[str, Any]]:
+    if role in {"admin", "moderator"}:
+        if mode == "own":
+            return CLIENTS_DB.list_clients(sales_rep_user_id=user_id)
         return CLIENTS_DB.list_clients()
     if role == "sales_rep":
+        if mode == "all" and _user_can_view_other_sales_bases(user_id, role):
+            return CLIENTS_DB.list_clients()
         return CLIENTS_DB.list_clients(sales_rep_user_id=user_id)
     direct = CLIENTS_DB.list_clients(owner_user_id=user_id)
     if role != "client":
@@ -4049,6 +4087,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "ttn.lookup": {"admin", "sales_rep", "moderator"},
     "client_cards.view": {"admin", "sales_rep", "moderator", "client"},
     "client_cards.manage": {"admin", "sales_rep"},
+    "client_cards.view_other_sales_bases": {"admin", "moderator"},
     "technicians.manage": {"admin"},
     "users.view": {"admin", "moderator"},
     "users.manage": {"admin"},
@@ -4074,6 +4113,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "ttn.lookup": "проверка ТТН",
     "client_cards.view": "карточки клиентов",
     "client_cards.manage": "управление карточками клиентов",
+    "client_cards.view_other_sales_bases": "просмотр баз других торговых",
     "technicians.manage": "управление техниками",
     "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
@@ -5380,9 +5420,19 @@ async def client_cards_entry(m: Message, state: FSMContext):
     await state.clear()
     uid = int(getattr(m.from_user, "id", 0) or 0)
     role = get_user_role(uid)
-    items = _client_cards_for_user(uid, role)
-    if not items and role in {"admin", "sales_rep"}:
-        await m.answer("Карточек пока нет. Создайте первую.", reply_markup=client_cards_list_kb([], role))
+    mode = _resolve_client_cards_mode(uid, role, None)
+    items = _client_cards_for_user(uid, role, mode=mode)
+    if not items and role in {"admin", "moderator", "sales_rep"}:
+        await m.answer(
+            "Карточек пока нет. Создайте первую.",
+            reply_markup=client_cards_list_kb(
+                [],
+                role,
+                page=0,
+                mode=mode,
+                mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+            ),
+        )
         return
     if not items:
         await m.answer("Вам пока не назначена карточка клиента. Обратитесь к администратору.", reply_markup=menu_for_message(m))
@@ -5401,7 +5451,16 @@ async def client_cards_entry(m: Message, state: FSMContext):
         )
         return
     title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
-    await m.answer(title, reply_markup=client_cards_list_kb(items, role, page=0))
+    await m.answer(
+        title,
+        reply_markup=client_cards_list_kb(
+            items,
+            role,
+            page=0,
+            mode=mode,
+            mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+        ),
+    )
 
 @router.callback_query(F.data.func(lambda d: d and d.startswith("cc:list")))
 async def cc_list(cq: CallbackQuery):
@@ -5413,13 +5472,45 @@ async def cc_list(cq: CallbackQuery):
         page = int(parts[2])
     uid = int(getattr(cq.from_user, "id", 0) or 0)
     role = get_user_role(uid)
-    items = _client_cards_for_user(uid, role)
+    mode = _resolve_client_cards_mode(uid, role, parts[3] if len(parts) >= 4 else None)
+    items = _client_cards_for_user(uid, role, mode=mode)
     if len(parts) >= 3 and parts[2] == "noop":
         await cq.answer()
         return
 
     title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
-    await cq.message.edit_text(title, reply_markup=client_cards_list_kb(items, role, page=page))
+    await cq.message.edit_text(
+        title,
+        reply_markup=client_cards_list_kb(
+            items,
+            role,
+            page=page,
+            mode=mode,
+            mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+        ),
+    )
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("cc:mode:"))
+async def cc_mode_switch(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    requested_mode = (cq.data or "").split(":", 2)[2] if ":" in (cq.data or "") else "own"
+    mode = _resolve_client_cards_mode(uid, role, requested_mode)
+    items = _client_cards_for_user(uid, role, mode=mode)
+    title = "Моя карточка:" if role == "client" else "Карточки клиентов:"
+    await cq.message.edit_text(
+        title,
+        reply_markup=client_cards_list_kb(
+            items,
+            role,
+            page=0,
+            mode=mode,
+            mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+        ),
+    )
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:view:"))
@@ -5477,10 +5568,20 @@ async def cc_search_query(m: Message, state: FSMContext):
     query_raw = (m.text or "").strip()
     uid = int(getattr(m.from_user, "id", 0) or 0)
     role = get_user_role(uid)
-    items = _client_cards_for_user(uid, role)
+    mode = _resolve_client_cards_mode(uid, role, None)
+    items = _client_cards_for_user(uid, role, mode=mode)
     await state.clear()
     if not query_raw:
-        await m.answer("Поиск отменён: пустой запрос.", reply_markup=client_cards_list_kb(items, role, page=0))
+        await m.answer(
+            "Поиск отменён: пустой запрос.",
+            reply_markup=client_cards_list_kb(
+                items,
+                role,
+                page=0,
+                mode=mode,
+                mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+            ),
+        )
         return
 
     query = _normalize_client_card_lookup(query_raw)
@@ -5504,7 +5605,13 @@ async def cc_search_query(m: Message, state: FSMContext):
     if not matched:
         await m.answer(
             f"По запросу «{esc(query_raw)}» карточки не найдены.",
-            reply_markup=client_cards_list_kb(items, role, page=0),
+            reply_markup=client_cards_list_kb(
+                items,
+                role,
+                page=0,
+                mode=mode,
+                mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+            ),
         )
         return
 
@@ -5520,7 +5627,13 @@ async def cc_search_query(m: Message, state: FSMContext):
     found_items = [item for _, item in matched]
     await m.answer(
         f"Найдено карточек: {len(found_items)}.",
-        reply_markup=client_cards_list_kb(found_items, role, page=0),
+        reply_markup=client_cards_list_kb(
+            found_items,
+            role,
+            page=0,
+            mode=mode,
+            mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+        ),
     )
 
 @router.callback_query(F.data == "cc:create:cancel", ClientCardStates.waiting_legal_form)
@@ -5874,8 +5987,18 @@ async def cc_import_debt(cq: CallbackQuery):
         await cq.answer()
         return
     await cq.message.answer(f"✅ Импорт завершён. Добавлено: {created}, пропущено: {skipped}.")
-    items = _client_cards_for_user(uid, role)
-    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=0))
+    mode = _resolve_client_cards_mode(uid, role, None)
+    items = _client_cards_for_user(uid, role, mode=mode)
+    await cq.message.answer(
+        "Карточки клиентов:",
+        reply_markup=client_cards_list_kb(
+            items,
+            role,
+            page=0,
+            mode=mode,
+            mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+        ),
+    )
     await cq.answer()
 
 
@@ -6136,8 +6259,18 @@ async def cc_delete_client(cq: CallbackQuery):
         return
     CLIENTS_DB.delete_client(client_id)
     await cq.message.answer("✅ Карточка клиента удалена.")
-    items = _client_cards_for_user(uid, role)
-    await cq.message.answer("Карточки клиентов:", reply_markup=client_cards_list_kb(items, role, page=0))
+    mode = _resolve_client_cards_mode(uid, role, None)
+    items = _client_cards_for_user(uid, role, mode=mode)
+    await cq.message.answer(
+        "Карточки клиентов:",
+        reply_markup=client_cards_list_kb(
+            items,
+            role,
+            page=0,
+            mode=mode,
+            mode_switch_available=_user_can_view_other_sales_bases(uid, role),
+        ),
+    )
     await cq.answer()
 
 @router.callback_query(F.data.startswith("cc:addcontact:"))
