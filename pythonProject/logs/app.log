@@ -34146,3 +34146,5 @@ TypeError: object FSMContext can't be used in 'await' expression
 2026-04-13 01:06:12 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
 2026-04-13 01:06:13 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 6815, 'req': '76504705', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730624778623', 'msg_id': 3663, 'data': 'upd:debt', 'state': None}
 2026-04-13 01:06:13 | INFO | aiogram.event | Update id=104058119 is handled. Duration 6828 ms by bot id=8304099970
+2026-04-13 01:14:04 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 01:14:04 | INFO | aiogram.dispatcher | Polling stopped
