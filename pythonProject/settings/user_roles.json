@@ -118,15 +118,14 @@
     "name": "Десятов"
   },
   "1188061961": {
-    "role": "client",
-    "access_overrides": {},
-    "notification_settings": {},
     "username": "Re1ze_r",
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
+    "role": "guest",
+    "access_overrides": {},
+    "notification_settings": {},
     "phone": "+79965440806",
-    "phone_verified": true,
-    "name": "Рабочий"
+    "phone_verified": true
   }
 }

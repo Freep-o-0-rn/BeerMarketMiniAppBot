@@ -1,0 +1,13 @@
+{
+  "start_bot": {
+    "entry": "main.py",
+    "requirements": "requirements.txt",
+    "setup_by_default": false
+  },
+  "start_cloudflare_stack": {
+    "api_port": 8091,
+    "web_port": 8090,
+    "public_api_url": "https://api.freep0rndeveloper.website/",
+    "public_app_url": "https://app.freep0rndeveloper.website/"
+  }
+}

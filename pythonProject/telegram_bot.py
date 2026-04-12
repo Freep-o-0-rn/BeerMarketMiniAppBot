@@ -64,10 +64,10 @@ from typing import Optional, Tuple, Dict, Any
 from client_cards_db import ClientCardsDB, format_client_card, DEFAULT_POSITIONS, _split_addresses
 from handlers.miniapp import MINIAPP_WEB_BTN_TEXT, register_miniapp_handlers
 from handlers.news_manage import NEWS_MANAGE_BTN_TEXT, register_news_manage_handlers
-from handlers.notifications import NotificationHandlersDeps, register_notification_handlers
 from services.media_service import MediaService
 from services.news_service import NewsService
 from services.permissions_service import extend_access_matrix
+from services.identity_matcher import IdentityMatcher
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
@@ -3402,7 +3402,7 @@ async def ensure_callback_access(
     await deny_callback_access(cq, action, show_alert=show_alert)
     return None
 
-# Регистрация модулей Mini App и управления новостями, уведомления
+# Регистрация модулей Mini App и управления новостями.
 register_miniapp_handlers(
     router,
     ensure_message_access=ensure_message_access,
@@ -3415,18 +3415,6 @@ register_news_manage_handlers(
     ensure_message_access=ensure_message_access,
     ensure_callback_access=ensure_callback_access,
     menu_for_user_id=menu_for_user_id,
-)
-register_notification_handlers(
-    router,
-    NotificationHandlersDeps(
-        ensure_message_access=ensure_message_access,
-        ensure_callback_access=ensure_callback_access,
-        notifications_menu_kb=notifications_menu_kb,
-        admin_user_notifications_kb=admin_user_notifications_kb,
-        notification_enabled=notification_enabled,
-        set_user_notification_setting=set_user_notification_setting,
-        notification_order=NOTIFICATION_ORDER,
-    ),
 )
 
 def client_name_prompt_text() -> str:
@@ -6384,6 +6372,72 @@ async def admin_users_list(m: Message):
     if not await ensure_message_access(m, "users.view"):
         return
     await m.answer("Список пользователей:", reply_markup=users_list_kb())
+
+@router.message(F.text == "🔔 Уведомления")
+async def notifications_menu(m: Message):
+    if not await ensure_message_access(m, "notifications.manage"):
+        return
+    await m.answer("Управление уведомлениями:", reply_markup=notifications_menu_kb(getattr(m.from_user, "id", 0)))
+
+@router.callback_query(F.data == "notify:menu")
+async def notifications_menu_callback(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "notifications.manage"):
+        return
+    await cq.message.answer("Управление уведомлениями:", reply_markup=notifications_menu_kb(getattr(cq.from_user, "id", 0)))
+    await cq.answer()
+
+@router.callback_query(F.data.startswith("notify:toggle:"))
+async def notifications_toggle(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "notifications.manage"):
+        return
+    parts = (cq.data or "").split(":")
+    key = parts[2] if len(parts) > 2 else ""
+    target_user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    if key not in NOTIFICATION_ORDER:
+        await cq.answer("Неизвестный тип уведомления.", show_alert=True)
+        return
+    enabled = notification_enabled(target_user_id, key)
+    set_user_notification_setting(target_user_id, key, not enabled)
+    await cq.message.edit_text("Управление уведомлениями:", reply_markup=notifications_menu_kb(target_user_id))
+    await cq.answer("Настройка обновлена.")
+
+@router.callback_query(F.data.startswith("usr:notifymenu:"))
+async def admin_user_notifications_menu(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.manage"):
+        return
+    parts = (cq.data or "").split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
+    if not uid or not uid.isdigit():
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    await cq.message.edit_text(
+        f"🔔 Уведомления пользователя <code>{uid}</code>",
+        reply_markup=admin_user_notifications_kb(uid, page=page),
+    )
+    await cq.answer()
+@router.callback_query(F.data.startswith("usr:notify:"))
+async def admin_user_notification_toggle(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "users.manage"):
+        return
+    parts = (cq.data or "").split(":")
+    uid = parts[2] if len(parts) > 2 else ""
+    key = parts[3] if len(parts) > 3 else ""
+    page = int(parts[4]) if len(parts) > 4 and parts[4].isdigit() else 0
+    if not uid or not uid.isdigit():
+        await cq.answer("Пользователь не найден.", show_alert=True)
+        return
+    if key not in NOTIFICATION_ORDER:
+        await cq.answer("Неизвестный тип уведомления.", show_alert=True)
+        return
+    user_id = int(uid)
+    enabled = notification_enabled(user_id, key)
+    set_user_notification_setting(user_id, key, not enabled)
+    await cq.message.edit_text(
+        f"🔔 Уведомления пользователя <code>{uid}</code>",
+        reply_markup=admin_user_notifications_kb(uid, page=page),
+    )
+    await cq.answer("Настройка обновлена.")
 
 @router.callback_query(F.data.startswith("usr:list:"))
 async def admin_users_list_page(cq: CallbackQuery):
