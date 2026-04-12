@@ -1616,7 +1616,7 @@ ROLE_REQUEST_STATUS_APPROVED = "approved"
 ROLE_REQUEST_STATUS_REJECTED = "rejected"
 ROLE_REQUEST_ACTIVE_STATUSES = {ROLE_REQUEST_STATUS_PENDING}
 _ROLE_REQUESTS_LOCK = asyncio.Lock()
-ROLE_REQUESTABLE_ROLES = ("client", "sales_rep", "moderator", "admin")
+ROLE_REQUESTABLE_ROLES = ("client", "sales_rep", "moderator")
 
 
 def _role_requests_ref(data: dict) -> Dict[str, Dict[str, Any]]:
@@ -2312,9 +2312,6 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if role in {"guest", "client", "sales_rep"}:
         keyboard.append([KeyboardButton(text="📝 Заявка на роль")])
     keyboard.append([KeyboardButton(text="🔔 Уведомления")])
-    if role == "guest":
-        keyboard.append(
-            [KeyboardButton(text="🏢 Запросить роль клиента"), KeyboardButton(text="🧑‍💼 Запросить роль торгового")])
     start_row = [KeyboardButton(text="▶️ Старт")]
     if role == "admin" or user_allows_action(user_id, "updates.mail"):
         start_row.append(KeyboardButton(text=upd_label))
@@ -2360,7 +2357,6 @@ def phone_request_kb() -> ReplyKeyboardMarkup:
 def organization_guest_choice_kb() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🏢 Запросить роль клиента"), KeyboardButton(text="🧑‍💼 Запросить роль торгового")],
             [KeyboardButton(text="👋 Остаться гостем")],
         ],
         resize_keyboard=True,
@@ -4710,12 +4706,12 @@ async def role_request_open(m: Message):
     if role in {"admin", "moderator"}:
         await m.answer("Для вашей роли заявки не требуются.", reply_markup=menu_for_message(m))
         return
-    active = get_active_role_request(uid)
+    active = active_role_request_for_user(uid)
     if active:
         created_at = _format_role_request_created_at(active.get("created_at"))
         await m.answer(
             "У вас уже есть активная заявка.\n"
-            f"Роль: <b>{esc(role_label(active.get('requested_role')))}</b>\n"
+            f"Роль: <b>{esc(role_label(active.get('target_role')))}</b>\n"
             f"Создана: <b>{esc(created_at)}</b>",
             reply_markup=menu_for_message(m),
         )
@@ -4739,13 +4735,30 @@ async def role_request_create_callback(cq: CallbackQuery):
     if role in {"admin", "moderator"}:
         await cq.answer("Для вашей роли заявки не требуются.", show_alert=True)
         return
-    ok, request, message = await create_role_request(user_id=uid, requested_role=target_role)
-    if not ok:
-        await cq.answer(message, show_alert=True)
+    can_request, cooldown_until = can_create_role_request(uid)
+    if not can_request:
+        until_txt = cooldown_until.isoformat() if cooldown_until else "позже"
+        await cq.answer(f"⏳ Новую заявку можно отправить после {until_txt}.", show_alert=True)
         return
+    active = active_role_request_for_user(uid, target_role)
+    if active:
+        await cq.answer("⌛ У вас уже есть активная заявка на эту роль.", show_alert=True)
+        return
+    role_key = normalize_role(target_role)
+    if role_key not in ROLE_REQUESTABLE_ROLES:
+        await cq.answer("Эта роль недоступна для заявки.", show_alert=True)
+        return
+    request = create_role_request(
+        user_id=uid,
+        target_role=role_key,
+        reason="role_request_menu",
+    )
+    update_user_record(uid, {"auth_status": "pending", "auth_source": "self_declared", "onboard_completed": True})
+    await notify_role_request_created(request)
+    message = "Заявка отправлена. Мы уведомили администраторов и модераторов."
     await cq.message.edit_text(
         f"✅ {esc(message)}\n"
-        f"Запрошенная роль: <b>{esc(role_label(request.get('requested_role')))}</b>"
+        f"Запрошенная роль: <b>{esc(role_label(request.get('target_role')))}</b>"
     )
     await cq.answer("Заявка отправлена.")
 

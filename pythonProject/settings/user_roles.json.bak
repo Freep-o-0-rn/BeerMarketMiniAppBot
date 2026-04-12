@@ -205,12 +205,13 @@
     "notification_settings": {},
     "phone": "+79965440806",
     "phone_verified": true,
-    "auth_status": "approved",
+    "auth_status": "pending",
     "auth_source": "self_declared",
     "auth_confidence": 0.0,
-    "last_role_request_at": "",
+    "last_role_request_at": "2026-04-12T14:57:48Z",
     "request_cooldown_until": "",
-    "rejection_count": 0
+    "rejection_count": 0,
+    "onboard_completed": true
   },
   "role_requests": {}
 }

@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "34fd42e5-0225-4d31-b5f0-73c41d548af1",
+    "user_id": 1188061961,
+    "target_role": "client",
+    "status": "approved",
+    "reason": "role_request_menu",
+    "created_at": "2026-04-12T14:57:48Z",
+    "updated_at": "2026-04-12T14:59:35Z",
+    "decided_by": 237087423
+  }
+]
