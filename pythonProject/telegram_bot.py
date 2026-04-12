@@ -7448,12 +7448,15 @@ def _role_request_notification_text_sync(req: Dict[str, Any]) -> str:
     user_id = int(req.get("user_id") or 0)
     target_role = normalize_role(req.get("target_role"))
     rec = _user_record(user_id)
+    username = str((rec or {}).get("username") or "").strip()
+    username_line = f"@{username}" if username else "—"
     return (
         "📥 <b>Новая заявка на роль</b>\n"
         f"ID заявки: <code>{esc(request_id)}</code>\n"
-        f"Пользователь: <code>{user_id}</code>\n"
-        f"Текущее имя: <b>{esc(rec.get('name') or '—')}</b>\n"
+        f"ID Пользователя: <code>{user_id}</code>\n"
+        f"Username: <b>{esc(username_line)}</b>\n"
         f"Телефон: <b>{esc(rec.get('phone') or '—')}</b>\n"
+        f"Текущее имя: <b>{esc(rec.get('name') or '—')}</b>\n"
         f"Запрошена роль: <b>{esc(role_label(target_role))}</b>\n"
         f"Причина: <code>{esc(str(req.get('reason') or '—'))}</code>\n"
         f"Статус: <b>{esc(_role_request_status_human(req.get('status') or 'pending'))}</b>"

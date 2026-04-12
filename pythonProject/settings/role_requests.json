@@ -73,11 +73,11 @@
     "id": "e7afbd24-8278-4158-8676-f03a564885a4",
     "user_id": 1188061961,
     "target_role": "sales_rep",
-    "status": "pending",
+    "status": "rejected",
     "reason": "role_request_menu",
     "created_at": "2026-04-12T16:35:58Z",
-    "updated_at": "2026-04-12T16:35:58Z",
-    "decided_by": null,
+    "updated_at": "2026-04-12T17:26:42Z",
+    "decided_by": 237087423,
     "notification_messages": [
       {
         "chat_id": 237087423,
@@ -93,11 +93,11 @@
     "id": "44af4db9-a07d-4b1d-9aa4-2695a8934401",
     "user_id": 1188061961,
     "target_role": "client",
-    "status": "pending",
+    "status": "approved",
     "reason": "org=Галкина; matcher_reason=score_rejected:20;source=client_cards_db; confidence=0.2",
     "created_at": "2026-04-12T17:22:23Z",
-    "updated_at": "2026-04-12T17:22:23Z",
-    "decided_by": null,
+    "updated_at": "2026-04-12T17:26:46Z",
+    "decided_by": 237087423,
     "notification_messages": [
       {
         "chat_id": 237087423,
@@ -106,6 +106,46 @@
       {
         "chat_id": 288807506,
         "message_id": 3504
+      }
+    ]
+  },
+  {
+    "id": "09ac07cd-1280-4f90-a03c-959b21a85a44",
+    "user_id": 1188061961,
+    "target_role": "sales_rep",
+    "status": "approved",
+    "reason": "role_request_menu",
+    "created_at": "2026-04-12T17:27:26Z",
+    "updated_at": "2026-04-12T17:27:37Z",
+    "decided_by": 237087423,
+    "notification_messages": [
+      {
+        "chat_id": 237087423,
+        "message_id": 3537
+      },
+      {
+        "chat_id": 288807506,
+        "message_id": 3538
+      }
+    ]
+  },
+  {
+    "id": "2b6f69c4-4f35-4f6c-9706-d871e312ccd8",
+    "user_id": 1188061961,
+    "target_role": "moderator",
+    "status": "pending",
+    "reason": "role_request_menu",
+    "created_at": "2026-04-12T17:27:57Z",
+    "updated_at": "2026-04-12T17:27:57Z",
+    "decided_by": null,
+    "notification_messages": [
+      {
+        "chat_id": 237087423,
+        "message_id": 3547
+      },
+      {
+        "chat_id": 288807506,
+        "message_id": 3548
       }
     ]
   }
