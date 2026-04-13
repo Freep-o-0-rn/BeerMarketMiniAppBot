@@ -1,0 +1,500 @@
+{
+  "mappings": {
+    "фк логистик ооо - колягин": {
+      "raw_client_name": "ФК ЛОГИСТИК ООО - Колягин",
+      "client_id": "858c4fb6-fce9-4b87-ad6a-46b21d40c73e",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T19:21:04Z",
+      "updated_by_user_id": 237087423
+    },
+    "токарев е. а. ип - токарев": {
+      "raw_client_name": "Токарев Е. А.  ИП - Токарев",
+      "client_id": "565e70d2-0d13-4c2c-961d-faa320c7d586",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T19:29:49Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. - токарев (обь г, ломоносова ул, дом № 48)": {
+      "raw_client_name": "Лосев М.С. - Токарев (Обь г, Ломоносова ул, дом № 48)",
+      "client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T19:30:04Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. - токарев (озерный п, промышленная ул, дом № 10/3)": {
+      "raw_client_name": "Лосев М.С. - Токарев (Озерный п, Промышленная ул, дом № 10/3)",
+      "client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T19:33:47Z",
+      "updated_by_user_id": 237087423
+    },
+    "крюков михаил юрьевич ип - колягин": {
+      "raw_client_name": "Крюков Михаил Юрьевич ИП - Колягин",
+      "client_id": "f40fac33-eb08-45d0-b545-8008b6cbaa0a",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T19:33:56Z",
+      "updated_by_user_id": 237087423
+    },
+    "мичуринское сельское потребительское общество токарев (ишимская,18) кпп 543332006": {
+      "raw_client_name": "Мичуринское сельское потребительское общество  Токарев (Ишимская,18) КПП 543332006",
+      "client_id": "dab5504d-7ad2-4f12-9195-c1abef4a4124",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "",
+      "updated_at": "2026-04-12T19:34:16Z",
+      "updated_by_user_id": 237087423
+    },
+    "мичуринское сельское потребительское общество токарев (барханная,11) кпп 543332005|токарев": {
+      "raw_client_name": "Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005",
+      "client_id": "ec15c82c-a47b-4187-b26e-008e49fe4258",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T19:49:36Z",
+      "updated_by_user_id": 237087423
+    },
+    "селюнова виктория максимовна ип - колягин|колягин": {
+      "raw_client_name": "Селюнова Виктория Максимовна ИП - Колягин",
+      "client_id": "9066ec61-d4f0-4505-bc33-ce227e9ac87f",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T19:49:41Z",
+      "updated_by_user_id": 237087423
+    },
+    "матренина елена анатольевна - ганиев(ордынское рп, солнечная ул, дом № 71)|ганиев": {
+      "raw_client_name": "Матренина Елена Анатольевна - Ганиев(Ордынское рп, Солнечная ул, дом № 71)",
+      "client_id": "7d606de8-4161-4f8d-91aa-768371d9eeff",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "updated_at": "2026-04-12T19:49:49Z",
+      "updated_by_user_id": 237087423
+    },
+    "бедарева елизавета евгеньевна ип - колягин|колягин": {
+      "raw_client_name": "Бедарева Елизавета Евгеньевна ИП - Колягин",
+      "client_id": "19fe529d-2d96-4aa9-bcdb-4ece3b4eab1f",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T19:49:54Z",
+      "updated_by_user_id": 237087423
+    },
+    "ерохина оксана викторовна ип - колягин|колягин": {
+      "raw_client_name": "Ерохина Оксана Викторовна ИП - Колягин",
+      "client_id": "4cf6c80d-3d48-4bf7-a9a8-e64d734fb770",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T19:49:57Z",
+      "updated_by_user_id": 237087423
+    },
+    "левшук дмитрий александрович ип - ганиев|ганиев": {
+      "raw_client_name": "Левшук Дмитрий Александрович ИП - Ганиев",
+      "client_id": "13b110ef-cdf3-4db2-b136-551a1893a838",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "updated_at": "2026-04-12T19:50:01Z",
+      "updated_by_user_id": 237087423
+    },
+    "ярковское сельское потребительское общество - ганиев (сенчанка с, строителей ул, дом № 21)|ганиев": {
+      "raw_client_name": "Ярковское сельское потребительское общество - Ганиев (Сенчанка с, Строителей ул, дом № 21)",
+      "client_id": "c70f5f12-c6e4-49ad-acc4-5054e3c60727",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "updated_at": "2026-04-12T19:50:31Z",
+      "updated_by_user_id": 237087423
+    },
+    "кустов артём дмитриевич ип - колягин|колягин": {
+      "raw_client_name": "Кустов Артём Дмитриевич ИП - Колягин",
+      "client_id": "54e5a188-fb38-45c6-b944-7ccec6e6f700",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T19:50:57Z",
+      "updated_by_user_id": 237087423
+    },
+    "рябцева олеся николаевна ип - щербатов|щербатов": {
+      "raw_client_name": "Рябцева Олеся Николаевна ИП - Щербатов",
+      "client_id": "72051eec-a9ec-4ff6-9b03-9e6d760b938e",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T19:51:04Z",
+      "updated_by_user_id": 237087423
+    },
+    "шевченко илья алексеевич ип - ганиев|ганиев": {
+      "raw_client_name": "Шевченко Илья Алексеевич ИП - Ганиев",
+      "client_id": "c27e391c-296b-46eb-b029-89e7a8249743",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "updated_at": "2026-04-12T19:51:09Z",
+      "updated_by_user_id": 237087423
+    },
+    "хисамиев марк эрикович ип - щербатов|щербатов": {
+      "raw_client_name": "Хисамиев Марк Эрикович ИП - Щербатов",
+      "client_id": "e52de06b-40a0-4efa-921c-86218c4cc642",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T19:51:13Z",
+      "updated_by_user_id": 237087423
+    },
+    "байшакурова наталья валерьевна ип - щербатов (документы эдо)(народная ул, дом № 10/1, помещение 5а|щербатов": {
+      "raw_client_name": "Байшакурова Наталья Валерьевна ИП - Щербатов (документы ЭДО)(Народная ул, дом № 10/1, помещение 5а",
+      "client_id": "bca4867a-37e8-490b-b13f-07d3305eb9b1",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T19:51:40Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. - токарев (кольцово рп, никольский пр-кт, дом № 8)|токарев": {
+      "raw_client_name": "Лосев М.С. - Токарев (Кольцово рп, Никольский пр-кт, дом № 8)",
+      "client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T19:51:45Z",
+      "updated_by_user_id": 237087423
+    },
+    "калугина вера сергеевна ип (щербатов) (чигорина ул, дом № 65/1)|щербатов": {
+      "raw_client_name": "Калугина Вера Сергеевна ИП (Щербатов) (Чигорина ул, дом № 65/1)",
+      "client_id": "1652a468-24e5-43ec-be82-5b06db01f94c",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:00:10Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. - токарев (залесского ул, дом № 8/1)|токарев": {
+      "raw_client_name": "Лосев М.С. - Токарев (Залесского ул, дом № 8/1)",
+      "client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T20:00:15Z",
+      "updated_by_user_id": 237087423
+    },
+    "тандемгрупп ооо - токарев|токарев": {
+      "raw_client_name": "ТАНДЕМГРУПП ООО - Токарев",
+      "client_id": "c9546d98-21ea-411e-b3f8-185c3476fb40",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T20:00:20Z",
+      "updated_by_user_id": 237087423
+    },
+    "криводановское сельпо - щербатов (кудряшовский дп, береговая ул, дом № 30а)|щербатов": {
+      "raw_client_name": "КРИВОДАНОВСКОЕ СЕЛЬПО - Щербатов (Кудряшовский дп, Береговая ул, дом № 30а)",
+      "client_id": "34785aa5-faf4-4575-bf61-6892a6fe9505",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:00:26Z",
+      "updated_by_user_id": 237087423
+    },
+    "хотэй ооо - колягин|колягин": {
+      "raw_client_name": "ХОТЭЙ ООО - Колягин",
+      "client_id": "6fefdcf6-0dd9-4e1f-ad15-74849a704aac",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:00:30Z",
+      "updated_by_user_id": 237087423
+    },
+    "мхикян сусанна рафиковна ип - токарев|токарев": {
+      "raw_client_name": "Мхикян Сусанна Рафиковна ИП - Токарев",
+      "client_id": "a280cffb-a3ef-4d9d-8709-5f0c7bd540b7",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T20:00:35Z",
+      "updated_by_user_id": 237087423
+    },
+    "куколева олеся викторовна ип - ганиев|ганиев": {
+      "raw_client_name": "Куколева Олеся Викторовна ИП - Ганиев",
+      "client_id": "8b26c7ff-75cf-430d-86e5-1f3efb854184",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "updated_at": "2026-04-12T20:00:38Z",
+      "updated_by_user_id": 237087423
+    },
+    "кузьминых татьяна андреевна ип - колягин|колягин": {
+      "raw_client_name": "Кузьминых Татьяна Андреевна ИП - Колягин",
+      "client_id": "55dd44ef-7702-472c-af6b-81695a046e9e",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:00:41Z",
+      "updated_by_user_id": 237087423
+    },
+    "шачков александр викторович ип - колягин|колягин": {
+      "raw_client_name": "Шачков Александр Викторович ИП - Колягин",
+      "client_id": "5b6979d9-041a-45dd-818e-29f18caf8d07",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:00:44Z",
+      "updated_by_user_id": 237087423
+    },
+    "фролов алексей александрович - ганиев(красный яр с, ленина ул, дом № 33)|ганиев": {
+      "raw_client_name": "Фролов Алексей Александрович - Ганиев(Красный Яр с, Ленина ул, дом № 33)",
+      "client_id": "c2e327d9-e664-4827-9911-104c6d61d72a",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "updated_at": "2026-04-12T20:00:55Z",
+      "updated_by_user_id": 237087423
+    },
+    "дурнева ольга анатольевна ип - щербатов|щербатов": {
+      "raw_client_name": "Дурнева Ольга Анатольевна ИП - Щербатов",
+      "client_id": "f0051c98-835c-4137-a037-844d5ba04085",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:00:59Z",
+      "updated_by_user_id": 237087423
+    },
+    "емцова екатерина юрьевна ип - щербатов|щербатов": {
+      "raw_client_name": "Емцова Екатерина Юрьевна ИП - Щербатов",
+      "client_id": "0045f02b-a993-44eb-8165-b86b66d0f524",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:01:05Z",
+      "updated_by_user_id": 237087423
+    },
+    "вира ооо - колягин|колягин": {
+      "raw_client_name": "ВИРА ООО - Колягин",
+      "client_id": "2b7e5619-a02c-43b6-8e42-95a3c55a03b9",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:01:07Z",
+      "updated_by_user_id": 237087423
+    },
+    "кирпиченко а. ф. ип - (криводановка, м-он 11б)|щербатов": {
+      "raw_client_name": "Кирпиченко А. Ф. ИП - (Криводановка, м-он 11б)",
+      "client_id": "6639ffdf-b613-4b91-831c-84f83faabc7b",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:01:43Z",
+      "updated_by_user_id": 237087423
+    },
+    "кирпиченко а. ф. ип - (криводановка, м-он 5)|щербатов": {
+      "raw_client_name": "Кирпиченко А. Ф. ИП - (Криводановка, м-он 5)",
+      "client_id": "6639ffdf-b613-4b91-831c-84f83faabc7b",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:02:00Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. - токарев (бердск г, вокзальная ул, дом № 26а)|токарев": {
+      "raw_client_name": "Лосев М.С. - Токарев (Бердск г, Вокзальная ул, дом № 26А)",
+      "client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T20:02:04Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. - токарев (петухова ул, дом № 76)|токарев": {
+      "raw_client_name": "Лосев М.С. - Токарев (Петухова ул, дом № 76)",
+      "client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "updated_at": "2026-04-12T20:02:07Z",
+      "updated_by_user_id": 237087423
+    },
+    "пехов константин алексеевич ип - щербатов|щербатов": {
+      "raw_client_name": "Пехов Константин Алексеевич ИП - Щербатов",
+      "client_id": "353b8293-22e4-4a25-9a83-6952a7e51e67",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:02:11Z",
+      "updated_by_user_id": 237087423
+    },
+    "даньшина елена константиновна ип - колягин|колягин": {
+      "raw_client_name": "Даньшина Елена Константиновна ИП - Колягин",
+      "client_id": "e96c830a-7ccb-4ad8-ac6f-916f0448ec4e",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:02:14Z",
+      "updated_by_user_id": 237087423
+    },
+    "сибирь-инвест ооо - колягин|колягин": {
+      "raw_client_name": "Сибирь-Инвест ООО - Колягин",
+      "client_id": "25f23bb3-3e36-426f-b3e2-d5b37b0a60ec",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:02:18Z",
+      "updated_by_user_id": 237087423
+    },
+    "старцева ольга георгиевна ип - колягин|колягин": {
+      "raw_client_name": "Старцева Ольга Георгиевна ИП - Колягин",
+      "client_id": "9cb9c5d9-09ec-4847-90e7-ef867a386775",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:02:21Z",
+      "updated_by_user_id": 237087423
+    },
+    "подборнов сергей григорьевич ип колягин|колягин": {
+      "raw_client_name": "Подборнов Сергей Григорьевич ИП Колягин",
+      "client_id": "58de6fb1-360e-407e-830c-9f59fedc7724",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "updated_at": "2026-04-12T20:02:35Z",
+      "updated_by_user_id": 237087423
+    },
+    "__графадацкая о. с. ип - щербатов (герцена ул, дом № 6) закрыт!!|щербатов": {
+      "raw_client_name": "__Графадацкая О. С. ИП - Щербатов (Герцена ул, дом № 6) ЗАКРЫТ!!",
+      "client_id": "9fb48e9e-0743-4c16-9e21-5bf151514fe3",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:02:53Z",
+      "updated_by_user_id": 237087423
+    },
+    "нина ооо - щербатов|щербатов": {
+      "raw_client_name": "Нина ООО - Щербатов",
+      "client_id": "8088025d-ea3b-498b-aa4f-c33e9677caf7",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "updated_at": "2026-04-12T20:02:57Z",
+      "updated_by_user_id": 237087423
+    },
+    "боровское сельское потребительское общество- (береговое с, светлый пер, дом № 8) кпп 543332003|ганиев": {
+      "raw_client_name": "Боровское сельское потребительское общество- (Береговое с, Светлый пер, дом № 8) КПП 543332003",
+      "client_id": "397b198e-3074-4f04-8b34-3a989c6bd2f5",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:33:13Z",
+      "updated_by_user_id": 237087423
+    },
+    "кожемякин александр сергеевич ип - колягин|колягин": {
+      "raw_client_name": "Кожемякин Александр Сергеевич ИП - Колягин",
+      "client_id": "cc05631e-e566-4254-a8b6-cc12dd5bebc4",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:32:54Z",
+      "updated_by_user_id": 237087423
+    },
+    "криводановское сельпо - щербатов (алексеевка д, центральная ул, дом № 7а)|щербатов": {
+      "raw_client_name": "КРИВОДАНОВСКОЕ СЕЛЬПО - Щербатов (Алексеевка д, Центральная ул, дом № 7А)",
+      "client_id": "34785aa5-faf4-4575-bf61-6892a6fe9505",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:32:58Z",
+      "updated_by_user_id": 237087423
+    },
+    "бобков максим сергеевич ип - щербатов|щербатов": {
+      "raw_client_name": "Бобков Максим Сергеевич ИП - Щербатов",
+      "client_id": "2815d9b2-eddf-4813-a6fe-a0bd4b307534",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:33:06Z",
+      "updated_by_user_id": 237087423
+    },
+    "ганн елена александровна ип - токарев|токарев": {
+      "raw_client_name": "Ганн Елена Александровна ИП - Токарев",
+      "client_id": "66cfea85-3c89-4990-9a66-28d84bfcd850",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:33:16Z",
+      "updated_by_user_id": 237087423
+    },
+    "астанин андрей николаевич ип - щербатов|щербатов": {
+      "raw_client_name": "Астанин Андрей Николаевич ИП - Щербатов",
+      "client_id": "f401d79d-2f35-4e54-b6a4-ae794867ec04",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:33:18Z",
+      "updated_by_user_id": 237087423
+    },
+    "судилкина и.о. ип - токарев головной|токарев": {
+      "raw_client_name": "Судилкина И.О. ИП - Токарев ГОЛОВНОЙ",
+      "client_id": "c62e271c-9280-4419-a726-5e3698627911",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:33:21Z",
+      "updated_by_user_id": 237087423
+    },
+    "потапов сергей геннадьевич ип ганиев (коченевский р-н, крутологово с, новая ул, дом № 2/2)|ганиев": {
+      "raw_client_name": "Потапов Сергей Геннадьевич ИП Ганиев (Коченевский р-н, Крутологово с, Новая ул, дом № 2/2)",
+      "client_id": "3f8f7f99-8380-4a36-ab24-51f66a1c15cf",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:34:08Z",
+      "updated_by_user_id": 237087423
+    },
+    "рузибоева феруза нуриллаевна ип|колягин": {
+      "raw_client_name": "Рузибоева Феруза Нуриллаевна ИП",
+      "client_id": "c99eb485-38eb-45a3-9505-fff139e4cde3",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:34:46Z",
+      "updated_by_user_id": 237087423
+    },
+    "воронецкий е. ю. ип - колягин|колягин": {
+      "raw_client_name": "Воронецкий Е. Ю. ИП - Колягин",
+      "client_id": "ec221f7e-1ca7-4adb-801a-5d4968f13aa4",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:34:53Z",
+      "updated_by_user_id": 237087423
+    },
+    "ткаченко е.в. ип токарев (у и б) (печатников ул, дом № 2)|токарев": {
+      "raw_client_name": "Ткаченко Е.В. ИП Токарев (У и Б) (Печатников ул, дом № 2)",
+      "client_id": "18b1a1aa-a460-46ad-a6b4-84a46fdfe109",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:35:07Z",
+      "updated_by_user_id": 237087423
+    },
+    "_севостьянова анжелика валерьевна ип - токарев (гоголя ул, дом № 37) закрыт!!|токарев": {
+      "raw_client_name": "_Севостьянова Анжелика Валерьевна ИП - Токарев (Гоголя ул, дом № 37) ЗАКРЫТ!!",
+      "client_id": "0b3cfa6c-1706-4b26-ad13-6b328eadd549",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:35:11Z",
+      "updated_by_user_id": 237087423
+    },
+    "щербинин валерий валерьевич ип - ганиев (ликвид) (колыванск р-н, соколово с, молодежная,1/1|ганиев": {
+      "raw_client_name": "Щербинин Валерий Валерьевич ИП - Ганиев (ликвид) (Колыванск р-н, Соколово с, Молодежная,1/1",
+      "client_id": "5cdc5c28-167b-4523-8c36-0120955d1148",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Ганиев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:35:27Z",
+      "updated_by_user_id": 237087423
+    },
+    "пронькина марина викторовна ип - колягин|колягин": {
+      "raw_client_name": "Пронькина Марина Викторовна ИП - Колягин",
+      "client_id": "33bd0ab4-bff9-4853-ba28-1826e71d08fc",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Колягин",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:35:31Z",
+      "updated_by_user_id": 237087423
+    },
+    "зайцева татьяна николаевна ип - токарев|токарев": {
+      "raw_client_name": "Зайцева Татьяна Николаевна ИП - Токарев",
+      "client_id": "30bf928e-e54b-410c-908f-cea8a0b3affd",
+      "sales_rep_user_id": 1188061961,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:35:35Z",
+      "updated_by_user_id": 237087423
+    },
+    "виктор ооо - щербатов головной|щербатов головной": {
+      "raw_client_name": "ВИКТОР ООО - Щербатов ГОЛОВНОЙ",
+      "client_id": "a04a4fa5-4f06-4ff2-84c2-633855c25607",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Щербатов ГОЛОВНОЙ",
+      "source": "debt",
+      "updated_at": "2026-04-13T07:35:38Z",
+      "updated_by_user_id": 237087423
+    }
+  },
+  "ignored": {
+    "nan": {
+      "raw_client_name": "nan",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-12T19:21:40Z",
+      "updated_by_user_id": 237087423
+    }
+  }
+}
