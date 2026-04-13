@@ -4342,6 +4342,25 @@ def _tara_split_keywords(keywords: List[str]) -> Tuple[List[str], List[str]]:
     common_kw = [k for k in all_tokens if k not in rep_tokens]
     return sales_kw, common_kw
 
+def _tara_search_keywords(keywords: List[str]) -> List[str]:
+    """Готовит устойчивые ключи для поиска по таре (без пунктуации/мусора)."""
+    prepared: List[str] = []
+    seen: set[str] = set()
+    for raw_kw in keywords or []:
+        base = _norm_text_key(raw_kw)
+        if not base:
+            continue
+        candidates = [base]
+        compact = re.sub(r"[^0-9a-zа-яё]+", " ", base, flags=re.IGNORECASE)
+        candidates.extend([p for p in compact.split() if p])
+        for cand in candidates:
+            norm = _norm_text_key(cand)
+            if not norm or norm in seen:
+                continue
+            seen.add(norm)
+            prepared.append(norm)
+    return prepared
+
 # --- Авто-обновление из почты ---
 def _today_dt(h: int, m: int) -> datetime:
     now = datetime.now(TZ)
@@ -5569,9 +5588,9 @@ async def render_tara_search(chat: Message, keywords: List[str]):
             items = [_tara_item_with_resolved_client(it) for it in items]
             report_date = (res or {}).get("report_date")
 
-            kws = [k for k in (keywords or []) if k]
-            sales_kws, common_kws = _tara_split_keywords(kws)
-            def match(b: dict) -> bool:
+            kws = _tara_search_keywords([k for k in (keywords or []) if k])
+
+            def _haystack(b: dict) -> str:
                 parts = _tara_client_parts(b)
                 sales_rep = _norm_text_key(parts.get("sales_rep") or "")
                 name = _norm_text_key(parts.get("client_name") or "")
@@ -5581,20 +5600,23 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 # Для устойчивого поиска учитываем торгового даже если токен
                 # не распознан как «sales»-ключ (например, ручные связки/ФИО
                 # отсутствуют в справочнике кандидатов).
-                haystack = f"{name} {addr} {sales_rep} {raw_client} {registrator}".strip()
-                if not kws:
-                    return False
-                if not all(k in haystack for k in kws):
-                    return False
-                return True
+                return f"{name} {addr} {sales_rep} {raw_client} {registrator}".strip()
 
-            filtered = [b for b in items if match(b)]
+            filtered = [b for b in items if kws and all(k in _haystack(b) for k in kws)]
+            relaxed = False
+            if not filtered and len(kws) > 1:
+                long_kws = [k for k in kws if len(k) >= 4]
+                if long_kws:
+                    filtered = [b for b in items if any(k in _haystack(b) for k in long_kws)]
+                    relaxed = bool(filtered)
             if role == "sales_rep":
                 filtered = [b for b in filtered if _is_sales_rep_tara_item_visible_for_user(b, user_id)]
             if filtered:
                 chips = []
                 if kws:
                     chips.append("ключи: " + ", ".join(f"«{esc(k)}»" for k in kws))
+                if relaxed:
+                    chips.append("режим: мягкое совпадение")
                 title_suffix = (" (" + "; ".join(chips) + ")") if chips else ""
 
                 last_dt, last_kind = get_last_update()
