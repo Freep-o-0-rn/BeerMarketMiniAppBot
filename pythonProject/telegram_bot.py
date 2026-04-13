@@ -4122,28 +4122,15 @@ def _is_sales_rep_item_visible_for_user(item: Dict[str, Any], user_id: int) -> b
 def _norm_text_key(value: str) -> str:
     return " ".join((value or "").strip().casefold().replace("ё", "е").split())
 
-def _client_name_lookup_keys(value: str) -> List[str]:
-    """
-    Варианты ключей для сопоставления клиента между отчётами и карточками.
-    Добавляем как «сырой» ключ, так и нормализованное имя без ООО/ИП.
-    """
-    raw = str(value or "").strip()
-    keys: List[str] = []
-    for candidate in (raw, normalize_client_name(raw)):
-        key = _norm_text_key(candidate)
-        if key and key not in keys:
-            keys.append(key)
-    return keys
-
 
 def _build_client_card_lookup() -> Dict[str, Dict[str, Any]]:
     by_name: Dict[str, Dict[str, Any]] = {}
     by_name_addr: Dict[str, Dict[str, Any]] = {}
     for card in CLIENTS_DB.list_clients():
-        legal_keys = _client_name_lookup_keys(str(card.get("legal_name") or ""))
-        store_keys = _client_name_lookup_keys(str(card.get("store_name") or ""))
+        legal = _norm_text_key(str(card.get("legal_name") or ""))
+        store = _norm_text_key(str(card.get("store_name") or ""))
         addresses = [_norm_text_key(x) for x in str(card.get("address") or "").split("\n") if _norm_text_key(x)]
-        names = [x for x in [*legal_keys, *store_keys] if x]
+        names = [x for x in [legal, store] if x]
         for name_key in names:
             by_name.setdefault(name_key, card)
             for addr_key in addresses:
@@ -4169,61 +4156,20 @@ def _resolve_card_for_report_client(raw_name: str, *, report_type: str) -> Optio
                     return card
 
     parsed = split_report_client_label(raw_name)
-    base_name_keys = _client_name_lookup_keys(parsed.get("client_name") or raw_name)
+    base_name = _norm_text_key(parsed.get("client_name") or raw_name)
     address = _norm_text_key(parsed.get("address") or "")
     lookup = _build_client_card_lookup()
-    if base_name_keys and address:
+    if base_name and address:
         by_name_addr = lookup.get("by_name_addr", {})
-        for base_name in base_name_keys:
-            card = by_name_addr.get(f"{base_name}|{address}")
-            if card:
-                return card
-    if base_name_keys:
+        card = by_name_addr.get(f"{base_name}|{address}")
+        if card:
+            return card
+    if base_name:
         by_name = lookup.get("by_name", {})
-        for base_name in base_name_keys:
-            card = by_name.get(base_name)
-            if card:
-                return card
+        card = by_name.get(base_name)
+        if card:
+            return card
     return None
-
-def sync_client_points_from_latest_tara(owner_user_id: int, role: str) -> Tuple[int, int]:
-    """
-    Привязывает точки (адреса) из последнего отчёта по таре к существующим карточкам клиентов.
-    Возвращает: (обновлено_карточек, привязано_карточек_к_пользователю).
-    """
-    path = find_latest_download(report_type="tara")
-    if not path:
-        return 0, 0
-
-    res = process_tara_file(path)
-    items = (res or {}).get("items") or []
-    if not items:
-        return 0, 0
-
-    updated_cards = 0
-    linked_cards = 0
-    linked_ids: set[str] = set()
-
-    for item in items:
-        if role == "sales_rep" and not _is_sales_rep_tara_item_visible_for_user(item, owner_user_id):
-            continue
-        card = _resolve_card_for_report_client(str(item.get("client") or ""), report_type="tara")
-        if not card:
-            continue
-        card_id = str(card.get("id") or "").strip()
-        if not card_id:
-            continue
-
-        address = str(item.get("address") or "").strip()
-        if address and CLIENTS_DB.append_address(card_id, address):
-            updated_cards += 1
-
-        if card_id not in linked_ids:
-            CLIENTS_DB.set_user_link(owner_user_id, card_id, can_edit=True)
-            linked_ids.add(card_id)
-            linked_cards += 1
-
-    return updated_cards, linked_cards
 
 
 def _resolve_sales_rep_name_for_item(item: Dict[str, Any], *, report_type: str = "debt") -> str:
@@ -6471,9 +6417,7 @@ async def cc_import_debt(cq: CallbackQuery):
         await cq.answer()
         return
     await cq.message.answer(
-        "✅ Импорт завершён.\n"
-        f"• Дебиторка: добавлено {created}, пропущено {skipped}, на ручную модерацию {manual_review}.\n"
-        f"• Тара/точки: обновлено карточек {tara_points_updated}, привязано к пользователю {tara_links_created}."
+        f"✅ Импорт завершён. Добавлено: {created}, пропущено: {skipped}, на ручную модерацию: {manual_review}."
     )
     if manual_review > 0:
         notice = (
