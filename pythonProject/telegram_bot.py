@@ -3223,6 +3223,27 @@ def debt_import_queue_item_kb(item_id: str, candidates: List[Dict[str, Any]]) ->
     rows.append([InlineKeyboardButton(text="⬅️ К очереди", callback_data="cc:imq:list:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def debt_import_queue_sales_rep_pick_kb(
+        item_id: str,
+        sales_reps: List[Dict[str, Any]],
+        *,
+        limit: int = 12,
+) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for rep in sales_reps[:limit]:
+        user_id = int(rep.get("user_id") or 0)
+        title = str(rep.get("name") or f"Пользователь {user_id}").strip()
+        if not user_id:
+            continue
+        rows.append([
+            InlineKeyboardButton(
+                text=f"👤 {title}"[:64],
+                callback_data=f"cc:imq:salespick:{item_id}:{user_id}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ К карточке записи", callback_data=f"cc:imq:view:{item_id}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
     txt = (raw or "").strip()
     if not txt:
@@ -6648,9 +6669,80 @@ async def cc_import_manual_queue_sales_prompt(cq: CallbackQuery, state: FSMConte
     item_id = (cq.data or "").split(":", 3)[3]
     await state.update_data(import_queue_item_id=item_id)
     await state.set_state(ClientCardStates.waiting_import_queue_sales_rep)
-    await cq.message.answer("Введите торгового в формате 'Имя (123456)' или просто ФИО. Для отмены отправьте 'отмена'.")
+    sales_reps = _sales_rep_candidates()
+    await cq.message.answer(
+        "Выберите торгового из инлайн-списка ниже или введите ФИО вручную.\n"
+        "Для отмены отправьте /cancel.",
+        reply_markup=debt_import_queue_sales_rep_pick_kb(item_id, sales_reps),
+    )
     await cq.answer()
 
+@router.callback_query(F.data.startswith("cc:imq:salespick:"))
+async def cc_import_manual_queue_sales_pick(cq: CallbackQuery, state: FSMContext):
+    role = await ensure_callback_access(cq, "client_cards.view", state=state)
+    if not role:
+        return
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    payload = (cq.data or "").split(":")
+    if len(payload) < 5:
+        await cq.answer("Не удалось выбрать торгового", show_alert=True)
+        return
+    item_id = payload[3]
+    rep_uid_raw = payload[4]
+    if not rep_uid_raw.isdigit():
+        await cq.answer("Не удалось выбрать торгового", show_alert=True)
+        return
+    rep_uid = int(rep_uid_raw)
+    sales_reps = _sales_rep_candidates()
+    rep = next((x for x in sales_reps if int(x.get("user_id") or 0) == rep_uid), None)
+    if not rep:
+        await cq.answer("Торговый не найден", show_alert=True)
+        return
+    rep_name = str(rep.get("name") or "").strip()
+    if not rep_name:
+        await cq.answer("Торговый не найден", show_alert=True)
+        return
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not item:
+        await state.clear()
+        await cq.answer("Запись очереди не найдена", show_alert=True)
+        return
+    actor_user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    _mark_manual_queue_item_status(
+        item_id=str(item_id),
+        status=str(item.get("status") or "pending"),
+        actor_user_id=actor_user_id,
+        patch={
+            "selected_sales_rep_name": rep_name,
+            "selected_sales_rep_user_id": rep_uid,
+        },
+    )
+    _store_debt_mapping_for_item(
+        item=item,
+        client_id=None,
+        actor_user_id=actor_user_id,
+        ignored=False,
+        sales_rep_user_id=rep_uid,
+        sales_rep_name=rep_name,
+    )
+    await state.clear()
+    queue = _load_debt_import_manual_queue()
+    actual_item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if actual_item:
+        parsed = actual_item.get("parsed_candidate") if isinstance(actual_item.get("parsed_candidate"), dict) else {}
+        legal_name = str(parsed.get("legal_name") or "").strip()
+        candidates = CLIENTS_DB.find_clients_by_name(legal_name) if legal_name else []
+        if not candidates:
+            candidates = CLIENTS_DB.list_clients()[:8]
+        await cq.message.edit_text(
+            _debt_queue_item_text(actual_item),
+            reply_markup=debt_import_queue_item_kb(item_id, candidates),
+        )
+    await cq.message.answer("✅ Торговый сохранен для записи очереди и маппинга.")
+    await cq.answer("Сохранено")
 
 @router.message(ClientCardStates.waiting_import_queue_sales_rep)
 async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
@@ -6716,7 +6808,20 @@ async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
         sales_rep_name=rep_name or "",
     )
     await state.clear()
-    await m.answer("✅ Торговый сохранён для записи очереди и маппинга.")
+    await m.answer("✅ Торговый сохранен для записи очереди и маппинга.")
+    queue = _load_debt_import_manual_queue()
+    actual_item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not actual_item:
+        return
+    parsed = actual_item.get("parsed_candidate") if isinstance(actual_item.get("parsed_candidate"), dict) else {}
+    legal_name = str(parsed.get("legal_name") or "").strip()
+    candidates = CLIENTS_DB.find_clients_by_name(legal_name) if legal_name else []
+    if not candidates:
+        candidates = CLIENTS_DB.list_clients()[:8]
+    await m.answer(
+        _debt_queue_item_text(actual_item),
+        reply_markup=debt_import_queue_item_kb(str(item_id), candidates),
+    )
 
 @router.callback_query(F.data.startswith("cc:edit:"))
 async def cc_edit_start(cq: CallbackQuery, state: FSMContext):

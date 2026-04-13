@@ -471,7 +471,7 @@
     },
     {
       "id": "d3b89ea8-65df-411d-9ef9-310b110ecb57",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Калугина Вера Сергеевна ИП (Щербатов) (Чигорина ул, дом № 65/1)",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -487,14 +487,15 @@
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
       "last_imported_by_user_id": 237087423,
-      "moderated_at": "2026-04-12T19:51:56Z",
+      "moderated_at": "2026-04-12T20:00:10Z",
       "moderated_by_user_id": 237087423,
       "selected_sales_rep_name": "Щербатов",
-      "selected_sales_rep_user_id": null
+      "selected_sales_rep_user_id": null,
+      "mapped_client_id": "1652a468-24e5-43ec-be82-5b06db01f94c"
     },
     {
       "id": "18810edc-d78c-4cc1-a813-209938017e8a",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Лосев М.С. - Токарев (Залесского ул, дом № 8/1)",
       "parsed_candidate": {
         "legal_form": "",
@@ -509,11 +510,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:15Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65"
     },
     {
       "id": "2120901c-17e0-498d-8a28-627d56e5fec9",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "ТАНДЕМГРУПП ООО - Токарев",
       "parsed_candidate": {
         "legal_form": "ООО",
@@ -528,11 +532,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:20Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "c9546d98-21ea-411e-b3f8-185c3476fb40"
     },
     {
       "id": "2d6fb7c7-512a-4c4c-a2da-59f1c4edbbc5",
-      "status": "pending",
+      "status": "resolved_created",
       "raw_client_name": "КРИВОДАНОВСКОЕ СЕЛЬПО - Щербатов (Кудряшовский дп, Береговая ул, дом № 30а)",
       "parsed_candidate": {
         "legal_form": "",
@@ -547,11 +554,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:26Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "34785aa5-faf4-4575-bf61-6892a6fe9505"
     },
     {
       "id": "1f2618f7-ec44-461d-a9fa-2d8b746e0ab1",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Дурнева Ольга Анатольевна ИП - Щербатов",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -566,11 +576,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:59Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "f0051c98-835c-4137-a037-844d5ba04085"
     },
     {
       "id": "e203d8e9-0735-45b6-a80e-56f7d4df827d",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Емцова Екатерина Юрьевна ИП - Щербатов",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -585,11 +598,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:01:05Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "0045f02b-a993-44eb-8165-b86b66d0f524"
     },
     {
       "id": "52b6ab9d-f025-495c-ae56-f69be643bdac",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "ВИРА ООО - Колягин",
       "parsed_candidate": {
         "legal_form": "ООО",
@@ -604,11 +620,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:01:07Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "2b7e5619-a02c-43b6-8e42-95a3c55a03b9"
     },
     {
       "id": "da1b53f0-105d-45e0-8031-e27eac8eea3f",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Кирпиченко А. Ф. ИП - (Криводановка, м-он 11б)",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -623,11 +642,16 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:01:43Z",
+      "moderated_by_user_id": 237087423,
+      "selected_sales_rep_name": "Щербатов",
+      "selected_sales_rep_user_id": null,
+      "mapped_client_id": "6639ffdf-b613-4b91-831c-84f83faabc7b"
     },
     {
       "id": "345781d8-5afa-44cf-b55a-32f184f1af52",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Кирпиченко А. Ф. ИП - (Криводановка, м-он 5)",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -642,7 +666,12 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:00Z",
+      "moderated_by_user_id": 237087423,
+      "selected_sales_rep_name": "Щербатов",
+      "selected_sales_rep_user_id": null,
+      "mapped_client_id": "6639ffdf-b613-4b91-831c-84f83faabc7b"
     },
     {
       "id": "435137c1-dcd4-4d53-ad43-d7cf122bfa14",
@@ -665,7 +694,7 @@
     },
     {
       "id": "575c315a-2dc7-4066-9d86-083da27004a2",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Кузьминых Татьяна Андреевна ИП - Колягин",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -680,11 +709,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:41Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "55dd44ef-7702-472c-af6b-81695a046e9e"
     },
     {
       "id": "70506def-6606-4fe5-a13c-6c95daa78543",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Мхикян Сусанна Рафиковна ИП - Токарев",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -699,11 +731,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:35Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "a280cffb-a3ef-4d9d-8709-5f0c7bd540b7"
     },
     {
       "id": "b5f1f57d-41be-4ca4-9907-b8a27a5506df",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "ХОТЭЙ ООО - Колягин",
       "parsed_candidate": {
         "legal_form": "ООО",
@@ -718,11 +753,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:30Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "6fefdcf6-0dd9-4e1f-ad15-74849a704aac"
     },
     {
       "id": "9f35d708-ebfa-46e5-b6ff-cf01f9eab1ae",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Куколева Олеся Викторовна ИП - Ганиев",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -737,7 +775,10 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:38Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "8b26c7ff-75cf-430d-86e5-1f3efb854184"
     },
     {
       "id": "3fd4da4b-9f79-4e26-8132-c99154b8a18e",
@@ -760,7 +801,7 @@
     },
     {
       "id": "8134fd6c-e9b6-4354-b1a3-3f983c328eed",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Шачков Александр Викторович ИП - Колягин",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -775,11 +816,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:44Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "5b6979d9-041a-45dd-818e-29f18caf8d07"
     },
     {
       "id": "672bea03-76ea-44f4-a729-fee2db687f67",
-      "status": "pending",
+      "status": "resolved_created",
       "raw_client_name": "Фролов Алексей Александрович - Ганиев(Красный Яр с, Ленина ул, дом № 33)",
       "parsed_candidate": {
         "legal_form": "",
@@ -794,7 +838,10 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:00:55Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "c2e327d9-e664-4827-9911-104c6d61d72a"
     },
     {
       "id": "3eae4022-9db0-4c8e-86bf-7db8e9654295",
@@ -836,7 +883,7 @@
     },
     {
       "id": "bca28629-6edd-4248-8647-ed1064ea6b8c",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Лосев М.С. - Токарев (Бердск г, Вокзальная ул, дом № 26А)",
       "parsed_candidate": {
         "legal_form": "",
@@ -851,11 +898,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:04Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65"
     },
     {
       "id": "13d3118b-92fb-43ea-90a0-5671eb815b6f",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Лосев М.С. - Токарев (Петухова ул, дом № 76)",
       "parsed_candidate": {
         "legal_form": "",
@@ -870,11 +920,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:07Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "99d28a3a-a13d-4acc-b9f8-1d6ca500dd65"
     },
     {
       "id": "28b05931-8019-422a-bb10-ddc95fe5d39a",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Пехов Константин Алексеевич ИП - Щербатов",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -889,11 +942,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:11Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "353b8293-22e4-4a25-9a83-6952a7e51e67"
     },
     {
       "id": "841d4b9d-93e9-463d-9012-0a08d4630e02",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Даньшина Елена Константиновна ИП - Колягин",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -908,11 +964,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:14Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "e96c830a-7ccb-4ad8-ac6f-916f0448ec4e"
     },
     {
       "id": "ef409138-b907-4e0d-b97b-b0d4b448b8f5",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Нина ООО - Щербатов",
       "parsed_candidate": {
         "legal_form": "ООО",
@@ -927,11 +986,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:57Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "8088025d-ea3b-498b-aa4f-c33e9677caf7"
     },
     {
       "id": "8c1e175e-f2de-421f-9557-68e5f84292e4",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Сибирь-Инвест ООО - Колягин",
       "parsed_candidate": {
         "legal_form": "ООО",
@@ -946,11 +1008,14 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:18Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "25f23bb3-3e36-426f-b3e2-d5b37b0a60ec"
     },
     {
       "id": "1a30d07f-2677-4fd0-9a93-f7c319acc281",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Старцева Ольга Георгиевна ИП - Колягин",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -965,7 +1030,10 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:21Z",
+      "moderated_by_user_id": 237087423,
+      "mapped_client_id": "9cb9c5d9-09ec-4847-90e7-ef867a386775"
     },
     {
       "id": "274ec045-e4da-452d-bc53-3e78f7b2d705",
@@ -988,7 +1056,7 @@
     },
     {
       "id": "5db3d2fc-53e8-402f-954a-fecb59e64a63",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "Подборнов Сергей Григорьевич ИП Колягин",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -1004,7 +1072,12 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:35Z",
+      "moderated_by_user_id": 237087423,
+      "selected_sales_rep_name": "Колягин",
+      "selected_sales_rep_user_id": null,
+      "mapped_client_id": "58de6fb1-360e-407e-830c-9f59fedc7724"
     },
     {
       "id": "31931a8b-cf7c-472c-a568-961087332b12",
@@ -1027,7 +1100,7 @@
     },
     {
       "id": "4d24a6b9-e6ad-4d72-803e-edfcaeed5510",
-      "status": "pending",
+      "status": "resolved_mapped",
       "raw_client_name": "__Графадацкая О. С. ИП - Щербатов (Герцена ул, дом № 6) ЗАКРЫТ!!",
       "parsed_candidate": {
         "legal_form": "ИП",
@@ -1042,7 +1115,12 @@
       "seen_count": 3,
       "created_at": "2026-04-12T18:53:29Z",
       "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-12T20:02:53Z",
+      "moderated_by_user_id": 237087423,
+      "selected_sales_rep_name": "Щербатов",
+      "selected_sales_rep_user_id": null,
+      "mapped_client_id": "9fb48e9e-0743-4c16-9e21-5bf151514fe3"
     },
     {
       "id": "bf3a78f9-d3bf-4344-873a-06070cecf5d7",

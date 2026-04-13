@@ -566,8 +566,17 @@ def parse_clients(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
 # маркеры строк-документов, которые нужно игнорировать (движения)
 TARA_DOC_MARKERS = re.compile(
-    r"(реализаци|возврат|перемещени|поступлени|списани|оказани[ея]\s+услуг|акт|накладн)",
-    re.I
+    r"\b("
+    r"реализаци\w*|"
+    r"возврат\w*|"
+    r"перемещени\w*|"
+    r"поступлени\w*|"
+    r"списани\w*|"
+    r"оказани[ея]\s+услуг\w*|"
+    r"акт\w*|"
+    r"накладн\w*"
+    r")\b",
+    re.I,
 )
 # --- Simple cache for parsed TARA files ---
 _TARA_CACHE = {}  # path -> (mtime, size, data)
