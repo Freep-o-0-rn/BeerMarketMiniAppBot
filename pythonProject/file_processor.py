@@ -163,12 +163,13 @@ def _read_excel_safe(path: str, header=None):
     _unblock_motw(path)  # файл может быть из недоверенного источника
     _ox_kwargs = dict(engine="openpyxl", engine_kwargs={"data_only": True, "read_only": True})
     ext = os.path.splitext(path)[1].lower()
+
     if ext == ".xlsx":
         try:
             return pd.read_excel(path, header=header, **_ox_kwargs)
         except Exception as e1:
             msg = str(e1)
-            patched_df = None
+
             # 1) сначала пробуем zip-патч
             fixed = None
             if "sharedStrings.xml" in msg:
@@ -176,15 +177,10 @@ def _read_excel_safe(path: str, header=None):
                 if fixed:
                     try:
                         logging.info("Retry patched -> openpyxl: %s", os.path.basename(fixed))
-                        patched_df = pd.read_excel(fixed, header=header, **_ox_kwargs)
-                        if _df_has_meaningful_text(patched_df):
-                            return patched_df
-                        logging.warning(
-                            "Patched read has no meaningful text, trying deeper repair: %s",
-                            os.path.basename(fixed),
-                        )
+                        return pd.read_excel(fixed, header=header, **_ox_kwargs)
                     except Exception:
                         logging.exception("patched read failed for %s", fixed)
+
             # 2) затем COM-ремонт (после снятия Protected View)
             try:
                 repaired = _repair_xlsx_via_excel(path if not fixed else fixed)
@@ -192,42 +188,27 @@ def _read_excel_safe(path: str, header=None):
                 return pd.read_excel(repaired, header=header, **_ox_kwargs)
             except Exception:
                 logging.exception("Excel COM repair failed for %s", path)
-            # 3) Если COM недоступен, но патч дал хоть какую-то таблицу — вернём её как fallback.
-            if patched_df is not None:
-                logging.warning(
-                    "Using patched workbook as fallback despite weak text recovery: %s",
-                    os.path.basename(fixed or path),
-                )
-                return patched_df
+
+            raise
+
+            # 3) Если COM недоступен — последний шанс: патч sharedStrings + повтор
+            if "sharedStrings.xml" in msg:
+                fixed = _fix_missing_sharedstrings_via_zip(path)
+                if fixed:
+                    try:
+                        logging.info("Retry patched -> openpyxl: %s", os.path.basename(fixed))
+                        return pd.read_excel(fixed, header=header, **_ox_kwargs)
+                    except Exception:
+                        logging.exception("patched read failed for %s", fixed)
+
             # 4) сдаёмся
             raise
+
     if ext == ".xls":
         return pd.read_excel(path, header=header, engine="xlrd")
+
     return pd.read_excel(path, header=header)
 
-def _df_has_meaningful_text(df: pd.DataFrame, *, min_text_cells: int = 3) -> bool:
-    """
-    Грубая проверка, что в DataFrame есть осмысленные текстовые значения.
-    Нужна как защита от случая, когда xlsx «читается» после synthetic sharedStrings,
-    но все строковые ячейки превращаются в пустые.
-    """
-    try:
-        if df is None or df.empty:
-            return False
-        sample = df.head(80).fillna("")
-        text_cells = 0
-        for row in sample.itertuples(index=False, name=None):
-            for cell in row:
-                s = str(cell or "").strip()
-                if not s:
-                    continue
-                if re.search(r"[A-Za-zА-Яа-яЁё]", s):
-                    text_cells += 1
-                    if text_cells >= min_text_cells:
-                        return True
-        return False
-    except Exception:
-        return False
 
 # ---- хелпер: определяем тип книги по «магическим» байтам ----
 def _detect_excel_kind(path: str) -> str:
@@ -696,18 +677,6 @@ def _merge_tara_items(items: List[Tuple[str, float]]) -> List[Tuple[str, float]]
 
     return [(name, qty) for name, qty in ((name, merged[name]) for name in order) if abs(qty) > 1e-9]
 
-def _tara_clean_registrator(value: Any) -> str:
-    """
-    Нормализация поля "Регистратор"/служебного текста для поиска.
-    Не пытаемся строго парсить ФИО — сохраняем устойчивый текстовый след.
-    """
-    txt = re.sub(r"\s+", " ", str(value or "").strip())
-    if not txt or txt.lower() == "nan":
-        return ""
-    if TARA_DOC_MARKERS.search(txt):
-        return ""
-    return txt
-
 def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """Парсинг строк отчёта по возвратной таре"""
     col_client, col_item, col_reg, col_qty_end = _tara_find_cols(df)
@@ -731,21 +700,14 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             parts_probe = split_report_client_label(client_cell)
             is_client_like = bool(parts_probe.get("sales_rep") or parts_probe.get("address") or CLIENT_MARKERS.search(client_cell))
 
+        # клиент␊
         if is_client_like:
             # сохранить предыдущего␊
             if current:
                 current["items"] = _merge_tara_items(current["items"])
-                regs = [x for x in (current.get("_registrators") or []) if x]
-                if regs:
-                    current["registrator_text"] = " | ".join(regs)
-                current.pop("_registrators", None)
                 if abs(float(current.get("total") or 0.0)) > 1e-9 or current["items"]:
                     results.append(current)
             parts = split_report_client_label(client_cell)
-            registrators: List[str] = []
-            reg_hint = _tara_clean_registrator(reg_cell)
-            if reg_hint:
-                registrators.append(reg_hint)
             current = {
                 "client": client_cell,
                 "client_name": parts.get("client_name") or client_cell,
@@ -753,7 +715,6 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
                 "address": parts.get("address") or "",
                 "items": [],
                 "total": q_end,
-                "_registrators": registrators,
             }
             continue
 
@@ -763,23 +724,19 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
         # номенклатура
         if current and abs(q_end) > 0:
-            reg_hint = _tara_clean_registrator(reg_cell)
-            if reg_hint:
-                regs = current.setdefault("_registrators", [])
-                if reg_hint not in regs:
-                    regs.append(reg_hint)
             item_name = item_cell or text
             current["items"].append((item_name, q_end))
 
     # финальный клиент
+    # финальный клиент␊
     if current:
         current["items"] = _merge_tara_items(current["items"])
-        regs = [x for x in (current.get("_registrators") or []) if x]
-        if regs:
-            current["registrator_text"] = " | ".join(regs)
-        current.pop("_registrators", None)
         if abs(float(current.get("total") or 0.0)) > 1e-9 or current["items"]:
             results.append(current)
+
+    results.sort(key=lambda x: x.get("total", 0.0), reverse=True)
+    logging.info("Тара: собрано клиентов: %d", len(results))
+    return results
 
 def process_tara_file(path: str) -> Dict[str, Any]:
     df, report_date = read_tara_file(path)
