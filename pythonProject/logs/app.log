@@ -35799,3 +35799,333 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTO
 2026-04-13 14:36:11 | WARNING | aiogram.dispatcher | Sleep for 1.190701 seconds and try again... (tryings = 1, bot id = 8304099970)
 2026-04-13 14:36:20 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
 2026-04-13 14:36:20 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 14:40:52 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 14:40:57 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:40:57 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:40:58 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:40:59 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 14:40:59 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 14:40:59 | INFO | root | Собрано клиентов: 228
+2026-04-13 14:40:59 | INFO | __main__ | Отчёт на 13.04.2026 | клиентов: 228
+2026-04-13 14:40:59 | INFO | __main__ | 01. nan | сум: 4376140.22 | проср: 4264844.06 | наш долг: 290663.06 | доков: 0
+2026-04-13 14:40:59 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 14:40:59 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 14:40:59 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 14:40:59 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 14:40:59 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 14:40:59 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 14:40:59 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 14:40:59 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 14:40:59 | INFO | __main__ | 10. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 83913.73 | проср: 43815.03 | наш долг: 4970.40 | доков: 7
+2026-04-13 14:41:00 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 14:41:00 | INFO | telegram_bot | Daily fetch: next run in 3000 sec (now 2026-04-13 14:41:00, tz Asia/Novosibirsk)
+2026-04-13 14:41:00 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:41:04 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:41:04 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:41:09 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:41:09 | WARNING | aiogram.dispatcher | Sleep for 1.314189 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:41:16 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:41:16 | WARNING | aiogram.dispatcher | Sleep for 1.710496 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:41:23 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:41:23 | WARNING | aiogram.dispatcher | Sleep for 2.316335 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 14:41:30 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 14:41:30 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:41:41 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 14:41:45 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:41:45 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:41:45 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:41:46 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 14:41:46 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 14:41:46 | INFO | root | Собрано клиентов: 228
+2026-04-13 14:41:46 | INFO | __main__ | Отчёт на 13.04.2026 | клиентов: 228
+2026-04-13 14:41:46 | INFO | __main__ | 01. nan | сум: 4376140.22 | проср: 4264844.06 | наш долг: 290663.06 | доков: 0
+2026-04-13 14:41:46 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 14:41:46 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 14:41:46 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 14:41:46 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 14:41:46 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 14:41:46 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 14:41:46 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 14:41:46 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 14:41:46 | INFO | __main__ | 10. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 83913.73 | проср: 43815.03 | наш долг: 4970.40 | доков: 7
+2026-04-13 14:41:47 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 14:41:47 | INFO | telegram_bot | Daily fetch: next run in 2953 sec (now 2026-04-13 14:41:47, tz Asia/Novosibirsk)
+2026-04-13 14:41:47 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:41:51 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:41:51 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:41:57 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:41:57 | WARNING | aiogram.dispatcher | Sleep for 1.434070 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:42:03 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:42:03 | WARNING | aiogram.dispatcher | Sleep for 1.911962 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:42:10 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:42:10 | WARNING | aiogram.dispatcher | Sleep for 2.573703 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 14:42:19 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:42:19 | WARNING | aiogram.dispatcher | Sleep for 3.300196 seconds and try again... (tryings = 4, bot id = 8304099970)
+2026-04-13 14:42:26 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:42:26 | WARNING | aiogram.dispatcher | Sleep for 4.076090 seconds and try again... (tryings = 5, bot id = 8304099970)
+2026-04-13 14:42:34 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:42:34 | WARNING | aiogram.dispatcher | Sleep for 4.901408 seconds and try again... (tryings = 6, bot id = 8304099970)
+2026-04-13 14:42:45 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:42:45 | WARNING | aiogram.dispatcher | Sleep for 4.866194 seconds and try again... (tryings = 7, bot id = 8304099970)
+2026-04-13 14:42:49 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 14:42:49 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:47:18 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 14:47:24 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:47:24 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:47:24 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:47:25 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 14:47:25 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 14:47:25 | INFO | root | Собрано клиентов: 228
+2026-04-13 14:47:25 | INFO | __main__ | Отчёт на 13.04.2026 | клиентов: 228
+2026-04-13 14:47:25 | INFO | __main__ | 01. nan | сум: 4376140.22 | проср: 4264844.06 | наш долг: 290663.06 | доков: 0
+2026-04-13 14:47:25 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 14:47:25 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 14:47:25 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 14:47:25 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 14:47:25 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 14:47:25 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 14:47:25 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 14:47:25 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 14:47:25 | INFO | __main__ | 10. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 83913.73 | проср: 43815.03 | наш долг: 4970.40 | доков: 7
+2026-04-13 14:47:26 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 14:47:26 | INFO | telegram_bot | Daily fetch: next run in 2614 sec (now 2026-04-13 14:47:26, tz Asia/Novosibirsk)
+2026-04-13 14:47:26 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:47:30 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:47:30 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:47:36 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:47:36 | WARNING | aiogram.dispatcher | Sleep for 1.282156 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:47:42 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:47:42 | WARNING | aiogram.dispatcher | Sleep for 1.571221 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:47:49 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:47:49 | WARNING | aiogram.dispatcher | Sleep for 1.960503 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 14:47:57 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:47:57 | WARNING | aiogram.dispatcher | Sleep for 2.441374 seconds and try again... (tryings = 4, bot id = 8304099970)
+2026-04-13 14:48:03 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:48:03 | WARNING | aiogram.dispatcher | Sleep for 3.212608 seconds and try again... (tryings = 5, bot id = 8304099970)
+2026-04-13 14:48:11 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:48:11 | WARNING | aiogram.dispatcher | Sleep for 4.079478 seconds and try again... (tryings = 6, bot id = 8304099970)
+2026-04-13 14:48:20 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:48:20 | WARNING | aiogram.dispatcher | Sleep for 5.102850 seconds and try again... (tryings = 7, bot id = 8304099970)
+2026-04-13 14:48:30 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:48:30 | WARNING | aiogram.dispatcher | Sleep for 4.933713 seconds and try again... (tryings = 8, bot id = 8304099970)
+2026-04-13 14:48:40 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:48:40 | WARNING | aiogram.dispatcher | Sleep for 4.980476 seconds and try again... (tryings = 9, bot id = 8304099970)
+2026-04-13 14:48:51 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:48:51 | WARNING | aiogram.dispatcher | Sleep for 4.866398 seconds and try again... (tryings = 10, bot id = 8304099970)
+2026-04-13 14:49:01 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:49:01 | WARNING | aiogram.dispatcher | Sleep for 5.060073 seconds and try again... (tryings = 11, bot id = 8304099970)
+2026-04-13 14:49:11 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:49:11 | WARNING | aiogram.dispatcher | Sleep for 4.924223 seconds and try again... (tryings = 12, bot id = 8304099970)
+2026-04-13 14:49:21 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:49:21 | WARNING | aiogram.dispatcher | Sleep for 4.932078 seconds and try again... (tryings = 13, bot id = 8304099970)
+2026-04-13 14:49:32 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:49:32 | WARNING | aiogram.dispatcher | Sleep for 5.036225 seconds and try again... (tryings = 14, bot id = 8304099970)
+2026-04-13 14:49:42 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:49:42 | WARNING | aiogram.dispatcher | Sleep for 4.897994 seconds and try again... (tryings = 15, bot id = 8304099970)
+2026-04-13 14:49:52 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:49:52 | WARNING | aiogram.dispatcher | Sleep for 5.074181 seconds and try again... (tryings = 16, bot id = 8304099970)
+2026-04-13 14:50:02 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:50:02 | WARNING | aiogram.dispatcher | Sleep for 4.977704 seconds and try again... (tryings = 17, bot id = 8304099970)
+2026-04-13 14:50:12 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:50:12 | WARNING | aiogram.dispatcher | Sleep for 4.935904 seconds and try again... (tryings = 18, bot id = 8304099970)
+2026-04-13 14:50:22 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:50:22 | WARNING | aiogram.dispatcher | Sleep for 4.938767 seconds and try again... (tryings = 19, bot id = 8304099970)
+2026-04-13 14:50:33 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:50:33 | WARNING | aiogram.dispatcher | Sleep for 5.255755 seconds and try again... (tryings = 20, bot id = 8304099970)
+2026-04-13 14:50:43 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:50:43 | WARNING | aiogram.dispatcher | Sleep for 4.869058 seconds and try again... (tryings = 21, bot id = 8304099970)
+2026-04-13 14:50:54 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:50:54 | WARNING | aiogram.dispatcher | Sleep for 5.135888 seconds and try again... (tryings = 22, bot id = 8304099970)
+2026-04-13 14:51:04 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:51:04 | WARNING | aiogram.dispatcher | Sleep for 4.984014 seconds and try again... (tryings = 23, bot id = 8304099970)
+2026-04-13 14:51:15 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:51:15 | WARNING | aiogram.dispatcher | Sleep for 4.848172 seconds and try again... (tryings = 24, bot id = 8304099970)
+2026-04-13 14:51:25 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:51:25 | WARNING | aiogram.dispatcher | Sleep for 4.948814 seconds and try again... (tryings = 25, bot id = 8304099970)
+2026-04-13 14:51:35 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:51:35 | WARNING | aiogram.dispatcher | Sleep for 5.112865 seconds and try again... (tryings = 26, bot id = 8304099970)
+2026-04-13 14:51:45 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:51:45 | WARNING | aiogram.dispatcher | Sleep for 4.929864 seconds and try again... (tryings = 27, bot id = 8304099970)
+2026-04-13 14:51:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:51:56 | WARNING | aiogram.dispatcher | Sleep for 5.081234 seconds and try again... (tryings = 28, bot id = 8304099970)
+2026-04-13 14:52:06 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:52:06 | WARNING | aiogram.dispatcher | Sleep for 4.721801 seconds and try again... (tryings = 29, bot id = 8304099970)
+2026-04-13 14:52:16 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:52:16 | WARNING | aiogram.dispatcher | Sleep for 5.027084 seconds and try again... (tryings = 30, bot id = 8304099970)
+2026-04-13 14:52:27 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:52:27 | WARNING | aiogram.dispatcher | Sleep for 4.785763 seconds and try again... (tryings = 31, bot id = 8304099970)
+2026-04-13 14:52:37 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:52:37 | WARNING | aiogram.dispatcher | Sleep for 4.906409 seconds and try again... (tryings = 32, bot id = 8304099970)
+2026-04-13 14:52:47 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:52:47 | WARNING | aiogram.dispatcher | Sleep for 5.028236 seconds and try again... (tryings = 33, bot id = 8304099970)
+2026-04-13 14:52:57 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:52:57 | WARNING | aiogram.dispatcher | Sleep for 4.932798 seconds and try again... (tryings = 34, bot id = 8304099970)
+2026-04-13 14:53:07 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:53:07 | WARNING | aiogram.dispatcher | Sleep for 4.893333 seconds and try again... (tryings = 35, bot id = 8304099970)
+2026-04-13 14:53:18 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:53:18 | WARNING | aiogram.dispatcher | Sleep for 4.993564 seconds and try again... (tryings = 36, bot id = 8304099970)
+2026-04-13 14:53:28 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:53:28 | WARNING | aiogram.dispatcher | Sleep for 4.796560 seconds and try again... (tryings = 37, bot id = 8304099970)
+2026-04-13 14:53:38 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:53:38 | WARNING | aiogram.dispatcher | Sleep for 4.916597 seconds and try again... (tryings = 38, bot id = 8304099970)
+2026-04-13 14:53:48 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:53:48 | WARNING | aiogram.dispatcher | Sleep for 5.052634 seconds and try again... (tryings = 39, bot id = 8304099970)
+2026-04-13 14:53:59 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:53:59 | WARNING | aiogram.dispatcher | Sleep for 4.838594 seconds and try again... (tryings = 40, bot id = 8304099970)
+2026-04-13 14:54:09 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:54:09 | WARNING | aiogram.dispatcher | Sleep for 5.009974 seconds and try again... (tryings = 41, bot id = 8304099970)
+2026-04-13 14:54:19 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:54:19 | WARNING | aiogram.dispatcher | Sleep for 4.808916 seconds and try again... (tryings = 42, bot id = 8304099970)
+2026-04-13 14:54:29 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:54:29 | WARNING | aiogram.dispatcher | Sleep for 5.109657 seconds and try again... (tryings = 43, bot id = 8304099970)
+2026-04-13 14:54:40 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:54:40 | WARNING | aiogram.dispatcher | Sleep for 4.887936 seconds and try again... (tryings = 44, bot id = 8304099970)
+2026-04-13 14:54:50 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:54:50 | WARNING | aiogram.dispatcher | Sleep for 4.991656 seconds and try again... (tryings = 45, bot id = 8304099970)
+2026-04-13 14:55:00 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:55:00 | WARNING | aiogram.dispatcher | Sleep for 4.987531 seconds and try again... (tryings = 46, bot id = 8304099970)
+2026-04-13 14:55:10 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:55:10 | WARNING | aiogram.dispatcher | Sleep for 5.108565 seconds and try again... (tryings = 47, bot id = 8304099970)
+2026-04-13 14:55:21 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:55:21 | WARNING | aiogram.dispatcher | Sleep for 4.888715 seconds and try again... (tryings = 48, bot id = 8304099970)
+2026-04-13 14:55:31 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:55:31 | WARNING | aiogram.dispatcher | Sleep for 4.843829 seconds and try again... (tryings = 49, bot id = 8304099970)
+2026-04-13 14:55:41 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:55:41 | WARNING | aiogram.dispatcher | Sleep for 4.932078 seconds and try again... (tryings = 50, bot id = 8304099970)
+2026-04-13 14:55:51 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:55:51 | WARNING | aiogram.dispatcher | Sleep for 5.009109 seconds and try again... (tryings = 51, bot id = 8304099970)
+2026-04-13 14:56:02 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:56:02 | WARNING | aiogram.dispatcher | Sleep for 4.983312 seconds and try again... (tryings = 52, bot id = 8304099970)
+2026-04-13 14:56:12 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:56:12 | WARNING | aiogram.dispatcher | Sleep for 4.892293 seconds and try again... (tryings = 53, bot id = 8304099970)
+2026-04-13 14:56:22 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:56:22 | WARNING | aiogram.dispatcher | Sleep for 4.971786 seconds and try again... (tryings = 54, bot id = 8304099970)
+2026-04-13 14:56:32 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:56:32 | WARNING | aiogram.dispatcher | Sleep for 5.088762 seconds and try again... (tryings = 55, bot id = 8304099970)
+2026-04-13 14:56:43 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:56:43 | WARNING | aiogram.dispatcher | Sleep for 4.973605 seconds and try again... (tryings = 56, bot id = 8304099970)
+2026-04-13 14:56:53 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:56:53 | WARNING | aiogram.dispatcher | Sleep for 5.251100 seconds and try again... (tryings = 57, bot id = 8304099970)
+2026-04-13 14:57:04 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:57:04 | WARNING | aiogram.dispatcher | Sleep for 5.114100 seconds and try again... (tryings = 58, bot id = 8304099970)
+2026-04-13 14:57:14 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:57:14 | WARNING | aiogram.dispatcher | Sleep for 5.035359 seconds and try again... (tryings = 59, bot id = 8304099970)
+2026-04-13 14:57:25 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:57:25 | WARNING | aiogram.dispatcher | Sleep for 5.095888 seconds and try again... (tryings = 60, bot id = 8304099970)
+2026-04-13 14:57:35 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:57:35 | WARNING | aiogram.dispatcher | Sleep for 5.191589 seconds and try again... (tryings = 61, bot id = 8304099970)
+2026-04-13 14:57:45 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:57:45 | WARNING | aiogram.dispatcher | Sleep for 4.909130 seconds and try again... (tryings = 62, bot id = 8304099970)
+2026-04-13 14:57:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:57:56 | WARNING | aiogram.dispatcher | Sleep for 5.066657 seconds and try again... (tryings = 63, bot id = 8304099970)
+2026-04-13 14:58:06 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:58:06 | WARNING | aiogram.dispatcher | Sleep for 4.909243 seconds and try again... (tryings = 64, bot id = 8304099970)
+2026-04-13 14:58:16 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:58:16 | WARNING | aiogram.dispatcher | Sleep for 5.134879 seconds and try again... (tryings = 65, bot id = 8304099970)
+2026-04-13 14:58:27 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:58:27 | WARNING | aiogram.dispatcher | Sleep for 5.124043 seconds and try again... (tryings = 66, bot id = 8304099970)
+2026-04-13 14:58:37 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:58:37 | WARNING | aiogram.dispatcher | Sleep for 5.030100 seconds and try again... (tryings = 67, bot id = 8304099970)
+2026-04-13 14:58:48 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:58:48 | WARNING | aiogram.dispatcher | Sleep for 5.106685 seconds and try again... (tryings = 68, bot id = 8304099970)
+2026-04-13 14:58:58 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:58:58 | WARNING | aiogram.dispatcher | Sleep for 5.064280 seconds and try again... (tryings = 69, bot id = 8304099970)
+2026-04-13 14:59:08 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:08 | WARNING | aiogram.dispatcher | Sleep for 4.781703 seconds and try again... (tryings = 70, bot id = 8304099970)
+2026-04-13 14:59:19 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:19 | WARNING | aiogram.dispatcher | Sleep for 5.011616 seconds and try again... (tryings = 71, bot id = 8304099970)
+2026-04-13 14:59:27 | INFO | aiogram.dispatcher | Connection established (tryings = 72, bot id = 8304099970)
+2026-04-13 14:59:28 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 438, 'req': 'b7f74063', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'sales_rep', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 3928, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:59:28 | INFO | aiogram.event | Update id=104058447 is handled. Duration 452 ms by bot id=8304099970
+2026-04-13 14:59:29 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:29 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:59:35 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:59:35 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 195, 'req': '5e28cf63', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3930, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:59:35 | INFO | aiogram.event | Update id=104058448 is handled. Duration 203 ms by bot id=8304099970
+2026-04-13 14:59:38 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:38 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:59:42 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:59:42 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 152, 'req': 'f9b0fe24', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3934, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-13 14:59:42 | INFO | aiogram.event | Update id=104058450 is handled. Duration 172 ms by bot id=8304099970
+2026-04-13 14:59:44 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:44 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:59:49 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:59:51 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-04-13 14:59:51 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-04-13 14:59:51 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:51 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:59:51 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2443, 'req': '72958d43', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3936, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Кирьянов', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:59:51 | INFO | aiogram.event | Update id=104058451 is handled. Duration 2453 ms by bot id=8304099970
+2026-04-13 14:59:52 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:59:53 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 173, 'req': '65885199', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3939, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск', 'caption_len': 0, 'entities': 0, 'state': 'SearchStates:waiting_query'}
+2026-04-13 14:59:53 | INFO | aiogram.event | Update id=104058452 is handled. Duration 186 ms by bot id=8304099970
+2026-04-13 14:59:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:59:56 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 15:00:01 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 15:00:02 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 15:00:02 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 15:00:02 | INFO | root | Собрано клиентов: 228
+2026-04-13 15:00:02 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:02 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 15:00:03 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2311, 'req': '27b46a70', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3941, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Кирьянов', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 15:00:03 | INFO | aiogram.event | Update id=104058453 is handled. Duration 2327 ms by bot id=8304099970
+2026-04-13 15:00:09 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:09 | WARNING | aiogram.dispatcher | Sleep for 1.357794 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 15:00:16 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:16 | WARNING | aiogram.dispatcher | Sleep for 1.698101 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 15:00:25 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:25 | WARNING | aiogram.dispatcher | Sleep for 2.249373 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 15:00:36 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:36 | WARNING | aiogram.dispatcher | Sleep for 2.812584 seconds and try again... (tryings = 4, bot id = 8304099970)
+2026-04-13 15:00:47 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:47 | WARNING | aiogram.dispatcher | Sleep for 3.626332 seconds and try again... (tryings = 5, bot id = 8304099970)
+2026-04-13 15:00:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:00:56 | WARNING | aiogram.dispatcher | Sleep for 4.655163 seconds and try again... (tryings = 6, bot id = 8304099970)
+2026-04-13 15:01:06 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:01:06 | WARNING | aiogram.dispatcher | Sleep for 4.904075 seconds and try again... (tryings = 7, bot id = 8304099970)
+2026-04-13 15:01:16 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:01:16 | WARNING | aiogram.dispatcher | Sleep for 5.021467 seconds and try again... (tryings = 8, bot id = 8304099970)
+2026-04-13 15:01:26 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:01:26 | WARNING | aiogram.dispatcher | Sleep for 4.881341 seconds and try again... (tryings = 9, bot id = 8304099970)
+2026-04-13 15:01:36 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 15:01:36 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
