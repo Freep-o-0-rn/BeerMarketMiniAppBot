@@ -35433,3 +35433,369 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTO
 2026-04-13 12:43:13 | WARNING | aiogram.dispatcher | Sleep for 3.902064 seconds and try again... (tryings = 6, bot id = 8304099970)
 2026-04-13 12:43:22 | INFO | aiogram.dispatcher | Polling stopped
 2026-04-13 12:43:22 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 13:01:04 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 13:01:08 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 13:01:08 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 13:01:08 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 13:01:09 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 13:01:09 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 13:01:09 | INFO | root | Собрано клиентов: 228
+2026-04-13 13:01:09 | INFO | __main__ | Отчёт на 13.04.2026 | клиентов: 228
+2026-04-13 13:01:09 | INFO | __main__ | 01. nan | сум: 4376140.22 | проср: 4264844.06 | наш долг: 290663.06 | доков: 0
+2026-04-13 13:01:09 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 13:01:09 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 13:01:09 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 13:01:09 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 13:01:09 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 13:01:09 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 13:01:09 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 13:01:09 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 13:01:09 | INFO | __main__ | 10. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 83913.73 | проср: 43815.03 | наш долг: 4970.40 | доков: 7
+2026-04-13 13:01:10 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 13:01:10 | INFO | telegram_bot | Daily fetch: next run in 8990 sec (now 2026-04-13 13:01:10, tz Asia/Novosibirsk)
+2026-04-13 13:01:10 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 13:01:14 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:14 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 13:01:20 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:20 | WARNING | aiogram.dispatcher | Sleep for 1.142285 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 13:01:25 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:25 | WARNING | aiogram.dispatcher | Sleep for 1.442465 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 13:01:31 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:31 | WARNING | aiogram.dispatcher | Sleep for 1.882468 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 13:01:33 | INFO | aiogram.dispatcher | Connection established (tryings = 4, bot id = 8304099970)
+2026-04-13 13:01:33 | INFO | aiogram.event | Update id=104058378 is not handled. Duration 16 ms by bot id=8304099970
+2026-04-13 13:01:37 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:37 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 13:01:43 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:43 | WARNING | aiogram.dispatcher | Sleep for 1.187782 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 13:01:49 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:49 | WARNING | aiogram.dispatcher | Sleep for 1.629214 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 13:01:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:01:56 | WARNING | aiogram.dispatcher | Sleep for 2.136391 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 13:02:04 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:02:04 | WARNING | aiogram.dispatcher | Sleep for 2.826429 seconds and try again... (tryings = 4, bot id = 8304099970)
+2026-04-13 13:02:11 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:02:11 | WARNING | aiogram.dispatcher | Sleep for 3.672305 seconds and try again... (tryings = 5, bot id = 8304099970)
+2026-04-13 13:02:20 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:02:20 | WARNING | aiogram.dispatcher | Sleep for 4.956890 seconds and try again... (tryings = 6, bot id = 8304099970)
+2026-04-13 13:02:30 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:02:30 | WARNING | aiogram.dispatcher | Sleep for 4.989206 seconds and try again... (tryings = 7, bot id = 8304099970)
+2026-04-13 13:02:40 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:02:40 | WARNING | aiogram.dispatcher | Sleep for 5.097781 seconds and try again... (tryings = 8, bot id = 8304099970)
+2026-04-13 13:02:50 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 13:02:50 | WARNING | aiogram.dispatcher | Sleep for 4.920729 seconds and try again... (tryings = 9, bot id = 8304099970)
+2026-04-13 13:02:55 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-13 13:02:55 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:29:44 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 14:29:48 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:29:48 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:29:48 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 14:29:49 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 14:29:49 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 14:29:49 | INFO | root | Собрано клиентов: 228
+2026-04-13 14:29:49 | INFO | __main__ | Отчёт на 13.04.2026 | клиентов: 228
+2026-04-13 14:29:49 | INFO | __main__ | 01. nan | сум: 4376140.22 | проср: 4264844.06 | наш долг: 290663.06 | доков: 0
+2026-04-13 14:29:49 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 14:29:49 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 14:29:49 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 14:29:49 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 14:29:49 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 14:29:49 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 14:29:49 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 14:29:49 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 14:29:49 | INFO | __main__ | 10. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 83913.73 | проср: 43815.03 | наш долг: 4970.40 | доков: 7
+2026-04-13 14:29:50 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 14:29:50 | INFO | telegram_bot | Daily fetch: next run in 3670 sec (now 2026-04-13 14:29:50, tz Asia/Novosibirsk)
+2026-04-13 14:29:50 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:29:54 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:29:54 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:30:00 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:00 | WARNING | aiogram.dispatcher | Sleep for 1.337586 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:30:06 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:06 | WARNING | aiogram.dispatcher | Sleep for 1.785250 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:30:13 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:13 | WARNING | aiogram.dispatcher | Sleep for 2.414294 seconds and try again... (tryings = 3, bot id = 8304099970)
+2026-04-13 14:30:22 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:22 | WARNING | aiogram.dispatcher | Sleep for 3.253601 seconds and try again... (tryings = 4, bot id = 8304099970)
+2026-04-13 14:30:29 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:29 | WARNING | aiogram.dispatcher | Sleep for 4.182463 seconds and try again... (tryings = 5, bot id = 8304099970)
+2026-04-13 14:30:37 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:37 | WARNING | aiogram.dispatcher | Sleep for 5.091989 seconds and try again... (tryings = 6, bot id = 8304099970)
+2026-04-13 14:30:48 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:48 | WARNING | aiogram.dispatcher | Sleep for 5.021712 seconds and try again... (tryings = 7, bot id = 8304099970)
+2026-04-13 14:30:58 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:30:58 | WARNING | aiogram.dispatcher | Sleep for 4.858050 seconds and try again... (tryings = 8, bot id = 8304099970)
+2026-04-13 14:31:08 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:31:08 | WARNING | aiogram.dispatcher | Sleep for 4.894539 seconds and try again... (tryings = 9, bot id = 8304099970)
+2026-04-13 14:31:19 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:31:19 | WARNING | aiogram.dispatcher | Sleep for 5.213407 seconds and try again... (tryings = 10, bot id = 8304099970)
+2026-04-13 14:31:29 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:31:29 | WARNING | aiogram.dispatcher | Sleep for 4.953579 seconds and try again... (tryings = 11, bot id = 8304099970)
+2026-04-13 14:31:39 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:31:39 | WARNING | aiogram.dispatcher | Sleep for 4.925864 seconds and try again... (tryings = 12, bot id = 8304099970)
+2026-04-13 14:31:49 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:31:49 | WARNING | aiogram.dispatcher | Sleep for 5.085825 seconds and try again... (tryings = 13, bot id = 8304099970)
+2026-04-13 14:31:55 | INFO | aiogram.dispatcher | Connection established (tryings = 14, bot id = 8304099970)
+2026-04-13 14:31:56 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 456, 'req': '73c776d6', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3872, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:31:56 | INFO | aiogram.event | Update id=104058379 is handled. Duration 452 ms by bot id=8304099970
+2026-04-13 14:31:58 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 168, 'req': 'd5ab5869', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3874, 'kind': <ContentType.TEXT: 'text'>, 'text': '🏢 Клиенты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:31:58 | INFO | aiogram.event | Update id=104058380 is handled. Duration 171 ms by bot id=8304099970
+2026-04-13 14:32:00 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:00 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:32:07 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:07 | WARNING | aiogram.dispatcher | Sleep for 1.119151 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:32:13 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:13 | WARNING | aiogram.dispatcher | Sleep for 1.546773 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:32:18 | INFO | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8304099970)
+2026-04-13 14:32:18 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 310, 'req': 'f7a15820', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729232285156', 'msg_id': 3878, 'data': 'cc:imq:list:0', 'state': None}
+2026-04-13 14:32:18 | INFO | aiogram.event | Update id=104058382 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:32:19 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:19 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:32:21 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:32:21 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 339, 'req': 'd2505823', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731564688485', 'msg_id': 3878, 'data': 'cc:imq:view:5bf8faea-05f8-40d1-b18f-e7af460e76de', 'state': None}
+2026-04-13 14:32:21 | INFO | aiogram.event | Update id=104058383 is handled. Duration 359 ms by bot id=8304099970
+2026-04-13 14:32:26 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:26 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:32:32 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:32 | WARNING | aiogram.dispatcher | Sleep for 1.284301 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:32:37 | INFO | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8304099970)
+2026-04-13 14:32:38 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 314, 'req': 'e23b405c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729447792233', 'msg_id': 3878, 'data': 'cc:imq:sales:5bf8faea-05f8-40d1-b18f-e7af460e76de', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:32:38 | INFO | aiogram.event | Update id=104058384 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:32:40 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:40 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:32:42 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:32:42 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 326, 'req': '83fe09ab', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3880, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Ганиев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:32:42 | INFO | aiogram.event | Update id=104058385 is handled. Duration 343 ms by bot id=8304099970
+2026-04-13 14:32:48 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 320, 'req': '0d94572b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728370621412', 'msg_id': 3882, 'data': 'cc:imq:create:5bf8faea-05f8-40d1-b18f-e7af460e76de', 'state': None}
+2026-04-13 14:32:48 | INFO | aiogram.event | Update id=104058386 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:32:49 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:49 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:32:51 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:32:51 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 304, 'req': '133106ee', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728133565498', 'msg_id': 3882, 'data': 'cc:imq:view:435137c1-dcd4-4d53-ad43-d7cf122bfa14', 'state': None}
+2026-04-13 14:32:51 | INFO | aiogram.event | Update id=104058387 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:32:54 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 328, 'req': '00178dbc', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730230798715', 'msg_id': 3882, 'data': 'cc:imq:link:435137c1-dcd4-4d53-ad43-d7cf122bfa14:0', 'state': None}
+2026-04-13 14:32:54 | INFO | aiogram.event | Update id=104058388 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:32:56 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 325, 'req': 'daeb4385', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729424039529', 'msg_id': 3882, 'data': 'cc:imq:view:3fd4da4b-9f79-4e26-8132-c99154b8a18e', 'state': None}
+2026-04-13 14:32:56 | INFO | aiogram.event | Update id=104058389 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:32:58 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:32:58 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:32:59 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 312, 'req': '5da30a63', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730226779523', 'msg_id': 3882, 'data': 'cc:imq:link:3fd4da4b-9f79-4e26-8132-c99154b8a18e:0', 'state': None}
+2026-04-13 14:32:59 | INFO | aiogram.event | Update id=104058390 is handled. Duration 311 ms by bot id=8304099970
+2026-04-13 14:33:01 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:01 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 422, 'req': 'c1f4356e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728927322036', 'msg_id': 3882, 'data': 'cc:imq:view:5bf8faea-05f8-40d1-b18f-e7af460e76de', 'state': None}
+2026-04-13 14:33:01 | INFO | aiogram.event | Update id=104058391 is handled. Duration 436 ms by bot id=8304099970
+2026-04-13 14:33:03 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 317, 'req': '1daf6dd1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730320771122', 'msg_id': 3882, 'data': 'cc:imq:link:5bf8faea-05f8-40d1-b18f-e7af460e76de:0', 'state': None}
+2026-04-13 14:33:03 | INFO | aiogram.event | Update id=104058392 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:33:04 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:04 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:06 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:07 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 317, 'req': '116d29ba', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732173316569', 'msg_id': 3882, 'data': 'cc:imq:link:3eae4022-9db0-4c8e-86bf-7db8e9654295:0', 'state': None}
+2026-04-13 14:33:07 | INFO | aiogram.event | Update id=104058394 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:33:08 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 323, 'req': '44ad524b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729599775880', 'msg_id': 3882, 'data': 'cc:imq:view:1cde6024-df5e-44b7-a016-6bd192aa91f8', 'state': None}
+2026-04-13 14:33:08 | INFO | aiogram.event | Update id=104058395 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:33:09 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:09 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:11 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:11 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 312, 'req': '7349e124', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729868834272', 'msg_id': 3882, 'data': 'cc:imq:view:5bf8faea-05f8-40d1-b18f-e7af460e76de', 'state': None}
+2026-04-13 14:33:11 | INFO | aiogram.event | Update id=104058397 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:33:14 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 318, 'req': '32dec393', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731679481347', 'msg_id': 3882, 'data': 'cc:imq:link:5bf8faea-05f8-40d1-b18f-e7af460e76de:0', 'state': None}
+2026-04-13 14:33:14 | INFO | aiogram.event | Update id=104058398 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:33:14 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:14 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:16 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:16 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 313, 'req': '266d25a3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732163801411', 'msg_id': 3882, 'data': 'cc:imq:link:1cde6024-df5e-44b7-a016-6bd192aa91f8:0', 'state': None}
+2026-04-13 14:33:16 | INFO | aiogram.event | Update id=104058400 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:33:17 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 311, 'req': 'c2953726', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729951300637', 'msg_id': 3882, 'data': 'cc:imq:view:274ec045-e4da-452d-bc53-3e78f7b2d705', 'state': None}
+2026-04-13 14:33:17 | INFO | aiogram.event | Update id=104058401 is handled. Duration 311 ms by bot id=8304099970
+2026-04-13 14:33:19 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 400, 'req': 'a63337cf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731823490161', 'msg_id': 3882, 'data': 'cc:imq:link:274ec045-e4da-452d-bc53-3e78f7b2d705:0', 'state': None}
+2026-04-13 14:33:19 | INFO | aiogram.event | Update id=104058402 is handled. Duration 422 ms by bot id=8304099970
+2026-04-13 14:33:20 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:20 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:20 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 312, 'req': 'ec80afd0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731799415372', 'msg_id': 3882, 'data': 'cc:imq:view:31931a8b-cf7c-472c-a568-961087332b12', 'state': None}
+2026-04-13 14:33:20 | INFO | aiogram.event | Update id=104058403 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:33:21 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:22 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 332, 'req': 'bb1c6575', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729613342562', 'msg_id': 3882, 'data': 'cc:imq:link:31931a8b-cf7c-472c-a568-961087332b12:0', 'state': None}
+2026-04-13 14:33:22 | INFO | aiogram.event | Update id=104058404 is handled. Duration 344 ms by bot id=8304099970
+2026-04-13 14:33:25 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 300, 'req': 'e73e8c76', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731276906135', 'msg_id': 3882, 'data': 'cc:imq:view:bf3a78f9-d3bf-4344-873a-06070cecf5d7', 'state': None}
+2026-04-13 14:33:25 | INFO | aiogram.event | Update id=104058405 is handled. Duration 296 ms by bot id=8304099970
+2026-04-13 14:33:25 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:25 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:30 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:30 | WARNING | aiogram.dispatcher | Sleep for 1.213121 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:33 | INFO | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8304099970)
+2026-04-13 14:33:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 332, 'req': '967dc4a9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729563720436', 'msg_id': 3882, 'data': 'cc:imq:sales:bf3a78f9-d3bf-4344-873a-06070cecf5d7', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:33:33 | INFO | aiogram.event | Update id=104058407 is handled. Duration 343 ms by bot id=8304099970
+2026-04-13 14:33:36 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:36 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:42 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:42 | WARNING | aiogram.dispatcher | Sleep for 1.264636 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:48 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:48 | WARNING | aiogram.dispatcher | Sleep for 1.798826 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:33:52 | INFO | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8304099970)
+2026-04-13 14:33:52 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 310, 'req': 'c634a48a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728651563896', 'msg_id': 3890, 'data': 'cc:imq:list:0', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:33:52 | INFO | aiogram.event | Update id=104058410 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:33:54 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:54 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:33:56 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:33:56 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 349, 'req': 'd7764953', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729291133442', 'msg_id': 3890, 'data': 'cc:imq:sales:bf3a78f9-d3bf-4344-873a-06070cecf5d7', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:33:56 | INFO | aiogram.event | Update id=104058412 is handled. Duration 359 ms by bot id=8304099970
+2026-04-13 14:33:59 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:33:59 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:00 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:01 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 321, 'req': '1a3bb8ce', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3892, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Ганиев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:34:01 | INFO | aiogram.event | Update id=104058413 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:34:05 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:05 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:08 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:09 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 736, 'req': 'b91f7f4e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731155330495', 'msg_id': 3894, 'data': 'cc:imq:link:bf3a78f9-d3bf-4344-873a-06070cecf5d7:0', 'state': None}
+2026-04-13 14:34:09 | INFO | aiogram.event | Update id=104058414 is handled. Duration 734 ms by bot id=8304099970
+2026-04-13 14:34:11 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:11 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:11 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 298, 'req': '9fc806c0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730460496627', 'msg_id': 3894, 'data': 'cc:imq:view:84229921-b2bf-48e1-9e6b-2d4777f59699', 'state': None}
+2026-04-13 14:34:11 | INFO | aiogram.event | Update id=104058415 is handled. Duration 296 ms by bot id=8304099970
+2026-04-13 14:34:16 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:16 | WARNING | aiogram.dispatcher | Sleep for 1.224697 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:19 | INFO | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8304099970)
+2026-04-13 14:34:19 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 310, 'req': 'be51cb34', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730955186768', 'msg_id': 3894, 'data': 'cc:imq:sales:84229921-b2bf-48e1-9e6b-2d4777f59699', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:34:19 | INFO | aiogram.event | Update id=104058416 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:34:22 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:22 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:27 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:27 | WARNING | aiogram.dispatcher | Sleep for 1.455019 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:33 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:33 | WARNING | aiogram.dispatcher | Sleep for 2.059608 seconds and try again... (tryings = 2, bot id = 8304099970)
+2026-04-13 14:34:36 | INFO | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8304099970)
+2026-04-13 14:34:37 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 302, 'req': '81abc222', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730271192840', 'msg_id': 3895, 'data': 'cc:imq:sales:84229921-b2bf-48e1-9e6b-2d4777f59699', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:34:37 | INFO | aiogram.event | Update id=104058419 is handled. Duration 311 ms by bot id=8304099970
+2026-04-13 14:34:39 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:39 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:41 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:42 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 324, 'req': '8101351b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3898, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Колягин', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:34:42 | INFO | aiogram.event | Update id=104058420 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:34:45 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:45 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:46 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:46 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 326, 'req': '19d83c72', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731073943007', 'msg_id': 3900, 'data': 'cc:imq:link:84229921-b2bf-48e1-9e6b-2d4777f59699:0', 'state': None}
+2026-04-13 14:34:46 | INFO | aiogram.event | Update id=104058421 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:34:50 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:50 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:51 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:52 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 337, 'req': '917c0f9e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729838317073', 'msg_id': 3900, 'data': 'cc:imq:view:1f04d948-ccba-4903-86fc-995a39bbe3a6', 'state': None}
+2026-04-13 14:34:52 | INFO | aiogram.event | Update id=104058422 is handled. Duration 343 ms by bot id=8304099970
+2026-04-13 14:34:53 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 318, 'req': '2fb9b3a7', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731234083358', 'msg_id': 3900, 'data': 'cc:imq:link:1f04d948-ccba-4903-86fc-995a39bbe3a6:0', 'state': None}
+2026-04-13 14:34:53 | INFO | aiogram.event | Update id=104058423 is handled. Duration 327 ms by bot id=8304099970
+2026-04-13 14:34:55 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 321, 'req': 'e86f84f8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729779698881', 'msg_id': 3900, 'data': 'cc:imq:view:d9d56ecd-c47b-4d74-b9ac-124baaa2ed5a', 'state': None}
+2026-04-13 14:34:55 | INFO | aiogram.event | Update id=104058424 is handled. Duration 328 ms by bot id=8304099970
+2026-04-13 14:34:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:34:56 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:34:59 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:34:59 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 312, 'req': 'f4cb8917', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729862332098', 'msg_id': 3900, 'data': 'cc:imq:sales:d9d56ecd-c47b-4d74-b9ac-124baaa2ed5a', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:34:59 | INFO | aiogram.event | Update id=104058425 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:35:01 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:01 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:04 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:04 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 339, 'req': '6c1fa7da', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3902, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Токарев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:35:04 | INFO | aiogram.event | Update id=104058426 is handled. Duration 343 ms by bot id=8304099970
+2026-04-13 14:35:07 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:07 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:07 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 311, 'req': 'a27ad8b8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732155021332', 'msg_id': 3904, 'data': 'cc:imq:link:d9d56ecd-c47b-4d74-b9ac-124baaa2ed5a:0', 'state': None}
+2026-04-13 14:35:07 | INFO | aiogram.event | Update id=104058427 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:35:08 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:09 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 306, 'req': 'f48f5334', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731933784797', 'msg_id': 3904, 'data': 'cc:imq:view:8d552d1b-c4c0-4960-b04c-3594da4af52e', 'state': None}
+2026-04-13 14:35:09 | INFO | aiogram.event | Update id=104058428 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:35:11 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 309, 'req': '92077bd8', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732259403099', 'msg_id': 3904, 'data': 'cc:imq:link:8d552d1b-c4c0-4960-b04c-3594da4af52e:0', 'state': None}
+2026-04-13 14:35:11 | INFO | aiogram.event | Update id=104058429 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:35:12 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 423, 'req': '2162e027', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729405561103', 'msg_id': 3904, 'data': 'cc:imq:view:5b4efd1b-5772-4c22-a640-29438f5af192', 'state': None}
+2026-04-13 14:35:12 | INFO | aiogram.event | Update id=104058430 is handled. Duration 436 ms by bot id=8304099970
+2026-04-13 14:35:13 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:13 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:20 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:20 | WARNING | aiogram.dispatcher | Sleep for 0.992218 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:22 | INFO | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8304099970)
+2026-04-13 14:35:23 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 672, 'req': '14b10b8e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729925124635', 'msg_id': 3904, 'data': 'cc:imq:sales:5b4efd1b-5772-4c22-a640-29438f5af192', 'state': 'ClientCardStates:waiting_import_queue_sales_rep'}
+2026-04-13 14:35:23 | INFO | aiogram.event | Update id=104058431 is handled. Duration 672 ms by bot id=8304099970
+2026-04-13 14:35:25 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 390, 'req': '05addb24', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3906, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Ганиев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:35:25 | INFO | aiogram.event | Update id=104058432 is handled. Duration 406 ms by bot id=8304099970
+2026-04-13 14:35:27 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 445, 'req': 'a9412de9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731080936172', 'msg_id': 3908, 'data': 'cc:imq:link:5b4efd1b-5772-4c22-a640-29438f5af192:0', 'state': None}
+2026-04-13 14:35:27 | INFO | aiogram.event | Update id=104058433 is handled. Duration 452 ms by bot id=8304099970
+2026-04-13 14:35:28 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:28 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:29 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:30 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 295, 'req': '4525279a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729453551696', 'msg_id': 3908, 'data': 'cc:imq:view:2c7db68c-23d2-4f4c-8d9b-7fd6fbfc8448', 'state': None}
+2026-04-13 14:35:30 | INFO | aiogram.event | Update id=104058434 is handled. Duration 297 ms by bot id=8304099970
+2026-04-13 14:35:31 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 378, 'req': '50fd51cf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729185844994', 'msg_id': 3908, 'data': 'cc:imq:link:2c7db68c-23d2-4f4c-8d9b-7fd6fbfc8448:0', 'state': None}
+2026-04-13 14:35:31 | INFO | aiogram.event | Update id=104058435 is handled. Duration 390 ms by bot id=8304099970
+2026-04-13 14:35:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 301, 'req': '779b703d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729041633226', 'msg_id': 3908, 'data': 'cc:imq:view:6a2dd0db-8496-449f-91bc-90380d91d186', 'state': None}
+2026-04-13 14:35:33 | INFO | aiogram.event | Update id=104058436 is handled. Duration 297 ms by bot id=8304099970
+2026-04-13 14:35:34 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:34 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:35 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:36 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 355, 'req': '0981ed35', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732156500705', 'msg_id': 3908, 'data': 'cc:imq:link:6a2dd0db-8496-449f-91bc-90380d91d186:0', 'state': None}
+2026-04-13 14:35:36 | INFO | aiogram.event | Update id=104058437 is handled. Duration 358 ms by bot id=8304099970
+2026-04-13 14:35:37 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 300, 'req': '7b4d9e96', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728493444546', 'msg_id': 3908, 'data': 'cc:imq:view:a24bbf56-20c4-472c-a9e0-d3c5a0dc5c54', 'state': None}
+2026-04-13 14:35:37 | INFO | aiogram.event | Update id=104058438 is handled. Duration 313 ms by bot id=8304099970
+2026-04-13 14:35:39 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 298, 'req': '02a93289', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729324968830', 'msg_id': 3908, 'data': 'cc:imq:link:a24bbf56-20c4-472c-a9e0-d3c5a0dc5c54:0', 'state': None}
+2026-04-13 14:35:39 | INFO | aiogram.event | Update id=104058439 is handled. Duration 297 ms by bot id=8304099970
+2026-04-13 14:35:39 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:39 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:42 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:43 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 462, 'req': 'f3d342f2', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730958909452', 'msg_id': 3908, 'data': 'menu:back', 'state': None}
+2026-04-13 14:35:43 | INFO | aiogram.event | Update id=104058441 is handled. Duration 468 ms by bot id=8304099970
+2026-04-13 14:35:44 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 157, 'req': '5dad76c5', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3910, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск', 'caption_len': 0, 'entities': 0, 'state': 'SearchStates:waiting_query'}
+2026-04-13 14:35:44 | INFO | aiogram.event | Update id=104058442 is handled. Duration 156 ms by bot id=8304099970
+2026-04-13 14:35:45 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:45 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:47 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:48 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 14:35:48 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 14:35:48 | INFO | root | Собрано клиентов: 228
+2026-04-13 14:35:50 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2671, 'req': '1e8db0a0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3912, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Лосев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:35:50 | INFO | aiogram.event | Update id=104058443 is handled. Duration 2671 ms by bot id=8304099970
+2026-04-13 14:35:50 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:50 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:54 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:35:54 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 155, 'req': 'e5c18e6e', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3921, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-13 14:35:54 | INFO | aiogram.event | Update id=104058444 is handled. Duration 156 ms by bot id=8304099970
+2026-04-13 14:35:56 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:35:56 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:35:59 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 14:36:01 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-04-13 14:36:01 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-04-13 14:36:02 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 3016, 'req': '38df1ba9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3923, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Лосев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 14:36:02 | INFO | aiogram.event | Update id=104058445 is handled. Duration 3016 ms by bot id=8304099970
+2026-04-13 14:36:03 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:36:03 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 14:36:11 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 14:36:11 | WARNING | aiogram.dispatcher | Sleep for 1.190701 seconds and try again... (tryings = 1, bot id = 8304099970)
+2026-04-13 14:36:20 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 14:36:20 | INFO | aiogram.dispatcher | Polling stopped

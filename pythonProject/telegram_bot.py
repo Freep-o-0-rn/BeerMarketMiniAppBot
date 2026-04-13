@@ -3331,6 +3331,10 @@ def _save_debt_import_manual_queue(payload: Dict[str, Any]) -> None:
 def _debt_import_client_key(raw_client_name: str) -> str:
     return " ".join((raw_client_name or "").strip().casefold().split())
 
+def _normalize_source_name(source: str) -> str:
+    src = (source or "").strip().lower()
+    return src if src in {"debt", "tara"} else "debt"
+
 
 def _debt_import_mapping_key(raw_client_name: str, sales_rep_name: str = "") -> str:
     """
@@ -3430,6 +3434,7 @@ def _store_debt_mapping_for_item(
         ignored: bool = False,
         sales_rep_user_id: Optional[int] = None,
         sales_rep_name: str = "",
+        source: str = "debt",
 ) -> None:
     raw_name = str(item.get("raw_client_name") or "")
     key = _debt_import_mapping_key(raw_name, sales_rep_name)
@@ -3437,9 +3442,11 @@ def _store_debt_mapping_for_item(
         return
     state = _load_debt_import_mappings()
     now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    src = _normalize_source_name(source)
     if ignored:
         state["ignored"][key] = {
             "raw_client_name": raw_name,
+            "source": src,
             "reason": "manual_ignore",
             "updated_at": now,
             "updated_by_user_id": int(actor_user_id),
@@ -3452,6 +3459,7 @@ def _store_debt_mapping_for_item(
             "client_id": client_id,
             "sales_rep_user_id": int(sales_rep_user_id) if sales_rep_user_id else None,
             "sales_rep_name": (sales_rep_name or "").strip(),
+            "source": src,
             "updated_at": now,
             "updated_by_user_id": int(actor_user_id),
         }
@@ -3463,14 +3471,17 @@ def _enqueue_debt_manual_review(
         parsed: Optional[Dict[str, str]],
         reasons: List[str],
         imported_by_user_id: int,
+        source: str = "debt",
 ) -> None:
     queue = _load_debt_import_manual_queue()
     items = list(queue.get("items") or [])
     now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     key = _debt_import_client_key(raw_client_name)
+    src = _normalize_source_name(source)
     for item in items:
         raw = str(item.get("raw_client_name") or "")
-        if " ".join(raw.casefold().split()) == key:
+        item_source = _normalize_source_name(str(item.get("source") or "debt"))
+        if " ".join(raw.casefold().split()) == key and item_source == src:
             item["last_seen_at"] = now
             item["reasons"] = reasons
             item["seen_count"] = int(item.get("seen_count") or 1) + 1
@@ -3483,6 +3494,7 @@ def _enqueue_debt_manual_review(
         "id": str(uuid.uuid4()),
         "status": "pending",
         "raw_client_name": raw_client_name,
+        "source": src,
         "parsed_candidate": parsed or {},
         "reasons": reasons,
         "seen_count": 1,
@@ -3505,6 +3517,100 @@ def _import_requires_manual_review(parsed: Optional[Dict[str, str]]) -> List[str
     if not str(parsed.get("address") or "").strip():
         reasons.append("address_missing")
     return reasons
+
+def _parse_client_parts_with_fallback(raw: str) -> Dict[str, str]:
+    parsed = parse_client_row_for_card(raw)
+    if parsed:
+        return {
+            "client_name": str(parsed.get("legal_name") or "").strip(),
+            "sales_rep": str(parsed.get("sales_rep_name") or "").strip(),
+            "address": str(parsed.get("address") or "").strip(),
+        }
+    split = split_report_client_label(raw)
+    client_name = str(split.get("client_name") or "").strip()
+    sales_rep = str(split.get("sales_rep") or "").strip()
+    address = str(split.get("address") or "").strip()
+    if not (client_name or sales_rep or address):
+        cleaned = re.sub(r"\s+", " ", str(raw or "").strip())
+        return {"client_name": cleaned, "sales_rep": "", "address": ""}
+    return {"client_name": client_name, "sales_rep": sales_rep, "address": address}
+
+
+def _build_client_rep_lookup() -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for card in CLIENTS_DB.list_clients():
+        client_id = str(card.get("id") or "").strip()
+        if not client_id:
+            continue
+        rep_key = _normalize_person_text(str(card.get("sales_rep_name") or ""))
+        names = [
+            _norm_text_key(str(card.get("legal_name") or "")),
+            _norm_text_key(str(card.get("store_name") or "")),
+        ]
+        for name_key in names:
+            if not name_key:
+                continue
+            out.setdefault(f"{name_key}|{rep_key}", client_id)
+            out.setdefault(f"{name_key}|", client_id)
+    return out
+
+
+def resolve_client(raw_line: str, source: str) -> Optional[str]:
+    src = _normalize_source_name(source)
+    raw = str(raw_line or "").strip()
+    if not raw:
+        return None
+
+    parsed = _parse_client_parts_with_fallback(raw)
+    parsed_rep = str(parsed.get("sales_rep") or "").strip()
+    key = _debt_import_mapping_key(raw, parsed_rep)
+    legacy_key = _debt_import_client_key(raw)
+    mapping_state = _load_debt_import_mappings()
+    mappings = mapping_state.get("mappings") if isinstance(mapping_state.get("mappings"), dict) else {}
+    ignored = mapping_state.get("ignored") if isinstance(mapping_state.get("ignored"), dict) else {}
+
+    if key and key in ignored:
+        return None
+    if legacy_key and legacy_key in ignored:
+        return None
+
+    mapped = mappings.get(key) if key else None
+    if not isinstance(mapped, dict) and legacy_key:
+        mapped = mappings.get(legacy_key)
+    if isinstance(mapped, dict):
+        mapped_client_id = str(mapped.get("client_id") or "").strip()
+        if mapped_client_id and CLIENTS_DB.get_client(mapped_client_id):
+            return mapped_client_id
+
+    lookup = _build_client_rep_lookup()
+    client_key = f"{_norm_text_key(parsed.get('client_name') or '')}|{_normalize_person_text(parsed_rep)}"
+    client_id = lookup.get(client_key)
+    if not client_id:
+        client_id = lookup.get(f"{_norm_text_key(parsed.get('client_name') or '')}|")
+    if client_id and CLIENTS_DB.get_client(client_id):
+        _store_debt_mapping_for_item(
+            item={"raw_client_name": raw},
+            client_id=client_id,
+            actor_user_id=0,
+            sales_rep_name=parsed_rep,
+            source=src,
+        )
+        return client_id
+
+    _enqueue_debt_manual_review(
+        raw_client_name=raw,
+        parsed={
+            "legal_form": "",
+            "legal_name": str(parsed.get("client_name") or "").strip(),
+            "store_name": "",
+            "address": str(parsed.get("address") or "").strip(),
+            "sales_rep_name": parsed_rep,
+        },
+        reasons=["resolve_not_found", f"source_{src}"],
+        imported_by_user_id=0,
+        source=src,
+    )
+    return None
 
 def _queue_item_selected_sales_rep(item: Dict[str, Any]) -> Tuple[Optional[int], str]:
     """
@@ -4200,6 +4306,42 @@ def _is_sales_rep_tara_item_visible_for_user(item: Dict[str, Any], user_id: int)
         return False
     return _extract_surname(rep_name) == user_surname
 
+def _tara_item_with_resolved_client(item: Dict[str, Any]) -> Dict[str, Any]:
+    out = dict(item or {})
+    raw_line = str(out.get("client") or "").strip()
+    if not raw_line:
+        return out
+    client_id = resolve_client(raw_line, "tara")
+    if not client_id:
+        return out
+    card = CLIENTS_DB.get_client(client_id)
+    if not card:
+        return out
+    parsed = _parse_client_parts_with_fallback(raw_line)
+    resolved_name = str(card.get("store_name") or card.get("legal_name") or "").strip()
+    if resolved_name:
+        out["client_name"] = resolved_name
+    rep_name = str(card.get("sales_rep_name") or "").strip()
+    if rep_name:
+        out["sales_rep_name"] = rep_name
+    out["address"] = str(parsed.get("address") or out.get("address") or "").strip()
+    out["resolved_client_id"] = client_id
+    return out
+
+
+def _tara_split_keywords(keywords: List[str]) -> Tuple[List[str], List[str]]:
+    all_tokens = [(_norm_text_key(k)) for k in (keywords or []) if _norm_text_key(k)]
+    if not all_tokens:
+        return [], []
+    rep_tokens: set[str] = set()
+    for rep in _sales_rep_candidates():
+        for tok in _normalize_person_text(str(rep.get("name") or "")).split():
+            if tok:
+                rep_tokens.add(tok)
+    sales_kw = [k for k in all_tokens if k in rep_tokens]
+    common_kw = [k for k in all_tokens if k not in rep_tokens]
+    return sales_kw, common_kw
+
 # --- Авто-обновление из почты ---
 def _today_dt(h: int, m: int) -> datetime:
     now = datetime.now(TZ)
@@ -4329,6 +4471,7 @@ async def render_tara_report(chat: Message):
             items = (res or {}).get("items") or []
             if not items:
                 continue
+            items = [_tara_item_with_resolved_client(it) for it in items]
             if role == "sales_rep":
                 items = [it for it in items if _is_sales_rep_tara_item_visible_for_user(it, user_id)]
             if not items:
@@ -4346,7 +4489,7 @@ async def render_tara_report(chat: Message):
             # группируем по базовому имени (без адресов/«Колягин»)
             groups = {}
             for b in items:
-                base = _tara_base_name(b.get("client") or "")
+                base = _tara_base_name(b)
                 groups.setdefault(base, []).append(b)
 
             for base in sorted(groups.keys(), key=lambda k: (k or '').casefold().replace('ё','е')):
@@ -5423,15 +5566,24 @@ async def render_tara_search(chat: Message, keywords: List[str]):
             items = (res or {}).get("items") or []
             if items is None:
                 items = []
+            items = [_tara_item_with_resolved_client(it) for it in items]
             report_date = (res or {}).get("report_date")
 
             kws = [k for k in (keywords or []) if k]
+            sales_kws, common_kws = _tara_split_keywords(kws)
             def match(b: dict) -> bool:
-                name = (b.get("client_name") or b.get("client") or "").strip().casefold()
-                addr = (b.get("address") or "").strip().casefold()
-                if not kws:
+                parts = _tara_client_parts(b)
+                sales_rep = _norm_text_key(parts.get("sales_rep") or "")
+                name = _norm_text_key(parts.get("client_name") or "")
+                addr = _norm_text_key(parts.get("address") or "")
+                haystack = f"{name} {addr}".strip()
+                if not (sales_kws or common_kws):
                     return False
-                return any(k in name or k in addr for k in kws)
+                if sales_kws and not all(k in sales_rep for k in sales_kws):
+                    return False
+                if common_kws and not all(k in haystack for k in common_kws):
+                    return False
+                return True
 
             filtered = [b for b in items if match(b)]
             if role == "sales_rep":
@@ -5454,7 +5606,7 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 )
                 groups = {}
                 for b in filtered:
-                    base = _tara_base_name(b.get("client") or "")
+                    base = _tara_base_name(b)
                     groups.setdefault(base, []).append(b)
 
                 for base in sorted(groups.keys(), key=lambda k: (k or '').casefold().replace('ё','е')):
