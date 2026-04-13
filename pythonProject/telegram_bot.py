@@ -5576,15 +5576,14 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 sales_rep = _norm_text_key(parts.get("sales_rep") or "")
                 name = _norm_text_key(parts.get("client_name") or "")
                 addr = _norm_text_key(parts.get("address") or "")
+                raw_client = _norm_text_key(str(b.get("client") or ""))
                 # Для устойчивого поиска учитываем торгового даже если токен
                 # не распознан как «sales»-ключ (например, ручные связки/ФИО
                 # отсутствуют в справочнике кандидатов).
-                haystack = f"{name} {addr} {sales_rep}".strip()
-                if not (sales_kws or common_kws):
+                haystack = f"{name} {addr} {sales_rep} {raw_client}".strip()
+                if not kws:
                     return False
-                if sales_kws and not all(k in sales_rep for k in sales_kws):
-                    return False
-                if common_kws and not all(k in haystack for k in common_kws):
+                if not all(k in haystack for k in kws):
                     return False
                 return True
 

@@ -28367,3 +28367,51 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTO
 2026-04-13 15:01:26 | WARNING | aiogram.dispatcher | Sleep for 4.881341 seconds and try again... (tryings = 9, bot id = 8304099970)
 2026-04-13 15:01:36 | INFO | aiogram.dispatcher | Polling stopped
 2026-04-13 15:01:36 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 15:08:58 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+2026-04-13 15:08:58 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-13 15:09:02 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 15:09:02 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 15:09:02 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-13 15:09:04 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-13 15:09:04 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=290663.06, по строкам=0.00
+2026-04-13 15:09:04 | INFO | root | Собрано клиентов: 228
+2026-04-13 15:09:04 | INFO | __main__ | Отчёт на 13.04.2026 | клиентов: 228
+2026-04-13 15:09:04 | INFO | __main__ | 01. nan | сум: 4376140.22 | проср: 4264844.06 | наш долг: 290663.06 | доков: 0
+2026-04-13 15:09:04 | INFO | __main__ | 02. ФК ЛОГИСТИК ООО - Колягин | сум: 163056.00 | проср: 163056.00 | наш долг: 0.00 | доков: 3
+2026-04-13 15:09:04 | INFO | __main__ | 03. БУРГЕР РУС ООО - Колягин (Военная ул, дом № 5) | сум: 135473.68 | проср: 135473.68 | наш долг: 0.00 | доков: 8
+2026-04-13 15:09:04 | INFO | __main__ | 04. БУРГЕР РУС ООО - Колягин (Ленина ул, дом № 84) | сум: 129585.04 | проср: 129585.04 | наш долг: 0.00 | доков: 9
+2026-04-13 15:09:04 | INFO | __main__ | 05. БУРГЕР РУС ООО - Колягин (им. Карла Маркса пл, дом № 7) | сум: 114377.00 | проср: 114377.00 | наш долг: 0.00 | доков: 7
+2026-04-13 15:09:04 | INFO | __main__ | 06. Котикова Н.О. ИП - Токарев (Софийская ул, дом № 12/3) | сум: 99613.86 | проср: 99613.86 | наш долг: 0.00 | доков: 2
+2026-04-13 15:09:04 | INFO | __main__ | 07. Мичуринское сельское потребительское общество Токарев  (Барханная,11) КПП 543332005 | сум: 89920.00 | проср: 89920.00 | наш долг: 0.00 | доков: 2
+2026-04-13 15:09:04 | INFO | __main__ | 08. Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333) | сум: 89768.20 | проср: 89768.20 | наш долг: 70.38 | доков: 5
+2026-04-13 15:09:04 | INFO | __main__ | 09. БУРГЕР РУС ООО - Колягин (Покрышкина ул, дом № 6) | сум: 85807.48 | проср: 85807.48 | наш долг: 0.00 | доков: 4
+2026-04-13 15:09:04 | INFO | __main__ | 10. Анохина Татьяна Николаевна ИП - Колягин (Фрунзе ул, дом № 49/3) | сум: 83913.73 | проср: 43815.03 | наш долг: 4970.40 | доков: 7
+2026-04-13 15:09:04 | INFO | aiogram.dispatcher | Start polling
+2026-04-13 15:09:04 | INFO | telegram_bot | Daily fetch: next run in 1315 sec (now 2026-04-13 15:09:04, tz Asia/Novosibirsk)
+2026-04-13 15:09:04 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-13 15:09:09 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:09:09 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 15:09:10 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 15:09:11 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 421, 'req': '1b0709b3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3945, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-13 15:09:11 | INFO | aiogram.event | Update id=104058454 is handled. Duration 422 ms by bot id=8304099970
+2026-04-13 15:09:14 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:09:14 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 15:09:15 | INFO | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8304099970)
+2026-04-13 15:09:17 | INFO | root | Patched missing sharedStrings -> downloads\Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-04-13 15:09:17 | INFO | root | Retry patched -> openpyxl: Ведомость по переданной возвратной таре клиент - Прокопенко (XLSX).patched.xlsx
+2026-04-13 15:09:18 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2440, 'req': 'f57b71b3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 3947, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Кирьянов', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-13 15:09:18 | INFO | aiogram.event | Update id=104058455 is handled. Duration 2452 ms by bot id=8304099970
+2026-04-13 15:09:20 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:09:20 | WARNING | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8304099970)
+2026-04-13 15:09:25 | ERROR | aiogram.dispatcher | Failed to fetch updates - TelegramConflictError: Telegram server says - Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-04-13 15:09:25 | WARNING | aiogram.dispatcher | Sleep for 1.298536 seconds and try again... (tryings = 1, bot id = 8304099970)
