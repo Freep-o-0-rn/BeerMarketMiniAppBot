@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from html import escape
 from datetime import datetime, timezone
 
@@ -10,6 +11,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 NEWS_MANAGE_BTN_TEXT = "📰 Управление новостями"
+logger = logging.getLogger(__name__)
 
 
 class NewsCreateStates(StatesGroup):
@@ -57,14 +59,14 @@ def _news_media_finish_kb(news_id: str) -> InlineKeyboardMarkup:
 
 def _news_item_text(row: dict) -> str:
     media_count = len(row.get("media") or [])
-    title = escape(str(row.get("title") or "Без заголовка"))
-    status = escape(str(row.get("status") or "—"))
-    published_at = escape(str(row.get("published_at") or "—"))
-    author_name = escape(str(row.get("author_name") or "—"))
-    body = escape(str(row.get("text") or ""))
+    title = str(row.get("title") or "Без заголовка")
+    status = str(row.get("status") or "—")
+    published_at = str(row.get("published_at") or "—")
+    author_name = str(row.get("author_name") or "—")
+    body = str(row.get("text") or "")
     return (
-        f"<b>{title}</b>\n"
-        f"Статус: <b>{status}</b>\n"
+        f"{title}\n"
+        f"Статус: {status}\n"
         f"Дата публикации: {published_at}\n"
         f"Автор: {author_name}\n"
         f"Медиа: {media_count}\n\n"
@@ -79,6 +81,35 @@ async def _safe_edit_text(message: Message, text: str, reply_markup: InlineKeybo
         if "message is not modified" in str(error).lower():
             return False
         raise
+
+async def _edit_news_item_plain_text(message: Message, text: str, reply_markup: InlineKeyboardMarkup) -> None:
+    """
+    Рендер карточки новости без parse_mode.
+    В aiogram bot-level parse_mode может подмешиваться через DefaultBotProperties,
+    поэтому принудительно передаём entities=[].
+    """
+    await message.edit_text(text, entities=[], reply_markup=reply_markup)
+
+
+async def _render_news_item_card(cq: CallbackQuery, text: str, reply_markup: InlineKeyboardMarkup) -> bool:
+    """
+    Безопасный рендер карточки новости:
+    - сначала пытаемся обновить текущее сообщение
+    - при TelegramBadRequest не оставляем пользователя в "вечной загрузке"
+    """
+    try:
+        await _edit_news_item_plain_text(cq.message, text, reply_markup)
+        return True
+    except TelegramBadRequest:
+        logger.exception("Не удалось отрисовать карточку новости через edit_text")
+        fallback_text = text.replace("<", "‹").replace(">", "›")
+        await cq.message.answer(
+            "Не удалось обновить текущую карточку, отправляю отдельным сообщением.\n\n"
+            f"{fallback_text}",
+            entities=[],
+            reply_markup=reply_markup,
+        )
+        return False
 
 def _pager(items_count: int, page: int, status: str, page_size: int) -> list[list[InlineKeyboardButton]]:
     rows: list[list[InlineKeyboardButton]] = []
@@ -213,8 +244,12 @@ def register_news_manage_handlers(
             await cq.answer("Новость не найдена", show_alert=True)
             return
         text = _news_item_text(row)
-        await cq.message.edit_text(text, reply_markup=_news_item_kb(news_id, row["status"], page, list_status))
-        await cq.answer()
+        rendered = await _render_news_item_card(
+            cq,
+            text,
+            _news_item_kb(news_id, row["status"], page, list_status),
+        )
+        await cq.answer("Открыто" if rendered else "Открыто отдельным сообщением", show_alert=not rendered)
 
     @router.callback_query(F.data.startswith("news:toggle:"))
     async def news_toggle_status(cq: CallbackQuery):
@@ -227,16 +262,21 @@ def register_news_manage_handlers(
             return
         if row["status"] == "published":
             news_service.set_status(news_id, "draft")
-            await cq.answer("Переведено в черновик")
             next_status = "draft"
+            status_message = "Переведено в черновик"
         else:
             news_service.set_status(news_id, "published", published_at=datetime.now(timezone.utc).isoformat())
-            await cq.answer("Опубликовано")
             next_status = "published"
+            status_message = "Опубликовано"
         updated = news_service.get_news(news_id)
-        await cq.message.edit_text(
-             _news_item_text(updated),
-            reply_markup=_news_item_kb(news_id, next_status, int(page_raw), list_status)
+        rendered = await _render_news_item_card(
+            cq,
+            _news_item_text(updated),
+            _news_item_kb(news_id, next_status, int(page_raw), list_status),
+        )
+        await cq.answer(
+            status_message if rendered else f"{status_message}. Карточка отправлена отдельным сообщением.",
+            show_alert=not rendered,
         )
 
     @router.callback_query(F.data.startswith("news:delete:"))
