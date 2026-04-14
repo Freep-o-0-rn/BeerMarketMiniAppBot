@@ -8,6 +8,7 @@ const params = new URLSearchParams(location.search);
 const explicitApiBase = params.get('api_base');
 const projectBase = new URL('../../', window.location.href).href;
 const sameOriginBase = `${window.location.origin}/`;
+const defaultCloudflareApiBase = 'https://api.freep0rndeveloper.website/';
 const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
@@ -49,9 +50,22 @@ function normalizeBase(base) {
   }
 }
 
+function inferApiBaseFromHost() {
+  const { protocol, host, hostname } = window.location;
+  if (!hostname) return null;
+  const labels = hostname.split('.');
+  if (!labels.length) return null;
+  if (labels[0] !== 'app') return null;
+  labels[0] = 'api';
+  const inferredHost = host.replace(hostname, labels.join('.'));
+  return normalizeBase(`${protocol}//${inferredHost}/`);
+}
+
 function buildApiCandidates() {
   const candidates = [
     normalizeBase(explicitApiBase),
+    inferApiBaseFromHost(),
+    normalizeBase(defaultCloudflareApiBase),
     normalizeBase(projectBase),
     normalizeBase(sameOriginBase),
   ].filter(Boolean);
