@@ -53,7 +53,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from config import BOT_TOKEN, update_setting
-from file_processor import process_file, find_latest_download, process_tara_file, find_latest_downloads, read_debt_file, parse_clients, split_report_client_label
+from file_processor import process_file, find_latest_download, process_tara_file, process_tara_cached, find_latest_downloads, read_debt_file, parse_clients, split_report_client_label
 from mail_agent import fetch_latest_file
 from pathlib import Path
 from dataclasses import dataclass
@@ -1066,17 +1066,41 @@ async def cmd_logs(m: Message):
 #----------Конец Логов----------------------------
 
 # --- Группировка тары по клиенту и адресам ---
+def _tara_clean_client_name(value: str) -> str:
+    txt = re.sub(r"\s+", " ", str(value or "").strip())
+    if not txt:
+        return ""
+    # Отчётные хвосты (например "КПП ...") в финальную выдачу не показываем.
+    txt = re.sub(r"\s*\bкпп\b.*$", "", txt, flags=re.I).strip()
+    # В финальном отчёте фамилию торгового не печатаем.
+    txt = re.sub(r"\s*-\s*[А-ЯЁA-Z][А-ЯЁA-Zа-яёa-z. ]*$", "", txt).strip()
+    return txt
+
+
+def _tara_clean_address(value: str) -> str:
+    txt = re.sub(r"\s+", " ", str(value or "").strip())
+    if not txt:
+        return ""
+    # Служебный мусор вида "(У)" / "(У и Б)" убираем из адресной части.
+    txt = re.sub(r"\s*\((?:у|у и б)\)\s*$", "", txt, flags=re.I).strip()
+    return txt
+
 def _tara_client_parts(entry_or_name: Any) -> Dict[str, str]:
     if isinstance(entry_or_name, dict):
-        client_name = (entry_or_name.get("client_name") or "").strip()
+        client_name = _tara_clean_client_name((entry_or_name.get("client_name") or "").strip())
         sales_rep = (entry_or_name.get("sales_rep_name") or "").strip()
-        address = (entry_or_name.get("address") or "").strip()
+        address = _tara_clean_address((entry_or_name.get("address") or "").strip())
         if client_name or sales_rep or address:
             return {"client_name": client_name, "sales_rep": sales_rep, "address": address}
         raw = entry_or_name.get("client") or ""
     else:
         raw = entry_or_name or ""
-    return split_report_client_label(str(raw))
+    parts = split_report_client_label(str(raw))
+    return {
+        "client_name": _tara_clean_client_name(parts.get("client_name") or ""),
+        "sales_rep": parts.get("sales_rep") or "",
+        "address": _tara_clean_address(parts.get("address") or ""),
+    }
 
 def _tara_base_name(full: str) -> str:
     """Базовое имя клиента без адреса и без торгового представителя."""
@@ -1110,8 +1134,7 @@ def build_tara_group_text(base_name: str, entries: list) -> str:
             continue
         for name, qty in entry_items:
             lines.append(f"{prefix}{esc(name)} — {fmt_qty_units(qty)}")
-    return "\n".join(lines)
-
+        return "\n".join(lines)
 
 
 def esc(s: Optional[str]) -> str:
@@ -4470,7 +4493,7 @@ async def render_tara_report(chat: Message):
     for path in paths:
         try:
             #загрузка
-            res = process_tara_file(path)
+            res = process_tara_cached(path)
             # успех — шлём заголовок
             items = (res or {}).get("items") or []
             if not items:
@@ -5566,7 +5589,7 @@ async def render_tara_search(chat: Message, keywords: List[str]):
     last_err = None
     for path in paths:
         try:
-            res = process_tara_file(path)
+            res = process_tara_cached(path)
             items = (res or {}).get("items") or []
             if items is None:
                 items = []
@@ -5575,24 +5598,52 @@ async def render_tara_search(chat: Message, keywords: List[str]):
 
             kws = [k for k in (keywords or []) if k]
             sales_kws, common_kws = _tara_split_keywords(kws)
-            def match(b: dict) -> bool:
+            def _haystack(b: dict) -> str:
                 parts = _tara_client_parts(b)
                 sales_rep = _norm_text_key(parts.get("sales_rep") or "")
                 name = _norm_text_key(parts.get("client_name") or "")
                 addr = _norm_text_key(parts.get("address") or "")
+                raw_client = _norm_text_key(str(b.get("client") or ""))
+                registrator = _norm_text_key(str(b.get("registrator_text") or ""))
                 # Для устойчивого поиска учитываем торгового даже если токен
                 # не распознан как «sales»-ключ (например, ручные связки/ФИО
                 # отсутствуют в справочнике кандидатов).
-                haystack = f"{name} {addr} {sales_rep}".strip()
-                if not (sales_kws or common_kws):
-                    return False
-                if sales_kws and not all(k in sales_rep for k in sales_kws):
-                    return False
-                if common_kws and not all(k in haystack for k in common_kws):
-                    return False
-                return True
+                return f"{name} {addr} {sales_rep} {raw_client} {registrator}".strip()
 
-            filtered = [b for b in items if match(b)]
+            def _match_score(b: dict) -> int:
+                if not kws:
+                    return 0
+                parts = _tara_client_parts(b)
+                name = _norm_text_key(parts.get("client_name") or "")
+                addr = _norm_text_key(parts.get("address") or "")
+                raw_client = _norm_text_key(str(b.get("client") or ""))
+                hay_all = f"{name} {addr} {raw_client}".strip()
+                score = 0
+                for k in kws:
+                    if k in name:
+                        score += 6
+                    elif k in addr:
+                        score += 4
+                    elif k in raw_client:
+                        score += 2
+                    elif k in hay_all:
+                        score += 1
+                return score
+
+            filtered = [b for b in items if kws and all(k in _haystack(b) for k in kws)]
+            relaxed = False
+            if not filtered and kws:
+                long_kws = [k for k in kws if len(k) >= 4]
+                scored = [(b, _match_score(b)) for b in items]
+                if long_kws:
+                    filtered = [
+                        b for b, sc in scored
+                        if sc > 0 and any(k in _haystack(b) for k in long_kws)
+                    ]
+                else:
+                    filtered = [b for b, sc in scored if sc > 0]
+                filtered.sort(key=lambda b: _match_score(b), reverse=True)
+                relaxed = bool(filtered)
             if role == "sales_rep":
                 filtered = [b for b in filtered if _is_sales_rep_tara_item_visible_for_user(b, user_id)]
             if filtered:
@@ -5620,7 +5671,6 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                     text = build_tara_group_text(base, groups[base])
                     await send_long(chat, text)
                 return
-
 
             # если в этом файле нет совпадений — пробуем следующий
             continue
