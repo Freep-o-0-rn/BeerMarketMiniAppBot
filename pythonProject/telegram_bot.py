@@ -76,6 +76,7 @@ DEBT_IMPORT_MANUAL_QUEUE_PATH = SETTINGS_DIR / "debt_import_manual_queue.json"
 DEBT_IMPORT_MAPPINGS_PATH = SETTINGS_DIR / "debt_import_mappings.json"
 
 logger = logging.getLogger(__name__)
+_TARA_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 
 #Прайсы: сортировка по алфавиту ---
 PRICES_SORT_ALPHA = True   # вырубить — поставьте False
