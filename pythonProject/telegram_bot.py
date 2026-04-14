@@ -4499,7 +4499,27 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
         disable_web_page_preview=True,
         reply_markup=menu_kb,
     )
-
+    # Режим выбора адреса для поиска по дебиторке:
+    # если по ключам найден ровно один базовый клиент и у него >3 адресов.
+    if mode == "all" and keywords:
+        groups: Dict[str, List[Dict[str, Any]]] = {}
+        for it in filtered:
+            base = _base_client_name_for_debt(str(it.get("client") or it.get("client_name") or ""))
+            if base:
+                groups.setdefault(base, []).append(it)
+        if len(groups) == 1:
+            base = next(iter(groups.keys()))
+            entries = groups.get(base, [])
+            if len(entries) > 3:
+                token = uuid4().hex[:12]
+                _DEBT_SEARCH_PICK_CACHE[token] = {"base": base, "entries": entries, "report_date": report_date}
+                await chat.answer(
+                    f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
+                    "Выберите адрес или покажите все:",
+                    reply_markup=_debt_pick_kb(token, entries),
+                    disable_web_page_preview=True,
+                )
+                return
     # Внутри render_report(...) в конце, в цикле по filtered:
     for i, it in enumerate(filtered, 1):
         text = build_client_text(it, i, report_date)
@@ -9488,7 +9508,7 @@ async def cb_debt_pick_all(cq: CallbackQuery):
     entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
     report_date = payload.get("report_date")
     if not entries:
-        await cq.answer("УСписок устарел. Запустите поиск заново.", show_alert=True)
+        await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
         return
     await cq.answer()
     for i, it in enumerate(entries, 1):

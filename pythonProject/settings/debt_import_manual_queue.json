@@ -1113,10 +1113,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 3,
+      "seen_count": 5,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423,
+      "last_seen_at": "2026-04-14T12:31:46Z",
+      "last_imported_by_user_id": 1188061961,
       "moderated_at": "2026-04-13T07:33:21Z",
       "moderated_by_user_id": 237087423,
       "mapped_client_id": "c62e271c-9280-4419-a726-5e3698627911"
@@ -1135,10 +1135,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 3,
+      "seen_count": 5,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423,
+      "last_seen_at": "2026-04-14T12:31:46Z",
+      "last_imported_by_user_id": 1188061961,
       "moderated_at": "2026-04-12T20:02:53Z",
       "moderated_by_user_id": 237087423,
       "selected_sales_rep_name": "Щербатов",
@@ -1184,10 +1184,10 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 3,
+      "seen_count": 5,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423,
+      "last_seen_at": "2026-04-14T12:31:46Z",
+      "last_imported_by_user_id": 1188061961,
       "moderated_at": "2026-04-13T07:34:46Z",
       "moderated_by_user_id": 237087423,
       "selected_sales_rep_name": "Колягин",
@@ -1208,10 +1208,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 3,
+      "seen_count": 5,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:21:22Z",
-      "last_imported_by_user_id": 237087423,
+      "last_seen_at": "2026-04-14T12:31:46Z",
+      "last_imported_by_user_id": 1188061961,
       "moderated_at": "2026-04-13T07:35:11Z",
       "moderated_by_user_id": 237087423,
       "mapped_client_id": "0b3cfa6c-1706-4b26-ad13-6b328eadd549"
