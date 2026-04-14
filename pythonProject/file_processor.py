@@ -614,6 +614,38 @@ def _tara_find_cols(df: pd.DataFrame) -> Tuple[str, Optional[str], Optional[str]
     return col_client, col_item, col_reg, col_kon_end
 
 
+def _split_tara_client_label(raw: str) -> Dict[str, str]:
+    """
+    Разбор строки клиента именно для отчёта ТАРА.
+    Поддерживает:
+      - '<клиент> - <торговый> (<адрес>)'
+      - '<клиент>-<торговый> (<адрес>)'
+      - хвост 'КПП ...' после адреса (игнорируем в финальном имени).
+    """
+    txt = re.sub(r"\s+", " ", str(raw or "").strip())
+    if not txt:
+        return {"client_name": "", "sales_rep": "", "address": ""}
+
+    txt = re.sub(r"\s*\bкпп\b.*$", "", txt, flags=re.I).strip()
+
+    address = ""
+    m_addr = re.search(r"\(([^()]*)\)\s*$", txt)
+    if m_addr:
+        address = re.sub(r"\s+", " ", (m_addr.group(1) or "").strip())
+        txt = txt[:m_addr.start()].strip()
+
+    sales_rep = ""
+    m_rep = re.search(r"\s-\s*([^()-][^()]*)$", txt)
+    if not m_rep:
+        m_rep = re.search(r"-(\s*[А-ЯЁA-Z][А-ЯЁA-Zа-яёa-z]+)$", txt)
+    if m_rep:
+        sales_rep = re.sub(r"\s+", " ", (m_rep.group(1) or "").strip(" -"))
+        txt = txt[:m_rep.start()].strip()
+
+    client_name = re.sub(r"\s+", " ", txt).strip(" -")
+    return {"client_name": client_name, "sales_rep": sales_rep, "address": address}
+
+
 def _tara_is_client_like_text(text: str) -> bool:
     txt = re.sub(r"\s+", " ", str(text or "").strip())
     if not txt:
@@ -625,7 +657,7 @@ def _tara_is_client_like_text(text: str) -> bool:
         return False
     if CLIENT_MARKERS.search(txt):
         return True
-    parts = split_report_client_label(txt)
+    parts = _split_tara_client_label(txt)
     if parts.get("address") or parts.get("sales_rep"):
         return True
     return ("(" in txt and ")" in txt and " - " in txt)
@@ -664,7 +696,7 @@ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[st
 
         if abs(q_end) > 1e-9 and _tara_is_client_like_text(text):
             _flush_current()
-            parts = split_report_client_label(text)
+            parts = _split_tara_client_label(text)
             current = {
                 "client": text,
                 "client_name": parts.get("client_name") or text,
@@ -763,6 +795,8 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
         col_client, col_item, col_reg, _ = _tara_find_cols(df)
     except ValueError:
         return _parse_tara_hierarchical(df, col_qty_end)
+    if not col_item:
+        return _parse_tara_hierarchical(df, col_qty_end)
 
     results: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
@@ -780,7 +814,7 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
         q_end = _to_float_ru(row.get(col_qty_end, 0))
         is_client_like = bool(client_cell and not item_cell and not reg_cell)
         if not is_client_like and client_cell and not TARA_DOC_MARKERS.search(client_cell):
-            parts_probe = split_report_client_label(client_cell)
+            parts_probe = _split_tara_client_label(client_cell)
             is_client_like = bool(parts_probe.get("sales_rep") or parts_probe.get("address") or CLIENT_MARKERS.search(client_cell))
 
         # клиент␊
@@ -789,7 +823,7 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             if current:
                 current["items"] = _merge_tara_items(current["items"])
                 results.append(current)
-            parts = split_report_client_label(client_cell)
+            parts = _split_tara_client_label(client_cell)
             current = {
                 "client": client_cell,
                 "client_name": parts.get("client_name") or client_cell,
