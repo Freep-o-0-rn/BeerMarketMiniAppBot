@@ -12,7 +12,14 @@ const defaultCloudflareApiBase = 'https://api.freep0rndeveloper.website/';
 const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
+const syncNowBtn = document.getElementById('syncNow');
 const tpl = document.getElementById('news-card-template');
+const mediaViewer = document.getElementById('mediaViewer');
+const viewerImage = document.getElementById('viewerImage');
+const viewerZoomInBtn = document.getElementById('viewerZoomIn');
+const viewerZoomOutBtn = document.getElementById('viewerZoomOut');
+const viewerCloseBtn = document.getElementById('viewerClose');
+const viewerOpenSourceLink = document.getElementById('viewerOpenSource');
 
 let offset = 0;
 const limit = 6;
@@ -20,6 +27,7 @@ const refreshIntervalMs = 30000;
 let resolvedApiBase = null;
 let isLoading = false;
 let cacheBust = Date.now();
+let viewerZoom = 1;
 
 function joinUrl(base, path) {
   return new URL(path.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).href;
@@ -105,7 +113,42 @@ function mediaElement(item) {
   const img = document.createElement('img');
   img.src = url;
   img.loading = 'lazy';
-  return img;
+  img.alt = 'Изображение новости';
+  img.addEventListener('error', () => {
+    img.remove();
+  });
+  const wrapper = document.createElement('button');
+  wrapper.type = 'button';
+  wrapper.className = 'media-tile';
+  wrapper.append(img);
+  wrapper.addEventListener('click', () => openImageViewer(url));
+  return wrapper;
+}
+
+function applyViewerZoom() {
+  if (viewerImage) {
+    viewerImage.style.transform = `scale(${viewerZoom})`;
+  }
+}
+
+function closeImageViewer() {
+  if (!mediaViewer || !viewerImage) return;
+  mediaViewer.classList.remove('is-open');
+  mediaViewer.setAttribute('aria-hidden', 'true');
+  viewerImage.removeAttribute('src');
+  viewerZoom = 1;
+}
+
+function openImageViewer(url) {
+  if (!mediaViewer || !viewerImage) return;
+  viewerZoom = 1;
+  viewerImage.src = url;
+  applyViewerZoom();
+  mediaViewer.classList.add('is-open');
+  mediaViewer.setAttribute('aria-hidden', 'false');
+  if (viewerOpenSourceLink) {
+    viewerOpenSourceLink.href = url;
+  }
 }
 
 function render(items) {
@@ -162,6 +205,9 @@ async function loadNews() {
       }
     }
     throw new Error('Не удалось загрузить новости из API. Проверьте API_BASE и доступность /api/news.');
+  } catch (error) {
+    statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность API.';
+    throw error;
   } finally {
     isLoading = false;
   }
@@ -196,9 +242,40 @@ async function refreshFeedIfNeeded() {
 }
 
 loadMoreBtn.addEventListener('click', loadNews);
+if (syncNowBtn) {
+  syncNowBtn.addEventListener('click', async () => {
+    cacheBust = Date.now();
+    await refreshFeedIfNeeded();
+    statusEl.textContent = `Новости: ${feed.children.length}`;
+  });
+}
+if (viewerZoomInBtn) {
+  viewerZoomInBtn.addEventListener('click', () => {
+    viewerZoom = Math.min(4, Number((viewerZoom + 0.25).toFixed(2)));
+    applyViewerZoom();
+  });
+}
+if (viewerZoomOutBtn) {
+  viewerZoomOutBtn.addEventListener('click', () => {
+    viewerZoom = Math.max(1, Number((viewerZoom - 0.25).toFixed(2)));
+    applyViewerZoom();
+  });
+}
+if (viewerCloseBtn) {
+  viewerCloseBtn.addEventListener('click', closeImageViewer);
+}
+if (mediaViewer) {
+  mediaViewer.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target instanceof HTMLElement && target.hasAttribute('data-close-viewer')) {
+      closeImageViewer();
+    }
+  });
+}
+
 loadNews().catch((err) => {
   console.error(err);
-  statusEl.textContent = 'Ошибка загрузки. Проверьте API_BASE, HTTPS и доступность API.';
+  statusEl.textContent = 'Откройте Новости через кнопку на клавиатуре "Открыть Mini App"';
 });
 setInterval(() => {
   refreshFeedIfNeeded().catch((err) => console.warn('Auto refresh failed:', err));

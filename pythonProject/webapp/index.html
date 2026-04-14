@@ -33,6 +33,20 @@
     <section id="feed" class="feed"></section>
     <button id="loadMore" class="load-more">Налить ещё новостей</button>
   </main>
+    <div id="mediaViewer" class="media-viewer" aria-hidden="true">
+    <div class="media-viewer__backdrop" data-close-viewer></div>
+    <div class="media-viewer__dialog" role="dialog" aria-modal="true" aria-label="Просмотр изображения">
+      <div class="media-viewer__toolbar">
+        <button id="viewerZoomOut" type="button" class="viewer-btn" aria-label="Уменьшить">−</button>
+        <button id="viewerZoomIn" type="button" class="viewer-btn" aria-label="Увеличить">+</button>
+        <a id="viewerOpenSource" class="viewer-btn viewer-btn--link" target="_blank" rel="noopener">Открыть</a>
+        <button id="viewerClose" type="button" class="viewer-btn viewer-btn--danger" data-close-viewer aria-label="Закрыть">✕</button>
+      </div>
+      <div class="media-viewer__stage">
+        <img id="viewerImage" alt="Изображение новости"/>
+      </div>
+    </div>
+  </div>
   <template id="news-card-template">
     <article class="card">
       <div class="card-meta"></div>
