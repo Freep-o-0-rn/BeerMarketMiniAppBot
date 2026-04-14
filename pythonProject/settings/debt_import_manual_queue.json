@@ -1351,6 +1351,5865 @@
       "moderated_at": "2026-04-13T07:34:53Z",
       "moderated_by_user_id": 237087423,
       "mapped_client_id": "ec221f7e-1ca7-4adb-801a-5d4968f13aa4"
+    },
+    {
+      "id": "1edc6616-3b74-44ef-90f1-520638c93acd",
+      "status": "pending",
+      "raw_client_name": "Бочка 50л S RU",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 50л S RU",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 45,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ddcd7a96-9eea-40d5-b403-958eb2632d56",
+      "status": "pending",
+      "raw_client_name": "Бочка 50л тип S",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 50л тип S",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 189,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c5b124a3-095d-4251-be7d-ef2b5b799193",
+      "status": "pending",
+      "raw_client_name": "Хорал ООО - Колягин (Станиславского, 4/2)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Хорал",
+        "store_name": "",
+        "address": "Станиславского, 4/2",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ba34b9d0-8b2e-49b8-927b-71dde90c22b6",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л тип А Златый Базант/Три Медведя/Остмарк",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л тип А Златый Базант/Три Медведя/Остмарк",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 78,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b29c1d7a-5f2b-43fa-99dc-2f9e81753f00",
+      "status": "pending",
+      "raw_client_name": "_Судилкин О.А. ИП - Токарев (Обь г, с северной стороны ул.Ломоносова) (У и Б)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_Судилкин О.А.",
+        "store_name": "",
+        "address": "У и Б",
+        "sales_rep_name": "Токарев (Обь г, с северной стороны ул.Ломоносова)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d16cba4b-f099-4eda-811d-b558d888ad9e",
+      "status": "pending",
+      "raw_client_name": "Киселькова Елена Ильинична ИП - Щербатов (У)(Станционная ул, дом № 28/3)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Киселькова Елена Ильинична",
+        "store_name": "",
+        "address": "Станционная ул, дом № 28/3",
+        "sales_rep_name": "Щербатов (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "623bb212-1463-44fa-afcf-fecfddc26f9f",
+      "status": "pending",
+      "raw_client_name": "Попова И.В. ИП - Токарев (Озерный п, Промышленная ул, дом № 10/3) (бывшая Миненкова)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Попова И.В.",
+        "store_name": "",
+        "address": "бывшая Миненкова",
+        "sales_rep_name": "Токарев (Озерный п, Промышленная ул, дом № 10/3)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "24867e43-f7ee-49f6-9838-6b73ef52e90a",
+      "status": "pending",
+      "raw_client_name": "Бочка 50л тип А",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 50л тип А",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 20,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "656774e4-95c9-4238-87fa-7c09ca2235f9",
+      "status": "pending",
+      "raw_client_name": "Карманова Кристина Игоревна ИП - Щербатов (Болотное г, Коммунистическая ул, дом № 67)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Карманова Кристина Игоревна",
+        "store_name": "",
+        "address": "Болотное г, Коммунистическая ул, дом № 67",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "04b01d84-e8b5-4efa-a43e-ab7f6277d988",
+      "status": "pending",
+      "raw_client_name": "Еремеев Виктор Юрьевич ИП - Ганиев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Еремеев Виктор Юрьевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a47ecd95-adc9-41f7-b30a-9bfaa953a343",
+      "status": "pending",
+      "raw_client_name": "Хафизова Н.С. ИП - Колягин (Степная ул, дом № 55)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Хафизова Н.С.",
+        "store_name": "",
+        "address": "Степная ул, дом № 55",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "87157aea-bfed-46a1-9cba-63aceba55c9a",
+      "status": "pending",
+      "raw_client_name": "Кузьмин Сергей Юрьевич ИП - Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кузьмин Сергей Юрьевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5e0465eb-6793-41a3-8e45-abcd23983956",
+      "status": "pending",
+      "raw_client_name": "Потапова Елена Николаевна ИП - Ганиев ( Коченевский р-н, Коченево рп, Аргунова ул, дом № 104а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Потапова Елена Николаевна",
+        "store_name": "",
+        "address": "Коченевский р-н, Коченево рп, Аргунова ул, дом № 104а",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "37179c9d-f4d6-4a5b-b35a-bf3ad38149ab",
+      "status": "pending",
+      "raw_client_name": "СВЕТЛАНА ООО - (Целинное с, Молодежная ул, дом № пов.)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "СВЕТЛАНА",
+        "store_name": "",
+        "address": "Целинное с, Молодежная ул, дом № пов.",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "200b65f7-7419-478b-bcee-350535b9c9e4",
+      "status": "pending",
+      "raw_client_name": "Бардин В.Н. ИП- Щербатов (Фабричная,47)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бардин В.Н.",
+        "store_name": "",
+        "address": "Фабричная,47",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "14768e49-7824-4f2e-bbbf-2df98c87590e",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л BLK",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л BLK",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 50,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "373bfc63-21c4-47f5-b2d6-8b95309b6e2a",
+      "status": "pending",
+      "raw_client_name": "Геер Анастасия Петровна ИП - Ганиев(Боровое с, Мира ул, дом № 43а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Геер Анастасия Петровна",
+        "store_name": "",
+        "address": "Боровое с, Мира ул, дом № 43а",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a91ff764-d49c-4022-8fae-ec718656029d",
+      "status": "pending",
+      "raw_client_name": "Геливер Сергей Владимирович ИП - Ганиев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Геливер Сергей Владимирович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "7e70c338-3a88-4b42-a87b-72754896babc",
+      "status": "pending",
+      "raw_client_name": "КЕТИ ООО - Ганиев (Верх-Тула с, Учительская ул, дом № 78/1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "КЕТИ",
+        "store_name": "",
+        "address": "Верх-Тула с, Учительская ул, дом № 78/1",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0ce0a6bc-8505-42b6-bed1-03117fc86b82",
+      "status": "pending",
+      "raw_client_name": "Краус Инга Александровна ИП - Ганиев (Красный Яр с, Ленина ул, дом № 33)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Краус Инга Александровна",
+        "store_name": "",
+        "address": "Красный Яр с, Ленина ул, дом № 33",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0a30bb8f-3541-447d-bdb1-0c6d33b39e07",
+      "status": "pending",
+      "raw_client_name": "Бочка 50л тип А Высокая",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 50л тип А Высокая",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 68,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5604c3f6-818e-46a3-bb63-916346dfe170",
+      "status": "pending",
+      "raw_client_name": "_Судилкин О.А. ИП - Токарев (Комсомольская, д.31/2) (У и Б)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_Судилкин О.А.",
+        "store_name": "",
+        "address": "У и Б",
+        "sales_rep_name": "Токарев (Комсомольская, д.31/2)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "729184ff-3b58-431f-80d4-14e8afbf17f5",
+      "status": "pending",
+      "raw_client_name": "Косинцева Наталья Владимировна ИП - Щербатов(Станиславского ул, дом № 40)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Косинцева Наталья Владимировна",
+        "store_name": "",
+        "address": "Станиславского ул, дом № 40",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5e947c2e-874e-4d2b-abcb-108d163b4f9a",
+      "status": "pending",
+      "raw_client_name": "_Судилкин О.А. ИП - Токарев(Объединения ул, дом № 59) (У и Б)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_Судилкин О.А.",
+        "store_name": "",
+        "address": "У и Б",
+        "sales_rep_name": "Токарев(Объединения ул, дом № 59)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "697eee9f-17e6-4599-af1e-74184c5365b3",
+      "status": "pending",
+      "raw_client_name": "Башкаев Г.Н. ИП - Ганиев (Спирино с, Ленина ул, дом № 177)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башкаев Г.Н.",
+        "store_name": "",
+        "address": "Спирино с, Ленина ул, дом № 177",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f56f7bbd-6214-4ef5-80dc-ba4ec0db78b3",
+      "status": "pending",
+      "raw_client_name": "Башкаев Г.Н. ИП - Ганиев (Спирино с, Ленина ул, дом № 70/1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башкаев Г.Н.",
+        "store_name": "",
+        "address": "Спирино с, Ленина ул, дом № 70/1",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "cf8f4d3a-3d45-49c5-987e-d7e07b8f4064",
+      "status": "pending",
+      "raw_client_name": "Белова Юлия Юрьевна ИП - Колягин (У) (Кубовинский с/с, Звёздное тер СНТ ул Широкая, дом № 45)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Белова Юлия Юрьевна",
+        "store_name": "",
+        "address": "Кубовинский с/с, Звёздное тер СНТ ул Широкая, дом № 45",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "dc378771-f93f-4a0f-aab2-a904aaba5475",
+      "status": "pending",
+      "raw_client_name": "Легкая Роза Александровна ИП - Ганиев(У)Ленинское с, СНТ Опора ул Садовая, дом № 84, участок 206",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Легкая Роза Александровна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев(У)Ленинское с, СНТ Опора ул Садовая, дом № 84, участок 206"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "68f5ab9f-984e-4658-ab01-efccea7590f5",
+      "status": "pending",
+      "raw_client_name": "Поветкин С.В ИП - Колягин (Орловская ул, дом № 20)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Поветкин С.В",
+        "store_name": "",
+        "address": "Орловская ул, дом № 20",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d55d75c8-4254-4062-b302-0e73ed95cfe5",
+      "status": "pending",
+      "raw_client_name": "Сибстройторг ООО (20 Партсъезда,8) и У и Б Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Сибстройторг (20 Партсъезда,8) и У и Б Щербатов",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "7cb1cd45-ece2-4270-913b-5a7bae064068",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л GIB Rakovnik (Черновар, Пражечка, Бакалар, Либенвайс, Вудбридж, Аркоброй,Гротверг) тип S",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л GIB Rakovnik (Черновар, Пражечка, Бакалар, Либенвайс, Вудбридж, Аркоброй,Гротверг) тип S",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 6,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d21fbf5d-844c-4a34-8403-86b81bd58fb4",
+      "status": "pending",
+      "raw_client_name": "Замок тип S",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Замок тип S",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 202,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0f66646f-024c-48ca-97cb-c1ee60a2d736",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Evolution",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Evolution",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 18,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "47a1b535-f4ac-4233-baa7-c03e61ae4db4",
+      "status": "pending",
+      "raw_client_name": "Захарова Юлия Александровна ИП - Ганиев( Ордынское рп, Ленина пр-кт, дом № 20)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Захарова Юлия Александровна",
+        "store_name": "",
+        "address": "Ордынское рп, Ленина пр-кт, дом № 20",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "91bf82b6-d1cd-4de2-97f8-74a925f2d74b",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л Хейнекен (Златый Базант тип S)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л Хейнекен",
+        "store_name": "",
+        "address": "Златый Базант тип S",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 10,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "58acbb5f-de02-4487-942c-4f9b3e7e7fb3",
+      "status": "pending",
+      "raw_client_name": "Мазурина А.А. ИП - Токарев (Обь г, Ломоносова ул, дом № 48)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Мазурина А.А.",
+        "store_name": "",
+        "address": "Обь г, Ломоносова ул, дом № 48",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4c40c4bb-5fe7-426f-bcc0-7f9cbc0c293f",
+      "status": "pending",
+      "raw_client_name": "Руди Ольга Викторовна ИП - Щербатов (Станционно-Ояшинский рп, 2-ая Линейная ул, дом № 17а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Руди Ольга Викторовна",
+        "store_name": "",
+        "address": "Станционно-Ояшинский рп, 2-ая Линейная ул, дом № 17а",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:15Z",
+      "last_seen_at": "2026-04-14T09:39:15Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8c5444f4-6687-4e65-b511-c30e2758fcb0",
+      "status": "pending",
+      "raw_client_name": "Хачумян Анна Роберти ИП - Щербатов (У)(Бородина ул, дом № 24)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Хачумян Анна Роберти",
+        "store_name": "",
+        "address": "Бородина ул, дом № 24",
+        "sales_rep_name": "Щербатов (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ce8e6778-1abc-4522-bfb9-d3aa798c585a",
+      "status": "pending",
+      "raw_client_name": "Жиляков Алексей Александрович ИП - Щербатов (Красный пр-кт, дом № 87)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Жиляков Алексей Александрович",
+        "store_name": "",
+        "address": "Красный пр-кт, дом № 87",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c82ecd74-dfdf-46ff-9aaf-8ee13dec1f36",
+      "status": "pending",
+      "raw_client_name": "Замок тип А",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Замок тип А",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 164,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4607597f-c06a-4d4c-9521-c043b4550b7c",
+      "status": "pending",
+      "raw_client_name": "Осокина Ирина Валериевна ИП - Щербатов ( Станционно-Ояшинский рп, Западная ул, дом № 1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Осокина Ирина Валериевна",
+        "store_name": "",
+        "address": "Станционно-Ояшинский рп, Западная ул, дом № 1",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6d27ab02-33fc-48e0-8377-aae8377e708c",
+      "status": "pending",
+      "raw_client_name": "Пайвина Кристина Николаевна ИП - Колягин (Обь г, Октябрьская ул, дом № 2/4)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пайвина Кристина Николаевна",
+        "store_name": "",
+        "address": "Обь г, Октябрьская ул, дом № 2/4",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "737912dc-75f9-4e2f-b267-cdd4b10fcb3c",
+      "status": "pending",
+      "raw_client_name": "Пономарева Светлана Викторовна ИП - Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пономарева Светлана Викторовна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "668f9754-c430-4ad7-b409-d457c990f07f",
+      "status": "pending",
+      "raw_client_name": "Аникина Е.И ИП - Ганиев (Королева ул, дом № 10)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Аникина Е.И",
+        "store_name": "",
+        "address": "Королева ул, дом № 10",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f2740750-4ad5-4b48-b614-268e0d9b224b",
+      "status": "pending",
+      "raw_client_name": "Казакова Олеся Леонидовна ИП - Колягин (Тульская ул, дом № 90/2)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Казакова Олеся Леонидовна",
+        "store_name": "",
+        "address": "Тульская ул, дом № 90/2",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8cb5085c-6557-4826-a6df-c89c31f481c3",
+      "status": "pending",
+      "raw_client_name": "Кирпиченко Алексей Анатольевич ИП - Щербатов (Криводановка с, Микрорайон тер, дом № 11б)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кирпиченко Алексей Анатольевич",
+        "store_name": "",
+        "address": "Криводановка с, Микрорайон тер, дом № 11б",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "684b7f67-ba57-48a5-bd8d-849f5e463be1",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л Пауланер тип А",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л Пауланер тип А",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 5,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4d3b5d83-05db-4a64-b10b-0bfeed3d2338",
+      "status": "pending",
+      "raw_client_name": "Алтухова Людмила Александровна ИП - Колягин(Флотская ул, дом № 19а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Алтухова Людмила Александровна",
+        "store_name": "",
+        "address": "Флотская ул, дом № 19а",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3cd765ef-fdbe-4db8-8be1-6546cf381c7d",
+      "status": "pending",
+      "raw_client_name": "Брыкова Ольга Викторовна ИП-Колягин (Толмачёво,Новая,74)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Брыкова Ольга Викторовна",
+        "store_name": "",
+        "address": "Толмачёво,Новая,74",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "7560679d-5ec8-40e5-afe3-7502d68e92c5",
+      "status": "pending",
+      "raw_client_name": "Карякин Евгений Викторович ИП - Колягин (Красный Яр п, дом № 22, корпус 3)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Карякин Евгений Викторович",
+        "store_name": "",
+        "address": "Красный Яр п, дом № 22, корпус 3",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "641f2dec-264a-42fc-bda5-95cf8903fe04",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Ecotap",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Ecotap",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 19,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ff706fc4-e216-4ebe-b348-685a67a6c861",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас NEO-Classic",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас NEO",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Classic"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bf2ff7f7-5a17-4dd6-95de-3ff472fbf7e1",
+      "status": "pending",
+      "raw_client_name": "Кран с компенсатором (хром)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кран с компенсатором",
+        "store_name": "",
+        "address": "хром",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "fb0fa956-3c1e-48ea-8f5a-955c71e251dc",
+      "status": "pending",
+      "raw_client_name": "Легкая Роза Александровна ИП - Ганиев (с/о Клен) (У)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Легкая Роза Александровна",
+        "store_name": "",
+        "address": "У",
+        "sales_rep_name": "Ганиев (с/о Клен)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ba66efa1-ab27-429d-91cf-4d5c1ba8a31f",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л Крушовице тип А",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л Крушовице тип А",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 7,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e2679d78-7282-4639-af9c-4068c2071378",
+      "status": "pending",
+      "raw_client_name": "Фетисова А.Д. ИП - Ганиев (Коченево рп, Ипподромская ул, дом № 5)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Фетисова А.Д.",
+        "store_name": "",
+        "address": "Коченево рп, Ипподромская ул, дом № 5",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5cb4fec3-c392-41f0-adfa-33c03865848f",
+      "status": "pending",
+      "raw_client_name": "Шевелева Ирина Алексеевна ИП - Ганиев(Новый Шарап д, Мира ул, дом № 82а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шевелева Ирина Алексеевна",
+        "store_name": "",
+        "address": "Новый Шарап д, Мира ул, дом № 82а",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bb23ef2c-aec3-46c7-bdc4-00442c43892c",
+      "status": "pending",
+      "raw_client_name": "_ТРИО ООО - Токарев (Плахотного ул, дом № 19)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_ТРИО",
+        "store_name": "",
+        "address": "Плахотного ул, дом № 19",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2552083e-d071-4f12-83f9-975247bd2ca6",
+      "status": "pending",
+      "raw_client_name": "Гарант ООО - Токарев(Советская, 9, с.Ленинское)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Гарант",
+        "store_name": "",
+        "address": "Советская, 9, с.Ленинское",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "143b3608-c95c-4ddb-935c-97c4954c227d",
+      "status": "pending",
+      "raw_client_name": "Гринько Степан Евгеньевич ИП - Колягин (Красный Яр п, СНТ Электрон)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Гринько Степан Евгеньевич",
+        "store_name": "",
+        "address": "Красный Яр п, СНТ Электрон",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "94628126-3699-4bc7-8c3a-ea24c56685c3",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 35,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ee77c535-8386-445e-98aa-e8ea63b88466",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Drive DUO",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Drive DUO",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 46,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "83cdb2bc-f1b4-407d-955e-3044bb43589a",
+      "status": "pending",
+      "raw_client_name": "Здорнов Александр Михайлович ИП - Щербатов(Зорге ул, дом № 183, корпус 2)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Здорнов Александр Михайлович",
+        "store_name": "",
+        "address": "Зорге ул, дом № 183, корпус 2",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "96a92a78-a721-47db-b288-311fdf1cc977",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель WINTAP на 2 потока",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель WINTAP на 2 потока",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 43,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6b863c45-2602-475b-8a2d-2f1a68c80a7a",
+      "status": "pending",
+      "raw_client_name": "Перетолчина С.В. ИП - Ганиев (Верх-Тула с, Советская ул, дом № 95, корпус 1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Перетолчина С.В.",
+        "store_name": "",
+        "address": "Верх-Тула с, Советская ул, дом № 95, корпус 1",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6d23f2e8-ce80-4a9c-8d72-8a266abebe7c",
+      "status": "pending",
+      "raw_client_name": "Савицкий Сергей Петрович ИП - Токарев( Новосибирск г, Гоголя ул, дом № 37)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Савицкий Сергей Петрович",
+        "store_name": "",
+        "address": "Новосибирск г, Гоголя ул, дом № 37",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "12f821d1-fa8e-4a22-a51c-3bea703404ae",
+      "status": "pending",
+      "raw_client_name": "Сарычев Федор Иванович ИП-Ганиев (Коченевский р-н, Вахрушево д, магазин \"У Федора\")",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Сарычев Федор Иванович",
+        "store_name": "",
+        "address": "Коченевский р-н, Вахрушево д, магазин \"У Федора\"",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "04554700-2973-42f4-95b7-5868f7a3d114",
+      "status": "pending",
+      "raw_client_name": "Старовойтов Евгений Вячеславович ИП - Щербатов (Макаренко ул, дом № 19/1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Старовойтов Евгений Вячеславович",
+        "store_name": "",
+        "address": "Макаренко ул, дом № 19/1",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a1c76d3d-055b-48ea-ba9a-57f6b7a39198",
+      "status": "pending",
+      "raw_client_name": "Замок тип G",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Замок тип G",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 64,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f2b4cc3e-0c29-40f3-88e4-88ee4af969d2",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Drive",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Drive",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 20,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f395c968-ee3e-4c04-8b3c-43d6214e894b",
+      "status": "pending",
+      "raw_client_name": "Бережнова Ольга Андреевна ИП - Щербатов (Объединения ул, дом № 15, корпус 1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бережнова Ольга Андреевна",
+        "store_name": "",
+        "address": "Объединения ул, дом № 15, корпус 1",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8b3c9b8a-2c49-4bd6-ae89-759b47709e52",
+      "status": "pending",
+      "raw_client_name": "Васильев Ю. Ю. ИП - Щербатов (Плановая ул, дом № 50)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Васильев Ю. Ю.",
+        "store_name": "",
+        "address": "Плановая ул, дом № 50",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "30986d4c-ef07-42e7-87c9-770c5ac51ddf",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас 1 поток(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас 1 поток",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a3dd7e2a-a9f0-4fcd-85eb-ae17bc2e3c57",
+      "status": "pending",
+      "raw_client_name": "Гринько Степан Евгеньевич ИП - Колягин (Красный Яр п, СНТ Озерный)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Гринько Степан Евгеньевич",
+        "store_name": "",
+        "address": "Красный Яр п, СНТ Озерный",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:16Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "9bdb05cb-a019-4238-b69d-c3654a960d44",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас (Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:16Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8e452589-9eae-4fc8-aaa0-bb9ff74c522d",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Evolution DUO",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Evolution DUO",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "da3542f4-3025-4e1a-beff-e1620336d8c6",
+      "status": "pending",
+      "raw_client_name": "Иванцов Вадим Альбертович ИП - Ганиев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Иванцов Вадим Альбертович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bc9e3099-313c-42ee-af48-01020bb4dc54",
+      "status": "pending",
+      "raw_client_name": "Квинт А.Ю. ИП - Колягин (Лейтенанта Амосова ул, дом № 67а) (У)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Квинт А.Ю.",
+        "store_name": "",
+        "address": "У",
+        "sales_rep_name": "Колягин (Лейтенанта Амосова ул, дом № 67а)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d7b51fc8-c419-4205-8cbe-bbd00d6a1cd8",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас U-Classic",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас U",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Classic"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d262bbaf-9ebc-48bd-96ff-b31d2938b483",
+      "status": "pending",
+      "raw_client_name": "Маклаков Алексей Александрович ИП - Ганиев (Верх-Тула с, Советская ул, дом № 1/3)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Маклаков Алексей Александрович",
+        "store_name": "",
+        "address": "Верх-Тула с, Советская ул, дом № 1/3",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bf652516-c0f4-479a-858f-d1bc32e82868",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас U-Classic DUO",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас U",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Classic DUO"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 9,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "573cc722-2186-4df4-979b-dd90efd310fb",
+      "status": "pending",
+      "raw_client_name": "Мартемьянова М.А ИП - Ганиев (Коченево рп, Полевой ж/м Линия 3-я ул, дом № 1А)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Мартемьянова М.А",
+        "store_name": "",
+        "address": "Коченево рп, Полевой ж/м Линия 3-я ул, дом № 1А",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "caf30b4a-2c72-464d-bc01-e1a76ede87cb",
+      "status": "pending",
+      "raw_client_name": "Миренич Виктор Олегович ИП - Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Миренич Виктор Олегович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "821bce4f-5f80-4546-9902-e92d3f90d280",
+      "status": "pending",
+      "raw_client_name": "Миронова Елена Алексеевна ИП - Колягин  (У) ( Садовое общество Зори, Кировский район)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Миронова Елена Алексеевна",
+        "store_name": "",
+        "address": "Садовое общество Зори, Кировский район",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e24b69b4-3595-40c2-b770-ad2af7461355",
+      "status": "pending",
+      "raw_client_name": "Каплесборник",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Каплесборник",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 17,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6ffd76ff-1cef-45b9-802a-bcefe49491ec",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л САБ Миллер (SANKEY НЕРЖ RU)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л САБ Миллер",
+        "store_name": "",
+        "address": "SANKEY НЕРЖ RU",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 15,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2a73ca10-c8e8-40b7-aec5-f4409ee0adb6",
+      "status": "pending",
+      "raw_client_name": "Смаилов К.А. ИП - Ганиев (Боровое с, Ленина ул, дом № 30а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Смаилов К.А.",
+        "store_name": "",
+        "address": "Боровое с, Ленина ул, дом № 30а",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "edeed70a-2127-4814-bb25-d98b4f5b9a49",
+      "status": "pending",
+      "raw_client_name": "Снигирева Марина Геннадьевна ИП - Щербатов ( Октябрьский п, СНТ Жилстроевец)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Снигирева Марина Геннадьевна",
+        "store_name": "",
+        "address": "Октябрьский п, СНТ Жилстроевец",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "7f764396-ff19-4632-b967-f065313387a9",
+      "status": "pending",
+      "raw_client_name": "Старовойтов Евгений Вячеславович ИП - Щербатов (Курчатова ул, дом № 15/2)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Старовойтов Евгений Вячеславович",
+        "store_name": "",
+        "address": "Курчатова ул, дом № 15/2",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1f11ab16-f901-49de-bfef-43b2af0f9605",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас  I Tap",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас I Tap",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 7,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bb79ade3-f8f8-40ae-8c27-efd3f32ff67b",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель пегас  WinTap 2 поток (металл)(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель пегас WinTap 2 поток (металл)",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c903b771-d2f8-4435-80b2-32f3d048f514",
+      "status": "pending",
+      "raw_client_name": "_Прайм ООО Токарев (Титова ул, дом № 11) КПП 540445003",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_Прайм Токарев (Титова ул, дом № 11) КПП 540445003",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b78277ab-822c-406d-b9ba-46971b8abf1f",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л тип S Остмарк",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л тип S Остмарк",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "405032c6-032e-4b11-a120-dc12d07b4d3c",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Ecotwin пластик 2потока",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Ecotwin пластик 2потока",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "49293b8b-9e9e-490e-94de-64e0f26f9ca7",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л ПМ Эфес (DRAFT НЕРЖ RU)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л ПМ Эфес",
+        "store_name": "",
+        "address": "DRAFT НЕРЖ RU",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 13,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a29784ce-ecc3-43f4-9f7d-feee1ee9b445",
+      "status": "pending",
+      "raw_client_name": "Демирханова Софья Николаевна ИП - Колягин (У)(Солидарности ул, дом № 15)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Демирханова Софья Николаевна",
+        "store_name": "",
+        "address": "Солидарности ул, дом № 15",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:17Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "9fe00775-17cc-45f0-b046-d9db3683b677",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Classic эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Classic эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:17Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "53219fcb-a0ba-41fb-b96f-2a0815deb4fa",
+      "status": "pending",
+      "raw_client_name": "Карицкая Ирина Михайловна ИП - Колягин(Ипподромская ул, дом № 54)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Карицкая Ирина Михайловна",
+        "store_name": "",
+        "address": "Ипподромская ул, дом № 54",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3177b5ae-5036-4655-bf2f-a5e7a9b7cc8b",
+      "status": "pending",
+      "raw_client_name": "Кельман Михаил Александрович ИП - Колягин(Жуковского ул, дом № 76)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кельман Михаил Александрович",
+        "store_name": "",
+        "address": "Жуковского ул, дом № 76",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b65341fd-9686-4eea-a30f-d725fc1517ae",
+      "status": "pending",
+      "raw_client_name": "Бочка 20л Сиб. Корона, Левенбрау, Стелла,Бад, Черниговское,Старопрамен(SANKEY НЕРЖ RU)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 20л Сиб. Корона, Левенбрау, Стелла,Бад, Черниговское,Старопрамен",
+        "store_name": "",
+        "address": "SANKEY НЕРЖ RU",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a3514426-323d-4087-b159-537dc3992c93",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Drive DUO(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Drive DUO",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "cdff5203-e151-432b-8702-7b42805e4630",
+      "status": "pending",
+      "raw_client_name": "Пяткевич Е.В. ИП - Колягин(Забалуева ул, дом № 21)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пяткевич Е.В.",
+        "store_name": "",
+        "address": "Забалуева ул, дом № 21",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a4739872-5017-4abb-b45a-c0b04e414705",
+      "status": "pending",
+      "raw_client_name": "Сизикова Анна Витальевна ИП - Ганиев (Ивушка тер. СНТ, Центральная ул, дом № 139)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Сизикова Анна Витальевна",
+        "store_name": "",
+        "address": "Ивушка тер. СНТ, Центральная ул, дом № 139",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e49464c7-84bf-4ba4-8691-464087fb2995",
+      "status": "pending",
+      "raw_client_name": "Старовойтов Евгений Вячеславович ИП - Щербатов (Курчатова ул, дом № 7/1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Старовойтов Евгений Вячеславович",
+        "store_name": "",
+        "address": "Курчатова ул, дом № 7/1",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "86f0f861-01a2-4158-933c-9754150e4195",
+      "status": "pending",
+      "raw_client_name": "Башня Гефест на 2 кр хром Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня Гефест на 2 кр хром Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "eade8136-3ec1-42a1-bb7d-3c841adb5722",
+      "status": "pending",
+      "raw_client_name": "Толокольникова М.В. ИП - Токарев (Ленинское с, Советская ул, дом № 9, помещение 1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Толокольникова М.В.",
+        "store_name": "",
+        "address": "Ленинское с, Советская ул, дом № 9, помещение 1",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6abb7fa0-acf1-4046-9d7f-150b7e222cfc",
+      "status": "pending",
+      "raw_client_name": "Шкуратов Валерий Григорьевич ИП - Ганиев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкуратов Валерий Григорьевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4df1d124-79fd-4a0d-8277-37940b4fea27",
+      "status": "pending",
+      "raw_client_name": "Шуткина О. Г. ИП - Щербатов (Волховская ул, дом № 33д)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шуткина О. Г.",
+        "store_name": "",
+        "address": "Волховская ул, дом № 33д",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3ab660c1-6ce0-4500-9391-b9eb68b61af3",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас  I Tap 2",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас I Tap 2",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2cf6d8d2-b4f5-4e1c-bcb4-4a5534142ca7",
+      "status": "pending",
+      "raw_client_name": "Афонина Катерина Юрьевна ИП - Колягин (У) (Аэропорт,51)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Афонина Катерина Юрьевна",
+        "store_name": "",
+        "address": "Аэропорт,51",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "50517106-7b1c-40af-8a17-0c6503d12e53",
+      "status": "pending",
+      "raw_client_name": "Афонина Катерина Юрьевна ИП - Колягин (У) (Петухова ул, дом № 14/2)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Афонина Катерина Юрьевна",
+        "store_name": "",
+        "address": "Петухова ул, дом № 14/2",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:18Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0d18374e-ec33-43d2-9dfe-4259e0bee172",
+      "status": "pending",
+      "raw_client_name": "Баллон 25 кг. (Углекислота)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Баллон 25 кг.",
+        "store_name": "",
+        "address": "Углекислота",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 42,
+      "created_at": "2026-04-14T09:39:18Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "25a60abe-5ed9-4455-98f6-d1ec2153aa7c",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель пегас  WinTap Twin 2 потока(металл)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель пегас WinTap Twin 2 потока",
+        "store_name": "",
+        "address": "металл",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:19Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "47fdb264-8eac-4875-81a6-537e8bfae639",
+      "status": "pending",
+      "raw_client_name": "Губанова Е.А ИП - Щербатов (20 Партсъезда ул, дом № 8)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Губанова Е.А",
+        "store_name": "",
+        "address": "20 Партсъезда ул, дом № 8",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:19Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "60a59f60-e93b-49cf-9059-edf0da3368f9",
+      "status": "pending",
+      "raw_client_name": "Редуктор на 1 выход",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Редуктор на 1 выход",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 53,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bc45cfd6-5223-4ec8-b137-6f527e713041",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель пегас  WinTap люкс 1 поток (металл)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель пегас WinTap люкс 1 поток",
+        "store_name": "",
+        "address": "металл",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:19Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c9127833-e8fd-4b50-9d75-944dd29ca4a8",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель пегас  WinTap 2 поток (металл)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель пегас WinTap 2 поток",
+        "store_name": "",
+        "address": "металл",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 5,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d09368d1-07c3-4a93-917c-4b794385ec89",
+      "status": "pending",
+      "raw_client_name": "Кочетов Тимофей Константинович ИП - Токарев (Динамовцев ул, дом № 1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кочетов Тимофей Константинович",
+        "store_name": "",
+        "address": "Динамовцев ул, дом № 1",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:19Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "139c77fd-80dd-4dc9-9706-2333670c9230",
+      "status": "pending",
+      "raw_client_name": "Башня 2 кр. (золото)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня 2 кр.",
+        "store_name": "",
+        "address": "золото",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:19Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1f44e779-1549-481a-bee7-53cd778c6be3",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Ecotap Next",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Ecotap Next",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 3,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "27132b47-c2e1-4e59-8864-8b83b9698e36",
+      "status": "pending",
+      "raw_client_name": "пеногаситель пегас Wintap 1 поток металл",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "пеногаситель пегас Wintap 1 поток металл",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a54fed5c-2357-46de-b036-2a42d6b52163",
+      "status": "pending",
+      "raw_client_name": "Поляченков-Занони Андрей Геннадьевич ИП - Колягин(Обь г, Вокзальная ул, дом № 20)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Поляченков-Занони Андрей Геннадьевич",
+        "store_name": "",
+        "address": "Обь г, Вокзальная ул, дом № 20",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e07e42f1-9c41-4e1c-bc97-477d6eb05f80",
+      "status": "pending",
+      "raw_client_name": "Кран с компенсатором",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кран с компенсатором",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c58b794c-d7e3-49dd-8fa9-725d1d941fbc",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас EcoJet",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас EcoJet",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3b979346-80d4-41b7-b130-44306b5f9835",
+      "status": "pending",
+      "raw_client_name": "СВЕТЛАНА ООО - (Малореченка п, Школьная ул, дом № 17)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "СВЕТЛАНА",
+        "store_name": "",
+        "address": "Малореченка п, Школьная ул, дом № 17",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5d5af555-d1ce-424a-bc2b-56e9d7a8977d",
+      "status": "pending",
+      "raw_client_name": "Старовойтов Евгений Вячеславович ИП - Щербатов (Горская ул, дом № 58)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Старовойтов Евгений Вячеславович",
+        "store_name": "",
+        "address": "Горская ул, дом № 58",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1db4190d-b3b6-4217-a70f-413afe8948ab",
+      "status": "pending",
+      "raw_client_name": "Старовойтов Евгений Вячеславович ИП - Щербатов (Овражная ул, дом № 13)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Старовойтов Евгений Вячеславович",
+        "store_name": "",
+        "address": "Овражная ул, дом № 13",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "713cce21-22b0-416d-a866-b29cc3727349",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л Хофброй тип S",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л Хофброй тип S",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d02657fd-208b-4156-824c-0f259efd086b",
+      "status": "pending",
+      "raw_client_name": "Угрюмова А.А. ИП - Щербатов (Виктора Уса ул, дом № 11)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Угрюмова А.А.",
+        "store_name": "",
+        "address": "Виктора Уса ул, дом № 11",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "703b7ca9-1de8-4019-b2e7-ab612a8cf0b8",
+      "status": "pending",
+      "raw_client_name": "Утренняя звезда ООО - Ганиев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Утренняя звезда",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "216bba07-43a3-4bd6-8194-081ff4d867fb",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель WINTAP на 1 поток",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель WINTAP на 1 поток",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "66fe49dd-c50f-49e0-a12e-920288284dc2",
+      "status": "pending",
+      "raw_client_name": "Башня Кобра 2 кр (Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня Кобра 2 кр",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:20Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4285c667-cbef-4f84-a2df-d5833770f1d2",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90\" Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90\" Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:20Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0f63c09d-18af-4dc0-af7a-e5e45f502cb1",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л BLK(потери)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л BLK",
+        "store_name": "",
+        "address": "потери",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f8b918c3-31b3-4e60-9dd2-9518f9f0a304",
+      "status": "pending",
+      "raw_client_name": "Афонина Катерина Юрьевна ИП - Колягин (У) (Громова ул, дом № 7)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Афонина Катерина Юрьевна",
+        "store_name": "",
+        "address": "Громова ул, дом № 7",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c4b77399-86f2-4b72-8871-c2877e16b86e",
+      "status": "pending",
+      "raw_client_name": "Афонина Катерина Юрьевна ИП - Колягин (У) (Забалуева ул, дом № 5а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Афонина Катерина Юрьевна",
+        "store_name": "",
+        "address": "Забалуева ул, дом № 5а",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b2c4a37f-642b-4a35-8b96-f2adfac9f26d",
+      "status": "pending",
+      "raw_client_name": "Замок тип D",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Замок тип D",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 10,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f6d483c8-5bad-4773-9e29-22a9fbb66264",
+      "status": "pending",
+      "raw_client_name": "пеногаситель пегас Win tap",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "пеногаситель пегас Win tap",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "fe595309-4628-402a-8c27-6cd541da5398",
+      "status": "pending",
+      "raw_client_name": "Редуктор СО2 на 2 (эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Редуктор СО2 на 2",
+        "store_name": "",
+        "address": "эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 3,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "de3fc286-4436-412e-a334-e0ffea2f3358",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42399",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №42399",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "448a0a91-0e3d-405b-bb70-031698f0bea9",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90\"47197  Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90\"47197 Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3dd94e14-b8fe-41f2-9540-2cee77778d51",
+      "status": "pending",
+      "raw_client_name": "Редуктор СО2 на 1 выход(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Редуктор СО2 на 1 выход",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 10,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "86cf16a2-b590-40d7-890c-e57133794da7",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42291",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №42291",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "77b5e2be-e9b7-475a-ac5c-b0a176f1b7e4",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994092-6473",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994092",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "6473"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f63cac6c-5eb8-413e-a28d-7ab3357381ac",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 75\" №215177 Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 75\" №215177 Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "125428d6-5e37-4c0d-a900-dc9cd5ce1eda",
+      "status": "pending",
+      "raw_client_name": "Переключатель потоков(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Переключатель потоков",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3dd514d4-4125-4184-9658-6320eb2ab59a",
+      "status": "pending",
+      "raw_client_name": "Башня металлическая Кобра 2 кр",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня металлическая Кобра 2 кр",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 8,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "7f0be3bc-7db4-4671-930f-078cc35c2cf7",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400419-3324",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400419",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "3324"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8335a190-b241-44fc-85c7-0f3f793b7751",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400423-398",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400423",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "398"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "907bc56e-9ae7-443a-9555-b92b893409a2",
+      "status": "pending",
+      "raw_client_name": "Башня Балтика-7 2кр №0701994078-196",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня Балтика-7 2кр №0701994078",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "196"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 4,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2e1c678f-072b-4c45-a6e0-4373a9269d60",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400424-796",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400424",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "796"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4aa6b880-e9e9-472a-b7dd-f1b56006b0cb",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400365-0540 (21017)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400365",
+        "store_name": "",
+        "address": "21017",
+        "sales_rep_name": "0540"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:21Z",
+      "last_seen_at": "2026-04-14T09:39:21Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "753447e1-a5a7-4dd7-9383-d78d5bb8530e",
+      "status": "pending",
+      "raw_client_name": "Башня Балтика алюминиум",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня Балтика алюминиум",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "eb3deb54-f978-4c01-a3b2-a3fd3cc985f6",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400423-644",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400423",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "644"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "9af7c68c-1c53-4803-81cc-320eb4ec22a9",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400419-3638",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400419",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "3638"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5ea502a5-a591-4c50-aff7-547b797f3cbe",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400423-665",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400423",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "665"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d4afd560-83e0-43ef-b0f1-911c21d349ae",
+      "status": "pending",
+      "raw_client_name": "Башня 1 кр. (хром)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня 1 кр.",
+        "store_name": "",
+        "address": "хром",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ba81cb83-7b59-46b6-8957-b529f9ee351b",
+      "status": "pending",
+      "raw_client_name": "Медальон (хром)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Медальон",
+        "store_name": "",
+        "address": "хром",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d71ffdf4-96c8-43c9-b5db-5510cbbd90e9",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №57493",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №57493",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "dafe95c1-2c6f-41a8-8ed7-1208b3b53d0f",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400390-822",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400390",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "822"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d2c862af-cb07-49ef-ac31-3f9b28e8a6a7",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400365-3381",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400365",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "3381"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "59ba8cbd-d649-4cc7-8483-0987f66f6d83",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400423-447",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400423",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "447"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4fb89ecb-ea0a-4e4a-b157-3aad27a9430e",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400365-0098",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400365",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "0098"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "650d73f1-297d-4161-baab-fda3cccf91d5",
+      "status": "pending",
+      "raw_client_name": "Охладитель №070400419-4507",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель №070400419",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "4507"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "12804068-234a-49ed-acc1-8641314dd348",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный  Super 8 R-290(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Super 8 R",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": "290"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ef5e35f5-d17b-48e7-8ee2-7e2136011526",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42307",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №42307",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "982b5305-82bf-44c5-963b-ee68f537dd8f",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №47218",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №47218",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1a895d75-45da-44b6-85f8-b84cd4493e8a",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994104-0103",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994104",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "0103"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6ddb9d08-5555-46cf-8e77-919b8f946960",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994104-1124",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994104",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "1124"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ef49081a-ff38-44b0-a412-5106f5afa970",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994104-1142",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994104",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "1142"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6f3f8ed1-97d2-4cf9-9603-5d20abdc57ba",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994044716",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994044716",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8d0d1f77-6bdb-4ffa-8ab7-5b06171b417a",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика  0701994104-1312",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994104",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "1312"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5e803c50-ef7f-43cd-bbc9-3b4fea84353c",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994034-137",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994034",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "137"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1884ce1f-5e92-4b6e-bdc7-373b38704eaa",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994044-923",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994044",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "923"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ace512a5-8627-4977-b48a-d144ebeb2ced",
+      "status": "pending",
+      "raw_client_name": "Витрина холодильная Бочкари №09906 (наш)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Витрина холодильная Бочкари №09906",
+        "store_name": "",
+        "address": "наш",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "db088be2-3048-461b-8a12-d8cfd917a127",
+      "status": "pending",
+      "raw_client_name": "Холодильник 2020 \" 5 флагов\" № 1640219097",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник 2020 \" 5 флагов\" № 1640219097",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1e613eb9-ed0e-4307-a69a-71a3ef20cd3e",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90М ( Эдем) №61050",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90М ( Эдем) №61050",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5f901552-3666-4e76-bca3-6b3e2cc0454d",
+      "status": "pending",
+      "raw_client_name": "Герасименко А. А. ИП - Токарев (Петухова ул, дом № 91)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Герасименко А. А.",
+        "store_name": "",
+        "address": "Петухова ул, дом № 91",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "cb90778d-0d69-485e-9aa0-0c7a1fe58c3f",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994057-352",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994057",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "352"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e0bd6272-7adb-4bbd-99a7-e97d831b5110",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994092-2926",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994092",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "2926"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b235e222-a05b-46a4-b598-59a7d417664b",
+      "status": "pending",
+      "raw_client_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257036",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257036",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a610e522-1093-416d-b769-4df75e51e8c2",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №25199",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №25199",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "82d91315-3d66-46f7-8285-a0c0f5071032",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №54879",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №54879",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:22Z",
+      "last_seen_at": "2026-04-14T09:39:22Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3306bf94-572a-47bd-a4a9-0994cb57c34b",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90М ( Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90М",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "cc9f2a6e-a0ea-4093-9cf3-c2ee6f1ae033",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994108-4469",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994108",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "4469"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "44414de4-bf8f-4cce-9de8-3852ed714b44",
+      "status": "pending",
+      "raw_client_name": "Витрина холодильная \"Хейнекен\" №15017509717",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Витрина холодильная \"Хейнекен\" №15017509717",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "dad9c661-977a-4c14-9e9a-f28318025a0f",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №48556",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №48556",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ceeb10e4-1791-40ed-bf1b-61fd2683998c",
+      "status": "pending",
+      "raw_client_name": "Каплесборник(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Каплесборник",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0b20f2db-c359-46dd-a1d0-8815f14f625d",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун ( Эдем) №72236",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун ( Эдем) №72236",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f6e97749-aec6-4893-89e8-99d71456aa9d",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель Пегас Ecotap(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель Пегас Ecotap",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "31d4b26a-b99e-4834-97d6-965b8c0455b8",
+      "status": "pending",
+      "raw_client_name": "Редуктор СО2  (Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Редуктор СО2",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8f6cafc5-5a3f-4baa-a512-f5513c68aaa1",
+      "status": "pending",
+      "raw_client_name": "Стойка ДI0Т(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Стойка ДI0Т",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "038dd4d3-1ceb-41b2-ab8c-dc4cb8c45116",
+      "status": "pending",
+      "raw_client_name": "Витрина холодильная \"Крушовице\" №4561718615",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Витрина холодильная \"Крушовице\" №4561718615",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1e90c17c-9bcc-445c-bdd4-5be2bb90e049",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90\"81497  Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90\"81497 Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b2c2f3f2-9928-422f-b618-efa26d3047b4",
+      "status": "pending",
+      "raw_client_name": "Холодильник 2020 \" 5 флагов\" № 1640219099",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник 2020 \" 5 флагов\" № 1640219099",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "cdf0cc42-d316-46d5-bd7f-f4486c39d0d3",
+      "status": "pending",
+      "raw_client_name": "Пеногаситель на 2 сорта РУН-2",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Пеногаситель на 2 сорта РУН",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "2"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "62c55260-a35a-4442-aa45-939374c4a9bc",
+      "status": "pending",
+      "raw_client_name": "Световой знак Три Медведя (панель)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Световой знак Три Медведя",
+        "store_name": "",
+        "address": "панель",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "15e4f51c-da8d-4584-8100-82338a31f7f9",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90\"77407  Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90\"77407 Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "add26333-cab6-4161-9dc3-8c2bfdeb3555",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Каставр 75\" Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Каставр 75\" Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "dc0dd237-d6dd-4100-9938-12e0f9e7551c",
+      "status": "pending",
+      "raw_client_name": "Холодильник Евробир (5 флагов) №13350001257055",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник Евробир (5 флагов) №13350001257055",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6f7ed9c1-8a17-4bc8-86a0-93470da17df6",
+      "status": "pending",
+      "raw_client_name": "Катаев Р.Н. ИП - Ганиев (Чернаково п, Ильича ул, дом № 38) (от Эдема для снятия оборудования)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Катаев Р.Н.",
+        "store_name": "",
+        "address": "от Эдема для снятия оборудования",
+        "sales_rep_name": "Ганиев (Чернаково п, Ильича ул, дом № 38)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "18c5e82f-6c88-4a45-9b3e-3f82179e8571",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701991003-626",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701991003",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "626"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "569a990c-3648-4d68-af87-ee4e87bc149d",
+      "status": "pending",
+      "raw_client_name": "Кононова Юлия Александровна ИП - Ганиев (Коченево рп, Промышленная ул, дом № 4)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кононова Юлия Александровна",
+        "store_name": "",
+        "address": "Коченево рп, Промышленная ул, дом № 4",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "aa6f47ba-9dbb-414b-b3f1-f461ed6fe04d",
+      "status": "pending",
+      "raw_client_name": "Косыгин Дмитрий Олегович ИП - Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Косыгин Дмитрий Олегович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "b93044d3-3d50-4776-be26-0234b0a4b6bc",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701991013-041",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701991013",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "041"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:23Z",
+      "last_seen_at": "2026-04-14T09:39:23Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "482f34b3-3d90-4ce6-9d33-0fd1ecb13469",
+      "status": "pending",
+      "raw_client_name": "Кубовинское сельпо - Колягин (Степной,Центральная,1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кубовинское сельпо",
+        "store_name": "",
+        "address": "Степной,Центральная,1",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "763b81f3-9fb0-4da0-ae8d-65ac9a9d6945",
+      "status": "pending",
+      "raw_client_name": "Внутренний Световой знак Три Медведя  Х",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Внутренний Световой знак Три Медведя Х",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "347cc514-cd30-431c-9402-2f6d70cbbd89",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №48447",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №48447",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0a2ff579-f8fa-4fd2-8b15-446507abb565",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42282",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №42282",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d2c91f51-24ec-4142-af87-a56c67cffa58",
+      "status": "pending",
+      "raw_client_name": "Холодильник ICE STREAM ECO \" 5 флагов\" № 0407066720611353142988914024",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник ICE STREAM ECO \" 5 флагов\" № 0407066720611353142988914024",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a50f9ade-9f28-4524-939b-fc3768e96760",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 75 на 2 пр. №21169",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 75 на 2 пр. №21169",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bbc5017f-7dae-4db7-ac6c-ffb00bfe2f56",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994092-6475",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994092",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "6475"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5b45e1d6-8fc2-4b26-8d13-2e0342ae815c",
+      "status": "pending",
+      "raw_client_name": "Мамедов Сеймур Сеидмамед Оглы ИП - Колягин (У)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Мамедов Сеймур Сеидмамед Оглы",
+        "store_name": "",
+        "address": "У",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4cdf1f18-8f84-49ad-b90a-a122c7923c2d",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701991000521",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701991000521",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c81743d7-e34b-423c-9b7c-ddaf4aaa7d91",
+      "status": "pending",
+      "raw_client_name": "Витрина холодильная \"Златый Базант\" №27444010",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Витрина холодильная \"Златый Базант\" №27444010",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "a969b111-fe35-4727-bd1d-9141bca8d0e0",
+      "status": "pending",
+      "raw_client_name": "Холодильник S8(Эдем) б/н",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник S8(Эдем) б/н",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8759dd26-3522-4c44-8ecb-016a1014aca1",
+      "status": "pending",
+      "raw_client_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257001",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257001",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "9d3c051c-c031-4b46-8c26-a2d231b4278e",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90\" 2",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90\" 2",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:24Z",
+      "last_seen_at": "2026-04-14T09:39:24Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0edf01e1-08eb-43a5-ab00-daf5b9c5e972",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №43069",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №43069",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "603ae72b-4494-4074-a136-1668851705f3",
+      "status": "pending",
+      "raw_client_name": "Полторанин Андрей Владимирович ИП - Колягин ( Карла Маркса пр-кт, дом № 25)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Полторанин Андрей Владимирович",
+        "store_name": "",
+        "address": "Карла Маркса пр-кт, дом № 25",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "9ca5fad8-9f32-4551-a1d3-5689f284a3b1",
+      "status": "pending",
+      "raw_client_name": "Попова Юлия Сергеевна ИП - Ганиев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Попова Юлия Сергеевна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "883c2f30-b08a-4b5b-99bd-2669810e44c0",
+      "status": "pending",
+      "raw_client_name": "Холодильник №13594079",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник №13594079",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5094f0fb-9d8a-42d8-9dab-5c4266f69771",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №48558",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №48558",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "f00586fc-a653-4c64-80d3-99e37352645f",
+      "status": "pending",
+      "raw_client_name": "Рахимкулов А. М. ИП - Колягин (Суходольная ул, дом № 20, корпус 1) (У)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Рахимкулов А. М.",
+        "store_name": "",
+        "address": "У",
+        "sales_rep_name": "Колягин (Суходольная ул, дом № 20, корпус 1)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "70456d5c-a44d-475e-80c9-bcfe8146825d",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701994034063",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994034063",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "da2a241c-18b1-4ffa-b395-a808c5d45e38",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 3 пр. №58432",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 3 пр. №58432",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "aa9bff0c-9950-4b9c-a267-236f52c12e03",
+      "status": "pending",
+      "raw_client_name": "Переключатель потоков",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Переключатель потоков",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "260f262f-3e67-4238-9a54-15032b71a2ef",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №47199",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №47199",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "628375a9-0ad9-4408-beab-ca5956026e61",
+      "status": "pending",
+      "raw_client_name": "Башня 3 кр. (золото)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня 3 кр.",
+        "store_name": "",
+        "address": "золото",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "7aeb5d98-15eb-4885-aedb-db48d412277f",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42331",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №42331",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "54bd0218-4f2c-4750-b22d-555261d3a7ca",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №25932",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №25932",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2b42a6fa-2cce-4e17-bb06-bd3191b9e231",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90\"",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90\"",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e1749d44-07b7-426c-a07d-d3cc8aa635fa",
+      "status": "pending",
+      "raw_client_name": "Холодильник 2025 \" 5 флагов\" № 078",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник 2025 \" 5 флагов\" № 078",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "5383f46a-eae6-4ea2-986c-a4458658c1cb",
+      "status": "pending",
+      "raw_client_name": "Внутренний Световой знак Три Медведя (новый)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Внутренний Световой знак Три Медведя",
+        "store_name": "",
+        "address": "новый",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ef61acfd-44c6-4390-9726-43d946eec704",
+      "status": "pending",
+      "raw_client_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257052",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257052",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "059457b1-5f2f-4926-b9bc-5ad41a9a0afa",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Заря 200\" 0307071158331139117852117172",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Заря 200\" 0307071158331139117852117172",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:25Z",
+      "last_seen_at": "2026-04-14T09:39:25Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2e38e202-dbc6-45d1-9752-c3e5bcd9d0f8",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика  0701994101-3160",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994101",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "3160"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1603c78f-f67e-4123-b416-686e07335b46",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90М 61049\" Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90М 61049\" Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "78e90de4-db2b-4d74-b5d5-cba674dc7d6c",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика 0701991005-156 списан",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701991005",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "156 списан"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "66f24eef-ed54-4312-b318-ece18b0ebe67",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №52463",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №52463",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "00740f49-f94c-419e-98ad-c9ea48decfdf",
+      "status": "pending",
+      "raw_client_name": "Бочка 30л Riegele тип A",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Бочка 30л Riegele тип A",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "1974b31f-e3d6-40ea-94b5-1cf57e65d7ce",
+      "status": "pending",
+      "raw_client_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257044",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257044",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "8c381a32-2880-449f-8dca-1519b82f0a26",
+      "status": "pending",
+      "raw_client_name": "Баллон 10 кг. (Углекислота)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Баллон 10 кг.",
+        "store_name": "",
+        "address": "Углекислота",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 2,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4d7e6495-52bb-435d-a4c2-d4b80b2043a2",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42274",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 2 пр. №42274",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e7e25b78-b70b-4186-83b3-8fb81848e92b",
+      "status": "pending",
+      "raw_client_name": "Охладитель \"Тайфун 90М 100226\" Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель \"Тайфун 90М 100226\" Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0d077e59-8eb4-4f99-b70e-a9a58f686572",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90М ( Эдем) №57952",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90М ( Эдем) №57952",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d6082cbd-203a-47eb-ba62-57d76ceee308",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90М ( Эдем) №81164",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90М ( Эдем) №81164",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c2fe3ae3-cee6-4e63-8f52-2180063a7fc8",
+      "status": "pending",
+      "raw_client_name": "Холодильник Три Медведя №4561358891(Эдем)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник Три Медведя №4561358891",
+        "store_name": "",
+        "address": "Эдем",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0ced6f77-37cf-4bf0-8329-619647262bda",
+      "status": "pending",
+      "raw_client_name": "Холодильник S76 (5 флагов) №635840389",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник S76 (5 флагов) №635840389",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "2d93acac-781c-4bd2-a38b-c6ff1bb292d3",
+      "status": "pending",
+      "raw_client_name": "Башня Тиана 3 кр.",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Башня Тиана 3 кр.",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "29d35e67-7a12-4593-90a9-312b6e2c9a6d",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №43693",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №43693",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0b493baa-c6f7-48fc-ac26-f8a7da514800",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 120 Эдем",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 120 Эдем",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "c9d99fbe-32e1-4f3e-ae93-e42020b8b2bc",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 3 пр. №43945",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 3 пр. №43945",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3f2f242a-de53-4477-9cbe-d754b6cd580d",
+      "status": "pending",
+      "raw_client_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257010",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник UBC Icestream ECO \" 5 флагов\" № 13350001257010",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "472d7271-127a-4715-bd32-c11f6ff6901d",
+      "status": "pending",
+      "raw_client_name": "Хмелевская Ольга Борисовна ИП - Токарев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Хмелевская Ольга Борисовна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ad3451f5-8029-4761-a71d-810d0b88feb0",
+      "status": "pending",
+      "raw_client_name": "Шкаф холодильный Балтика  0701994101-3912",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шкаф холодильный Балтика 0701994101",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "3912"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e54233a4-ef34-4fed-9343-fad20a07e8c9",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №55670",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №55670",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "0481b0c1-e36e-4beb-baf4-18c6f1872a2a",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун на 2 пр. №28299",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун на 2 пр. №28299",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ada26fd4-1248-4b0a-8314-df43f84533c0",
+      "status": "pending",
+      "raw_client_name": "Хохлова Е.В. ИП - Колягин (Римского-Корсакова ул, дом № 1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Хохлова Е.В.",
+        "store_name": "",
+        "address": "Римского-Корсакова ул, дом № 1",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "3cf84dc7-0b33-4b81-88c7-4c41ce3f9f17",
+      "status": "pending",
+      "raw_client_name": "Холодильник Хейнекен № 14017500497",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Холодильник Хейнекен № 14017500497",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:26Z",
+      "last_seen_at": "2026-04-14T09:39:26Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "4ba70aaa-c66b-4b1d-9c53-948a6bc989e8",
+      "status": "pending",
+      "raw_client_name": "Редуктор Micro Matic",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Редуктор Micro Matic",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "42296ed8-fb62-4f74-a994-68ad06256f9a",
+      "status": "pending",
+      "raw_client_name": "Шуткина О. Г. ИП - Щербатов (Воскресная ул, дом № 54б)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шуткина О. Г.",
+        "store_name": "",
+        "address": "Воскресная ул, дом № 54б",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "bb434b9e-b44f-46ba-adb5-53153f658704",
+      "status": "pending",
+      "raw_client_name": "Охладитель Тайфун 90 на 4 пр. №48510",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Охладитель Тайфун 90 на 4 пр. №48510",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "fc626d43-bb06-4405-b5f0-bbf80ab07a1c",
+      "status": "pending",
+      "raw_client_name": "Номенклатура",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Номенклатура",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "159046de-63bc-4468-baa1-ada4204869ca",
+      "status": "pending",
+      "raw_client_name": "Регистратор",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Регистратор",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "38e32c33-4236-409b-ad9d-4ab6432f5dee",
+      "status": "pending",
+      "raw_client_name": "Афонина Катерина Юрьевна ИП - Колягин (У) (Оловозаводская ул, дом № 4а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Афонина Катерина Юрьевна",
+        "store_name": "",
+        "address": "Оловозаводская ул, дом № 4а",
+        "sales_rep_name": "Колягин (У)"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "229a5ccd-6d39-428c-8928-858e0d7a0058",
+      "status": "pending",
+      "raw_client_name": "Губанова Е.А ИП - Щербатов (Ватутина ул, дом № 41/1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Губанова Е.А",
+        "store_name": "",
+        "address": "Ватутина ул, дом № 41/1",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "fd43d676-32c2-436d-b272-b8c44b6e5d8b",
+      "status": "pending",
+      "raw_client_name": "Губанова Е.А ИП - Щербатов (Чемская ул, дом № 12а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Губанова Е.А",
+        "store_name": "",
+        "address": "Чемская ул, дом № 12а",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "38344260-4d87-46d6-846b-e6448c269dcc",
+      "status": "pending",
+      "raw_client_name": "Кочкина Эльвира Викторовна ИП - Щербатов(Добролюбова ул, дом № 162/1)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кочкина Эльвира Викторовна",
+        "store_name": "",
+        "address": "Добролюбова ул, дом № 162/1",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "11249ec6-0474-45e8-a98e-1bac2384ca8d",
+      "status": "pending",
+      "raw_client_name": "Ловыгина Полина Владиславовна ИП - Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Ловыгина Полина Владиславовна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e3bb63f4-8186-470f-b236-de1f2c7d7735",
+      "status": "pending",
+      "raw_client_name": "Субботин Александр Николаевич ИП - Щербатов",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Субботин Александр Николаевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "df36bded-d0b1-4d89-81a9-efe8b8e063ce",
+      "status": "pending",
+      "raw_client_name": "ЭКСПРЕСС-3 ООО - Колягин (Рассветная ул, 12) КПП 541045003",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "ЭКСПРЕСС-3",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Колягин (Рассветная ул, 12) КПП 541045003"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "da05eca9-a6f9-4f84-b6c3-b4f308228e7a",
+      "status": "pending",
+      "raw_client_name": "_Альбион-2002 ООО - Токарев (Заречная ул, дом № 21)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_Альбион-2002",
+        "store_name": "",
+        "address": "Заречная ул, дом № 21",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "e027e626-14e5-4574-903c-03f5eb88a7c9",
+      "status": "pending",
+      "raw_client_name": "_Рязанова Юлия Петровна ИП - Токарев",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "_Рязанова Юлия Петровна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6c0655c4-6ade-41da-a1b6-6149e21d4d76",
+      "status": "pending",
+      "raw_client_name": "Витрина холодильная \"Златый Базант\" № 077470513",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Витрина холодильная \"Златый Базант\" № 077470513",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "55281b2a-6ac9-4943-9779-888ac845b245",
+      "status": "pending",
+      "raw_client_name": "Кристалл ООО-Колягин (Флотская 17а)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Кристалл",
+        "store_name": "",
+        "address": "Флотская 17а",
+        "sales_rep_name": "Колягин"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "ecc121f8-5dd4-4785-80c3-62d09175cfad",
+      "status": "pending",
+      "raw_client_name": "Губанова Е.А ИП - Щербатов (Оловозаводская ул, дом № 4)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Губанова Е.А",
+        "store_name": "",
+        "address": "Оловозаводская ул, дом № 4",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:27Z",
+      "last_seen_at": "2026-04-14T09:39:27Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "6a3a44fa-ec9f-4543-b2ec-7e14f81db574",
+      "status": "pending",
+      "raw_client_name": "Шевченко Елена Олеговна ИП - Ганиев (Верх-Тула с, Советская ул, дом № 49б)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Шевченко Елена Олеговна",
+        "store_name": "",
+        "address": "Верх-Тула с, Советская ул, дом № 49б",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:28Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
+    },
+    {
+      "id": "d8d4317e-57cd-48d2-ab8f-6729d9b8fc6b",
+      "status": "pending",
+      "raw_client_name": "СВЕТЛАНА ООО - (Целинное с, Школьная ул, дом № 8)",
+      "source": "tara",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "СВЕТЛАНА",
+        "store_name": "",
+        "address": "Целинное с, Школьная ул, дом № 8",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "resolve_not_found",
+        "source_tara"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-14T09:39:28Z",
+      "last_seen_at": "2026-04-14T09:39:28Z",
+      "last_imported_by_user_id": null
     }
   ]
 }
