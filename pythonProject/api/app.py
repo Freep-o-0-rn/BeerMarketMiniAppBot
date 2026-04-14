@@ -52,6 +52,8 @@ def _allowed_origins() -> set[str]:
     return normalized
 
 _ALLOWED_ORIGINS = _allowed_origins()
+_CORS_STRICT = bool((os.getenv("CORS_ALLOW_ORIGINS") or "").strip())
+
 
 def _resolve_allow_origin(origin: str | None) -> str | None:
     normalized = _normalize_origin(origin or "")
@@ -59,6 +61,11 @@ def _resolve_allow_origin(origin: str | None) -> str | None:
         return "*"
     parsed = urlsplit(normalized)
     if parsed.hostname in {"localhost", "127.0.0.1"}:
+        return normalized
+    if not _CORS_STRICT and parsed.scheme == "https":
+        # По умолчанию разрешаем любой HTTPS origin для read-only Mini App API.
+        # Это устраняет падения при запуске Mini App из разных точек Telegram,
+        # где origin может отличаться от статически прописанного app-домена.
         return normalized
     if "*" in _ALLOWED_ORIGINS:
         return normalized
