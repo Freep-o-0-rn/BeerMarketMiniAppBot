@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from html import escape
 from datetime import datetime, timezone
 
 from aiogram import F, Router
@@ -53,6 +54,22 @@ def _news_media_finish_kb(news_id: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="💾 Завершить (оставить черновик)", callback_data=f"news:finishmedia:draft:{news_id}")],
         [InlineKeyboardButton(text="❌ Отмена", callback_data="news:finishmedia:cancel")],
     ])
+
+def _news_item_text(row: dict) -> str:
+    media_count = len(row.get("media") or [])
+    title = escape(str(row.get("title") or "Без заголовка"))
+    status = escape(str(row.get("status") or "—"))
+    published_at = escape(str(row.get("published_at") or "—"))
+    author_name = escape(str(row.get("author_name") or "—"))
+    body = escape(str(row.get("text") or ""))
+    return (
+        f"<b>{title}</b>\n"
+        f"Статус: <b>{status}</b>\n"
+        f"Дата публикации: {published_at}\n"
+        f"Автор: {author_name}\n"
+        f"Медиа: {media_count}\n\n"
+        f"{body}"
+    )
 
 async def _safe_edit_text(message: Message, text: str, reply_markup: InlineKeyboardMarkup) -> bool:
     try:
@@ -172,7 +189,7 @@ def register_news_manage_handlers(
         await state.clear()
         item = news_service.get_news(news_id)
         await m.answer(
-            f"Черновик создан: {item['title']}\nID: {news_id}",
+            f"Черновик создан: {escape(str(item.get('title') or 'Без заголовка'))}\nID: {news_id}",
             reply_markup=_news_item_kb(news_id, item.get("status", "draft"), 0, "draft")
         )
 
@@ -195,15 +212,7 @@ def register_news_manage_handlers(
         if not row:
             await cq.answer("Новость не найдена", show_alert=True)
             return
-        media_count = len(row.get("media") or [])
-        text = (
-            f"<b>{row['title']}</b>\n"
-            f"Статус: <b>{row['status']}</b>\n"
-            f"Дата публикации: {row.get('published_at') or '—'}\n"
-            f"Автор: {row.get('author_name') or '—'}\n"
-            f"Медиа: {media_count}\n\n"
-            f"{row.get('text') or ''}"
-        )
+        text = _news_item_text(row)
         await cq.message.edit_text(text, reply_markup=_news_item_kb(news_id, row["status"], page, list_status))
         await cq.answer()
 
@@ -226,7 +235,7 @@ def register_news_manage_handlers(
             next_status = "published"
         updated = news_service.get_news(news_id)
         await cq.message.edit_text(
-            f"<b>{updated['title']}</b>\nСтатус: <b>{next_status}</b>\n\n{updated.get('text') or ''}",
+             _news_item_text(updated),
             reply_markup=_news_item_kb(news_id, next_status, int(page_raw), list_status)
         )
 
@@ -333,7 +342,7 @@ def register_news_manage_handlers(
         await state.clear()
         row = news_service.get_news(edit_news_id)
         await m.answer(
-            f"Новость обновлена:\n<b>{row['title']}</b>",
+            f"Новость обновлена:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
             reply_markup=_news_item_kb(edit_news_id, row["status"], 0, row["status"])
         )
 
@@ -414,7 +423,7 @@ def register_news_manage_handlers(
             news_service.set_status(news_id, "published", published_at=datetime.now(timezone.utc).isoformat())
             row = news_service.get_news(news_id) or row
             await cq.message.edit_text(
-                f"Новость опубликована:\n<b>{row['title']}</b>",
+                f"Новость опубликована:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
                 reply_markup=_news_item_kb(news_id, "published", 0, "published"),
             )
             await state.clear()
@@ -422,7 +431,7 @@ def register_news_manage_handlers(
             return
         await state.clear()
         await cq.message.edit_text(
-            f"Добавление медиа завершено.\n<b>{row['title']}</b> осталось в черновиках.",
+            f"Добавление медиа завершено.\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b> осталось в черновиках.",
             reply_markup=_news_item_kb(news_id, row.get("status", "draft"), 0, "draft"),
         )
         await cq.answer()

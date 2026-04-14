@@ -9734,7 +9734,8 @@ def _promo_get_all(include_inactive: bool = False, archive_only: bool = False) -
     items.sort(key=lambda it: _promo_sort_key(it, now=now))
     return items
 
-def _promo_short(html_text: str, limit: int = 180) -> str:
+#количество символов 5000
+def _promo_short(html_text: str, limit: int = 5000) -> str:
     # короткая выжимка текста (снятие тегов)
     t = re.sub(r"<[^>]+>", "", html_text or "")
     t = _html.unescape(t).replace("\xa0", " ").strip()
