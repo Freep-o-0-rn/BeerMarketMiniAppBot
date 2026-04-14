@@ -596,8 +596,8 @@ def _to_float_ru(x: Any) -> float:
     except Exception:
         return 0.0
 
-def _tara_find_cols(df: pd.DataFrame) -> Tuple[str, str, Optional[str], str]:
-    """Находим имена колонок: Клиент, Номенклатура, Регистратор?, Конечный остаток."""
+def _tara_find_cols(df: pd.DataFrame) -> Tuple[str, Optional[str], Optional[str], str]:
+    """Находим имена колонок: Клиент, Номенклатура?, Регистратор?, Конечный остаток."""
     def _find(colnames, *needles):
         low = {c: str(c).lower() for c in colnames}
         for c, lc in low.items():
@@ -609,9 +609,70 @@ def _tara_find_cols(df: pd.DataFrame) -> Tuple[str, str, Optional[str], str]:
     col_item    = _find(df.columns, "номенклат")
     col_reg     = _find(df.columns, "регистр")
     col_kon_end = _find(df.columns, "конечн", "остат")
-    if not all([col_client, col_item, col_kon_end]):
-        raise ValueError("Не найдены обязательные колонки (Клиент/Номенклатура/Конечный остаток)")
+    if not all([col_client, col_kon_end]):
+        raise ValueError("Не найдены обязательные колонки (Клиент/Конечный остаток)")
     return col_client, col_item, col_reg, col_kon_end
+
+ def _tara_is_client_like_text(text: str) -> bool:
+     txt = re.sub(r"\s+", " ", str(text or "").strip())
+     if not txt:
+         return False
+     low = txt.casefold()
+     if low in {"клиент", "номенклатура", "регистратор"}:
+         return False
+     if TARA_DOC_MARKERS.search(txt):
+         return False
+     if CLIENT_MARKERS.search(txt):
+         return True
+     parts = split_report_client_label(txt)
+     if parts.get("address") or parts.get("sales_rep"):
+         return True
+     return ("(" in txt and ")" in txt and " - " in txt)
+
+
+ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[str, Any]]:
+     """Фоллбек для иерархической 1С-формы: клиент/товары в первой колонке."""
+     results: List[Dict[str, Any]] = []
+     current: Optional[Dict[str, Any]] = None
+     def _flush_current() -> None:
+         nonlocal current
+         if not current:
+             return
+         current["items"] = _merge_tara_items(current["items"])
+         # Клиента не выбрасываем даже с total == 0: в UI покажем «оборудования нет».
+         results.append(current)
+         current = None
+     for _, row in df.iterrows():
+         text = str(row.iloc[0] or "").strip()
+         if not text or text.lower() == "nan":
+             continue
+         q_end = _to_float_ru(row.get(col_qty_end, 0))
+         low = text.casefold()
+         if low in {"клиент", "номенклатура", "регистратор"}:
+             continue
+         if current and low.startswith("кпп"):
+             current["client"] = f"{current['client']} {text}".strip()
+             continue
+         if TARA_DOC_MARKERS.search(text):
+             continue
+         if abs(q_end) > 1e-9 and _tara_is_client_like_text(text):
+             _flush_current()
+             parts = split_report_client_label(text)
+             current = {
+                 "client": text,
+                 "client_name": parts.get("client_name") or text,
+                 "sales_rep_name": parts.get("sales_rep") or "",
+                 "address": parts.get("address") or "",
+                 "items": [],
+                 "total": q_end,
+             }
+             continue
+         if current and abs(q_end) > 1e-9:
+             current["items"].append((text, q_end))
+     _flush_current()
+     results.sort(key=lambda x: x.get("total", 0.0), reverse=True)
+     logging.info("Тара: режим hierarchical, собрано клиентов: %d", len(results))
+     return results
 
 def read_tara_file(path: str) -> Tuple[pd.DataFrame, Optional[str]]:
     df_raw = _read_excel_safe(path, header=None)
@@ -679,7 +740,20 @@ def _merge_tara_items(items: List[Tuple[str, float]]) -> List[Tuple[str, float]]
 
 def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """Парсинг строк отчёта по возвратной таре"""
-    col_client, col_item, col_reg, col_qty_end = _tara_find_cols(df)
+    col_names = list(df.columns)
+    col_qty_end = None
+    for c in col_names:
+        lc = str(c).lower()
+        if "конеч" in lc and "остат" in lc:
+            col_qty_end = c
+            break
+    if not col_qty_end:
+        raise ValueError("Не найдена колонка 'Количество Конечный остаток'")
+
+    try:
+        col_client, col_item, col_reg, _ = _tara_find_cols(df)
+    except ValueError:
+        return _parse_tara_hierarchical(df, col_qty_end)
 
     results: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
@@ -702,14 +776,14 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
         # клиент␊
         if is_client_like:
-            # сохранить предыдущего␊
-            if current:
-                current["items"] = _merge_tara_items(current["items"])
-                if abs(float(current.get("total") or 0.0)) > 1e-9 or current["items"]:
+            if is_client_like:
+                # сохранить предыдущего␊
+                if current:
+                    current["items"] = _merge_tara_items(current["items"])
                     results.append(current)
-            parts = split_report_client_label(client_cell)
-            current = {
-                "client": client_cell,
+                parts = split_report_client_label(client_cell)
+                current = {
+                    "client": client_cell,
                 "client_name": parts.get("client_name") or client_cell,
                 "sales_rep_name": parts.get("sales_rep") or "",
                 "address": parts.get("address") or "",
@@ -728,14 +802,12 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             current["items"].append((item_name, q_end))
 
     # финальный клиент
-    # финальный клиент␊
     if current:
         current["items"] = _merge_tara_items(current["items"])
-        if abs(float(current.get("total") or 0.0)) > 1e-9 or current["items"]:
-            results.append(current)
+        results.append(current)
 
     results.sort(key=lambda x: x.get("total", 0.0), reverse=True)
-    logging.info("Тара: собрано клиентов: %d", len(results))
+    logging.info("Тара: режим flat, собрано клиентов: %d", len(results))
     return results
 
 def process_tara_file(path: str) -> Dict[str, Any]:

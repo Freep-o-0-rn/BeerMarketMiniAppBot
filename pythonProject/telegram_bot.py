@@ -1099,12 +1099,16 @@ def build_tara_group_text(base_name: str, entries: list) -> str:
     lines = [f"<b>{esc(base_name)}</b> — всего: {fmt_qty_units(total_all)}"]
     for e in entries_sorted:
         addr = _tara_client_parts(e).get("address", "")
+        entry_items = e.get("items") or []
         if addr:
             lines.append(f"• <b>({esc(addr)})</b> — {fmt_qty_units(e.get('total', 0))}")
             prefix = "    — "
         else:
             prefix = "— "
-        for name, qty in (e.get("items") or []):
+        if not entry_items and abs(float(e.get("total", 0) or 0.0)) < 1e-9:
+            lines.append(f"{prefix}оборудования нет")
+            continue
+        for name, qty in entry_items:
             lines.append(f"{prefix}{esc(name)} — {fmt_qty_units(qty)}")
     return "\n".join(lines)
 
