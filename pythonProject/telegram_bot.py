@@ -1111,6 +1111,17 @@ def _tara_address(full: str) -> str:
     """Адрес клиента из круглых скобок."""
     return _tara_client_parts(full).get("address", "")
 
+def _tara_pick_kb(token: str, base_name: str, entries: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for idx, e in enumerate(entries):
+        addr = (_tara_client_parts(e).get("address") or "Без адреса").strip()
+        short_addr = (addr[:48] + "…") if len(addr) > 49 else addr
+        qty = fmt_qty_units(e.get("total", 0))
+        rows.append([InlineKeyboardButton(text=f"{short_addr} — {qty}", callback_data=f"tara:pick:{token}:{idx}")])
+    rows.append([InlineKeyboardButton(text=f"📦 Показать все адреса ({len(entries)})", callback_data=f"tara:pickall:{token}")])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 def build_tara_group_text(base_name: str, entries: list) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
     total_all = sum(float(e.get("total", 0) or 0) for e in entries)
@@ -5667,6 +5678,19 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 for b in filtered:
                     base = _tara_base_name(b)
                     groups.setdefault(base, []).append(b)
+                if len(groups) == 1:
+                    base = next(iter(groups.keys()))
+                    entries = groups.get(base, [])
+                    if len(entries) > 3:
+                        token = uuid4().hex[:12]
+                        _TARA_SEARCH_PICK_CACHE[token] = {"base": base, "entries": entries}
+                        await chat.answer(
+                            f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
+                            "Выберите адрес или покажите все:",
+                            reply_markup=_tara_pick_kb(token, base, entries),
+                            disable_web_page_preview=True,
+                        )
+                        return
 
                 for base in sorted(groups.keys(), key=lambda k: (k or '').casefold().replace('ё','е')):
                     text = build_tara_group_text(base, groups[base])
@@ -5684,6 +5708,42 @@ async def render_tara_search(chat: Message, keywords: List[str]):
 
     await chat.answer("Ничего не найдено по заданным ключам.", reply_markup=kb)
 
+@router.callback_query(F.data.startswith("tara:pick:"))
+async def cb_tara_pick_address(cq: CallbackQuery):
+    parts = (cq.data or "").split(":")
+    if len(parts) != 4:
+        await cq.answer("Некорректный выбор.", show_alert=True)
+        return
+    _, _, token, idx_raw = parts
+    payload = _TARA_SEARCH_PICK_CACHE.get(token) or {}
+    entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
+    base = str(payload.get("base") or "").strip()
+    if not entries or not base:
+        await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
+        return
+    try:
+        idx = int(idx_raw)
+    except Exception:
+        await cq.answer("Некорректный индекс.", show_alert=True)
+        return
+    if idx < 0 or idx >= len(entries):
+        await cq.answer("Адрес не найден.", show_alert=True)
+        return
+    await cq.answer()
+    await send_long(cq.message, build_tara_group_text(base, [entries[idx]]))
+
+
+@router.callback_query(F.data.startswith("tara:pickall:"))
+async def cb_tara_pick_all(cq: CallbackQuery):
+    token = (cq.data or "").split(":", 2)[-1]
+    payload = _TARA_SEARCH_PICK_CACHE.get(token) or {}
+    entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
+    base = str(payload.get("base") or "").strip()
+    if not entries or not base:
+        await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
+        return
+    await cq.answer()
+    await send_long(cq.message, build_tara_group_text(base, entries))
 
 @router.message(F.text == "🔎 Поиск тары")
 async def btn_search_tara(m: Message, state: FSMContext):
