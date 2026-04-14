@@ -77,6 +77,7 @@ DEBT_IMPORT_MAPPINGS_PATH = SETTINGS_DIR / "debt_import_mappings.json"
 
 logger = logging.getLogger(__name__)
 _TARA_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
+_DEBT_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 
 #Прайсы: сортировка по алфавиту ---
 PRICES_SORT_ALPHA = True   # вырубить — поставьте False
@@ -1121,6 +1122,24 @@ def _tara_pick_kb(token: str, base_name: str, entries: List[Dict[str, Any]]) -> 
     rows.append([InlineKeyboardButton(text=f"📦 Показать все адреса ({len(entries)})", callback_data=f"tara:pickall:{token}")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def _debt_pick_kb(token: str, entries: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for idx, it in enumerate(entries):
+        parts = split_report_client_label(str(it.get("client") or ""))
+        addr = str(parts.get("address") or it.get("address") or "Без адреса").strip()
+        short_addr = (addr[:48] + "…") if len(addr) > 49 else addr
+        debt = fmt_money(it.get("total_debt", 0))
+        rows.append([InlineKeyboardButton(text=f"{short_addr} — {debt} ₽", callback_data=f"debt:pick:{token}:{idx}")])
+    rows.append([
+        InlineKeyboardButton(
+            text=f"📒 Показать все адреса ({len(entries)})",
+            callback_data=f"debt:pickall:{token}"
+        )
+    ])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 
 def build_tara_group_text(base_name: str, entries: list) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
@@ -9412,10 +9431,69 @@ async def run_client_search(m: Message, raw_query: str):
         disable_web_page_preview=True,
         reply_markup=client_menu_kb(getattr(m.from_user, "id", None))
     )
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for it in filtered:
+        base = _base_client_name_for_debt(str(it.get("client") or it.get("client_name") or ""))
+        if base:
+            groups.setdefault(base, []).append(it)
+
+    if len(groups) == 1:
+        base = next(iter(groups.keys()))
+        entries = groups.get(base, [])
+        if len(entries) > 3:
+            token = uuid4().hex[:12]
+            _DEBT_SEARCH_PICK_CACHE[token] = {"base": base, "entries": entries, "report_date": report_date}
+            await m.answer(
+                f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
+                "Выберите адрес или покажите все:",
+                reply_markup=_debt_pick_kb(token, entries),
+                disable_web_page_preview=True,
+            )
+            return
     for i, it in enumerate(filtered, 1):
         text = build_client_text(it, i, report_date)
         await send_long(m, text)
 
+@router.callback_query(F.data.startswith("debt:pick:"))
+async def cb_debt_pick_address(cq: CallbackQuery):
+    parts = (cq.data or "").split(":")
+    if len(parts) != 4:
+        await cq.answer("Некорректный выбор.", show_alert=True)
+        return
+    _, _, token, idx_raw = parts
+    payload = _DEBT_SEARCH_PICK_CACHE.get(token) or {}
+    entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
+    report_date = payload.get("report_date")
+    if not entries:
+        await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
+        return
+    try:
+        idx = int(idx_raw)
+    except Exception:
+        await cq.answer("Некорректный индекс.", show_alert=True)
+        return
+    if idx < 0 or idx >= len(entries):
+        await cq.answer("Адрес не найден.", show_alert=True)
+        return
+
+    await cq.answer()
+    text = build_client_text(entries[idx], idx + 1, report_date)
+    await send_long(cq.message, text)
+
+
+@router.callback_query(F.data.startswith("debt:pickall:"))
+async def cb_debt_pick_all(cq: CallbackQuery):
+    token = (cq.data or "").split(":", 2)[-1]
+    payload = _DEBT_SEARCH_PICK_CACHE.get(token) or {}
+    entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
+    report_date = payload.get("report_date")
+    if not entries:
+        await cq.answer("УСписок устарел. Запустите поиск заново.", show_alert=True)
+        return
+    await cq.answer()
+    for i, it in enumerate(entries, 1):
+        text = build_client_text(it, i, report_date)
+        await send_long(cq.message, text)
 
 #акции ------------------------------------------------------------------------------------------
 def actor_id(obj):

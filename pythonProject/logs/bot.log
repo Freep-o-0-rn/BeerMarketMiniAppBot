@@ -28475,3 +28475,6 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: BUTTO
 2026-04-14 19:09:06 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=138031.96, по строкам=0.00
 2026-04-14 19:09:06 | INFO | root | Собрано клиентов: 209
 2026-04-14 19:09:08 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 2555, 'req': '2393994c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4097, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Лосев', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-14 19:09:08 | INFO | aiogram.event | Update id=104058520 is handled. Duration 2563 ms by bot id=8304099970
+2026-04-14 19:13:17 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-14 19:13:17 | INFO | aiogram.dispatcher | Polling stopped
