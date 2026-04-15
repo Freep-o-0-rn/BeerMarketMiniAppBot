@@ -29054,3 +29054,6 @@ aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: query
 2026-04-15 21:31:30 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 341, 'req': 'f967a1b1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4231, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
 2026-04-15 21:31:30 | INFO | aiogram.event | Update id=104058590 is handled. Duration 344 ms by bot id=8304099970
 2026-04-15 21:31:36 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 4945, 'req': '9e58baf7', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4233, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Гензе Иван Давыдович', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-15 21:31:36 | INFO | aiogram.event | Update id=104058591 is handled. Duration 4953 ms by bot id=8304099970
+2026-04-15 21:34:35 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-15 21:34:35 | INFO | aiogram.dispatcher | Polling stopped
