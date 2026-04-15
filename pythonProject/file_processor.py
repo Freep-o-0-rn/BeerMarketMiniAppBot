@@ -613,6 +613,32 @@ def _tara_find_cols(df: pd.DataFrame) -> Tuple[str, Optional[str], Optional[str]
         raise ValueError("Не найдены обязательные колонки (Клиент/Конечный остаток)")
     return col_client, col_item, col_reg, col_kon_end
 
+def _tara_qty_fallback_cols(
+    df: pd.DataFrame,
+    *,
+    exclude: List[Optional[str]],
+    preferred: Optional[str],
+) -> List[str]:
+    """
+    Дополнительные количественные колонки для случаев, когда в «Конечном остатке»
+    по номенклатуре пусто, а значение лежит в соседнем поле выгрузки.
+    """
+    excluded = {str(c) for c in exclude if c}
+    cols: List[str] = []
+    for c in df.columns:
+        name = str(c)
+        low = name.casefold()
+        if name in excluded:
+            continue
+        if not any(k in low for k in ("колич", "остат")):
+            continue
+        if any(k in low for k in ("сумм", "цена", "руб", "коп")):
+            continue
+        cols.append(name)
+    # preferred идёт первым, остальные — в порядке появления.
+    if preferred and preferred in cols:
+        cols.remove(preferred)
+    return ([preferred] if preferred else []) + cols
 
 def _split_tara_client_label(raw: str) -> Dict[str, str]:
     """
@@ -797,6 +823,18 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
         return _parse_tara_hierarchical(df, col_qty_end)
     if not col_item:
         return _parse_tara_hierarchical(df, col_qty_end)
+    qty_cols = _tara_qty_fallback_cols(
+        df,
+        exclude=[col_client, col_item, col_reg],
+        preferred=col_qty_end,
+    )
+
+    def _pick_qty(row: pd.Series) -> float:
+        for c in qty_cols:
+            v = _to_float_ru(row.get(c, 0))
+            if abs(v) > 1e-9:
+                return v
+        return 0.0
 
     results: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
@@ -812,6 +850,7 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             continue
 
         q_end = _to_float_ru(row.get(col_qty_end, 0))
+        q_row = _pick_qty(row)
         is_client_like = False
         if client_cell and not TARA_DOC_MARKERS.search(client_cell):
             parts_probe = _split_tara_client_label(client_cell)
@@ -834,7 +873,7 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
                 "sales_rep_name": parts.get("sales_rep") or "",
                 "address": parts.get("address") or "",
                 "items": [],
-                "total": q_end,
+                "total": q_end if abs(q_end) > 1e-9 else q_row,
             }
             continue
 
@@ -843,9 +882,9 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             continue
 
         # номенклатура
-        if current and abs(q_end) > 0:
+        if current and abs(q_row) > 0:
             item_name = item_cell or text
-            current["items"].append((item_name, q_end))
+            current["items"].append((item_name, q_row))
 
     # финальный клиент
     # финальный клиент␊
