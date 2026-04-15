@@ -3244,9 +3244,49 @@ def debt_import_queue_list_kb(items: List[Dict[str, Any]], page: int = 0, page_s
         if page < last_page:
             nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:imq:list:{page + 1}"))
         rows.append(nav)
+    rows.append([InlineKeyboardButton(text="🚫 Список игнора", callback_data="cc:imq:ignored:list:0")])
     rows.append([InlineKeyboardButton(text="⬅️ К карточкам", callback_data="cc:list:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def _ignored_entries_sorted() -> List[Dict[str, Any]]:
+    state = _load_debt_import_mappings()
+    ignored = state.get("ignored") if isinstance(state.get("ignored"), dict) else {}
+    out: List[Dict[str, Any]] = []
+    for key, payload in ignored.items():
+        rec = payload if isinstance(payload, dict) else {}
+        out.append({
+            "key": str(key),
+            "raw_client_name": str(rec.get("raw_client_name") or key),
+            "source": _normalize_source_name(str(rec.get("source") or "debt")),
+            "updated_at": str(rec.get("updated_at") or ""),
+            "updated_by_user_id": rec.get("updated_by_user_id"),
+        })
+    out.sort(key=lambda x: (x.get("updated_at") or "", x.get("raw_client_name") or ""), reverse=True)
+    return out
+
+
+def ignored_list_kb(entries: List[Dict[str, Any]], page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+    total = len(entries)
+    last_page = max(0, (total - 1) // page_size) if total else 0
+    page = max(0, min(page, last_page))
+    start = page * page_size
+    end = min(total, start + page_size)
+    rows: List[List[InlineKeyboardButton]] = []
+    for idx, entry in enumerate(entries[start:end], start=start):
+        src = str(entry.get("source") or "debt").upper()
+        raw_name = str(entry.get("raw_client_name") or "Без названия").strip()
+        title = f"{src}: {raw_name}"[:56]
+        rows.append([InlineKeyboardButton(text=f"♻️ {title}", callback_data=f"cc:imq:ignored:drop:{page}:{idx}")])
+    if total > page_size:
+        nav: List[InlineKeyboardButton] = []
+        if page > 0:
+            nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"cc:imq:ignored:list:{page - 1}"))
+        nav.append(InlineKeyboardButton(text=f"{page + 1}/{last_page + 1}", callback_data=f"cc:imq:ignored:list:{page}"))
+        if page < last_page:
+            nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:imq:ignored:list:{page + 1}"))
+        rows.append(nav)
+    rows.append([InlineKeyboardButton(text="⬅️ К очереди", callback_data="cc:imq:list:0")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def _debt_queue_item_text(item: Dict[str, Any]) -> str:
     parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
@@ -3270,7 +3310,12 @@ def _debt_queue_item_text(item: Dict[str, Any]) -> str:
     )
 
 
-def debt_import_queue_item_kb(item_id: str, candidates: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
+def debt_import_queue_item_kb(
+        item_id: str,
+        candidates: List[Dict[str, Any]],
+        *,
+        include_unignore: bool = False,
+) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
     for idx, card in enumerate(candidates[:8]):
         title = f"🔗 {card.get('legal_form') or ''} {card.get('legal_name') or ''}"[:60]
@@ -3278,6 +3323,8 @@ def debt_import_queue_item_kb(item_id: str, candidates: List[Dict[str, Any]]) ->
     rows.append([InlineKeyboardButton(text="➕ Создать карточку из записи", callback_data=f"cc:imq:create:{item_id}")])
     rows.append([InlineKeyboardButton(text="👤 Привязать к торговому", callback_data=f"cc:imq:sales:{item_id}")])
     rows.append([InlineKeyboardButton(text="🚫 Игнорировать импорт", callback_data=f"cc:imq:ignore:{item_id}")])
+    if include_unignore:
+        rows.append([InlineKeyboardButton(text="♻️ Снять игнор", callback_data=f"cc:imq:unignore:{item_id}")])
     rows.append([InlineKeyboardButton(text="⬅️ К очереди", callback_data="cc:imq:list:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -3425,6 +3472,58 @@ def _save_debt_import_mappings(payload: Dict[str, Any]) -> None:
         encoding="utf-8",
     )
 
+def _ignored_entry_matches_source(entry: Any, source: str) -> bool:
+    if not isinstance(entry, dict):
+        return True
+    entry_src_raw = str(entry.get("source") or "").strip().lower()
+    if not entry_src_raw:
+        return True
+    return _normalize_source_name(entry_src_raw) == _normalize_source_name(source)
+
+
+def _is_manual_ignored_raw_line(
+        *,
+        raw_client_name: str,
+        sales_rep_name: str = "",
+        source: str = "debt",
+        mapping_state: Optional[Dict[str, Any]] = None,
+) -> bool:
+    state = mapping_state if isinstance(mapping_state, dict) else _load_debt_import_mappings()
+    ignored = state.get("ignored") if isinstance(state.get("ignored"), dict) else {}
+    if not ignored:
+        return False
+    key = _debt_import_mapping_key(raw_client_name, sales_rep_name)
+    legacy_key = _debt_import_client_key(raw_client_name)
+    src = _normalize_source_name(source)
+    if key and key in ignored and _ignored_entry_matches_source(ignored.get(key), src):
+        return True
+    if legacy_key and legacy_key in ignored and _ignored_entry_matches_source(ignored.get(legacy_key), src):
+        return True
+    return False
+
+
+def _drop_manual_ignore_for_item(item: Dict[str, Any]) -> bool:
+    raw_name = str(item.get("raw_client_name") or "").strip()
+    if not raw_name:
+        return False
+    parsed = item.get("parsed_candidate") if isinstance(item.get("parsed_candidate"), dict) else {}
+    parsed_rep = str(parsed.get("sales_rep_name") or "").strip()
+    key = _debt_import_mapping_key(raw_name, parsed_rep)
+    legacy_key = _debt_import_client_key(raw_name)
+    src = _normalize_source_name(str(item.get("source") or "debt"))
+    state = _load_debt_import_mappings()
+    ignored = state.get("ignored") if isinstance(state.get("ignored"), dict) else {}
+    changed = False
+    for candidate in [key, legacy_key]:
+        if not candidate or candidate not in ignored:
+            continue
+        if not _ignored_entry_matches_source(ignored.get(candidate), src):
+            continue
+        ignored.pop(candidate, None)
+        changed = True
+    if changed:
+        _save_debt_import_mappings(state)
+    return changed
 
 def _sales_rep_candidates() -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -3625,12 +3724,19 @@ def resolve_client(raw_line: str, source: str) -> Optional[str]:
     legacy_key = _debt_import_client_key(raw)
     mapping_state = _load_debt_import_mappings()
     mappings = mapping_state.get("mappings") if isinstance(mapping_state.get("mappings"), dict) else {}
-    ignored = mapping_state.get("ignored") if isinstance(mapping_state.get("ignored"), dict) else {}
 
-    if key and key in ignored:
-        return None
-    if legacy_key and legacy_key in ignored:
-        return None
+    # Игнор из ручной модерации должен блокировать только импорт карточек (debt),
+    # но не ломать отображение отчёта/поиска по таре.
+    respect_ignore = (src == "debt")
+    if respect_ignore:
+        if _is_manual_ignored_raw_line(
+                raw_client_name=raw,
+                sales_rep_name=parsed_rep,
+                source=src,
+                mapping_state=mapping_state,
+        ):
+            return None
+
 
     mapped = mappings.get(key) if key else None
     if not isinstance(mapped, dict) and legacy_key:
@@ -3654,20 +3760,22 @@ def resolve_client(raw_line: str, source: str) -> Optional[str]:
             source=src,
         )
         return client_id
-
-    _enqueue_debt_manual_review(
-        raw_client_name=raw,
-        parsed={
-            "legal_form": "",
-            "legal_name": str(parsed.get("client_name") or "").strip(),
-            "store_name": "",
-            "address": str(parsed.get("address") or "").strip(),
-            "sales_rep_name": parsed_rep,
-        },
-        reasons=["resolve_not_found", f"source_{src}"],
-        imported_by_user_id=0,
-        source=src,
-    )
+    # Для тары не создаём записи ручной модерации клиентов во время поиска/рендера:
+    # это приводит к шуму и дальнейшему ложному игнору.
+    if src != "tara":
+        _enqueue_debt_manual_review(
+            raw_client_name=raw,
+            parsed={
+                "legal_form": "",
+                "legal_name": str(parsed.get("client_name") or "").strip(),
+                "store_name": "",
+                "address": str(parsed.get("address") or "").strip(),
+                "sales_rep_name": parsed_rep,
+            },
+            reasons=["resolve_not_found", f"source_{src}"],
+            imported_by_user_id=0,
+            source=src,
+        )
     return None
 
 def _queue_item_selected_sales_rep(item: Dict[str, Any]) -> Tuple[Optional[int], str]:
@@ -3755,19 +3863,20 @@ def import_clients_from_latest_debt(owner_user_id: int, role: str) -> Tuple[int,
     manual_review = 0
     mapping_state = _load_debt_import_mappings()
     mappings = mapping_state.get("mappings") if isinstance(mapping_state.get("mappings"), dict) else {}
-    ignored = mapping_state.get("ignored") if isinstance(mapping_state.get("ignored"), dict) else {}
     for it in items:
         raw_client = it.get("client") or ""
         parsed = parse_client_row_for_card(raw_client)
         parsed_sales_rep = str(parsed.get("sales_rep_name") or "").strip() if parsed else ""
+        if _is_manual_ignored_raw_line(
+                raw_client_name=raw_client,
+                sales_rep_name=parsed_sales_rep,
+                source="debt",
+                mapping_state=mapping_state,
+        ):
+            skipped += 1
+            continue
         raw_key = _debt_import_mapping_key(raw_client, parsed_sales_rep)
         legacy_raw_key = _debt_import_client_key(raw_client)
-        if raw_key and raw_key in ignored:
-            skipped += 1
-            continue
-        if legacy_raw_key and legacy_raw_key in ignored:
-            skipped += 1
-            continue
         mapped = mappings.get(raw_key) if raw_key else None
         if not isinstance(mapped, dict) and legacy_raw_key:
             mapped = mappings.get(legacy_raw_key)
@@ -6776,6 +6885,67 @@ async def cc_import_manual_queue_list(cq: CallbackQuery):
     )
     await cq.answer()
 
+@router.callback_query(F.data.startswith("cc:imq:ignored:list:"))
+async def cc_import_manual_ignored_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    page_raw = (cq.data or "").split(":")[-1]
+    page = int(page_raw) if page_raw.isdigit() else 0
+    entries = _ignored_entries_sorted()
+    await cq.message.edit_text(
+        f"🚫 Игнор-лист импорта.\nЗаписей: <b>{len(entries)}</b>.\n"
+        "Нажмите на запись, чтобы снять игнор.",
+        reply_markup=ignored_list_kb(entries, page=page),
+    )
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:imq:ignored:drop:"))
+async def cc_import_manual_ignored_drop(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    parts = (cq.data or "").split(":")
+    if len(parts) < 6:
+        await cq.answer("Некорректная команда.", show_alert=True)
+        return
+    page_raw = parts[4]
+    idx_raw = parts[5]
+    page = int(page_raw) if page_raw.isdigit() else 0
+    if not idx_raw.isdigit():
+        await cq.answer("Некорректная команда.", show_alert=True)
+        return
+    idx = int(idx_raw)
+    entries = _ignored_entries_sorted()
+    if idx < 0 or idx >= len(entries):
+        await cq.answer("Запись игнора не найдена.", show_alert=True)
+        return
+    key = str(entries[idx].get("key") or "").strip()
+    if not key:
+        await cq.answer("Запись игнора не найдена.", show_alert=True)
+        return
+    state = _load_debt_import_mappings()
+    ignored = state.get("ignored") if isinstance(state.get("ignored"), dict) else {}
+    if key in ignored:
+        ignored.pop(key, None)
+        _save_debt_import_mappings(state)
+    entries = _ignored_entries_sorted()
+    await cq.message.edit_text(
+        f"🚫 Игнор-лист импорта.\nЗаписей: <b>{len(entries)}</b>.\n"
+        "Нажмите на запись, чтобы снять игнор.",
+        reply_markup=ignored_list_kb(entries, page=page),
+    )
+    await cq.answer("Игнор снят.")
+
 
 @router.callback_query(F.data.startswith("cc:imq:view:"))
 async def cc_import_manual_queue_view(cq: CallbackQuery):
@@ -6799,7 +6969,11 @@ async def cc_import_manual_queue_view(cq: CallbackQuery):
         candidates = CLIENTS_DB.list_clients()[:8]
     await cq.message.edit_text(
         _debt_queue_item_text(item),
-        reply_markup=debt_import_queue_item_kb(item_id, candidates),
+        reply_markup=debt_import_queue_item_kb(
+            item_id,
+            candidates,
+            include_unignore=str(item.get("status") or "").strip() == "ignored",
+        ),
     )
     await cq.answer()
 
@@ -6871,6 +7045,7 @@ async def cc_import_manual_queue_link(cq: CallbackQuery):
         ignored=False,
         sales_rep_user_id=rep_uid,
         sales_rep_name=rep_name,
+        source=str(item.get("source") or "debt"),
     )
     _mark_manual_queue_item_status(
         item_id=item_id,
@@ -6961,10 +7136,35 @@ async def cc_import_manual_queue_ignore(cq: CallbackQuery):
     if not item:
         await cq.answer("Запись не найдена", show_alert=True)
         return
-    _store_debt_mapping_for_item(item=item, client_id=None, actor_user_id=uid, ignored=True)
+    _store_debt_mapping_for_item(
+        item=item,
+        client_id=None,
+        actor_user_id=uid,
+        ignored=True,
+        source=str(item.get("source") or "debt"),
+    )
     _mark_manual_queue_item_status(item_id=item_id, status="ignored", actor_user_id=uid)
     await cc_import_manual_queue_list(cq)
 
+@router.callback_query(F.data.startswith("cc:imq:unignore:"))
+async def cc_import_manual_queue_unignore(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    item_id = (cq.data or "").split(":", 3)[3]
+    queue = _load_debt_import_manual_queue()
+    item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
+    if not item:
+        await cq.answer("Запись не найдена", show_alert=True)
+        return
+    changed = _drop_manual_ignore_for_item(item)
+    _mark_manual_queue_item_status(item_id=item_id, status="pending", actor_user_id=uid)
+    await cq.answer("Игнор снят." if changed else "Игнор для записи не найден.")
+    await cc_import_manual_queue_view(cq)
 
 @router.callback_query(F.data.startswith("cc:imq:sales:"))
 async def cc_import_manual_queue_sales_prompt(cq: CallbackQuery, state: FSMContext):
@@ -7036,6 +7236,7 @@ async def cc_import_manual_queue_sales_pick(cq: CallbackQuery, state: FSMContext
         ignored=False,
         sales_rep_user_id=rep_uid,
         sales_rep_name=rep_name,
+        source=str(item.get("source") or "debt"),
     )
     await state.clear()
     queue = _load_debt_import_manual_queue()
@@ -7048,7 +7249,11 @@ async def cc_import_manual_queue_sales_pick(cq: CallbackQuery, state: FSMContext
             candidates = CLIENTS_DB.list_clients()[:8]
         await cq.message.edit_text(
             _debt_queue_item_text(actual_item),
-            reply_markup=debt_import_queue_item_kb(item_id, candidates),
+            reply_markup=debt_import_queue_item_kb(
+                item_id,
+                candidates,
+                include_unignore=str(actual_item.get("status") or "").strip() == "ignored",
+            ),
         )
     await cq.message.answer("✅ Торговый сохранен для записи очереди и маппинга.")
     await cq.answer("Сохранено")
@@ -7115,6 +7320,7 @@ async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
         ignored=False,
         sales_rep_user_id=rep_uid,
         sales_rep_name=rep_name or "",
+        source=str(item.get("source") or "debt"),
     )
     await state.clear()
     await m.answer("✅ Торговый сохранен для записи очереди и маппинга.")
@@ -7129,7 +7335,11 @@ async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
         candidates = CLIENTS_DB.list_clients()[:8]
     await m.answer(
         _debt_queue_item_text(actual_item),
-        reply_markup=debt_import_queue_item_kb(str(item_id), candidates),
+        reply_markup=debt_import_queue_item_kb(
+            str(item_id),
+            candidates,
+            include_unignore=str(actual_item.get("status") or "").strip() == "ignored",
+        ),
     )
 
 @router.callback_query(F.data.startswith("cc:edit:"))

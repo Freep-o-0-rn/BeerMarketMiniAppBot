@@ -16,9 +16,9 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 6,
+      "seen_count": 8,
       "created_at": "2026-04-12T18:53:28Z",
-      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-12T19:21:40Z",
       "moderated_by_user_id": 237087423
@@ -1113,10 +1113,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 5,
+      "seen_count": 6,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-14T12:31:46Z",
-      "last_imported_by_user_id": 1188061961,
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:33:21Z",
       "moderated_by_user_id": 237087423,
       "mapped_client_id": "c62e271c-9280-4419-a726-5e3698627911"
@@ -1135,10 +1135,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 5,
+      "seen_count": 6,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-14T12:31:46Z",
-      "last_imported_by_user_id": 1188061961,
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-12T20:02:53Z",
       "moderated_by_user_id": 237087423,
       "selected_sales_rep_name": "Щербатов",
@@ -1184,10 +1184,10 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 5,
+      "seen_count": 6,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-14T12:31:46Z",
-      "last_imported_by_user_id": 1188061961,
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:34:46Z",
       "moderated_by_user_id": 237087423,
       "selected_sales_rep_name": "Колягин",
@@ -1208,10 +1208,10 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 5,
+      "seen_count": 6,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-14T12:31:46Z",
-      "last_imported_by_user_id": 1188061961,
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:35:11Z",
       "moderated_by_user_id": 237087423,
       "mapped_client_id": "0b3cfa6c-1706-4b26-ad13-6b328eadd549"
@@ -7210,6 +7210,447 @@
       "created_at": "2026-04-14T09:39:28Z",
       "last_seen_at": "2026-04-14T12:03:50Z",
       "last_imported_by_user_id": null
+    },
+    {
+      "id": "566e2db1-bc94-46b9-9b0d-2eb68a044cb5",
+      "status": "pending",
+      "raw_client_name": "Гензе Иван Давыдович ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Гензе Иван Давыдович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:27Z",
+      "last_seen_at": "2026-04-15T11:36:27Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "c4723b1c-a41a-4356-8475-2a8097f28964",
+      "status": "pending",
+      "raw_client_name": "Тучкова Софья Николаевна ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Тучкова Софья Николаевна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:27Z",
+      "last_seen_at": "2026-04-15T11:36:27Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "19f1fe04-7b8a-4524-9230-2b2c8fe9a513",
+      "status": "pending",
+      "raw_client_name": "Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Полончук Алёна Николаевна Воротников",
+        "store_name": "",
+        "address": "Игарская ул, дом № 42",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:27Z",
+      "last_seen_at": "2026-04-15T11:36:27Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "754d19c5-8316-4c81-be22-aeb7926458fa",
+      "status": "pending",
+      "raw_client_name": "Андреич ООО - Воротников (Демакова,3) (У и Б) КПП540845002",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "Андреич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников (Демакова,3) (У и Б) КПП540845002"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:27Z",
+      "last_seen_at": "2026-04-15T11:36:27Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "bacaa9c1-175f-4313-a268-d1e7c3cda138",
+      "status": "pending",
+      "raw_client_name": "Ончукова Елизавета Ильинична ИП Воротников(Героев Труда ул, дом № 33а)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Ончукова Елизавета Ильинична Воротников",
+        "store_name": "",
+        "address": "Героев Труда ул, дом № 33а",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:27Z",
+      "last_seen_at": "2026-04-15T11:36:27Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "79571f4f-11f3-46ba-a6f6-2ed53901d805",
+      "status": "pending",
+      "raw_client_name": "Томашков Андрей Сергеевич ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Томашков Андрей Сергеевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:28Z",
+      "last_seen_at": "2026-04-15T11:36:28Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "d5d90597-3f5a-4775-980a-621c58c6dc50",
+      "status": "pending",
+      "raw_client_name": "Сиркин Алексей Анатольевич ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Сиркин Алексей Анатольевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:28Z",
+      "last_seen_at": "2026-04-15T11:36:28Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "904a376f-e6cf-4f16-9576-a40a5a6e2e66",
+      "status": "pending",
+      "raw_client_name": "Быкова Елена Александровна ИП - Вороников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Быкова Елена Александровна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Вороников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "7b76bf6c-83ba-42f2-8e4e-a4df6ca91c0f",
+      "status": "pending",
+      "raw_client_name": "Миренич Виктор Олегович ИП - Щербатов",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Миренич Виктор Олегович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "f11a48fb-4a67-43b6-b87d-99e9ca12c2f9",
+      "status": "pending",
+      "raw_client_name": "Трио ООО - Воротников Лесосечная ул, дом № 8",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "Трио",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников Лесосечная ул, дом № 8"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "c6dd2f04-9a5a-47f4-b757-01086dc2a104",
+      "status": "pending",
+      "raw_client_name": "Гончарова Наталья Сергеевна ИП Воротников ЗАКРЫТ!!",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Гончарова Наталья Сергеевна Воротников ЗАКРЫТ!!",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing",
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "e0bd1a5b-4bd8-4515-857a-219462260740",
+      "status": "pending",
+      "raw_client_name": "Иванова Александра Игоревна ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Иванова Александра Игоревна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "8380d80c-3e35-4143-9cdb-52d567633f6c",
+      "status": "pending",
+      "raw_client_name": "Лукьяшко Николай Викторович ИП - Воротников ( Приморская ул, дом № 26) ЗАКРЫТ!",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Лукьяшко Николай Викторович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников ( Приморская ул, дом № 26) ЗАКРЫТ!"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "16cf308e-a9fa-44bd-ae43-f4739ddbe740",
+      "status": "pending",
+      "raw_client_name": "Лукашов Борис Борисович ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Лукашов Борис Борисович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "c00033a2-1ce7-404a-9e00-8d4bf4944ffc",
+      "status": "pending",
+      "raw_client_name": "Империя напитков ООО - Воротников и У и Б",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "Империя напитков",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников и У и Б"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "0a5f262f-5f22-44af-9c16-13111a27352a",
+      "status": "pending",
+      "raw_client_name": "Тораев Рашид Султанович ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Тораев Рашид Султанович",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "742d404c-a3b3-479c-95c1-cbb3ff54533b",
+      "status": "pending",
+      "raw_client_name": "Довиденко Андрей Николаевич ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Довиденко Андрей Николаевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "46d0b98e-40e3-4ee6-a7c9-b1d7f18e7809",
+      "status": "pending",
+      "raw_client_name": "Маджента ООО - Воротников ГОЛОВНОЙ",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "Маджента",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников ГОЛОВНОЙ"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:29Z",
+      "last_seen_at": "2026-04-15T11:36:29Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "4b27d15b-aab6-40b1-9a14-ea158cf6c8fe",
+      "status": "pending",
+      "raw_client_name": "Петрова Вероника Сергеевна ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Петрова Вероника Сергеевна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:30Z",
+      "last_seen_at": "2026-04-15T11:36:30Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "e33c5d67-cd78-438b-a563-e90b8a05fadc",
+      "status": "pending",
+      "raw_client_name": "Баранова Юлия Николаевна ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Баранова Юлия Николаевна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:30Z",
+      "last_seen_at": "2026-04-15T11:36:30Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "aa1fe719-32cc-4fce-952a-ac0786a11730",
+      "status": "pending",
+      "raw_client_name": "Савина А.И. ИП - Воротников ГОЛОВНОЙ",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Савина А.И.",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников ГОЛОВНОЙ"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:30Z",
+      "last_seen_at": "2026-04-15T11:36:30Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "0bd7c0dd-da0c-4363-ae04-83c55f8f7ce4",
+      "status": "pending",
+      "raw_client_name": "Блинкова Анна Павловна  ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Блинкова Анна Павловна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-15T11:36:30Z",
+      "last_seen_at": "2026-04-15T11:36:30Z",
+      "last_imported_by_user_id": 237087423
     }
   ]
 }
