@@ -694,7 +694,7 @@ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[st
         if TARA_DOC_MARKERS.search(text):
             continue
 
-        if abs(q_end) > 1e-9 and _tara_is_client_like_text(text):
+        if _tara_is_client_like_text(text):
             _flush_current()
             parts = _split_tara_client_label(text)
             current = {
@@ -812,10 +812,14 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             continue
 
         q_end = _to_float_ru(row.get(col_qty_end, 0))
-        is_client_like = bool(client_cell and not item_cell and not reg_cell)
-        if not is_client_like and client_cell and not TARA_DOC_MARKERS.search(client_cell):
+        is_client_like = False
+        if client_cell and not TARA_DOC_MARKERS.search(client_cell):
             parts_probe = _split_tara_client_label(client_cell)
-            is_client_like = bool(parts_probe.get("sales_rep") or parts_probe.get("address") or CLIENT_MARKERS.search(client_cell))
+            is_client_like = bool(
+                parts_probe.get("sales_rep")
+                or parts_probe.get("address")
+                or CLIENT_MARKERS.search(client_cell)
+            )
 
         # клиент␊
         if is_client_like:

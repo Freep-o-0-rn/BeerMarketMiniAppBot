@@ -77,6 +77,7 @@ DEBT_IMPORT_MAPPINGS_PATH = SETTINGS_DIR / "debt_import_mappings.json"
 
 logger = logging.getLogger(__name__)
 _TARA_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
+_TARA_SEARCH_GROUP_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 _DEBT_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 
 #Прайсы: сортировка по алфавиту ---
@@ -1123,6 +1124,22 @@ def _tara_pick_kb(token: str, base_name: str, entries: List[Dict[str, Any]]) -> 
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def _tara_group_pick_kb(token: str, groups: Dict[str, List[Dict[str, Any]]]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    ordered = sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е"))
+    for idx, (base, entries) in enumerate(ordered):
+        total = sum(float(e.get("total", 0) or 0.0) for e in entries)
+        title = base or "Без названия"
+        rows.append([
+            InlineKeyboardButton(
+                text=f"{title} — {fmt_qty_units(total)}",
+                callback_data=f"tara:gpick:{token}:{idx}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="📦 Показать всех клиентов", callback_data=f"tara:gpickall:{token}")])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 def _debt_pick_kb(token: str, entries: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
     for idx, it in enumerate(entries):
@@ -1165,7 +1182,7 @@ def build_tara_group_text(base_name: str, entries: list) -> str:
             continue
         for name, qty in entry_items:
             lines.append(f"{prefix}{esc(name)} — {fmt_qty_units(qty)}")
-        return "\n".join(lines)
+    return "\n".join(lines)
 
 
 def esc(s: Optional[str]) -> str:
@@ -5757,18 +5774,25 @@ async def render_tara_search(chat: Message, keywords: List[str]):
             report_date = (res or {}).get("report_date")
 
             kws = [k for k in (keywords or []) if k]
-            sales_kws, common_kws = _tara_split_keywords(kws)
             def _haystack(b: dict) -> str:
                 parts = _tara_client_parts(b)
-                sales_rep = _norm_text_key(parts.get("sales_rep") or "")
                 name = _norm_text_key(parts.get("client_name") or "")
                 addr = _norm_text_key(parts.get("address") or "")
-                raw_client = _norm_text_key(str(b.get("client") or ""))
                 registrator = _norm_text_key(str(b.get("registrator_text") or ""))
-                # Для устойчивого поиска учитываем торгового даже если токен
-                # не распознан как «sales»-ключ (например, ручные связки/ФИО
-                # отсутствуют в справочнике кандидатов).
-                return f"{name} {addr} {sales_rep} {raw_client} {registrator}".strip()
+                # В поиске тары не ищем клиентов по полю торгового.
+                return f"{name} {addr} {registrator}".strip()
+
+            def _classify_keyword(k: str) -> str:
+                token = _norm_text_key(k)
+                if not token:
+                    return "surname"
+                if re.fullmatch(r"[а-яёa-z]+", token):
+                    return "surname"
+                if re.fullmatch(r"[а-яёa-z]+ [а-яёa-z]+ [а-яёa-z]+", token):
+                    return "fio_full"
+                if re.fullmatch(r"[а-яёa-z]+ [а-яёa-z]\\.? ?[а-яёa-z]\\.?", token):
+                    return "fio_initials"
+                return "address"
 
             def _match_score(b: dict) -> int:
                 if not kws:
@@ -5776,34 +5800,27 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 parts = _tara_client_parts(b)
                 name = _norm_text_key(parts.get("client_name") or "")
                 addr = _norm_text_key(parts.get("address") or "")
-                raw_client = _norm_text_key(str(b.get("client") or ""))
-                hay_all = f"{name} {addr} {raw_client}".strip()
                 score = 0
                 for k in kws:
-                    if k in name:
-                        score += 6
-                    elif k in addr:
-                        score += 4
-                    elif k in raw_client:
-                        score += 2
-                    elif k in hay_all:
-                        score += 1
+                    kind = _classify_keyword(k)
+                    if kind == "fio_full":
+                        if k in name:
+                            score += 14
+                    elif kind == "fio_initials":
+                        if k in name:
+                            score += 10
+                    elif kind == "surname":
+                        if k in name:
+                            score += 7
+                    else:
+                        if k in addr:
+                            score += 5
                 return score
 
             filtered = [b for b in items if kws and all(k in _haystack(b) for k in kws)]
-            relaxed = False
             if not filtered and kws:
-                long_kws = [k for k in kws if len(k) >= 4]
                 scored = [(b, _match_score(b)) for b in items]
-                if long_kws:
-                    filtered = [
-                        b for b, sc in scored
-                        if sc > 0 and any(k in _haystack(b) for k in long_kws)
-                    ]
-                else:
-                    filtered = [b for b, sc in scored if sc > 0]
                 filtered.sort(key=lambda b: _match_score(b), reverse=True)
-                relaxed = bool(filtered)
             if role == "sales_rep":
                 filtered = [b for b in filtered if _is_sales_rep_tara_item_visible_for_user(b, user_id)]
             if filtered:
@@ -5826,6 +5843,16 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                 for b in filtered:
                     base = _tara_base_name(b)
                     groups.setdefault(base, []).append(b)
+                if len(groups) > 3:
+                    token = uuid4().hex[:12]
+                    _TARA_SEARCH_GROUP_PICK_CACHE[token] = {"groups": groups}
+                    await chat.answer(
+                        f"Найдено клиентов: <b>{len(groups)}</b>.\n"
+                        "Выберите клиента или покажите всех:",
+                        reply_markup=_tara_group_pick_kb(token, groups),
+                        disable_web_page_preview=True,
+                    )
+                    return
                 if len(groups) == 1:
                     base = next(iter(groups.keys()))
                     entries = groups.get(base, [])
@@ -5892,6 +5919,44 @@ async def cb_tara_pick_all(cq: CallbackQuery):
         return
     await cq.answer()
     await send_long(cq.message, build_tara_group_text(base, entries))
+
+@router.callback_query(F.data.startswith("tara:gpick:"))
+async def cb_tara_pick_group(cq: CallbackQuery):
+    parts = (cq.data or "").split(":")
+    if len(parts) != 4:
+        await cq.answer("Некорректный выбор.", show_alert=True)
+        return
+    _, _, token, idx_raw = parts
+    payload = _TARA_SEARCH_GROUP_PICK_CACHE.get(token) or {}
+    groups = payload.get("groups") if isinstance(payload.get("groups"), dict) else {}
+    if not groups:
+        await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
+        return
+    ordered = sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е"))
+    try:
+        idx = int(idx_raw)
+    except Exception:
+        await cq.answer("Некорректный индекс.", show_alert=True)
+        return
+    if idx < 0 or idx >= len(ordered):
+        await cq.answer("Клиент не найден.", show_alert=True)
+        return
+    base, entries = ordered[idx]
+    await cq.answer()
+    await send_long(cq.message, build_tara_group_text(base, entries))
+
+
+@router.callback_query(F.data.startswith("tara:gpickall:"))
+async def cb_tara_pick_group_all(cq: CallbackQuery):
+    token = (cq.data or "").split(":", 2)[-1]
+    payload = _TARA_SEARCH_GROUP_PICK_CACHE.get(token) or {}
+    groups = payload.get("groups") if isinstance(payload.get("groups"), dict) else {}
+    if not groups:
+        await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
+        return
+    await cq.answer()
+    for base, entries in sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е")):
+        await send_long(cq.message, build_tara_group_text(base, entries))
 
 @router.message(F.text == "🔎 Поиск тары")
 async def btn_search_tara(m: Message, state: FSMContext):
