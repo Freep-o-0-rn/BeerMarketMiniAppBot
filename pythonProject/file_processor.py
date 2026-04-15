@@ -4,6 +4,7 @@ import re
 import time
 import zipfile
 import logging
+import importlib
 from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
@@ -243,14 +244,15 @@ def _repair_xlsx_via_excel(src_path: str) -> str:
     _unblock_motw(abspath)  # убрать Protected View, если есть
 
     try:
-        # Late binding, чтобы не упираться в gen_py
-        from win32com.client.dynamic import Dispatch
+        # Late binding, чтобы не упираться в gen_py и не требовать stubs в IDE.
+        dynamic_client = importlib.import_module("win32com.client.dynamic")
+        dispatch = getattr(dynamic_client, "Dispatch")
     except Exception as e:
         raise RuntimeError("pywin32 не установлен или повреждён") from e
 
     excel = None
     try:
-        excel = Dispatch("Excel.Application")
+        excel = dispatch("Excel.Application")
         excel.DisplayAlerts = False
         excel.Visible = False
 
@@ -694,11 +696,38 @@ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[st
     results: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
 
+    text_col = df.columns[0] if len(df.columns) else None
+    qty_cols = _tara_qty_fallback_cols(df, exclude=[text_col], preferred=col_qty_end)
+    # В части выгрузок 1С количественные колонки приходят как "Unnamed: N".
+    # Держим резервный список всех нетекстовых колонок, чтобы не терять позиции.
+    backup_qty_cols = [c for c in df.columns if c != text_col]
+
+    def _pick_qty(row: pd.Series) -> float:
+        for c in qty_cols:
+            v = _to_float_ru(row.get(c, 0))
+            if abs(v) > 1e-9:
+                return v
+        for c in backup_qty_cols:
+            low = str(c).casefold()
+            # Денежные/служебные поля не используем как количество.
+            if any(k in low for k in ("сумм", "цена", "руб", "коп", "дата", "номер")):
+                continue
+            v = _to_float_ru(row.get(c, 0))
+            if abs(v) > 1e-9:
+                return v
+        return 0.0
+
     def _flush_current() -> None:
         nonlocal current
         if not current:
             return
         current["items"] = _merge_tara_items(current["items"])
+        if abs(float(current.get("total", 0) or 0.0)) > 1e-9 and not current["items"]:
+            logging.warning(
+                "Тара(hierarchical): клиент '%s' имеет total=%.3f, но без строк номенклатуры",
+                current.get("client"),
+                float(current.get("total", 0) or 0.0),
+            )
         # Клиента не выбрасываем даже с total == 0: в UI покажем «оборудования нет».
         results.append(current)
         current = None
@@ -709,6 +738,7 @@ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[st
             continue
 
         q_end = _to_float_ru(row.get(col_qty_end, 0))
+        q_row = _pick_qty(row)
         low = text.casefold()
         if low in {"клиент", "номенклатура", "регистратор"}:
             continue
@@ -729,12 +759,12 @@ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[st
                 "sales_rep_name": parts.get("sales_rep") or "",
                 "address": parts.get("address") or "",
                 "items": [],
-                "total": q_end,
+                "total": q_end if abs(q_end) > 1e-9 else q_row,
             }
             continue
 
-        if current and abs(q_end) > 1e-9:
-            current["items"].append((text, q_end))
+        if current and abs(q_row) > 1e-9:
+            current["items"].append((text, q_row))
 
     _flush_current()
     results.sort(key=lambda x: x.get("total", 0.0), reverse=True)
