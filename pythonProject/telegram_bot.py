@@ -6055,6 +6055,16 @@ async def cb_tara_pick_group(cq: CallbackQuery):
         return
     base, entries = ordered[idx]
     await cq.answer()
+    if len(entries) > 3:
+        token_addr = uuid4().hex[:12]
+        _TARA_SEARCH_PICK_CACHE[token_addr] = {"base": base, "entries": entries}
+        await cq.message.answer(
+            f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
+            "Выберите адрес или покажите все:",
+            reply_markup=_tara_pick_kb(token_addr, base, entries),
+            disable_web_page_preview=True,
+        )
+        return
     await send_long(cq.message, build_tara_group_text(base, entries))
 
 

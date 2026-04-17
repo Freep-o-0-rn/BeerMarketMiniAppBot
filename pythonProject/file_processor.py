@@ -566,10 +566,16 @@ def parse_clients(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
 # ------------------ Тара: Ведомость по возвратной таре (клиент) ------------------
 
-# маркеры строк-документов, которые нужно игнорировать (движения)
 TARA_DOC_MARKERS = re.compile(
     r"(реализаци|возврат|перемещени|поступлени|списани|оказани[ея]\s+услуг|акт|накладн)",
     re.I
+)
+# Более строгий паттерн для строк документов/движений.
+# Используется там, где нужно отделить документы от валидной номенклатуры.
+TARA_DOC_ROW_STRICT = re.compile(
+    r"^\s*(реализаци\w*|перемещени\w*|поступлени\w*|списани\w*|оказани[ея]\s+услуг|"
+    r"акт\b|накладн\w*|возврат\s)",
+    re.I,
 )
 # --- Simple cache for parsed TARA files ---
 _TARA_CACHE = {}  # path -> (mtime, size, data)
@@ -721,7 +727,7 @@ def _parse_tara_hierarchical(df: pd.DataFrame, col_qty_end: str) -> List[Dict[st
         nonlocal current
         if not current:
             return
-        current["items"] = _merge_tara_items(current["items"])
+        current = _tara_finalize_client(current)
         if abs(float(current.get("total", 0) or 0.0)) > 1e-9 and not current["items"]:
             logging.warning(
                 "Тара(hierarchical): клиент '%s' имеет total=%.3f, но без строк номенклатуры",
@@ -821,6 +827,14 @@ def _tara_item_display_name(name: Any) -> str:
     return _TARA_ITEM_ALIASES.get(_tara_item_key(raw), raw)
 
 
+def _tara_is_doc_row_text(value: Any) -> bool:
+    """True для строк-движений (реализация/акт/накладная и т.д.)."""
+    txt = str(value or "").strip()
+    if not txt or txt.lower() == "nan":
+        return False
+    return bool(TARA_DOC_ROW_STRICT.search(txt))
+
+
 def _merge_tara_items(items: List[Tuple[str, float]]) -> List[Tuple[str, float]]:
     """Объединяет одинаковую тару и известные синонимы по одной строке."""
     merged: Dict[str, float] = {}
@@ -834,6 +848,19 @@ def _merge_tara_items(items: List[Tuple[str, float]]) -> List[Tuple[str, float]]
         merged[display] += float(qty or 0)
 
     return [(name, qty) for name, qty in ((name, merged[name]) for name in order) if abs(qty) > 1e-9]
+
+def _tara_finalize_client(current: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Нормализует карточку клиента перед добавлением в результат:
+    - объединяет одинаковую/синонимичную номенклатуру;
+    - если total не задан (0), но есть позиции — подставляет сумму позиций.
+    """
+    current["items"] = _merge_tara_items(current.get("items") or [])
+    total = _to_float_ru(current.get("total", 0))
+    if abs(total) <= 1e-9 and current["items"]:
+        total = float(sum(_to_float_ru(qty) for _, qty in current["items"]))
+    current["total"] = total
+    return current
 
 def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """Парсинг строк отчёта по возвратной таре"""
@@ -869,33 +896,39 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
     results: List[Dict[str, Any]] = []
     current: Optional[Dict[str, Any]] = None
 
+    def _clean_text(x: Any) -> str:
+        txt = str(x or "").strip()
+        return "" if txt.lower() == "nan" else txt
+
     for _, row in df.iterrows():
-        client_cell = str(row.get(col_client, "") or "").strip()
-        item_cell = str(row.get(col_item, "") or "").strip()
-        reg_cell = str(row.get(col_reg, "") or "").strip() if col_reg else ""
-        fallback_text = str(row.iloc[0] or "").strip()
+        client_cell = _clean_text(row.get(col_client, ""))
+        item_cell = _clean_text(row.get(col_item, ""))
+        reg_cell = _clean_text(row.get(col_reg, "")) if col_reg else ""
+        fallback_text = _clean_text(row.iloc[0] if len(row) else "")
 
         text = client_cell or item_cell or fallback_text
-        if not text or str(text).lower() == "nan":
+        if not text:
             continue
 
         q_end = _to_float_ru(row.get(col_qty_end, 0))
         q_row = _pick_qty(row)
-        is_client_like = False
+        is_client_row = False
         if client_cell and not TARA_DOC_MARKERS.search(client_cell):
-            parts_probe = _split_tara_client_label(client_cell)
-            is_client_like = bool(
-                parts_probe.get("sales_rep")
-                or parts_probe.get("address")
-                or CLIENT_MARKERS.search(client_cell)
-            )
+            # 1) Плоская выгрузка 1С: в строке клиента заполнен только столбец "Клиент".
+            if not item_cell and not reg_cell:
+                is_client_row = True
+            # 2) Иногда строка клиента дублируется и в "Номенклатуре".
+            elif item_cell and client_cell == item_cell and not reg_cell:
+                is_client_row = True
+            # 3) Явный клиентский формат (клиент - торговый (адрес)) без номенклатуры.
+            elif _tara_is_client_like_text(client_cell) and not item_cell:
+                is_client_row = True
 
         # клиент␊
-        if is_client_like:
+        if is_client_row:
             # сохранить предыдущего␊
             if current:
-                current["items"] = _merge_tara_items(current["items"])
-                results.append(current)
+                results.append(_tara_finalize_client(current))
             parts = _split_tara_client_label(client_cell)
             current = {
                 "client": client_cell,
@@ -907,24 +940,49 @@ def parse_tara(df: pd.DataFrame) -> List[Dict[str, Any]]:
             }
             continue
 
-        # служебная строка (реализация, акт и т.п.)
-        if TARA_DOC_MARKERS.search(text):
+            # Служебная строка (реализация/акт/накладная и т.п.).
+            # Важно: не фильтруем по marker-словам строки с номенклатурой,
+            # иначе можно потерять валидные позиции оборудования.
+        is_doc_row = bool(reg_cell and _tara_is_doc_row_text(reg_cell))
+        if (not is_doc_row) and item_cell and _tara_is_doc_row_text(item_cell):
+            is_doc_row = True
+        if (not is_doc_row) and (not item_cell) and _tara_is_doc_row_text(text):
+            is_doc_row = True
+        if is_doc_row:
             continue
 
+        # Строка товара может содержать имя клиента (в части выгрузок 1С).
+        # Если клиент сменился без отдельной "шапки" — открываем нового клиента.
+        if client_cell and item_cell and not TARA_DOC_MARKERS.search(client_cell):
+            if (not current) or (str(current.get("client", "")).strip() != client_cell):
+                if current:
+                    results.append(_tara_finalize_client(current))
+                parts = _split_tara_client_label(client_cell)
+                current = {
+                    "client": client_cell,
+                    "client_name": parts.get("client_name") or client_cell,
+                    "sales_rep_name": parts.get("sales_rep") or "",
+                    "address": parts.get("address") or "",
+                    "items": [],
+                    # Здесь строка уже похожа на номенклатуру, а не на шапку клиента.
+                    # Поэтому total посчитаем позже как сумму позиций.
+                    "total": 0.0,
+                }
+
         # номенклатура
-        if current and abs(q_row) > 0:
+        if current and abs(q_row) > 1e-9:
             item_name = item_cell or text
             current["items"].append((item_name, q_row))
 
-    # финальный клиент
-    # финальный клиент␊
+        # финальный клиент
+        # финальный клиент␊
     if current:
-        current["items"] = _merge_tara_items(current["items"])
-        results.append(current)
+        results.append(_tara_finalize_client(current))
 
     results.sort(key=lambda x: x.get("total", 0.0), reverse=True)
     logging.info("Тара: режим flat, собрано клиентов: %d", len(results))
     return results
+
 
 def process_tara_file(path: str) -> Dict[str, Any]:
     df, report_date = read_tara_file(path)
