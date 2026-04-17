@@ -2365,25 +2365,91 @@ def _ensure_dir_of(path: str):
 def _now_iso() -> str:
     return datetime.now(TZ).isoformat()
 
+def _load_last_update_payload() -> Dict[str, Any]:
+    if not os.path.exists(LAST_UPDATE_FILE):
+        return {}
+    with open(LAST_UPDATE_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, dict) else {}
+
+def _save_last_update_payload(payload: Dict[str, Any]) -> None:
+    _ensure_dir_of(LAST_UPDATE_FILE)
+    with open(LAST_UPDATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+def _user_can_view_price_update_filename(user_id: Optional[int]) -> bool:
+    return user_allows_action(user_id, "prices.updates.source_file")
+
+def set_price_update(source_filename: str) -> None:
+    try:
+        payload = _load_last_update_payload()
+        updates = payload.get("prices")
+        if not isinstance(updates, list):
+            updates = []
+        updates.append({
+            "updated_at": _now_iso(),
+            "source_file": str(source_filename or "").strip(),
+        })
+        payload["prices"] = updates[-30:]
+        _save_last_update_payload(payload)
+    except Exception as e:
+        logger.warning("Не удалось сохранить историю обновлений прайсов: %s", e)
+
+def get_price_updates(limit: int = 10) -> List[Dict[str, Any]]:
+    try:
+        payload = _load_last_update_payload()
+        updates = payload.get("prices")
+        if not isinstance(updates, list):
+            return []
+        normalized: List[Tuple[datetime, Dict[str, Any]]] = []
+        for item in updates:
+            if not isinstance(item, dict):
+                continue
+            raw_dt = item.get("updated_at")
+            if not raw_dt:
+                continue
+            try:
+                dt = datetime.fromisoformat(str(raw_dt))
+                if dt.tzinfo is None:
+                    dt = TZ.localize(dt)
+            except Exception:
+                continue
+            normalized.append((dt, {
+                "updated_at": dt,
+                "source_file": str(item.get("source_file") or "").strip(),
+            }))
+        normalized.sort(key=lambda pair: pair[0], reverse=True)
+        return [it for _, it in normalized[:max(0, int(limit))]]
+    except Exception as e:
+        logger.warning("Не удалось прочитать историю обновлений прайсов: %s", e)
+        return []
+
+def build_price_updates_text(user_id: Optional[int], limit: int = 5) -> str:
+    updates = get_price_updates(limit=limit)
+    if not updates:
+        return "Обновления прайсов: —"
+    show_file = _user_can_view_price_update_filename(user_id)
+    lines = ["Последние обновления прайсов:"]
+    for upd in updates:
+        dt = fmt_dt_local(upd.get("updated_at"))
+        if show_file:
+            source_name = upd.get("source_file") or "—"
+            lines.append(f"• {dt} — <code>{esc(source_name)}</code>")
+        else:
+            lines.append(f"• {dt}")
+    return "\n".join(lines)
+
 def set_last_update(kind: str):
     try:
-        _ensure_dir_of(LAST_UPDATE_FILE)
-        data = {}
-        if os.path.exists(LAST_UPDATE_FILE):
-            with open(LAST_UPDATE_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
+        data = _load_last_update_payload()
         data[kind] = _now_iso()  # 'auto' | 'manual'
-        with open(LAST_UPDATE_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        _save_last_update_payload(data)
     except Exception as e:
         logger.warning("Не удалось сохранить время обновления: %s", e)
 
 def get_last_update() -> Tuple[Optional[datetime], Optional[str]]:
     try:
-        if not os.path.exists(LAST_UPDATE_FILE):
-            return None, None
-        with open(LAST_UPDATE_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = _load_last_update_payload()
         best_dt, best_kind = None, None
         for k in ("manual", "auto"):
             v = data.get(k)
@@ -2870,6 +2936,7 @@ def user_detail_kb(
 
 MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("prices.view", "📑 Прайсы"),
+    ("prices.updates.source_file", "📑 Прайсы (имя файла обновления)"),
     ("promos.view", "🎁 Акции"),
     ("schedule.view", "🚚 График"),
     ("schedule.manage", "🚚 График (управление)"),
@@ -4154,6 +4221,11 @@ def _guess_ext_from_message(m: Message) -> Optional[str]:
         return "jpg"
     return None
 
+def _incoming_price_source_filename(m: Message, fallback: str) -> str:
+    if m.document and m.document.file_name:
+        return Path(m.document.file_name).name
+    return fallback
+
 async def _save_incoming_price_file(m: Message, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if m.document:
@@ -4848,6 +4920,7 @@ async def push_user_menu_refresh(user_id: Any, text: str = "🔄 Ваше мен
 
 ACCESS_MATRIX: Dict[str, set] = {
     "prices.view": {"guest", "client", "sales_rep", "moderator", "admin"},
+    "prices.updates.source_file": {"moderator", "admin"},
     "promos.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "schedule.view": {"guest", "client", "sales_rep", "moderator", "admin"},
     "schedule.manage": {"admin"},
@@ -4874,6 +4947,7 @@ ACCESS_MATRIX: Dict[str, set] = {
 
 ACCESS_LABELS: Dict[str, str] = {
     "prices.view": "прайсы",
+    "prices.updates.source_file": "просмотр имени файла обновления прайсов",
     "promos.view": "акции",
     "schedule.view": "график развоза",
     "schedule.manage": "управление графиком",
@@ -5424,7 +5498,9 @@ async def btn_prices(m: Message):
     items = _price_get_all()
     kb = _price_list_page(items, page=0, admin=admin)
     await m.answer(
-        "<b>Прайс-листы</b>\nВыберите нужный файл:",
+                "<b>Прайс-листы</b>\n"
+        f"{build_price_updates_text(getattr(m.from_user, 'id', None), limit=5)}\n\n"
+        "Выберите нужный файл:",
         reply_markup=kb
     )
 
@@ -5437,9 +5513,12 @@ async def cb_prices_list(cq: CallbackQuery):
     page = int(cq.data.split(":")[-1])
     admin = is_admin(getattr(cq.from_user, "id", None))
     items = _price_get_all()
-    await cq.message.edit_text("<b>Прайс-листы</b>\nВыберите пункт:",
-                               reply_markup=_price_list_page(items, page, admin),
-                               disable_web_page_preview=True)
+    await cq.message.edit_text(
+        "<b>Прайс-листы</b>\n"
+        f"{build_price_updates_text(getattr(cq.from_user, 'id', None), limit=5)}\n\n"
+        "Выберите пункт:",
+        reply_markup=_price_list_page(items, page, admin),
+        disable_web_page_preview=True)
     await cq.answer()
 
 # Клиент: отправка файла (и в админском подменю тоже)
@@ -5509,12 +5588,14 @@ async def price_new_file(m: Message, state: FSMContext):
         await _save_incoming_price_file(m, dest)
     except Exception as e:
         await m.answer(f"Не удалось сохранить файл: {esc(str(e))}"); return
+    source_filename = _incoming_price_source_filename(m, filename)
 
     now = datetime.now(TZ).isoformat()
     _price_set({
         "id": pid, "title": title, "filename": filename,
         "created_at": now, "updated_at": now
     })
+    set_price_update(source_filename)
     await state.clear()
     await m.answer(f"✅ Прайс «{esc(title)}» добавлен.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
@@ -5550,10 +5631,12 @@ async def price_do_replace(m: Message, state: FSMContext):
         await _save_incoming_price_file(m, dest)
     except Exception as e:
         await m.answer(f"Ошибка: {esc(str(e))}"); return
+    source_filename = _incoming_price_source_filename(m, new_name)
 
     it["filename"] = new_name
     it["updated_at"] = datetime.now(TZ).isoformat()
     _price_set(it)
+    set_price_update(source_filename)
     await state.clear()
     await m.answer("✅ Файл обновлён.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
