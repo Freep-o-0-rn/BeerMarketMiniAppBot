@@ -5501,17 +5501,21 @@ async def guest_request_client(m: Message, state: FSMContext):
     await m.answer("Введите название вашей организации для проверки по базе.", reply_markup=organization_guest_choice_kb())
 
 ##---------------Обработчики сообщений/колбэков “Прайсы”-------------------
-# Кнопка в меню
 @router.message(F.text == "📑 Прайсы", StateFilter(None))
 async def btn_prices(m: Message):
     if not await ensure_message_access(m, "prices.view"):
         return
-    admin = is_admin(getattr(m.from_user, "id", None))
+    user_id = getattr(m.from_user, "id", None)
+    admin = is_admin(user_id)
+    role = get_user_role(user_id)
     items = _price_get_all()
     kb = _price_list_page(items, page=0, admin=admin)
+    updates_block = ""
+    if role != "client":
+        updates_block = f"{build_price_updates_text(user_id, limit=5)}\n\n"
     await m.answer(
         "<b>Прайс-листы</b>\n"
-        f"{build_price_updates_text(getattr(m.from_user, 'id', None), limit=5)}\n\n"
+        f"{updates_block}"
         "Выберите нужный файл:",
         reply_markup=kb
     )
@@ -5523,11 +5527,16 @@ async def cb_prices_list(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "prices.view"):
         return
     page = int(cq.data.split(":")[-1])
-    admin = is_admin(getattr(cq.from_user, "id", None))
+    user_id = getattr(cq.from_user, "id", None)
+    admin = is_admin(user_id)
+    role = get_user_role(user_id)
     items = _price_get_all()
+    updates_block = ""
+    if role != "client":
+        updates_block = f"{build_price_updates_text(user_id, limit=5)}\n\n"
     await cq.message.edit_text(
                                "<b>Прайс-листы</b>\n"
-                               f"{build_price_updates_text(getattr(cq.from_user, 'id', None), limit=5)}\n\n"
+                               f"{updates_block}"
                                "Выберите пункт:",
                                reply_markup=_price_list_page(items, page, admin),
                                disable_web_page_preview=True)
@@ -5544,8 +5553,10 @@ async def cb_price_send(cq: CallbackQuery):
         await cq.answer("Не найдено", show_alert=True)
         return
     path = PRICES_DIR / it["filename"]
+    updated_at = fmt_dt_local(_price_last_updated_at(it))
+    caption = f"{it['title']}\nПоследнее обновление: {updated_at}"
     try:
-        await cq.message.answer_document(FSInputFile(path), caption=it["title"])
+        await cq.message.answer_document(FSInputFile(path), caption=caption)
     except Exception as e:
         await cq.message.answer(f"Не удалось отправить файл: {esc(str(e))}")
     await cq.answer()
