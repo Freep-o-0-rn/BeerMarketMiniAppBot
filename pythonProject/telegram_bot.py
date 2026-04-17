@@ -370,6 +370,18 @@ def _price_find(pid: str) -> Optional[Dict[str, Any]]:
             return it
     return None
 
+def _price_last_updated_at(item: Dict[str, Any]) -> Optional[datetime]:
+    raw_dt = item.get("updated_at") or item.get("created_at")
+    if not raw_dt:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(raw_dt))
+        if dt.tzinfo is None:
+            return TZ.localize(dt)
+        return dt.astimezone(TZ)
+    except Exception:
+        return None
+
 def _price_set(item: Dict[str, Any]) -> None:
     items = _prices_load()
     for i, it in enumerate(items):
@@ -5498,7 +5510,7 @@ async def btn_prices(m: Message):
     items = _price_get_all()
     kb = _price_list_page(items, page=0, admin=admin)
     await m.answer(
-                "<b>Прайс-листы</b>\n"
+        "<b>Прайс-листы</b>\n"
         f"{build_price_updates_text(getattr(m.from_user, 'id', None), limit=5)}\n\n"
         "Выберите нужный файл:",
         reply_markup=kb
@@ -5514,11 +5526,11 @@ async def cb_prices_list(cq: CallbackQuery):
     admin = is_admin(getattr(cq.from_user, "id", None))
     items = _price_get_all()
     await cq.message.edit_text(
-        "<b>Прайс-листы</b>\n"
-        f"{build_price_updates_text(getattr(cq.from_user, 'id', None), limit=5)}\n\n"
-        "Выберите пункт:",
-        reply_markup=_price_list_page(items, page, admin),
-        disable_web_page_preview=True)
+                               "<b>Прайс-листы</b>\n"
+                               f"{build_price_updates_text(getattr(cq.from_user, 'id', None), limit=5)}\n\n"
+                               "Выберите пункт:",
+                               reply_markup=_price_list_page(items, page, admin),
+                               disable_web_page_preview=True)
     await cq.answer()
 
 # Клиент: отправка файла (и в админском подменю тоже)
@@ -5548,6 +5560,12 @@ async def cb_price_item(cq: CallbackQuery):
     if not it:
         await cq.answer("Не найдено", show_alert=True); return
     text = f"<b>{esc(it['title'])}</b>\nФайл: <code>{esc(it['filename'])}</code>"
+    updated_at = fmt_dt_local(_price_last_updated_at(it))
+    text = (
+        f"<b>{esc(it['title'])}</b>\n"
+        f"Файл: <code>{esc(it['filename'])}</code>\n"
+        f"Последнее обновление: <b>{esc(updated_at)}</b>"
+    )
     await cq.message.edit_text(text, reply_markup=_price_item_kb(pid), disable_web_page_preview=True)
     await cq.answer()
 
