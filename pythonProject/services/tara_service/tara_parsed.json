@@ -1,5 +1,5 @@
 {
-  "source_file": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.98.2\\pythonProject\\services\\tara_service\\Ведомость по переданной возвратной таре клиент - Прокопенко (XLS).xls",
+  "source_file": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.98.2\\pythonProject\\downloads\\Ведомость по переданной возвратной таре клиент - Прокопенко (XLS).xls",
   "rules_file": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.98.2\\pythonProject\\services\\tara_service\\tara_rules.json",
   "stats": {
     "rows_count": 2426,

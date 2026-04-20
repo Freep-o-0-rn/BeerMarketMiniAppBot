@@ -3,13 +3,22 @@ import json
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import xlrd
 
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_RULES_PATH = os.path.join(SCRIPT_DIR, "tara_rules.json")
+CURRENT_FILE = Path(__file__).resolve()
+SERVICE_DIR = CURRENT_FILE.parent
+PYTHON_PROJECT_DIR = CURRENT_FILE.parents[2]
+DOWNLOADS_DIR = PYTHON_PROJECT_DIR / "downloads"
+
+DEFAULT_RULES_PATH = SERVICE_DIR / "tara_rules.json"
+DEFAULT_PARSED_PATH = SERVICE_DIR / "tara_parsed.json"
+DEFAULT_BAD_PATH = SERVICE_DIR / "tara_bad_clients.json"
+DEFAULT_SKIPPED_PATH = SERVICE_DIR / "tara_skipped_rows.json"
+DEFAULT_LOG_PATH = SERVICE_DIR / "tara_parse.log"
 
 
 def setup_logger(log_path: str) -> logging.Logger:
@@ -95,6 +104,13 @@ def load_rules(rules_path: str) -> Dict[str, Any]:
     return rules
 
 
+def resolve_input_file(file_name: str) -> Path:
+    """
+    Отчеты всегда ищем только в pythonProject/downloads
+    """
+    return (DOWNLOADS_DIR / file_name).resolve()
+
+
 def is_number(value: Any) -> bool:
     if value is None:
         return False
@@ -170,11 +186,11 @@ def row_as_normalized_list(row: List[Any]) -> List[str]:
     return [normalize_text(c) for c in row]
 
 
-def matches_startswith(text: str, values: Tuple[str, ...]) -> bool:
-    return lower_text(text).startswith(values)
+def matches_startswith(text: str, values) -> bool:
+    return lower_text(text).startswith(tuple(values))
 
 
-def contains_any(text: str, values: Tuple[str, ...]) -> bool:
+def contains_any(text: str, values) -> bool:
     t = lower_text(text)
     return any(value in t for value in values)
 
@@ -202,14 +218,14 @@ def is_ignored_text(text: str, rules: Dict[str, Any]) -> bool:
 def is_item_name(text: str, rules: Dict[str, Any]) -> bool:
     if is_ignored_text(text, rules):
         return False
-    return matches_startswith(text, tuple(rules["item_prefixes"]))
+    return matches_startswith(text, rules["item_prefixes"])
 
 
 def is_service_row(text: str, rules: Dict[str, Any]) -> bool:
-    if matches_startswith(text, tuple(rules["service_prefixes"])):
+    if matches_startswith(text, rules["service_prefixes"]):
         return True
 
-    if contains_any(text, tuple(rules["force_service_contains"])):
+    if contains_any(text, rules["force_service_contains"]):
         return True
 
     return False
@@ -750,22 +766,24 @@ def print_summary(result: Dict[str, Any], search: Optional[str], rules: Dict[str
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Полноценный разбор отчета по таре")
-    parser.add_argument("file", help="Путь к .xls файлу")
-    parser.add_argument("--rules", default=DEFAULT_RULES_PATH, help="Путь к tara_rules.json")
-    parser.add_argument("--out", default="tara_parsed.json", help="Полный JSON результат")
-    parser.add_argument("--log", default="tara_parse.log", help="Лог-файл")
-    parser.add_argument("--bad-out", default="tara_bad_clients.json", help="Проблемные клиенты")
-    parser.add_argument("--skipped-out", default="tara_skipped_rows.json", help="Пропущенные строки")
+    parser.add_argument("file", help="Имя файла отчета из папки pythonProject/downloads")
+    parser.add_argument("--rules", default=str(DEFAULT_RULES_PATH), help="Путь к tara_rules.json")
+    parser.add_argument("--out", default=str(DEFAULT_PARSED_PATH), help="Полный JSON результат")
+    parser.add_argument("--log", default=str(DEFAULT_LOG_PATH), help="Лог-файл")
+    parser.add_argument("--bad-out", default=str(DEFAULT_BAD_PATH), help="Проблемные клиенты")
+    parser.add_argument("--skipped-out", default=str(DEFAULT_SKIPPED_PATH), help="Пропущенные строки")
     parser.add_argument("--find", default=None, help="Поиск клиента по части имени")
     args = parser.parse_args()
 
-    if not os.path.exists(args.file):
-        raise FileNotFoundError("Файл не найден: {0}".format(args.file))
+    src_file = resolve_input_file(args.file)
+
+    if not src_file.exists():
+        raise FileNotFoundError("Файл не найден в downloads: {0}".format(src_file))
 
     rules = load_rules(args.rules)
     logger = setup_logger(args.log)
 
-    result = parse_report(args.file, logger, rules)
+    result = parse_report(str(src_file), logger, rules)
 
     save_json(args.out, result)
     save_json(args.bad_out, result["bad_clients"])
