@@ -5925,14 +5925,22 @@ async def render_tara_search(chat: Message, keywords: List[str]):
     items: List[Dict[str, Any]] = []
     for client in clients:
         client_label = str(client.get("client") or "").strip()
-        tara_items = client.get("tara_items") or []
+        # В tara_parsed.json позиции делятся на группы:
+        # - tara_items (бочки/замки)
+        # - equipment_items (пеногасители и пр. оборудование)
+        # - other_items (прочие распознанные позиции)
+        # Для пользовательского поиска показываем весь состав, как в исходном отчёте,
+        # иначе часть оборудования (например, пеногасители) пропадает из ответа.
+        merged_items = []
+        for bucket in ("tara_items", "equipment_items", "other_items"):
+            merged_items.extend(client.get(bucket) or [])
         entries = [
             {
                 "client": client_label,
-                "total": float(client.get("tara_sum", 0.0) or 0.0),
+                "total": float(client.get("items_sum", 0.0) or 0.0),
                 "items": [
                     (str(item.get("name") or ""), float(item.get("total", 0.0) or 0.0))
-                    for item in tara_items
+                    for item in merged_items
                 ],
             }
         ]
