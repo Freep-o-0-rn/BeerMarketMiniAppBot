@@ -70,6 +70,7 @@ from services.permissions_service import extend_access_matrix
 from services.identity_matcher import IdentityMatcher
 from services.tara_service.tara_api import (
     get_tara_client_report,
+    get_tara_report_data,
     get_tara_update_status,
     refresh_tara_report_manual,
 )
@@ -83,6 +84,7 @@ DEBT_IMPORT_MAPPINGS_PATH = SETTINGS_DIR / "debt_import_mappings.json"
 logger = logging.getLogger(__name__)
 _TARA_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 _TARA_SEARCH_GROUP_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
+_TARA_VIEW_CACHE: Dict[str, Dict[str, Any]] = {}
 _DEBT_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 
 #Прайсы: сортировка по алфавиту ---
@@ -1174,6 +1176,62 @@ def _debt_pick_kb(token: str, entries: List[Dict[str, Any]]) -> InlineKeyboardMa
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def _tara_item_group(name: str) -> str:
+    n = (name or "").strip().casefold().replace("ё", "е")
+    if n.startswith(("бочка", "кег", "кега")):
+        return "tara"
+    if n.startswith(("холодильник", "морозильник")):
+        return "fridge"
+    if n.startswith((
+        "замок",
+        "башня",
+        "пеногаситель",
+        "охладитель",
+        "редуктор",
+        "баллон",
+        "кран",
+        "каплесборник",
+        "головка",
+        "колонна",
+        "стойка",
+        "световой знак",
+        "внутренний световой знак",
+        "поддон",
+        "переключатель",
+        "медальон",
+        "витрина",
+        "шкаф",
+    )):
+        return "equipment"
+    return "equipment"
+
+
+def _tara_apply_filters(items: List[Tuple[str, float]], filters: Dict[str, bool]) -> List[Tuple[str, float]]:
+    out: List[Tuple[str, float]] = []
+    for name, qty in items:
+        if not filters.get(_tara_item_group(name), True):
+            continue
+        out.append((name, qty))
+    return out
+
+
+def _tara_filter_kb(token: str, filters: Dict[str, bool]) -> InlineKeyboardMarkup:
+    def mark(v: bool) -> str:
+        return "✅" if v else "⬜️"
+    rows = [
+        [
+            InlineKeyboardButton(text=f"{mark(filters.get('tara', True))} Тара", callback_data=f"tara:flt:{token}:tara"),
+            InlineKeyboardButton(text=f"{mark(filters.get('equipment', True))} Оборудование", callback_data=f"tara:flt:{token}:equipment"),
+        ],
+        [
+            InlineKeyboardButton(text=f"{mark(filters.get('fridge', True))} Холодильники", callback_data=f"tara:flt:{token}:fridge"),
+        ],
+        [
+            InlineKeyboardButton(text="Включить всё", callback_data=f"tara:flt:{token}:all"),
+            InlineKeyboardButton(text="Скрыть всё", callback_data=f"tara:flt:{token}:none"),
+        ],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def build_tara_group_text(base_name: str, entries: list) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
@@ -5942,6 +6000,7 @@ async def render_tara_search(chat: Message, keywords: List[str]):
                     (str(item.get("name") or ""), float(item.get("total", 0.0) or 0.0))
                     for item in merged_items
                 ],
+
             }
         ]
         items.extend(entries)

@@ -47672,3 +47672,391 @@ apscheduler.schedulers.SchedulerNotRunningError: Scheduler is not running
 2026-04-21 23:54:59 | INFO | aiogram.event | Update id=104058673 is handled. Duration 812 ms by bot id=8304099970
 2026-04-22 00:16:04 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
 2026-04-22 00:16:04 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-22 00:28:35 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-22 00:28:41 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 00:28:41 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 00:28:41 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 00:28:43 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)': шапка=5400.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Паруйрян Эдгар Мишаи ИП - Воротников (Дениса Давыдова ул, дом № 4) (У)': шапка=0.30, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Текутьев Николай Сергеевич ИП- Воротников (Шоссейная, 2)': шапка=676.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Маджента ООО - Воротников ГОЛОВНОЙ': шапка=761.80, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Петрова Вероника Сергеевна ИП - Воротников': шапка=2300.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Баранова Юлия Николаевна ИП - Воротников': шапка=2555.10, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Савина А.И. ИП - Воротников ГОЛОВНОЙ': шапка=2930.78, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Блинкова Анна Павловна  ИП - Воротников': шапка=8583.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-22 00:28:43 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=177281.54, по строкам=0.00
+2026-04-22 00:28:43 | INFO | root | Собрано клиентов: 306
+2026-04-22 00:28:43 | INFO | __main__ | Отчёт на 21.04.2026 | клиентов: 306
+2026-04-22 00:28:43 | INFO | __main__ | 01. nan | сум: 10233732.35 | проср: 9717956.99 | наш долг: 177281.54 | доков: 0
+2026-04-22 00:28:43 | INFO | __main__ | 02. ГЕРАНИОЛ ООО - Воротников (НСТ СТроитель, д 3/1а) | сум: 325361.78 | проср: 325361.78 | наш долг: 0.00 | доков: 2
+2026-04-22 00:28:43 | INFO | __main__ | 03. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 13) | сум: 301250.16 | проср: 301250.16 | наш долг: 0.00 | доков: 2
+2026-04-22 00:28:43 | INFO | __main__ | 04. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 7а) | сум: 300624.40 | проср: 300624.40 | наш долг: 0.00 | доков: 1
+2026-04-22 00:28:43 | INFO | __main__ | 05. ГЕРАНИОЛ ООО - Воротников (Журналист тер. СНТ, Межозерная ул, дом № 34) | сум: 292233.96 | проср: 292233.96 | наш долг: 0.00 | доков: 4
+2026-04-22 00:28:43 | INFO | __main__ | 06. ГЕРАНИОЛ ООО - Воротников (Благое мкр Солнечная ул, дом № 3) | сум: 278168.76 | проср: 278168.76 | наш долг: 0.00 | доков: 2
+2026-04-22 00:28:43 | INFO | __main__ | 07. ГЕРАНИОЛ ООО - Воротников (Дачная ул, дом № 31, корпус 1) | сум: 269669.11 | проср: 269669.11 | наш долг: 0.00 | доков: 2
+2026-04-22 00:28:43 | INFO | __main__ | 08. ГЕРАНИОЛ ООО - Воротников (Римского-Корсакова ул, дом № 28) | сум: 263676.28 | проср: 263676.28 | наш долг: 0.00 | доков: 4
+2026-04-22 00:28:43 | INFO | __main__ | 09. ГЕРАНИОЛ ООО - Воротников (Тульская ул, дом № 80) | сум: 250703.58 | проср: 250703.58 | наш долг: 0.00 | доков: 1
+2026-04-22 00:28:43 | INFO | __main__ | 10. Прокопьев Евгений Викторович ИП - Воротников (Демакова ул, дом № 11) | сум: 234636.00 | проср: 213888.00 | наш долг: 0.00 | доков: 5
+2026-04-22 00:28:43 | INFO | aiogram.dispatcher | Start polling
+2026-04-22 00:28:43 | INFO | telegram_bot | Daily fetch: next run in 36136 sec (now 2026-04-22 00:28:43, tz Asia/Novosibirsk)
+2026-04-22 00:28:43 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-22 00:49:52 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-22 00:49:56 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 00:49:56 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 00:49:56 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 00:49:57 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)': шапка=5400.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Паруйрян Эдгар Мишаи ИП - Воротников (Дениса Давыдова ул, дом № 4) (У)': шапка=0.30, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Текутьев Николай Сергеевич ИП- Воротников (Шоссейная, 2)': шапка=676.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Маджента ООО - Воротников ГОЛОВНОЙ': шапка=761.80, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Петрова Вероника Сергеевна ИП - Воротников': шапка=2300.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Баранова Юлия Николаевна ИП - Воротников': шапка=2555.10, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Савина А.И. ИП - Воротников ГОЛОВНОЙ': шапка=2930.78, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Блинкова Анна Павловна  ИП - Воротников': шапка=8583.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-22 00:49:57 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=177281.54, по строкам=0.00
+2026-04-22 00:49:57 | INFO | root | Собрано клиентов: 306
+2026-04-22 00:49:57 | INFO | __main__ | Отчёт на 21.04.2026 | клиентов: 306
+2026-04-22 00:49:57 | INFO | __main__ | 01. nan | сум: 10233732.35 | проср: 9717956.99 | наш долг: 177281.54 | доков: 0
+2026-04-22 00:49:57 | INFO | __main__ | 02. ГЕРАНИОЛ ООО - Воротников (НСТ СТроитель, д 3/1а) | сум: 325361.78 | проср: 325361.78 | наш долг: 0.00 | доков: 2
+2026-04-22 00:49:57 | INFO | __main__ | 03. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 13) | сум: 301250.16 | проср: 301250.16 | наш долг: 0.00 | доков: 2
+2026-04-22 00:49:57 | INFO | __main__ | 04. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 7а) | сум: 300624.40 | проср: 300624.40 | наш долг: 0.00 | доков: 1
+2026-04-22 00:49:57 | INFO | __main__ | 05. ГЕРАНИОЛ ООО - Воротников (Журналист тер. СНТ, Межозерная ул, дом № 34) | сум: 292233.96 | проср: 292233.96 | наш долг: 0.00 | доков: 4
+2026-04-22 00:49:57 | INFO | __main__ | 06. ГЕРАНИОЛ ООО - Воротников (Благое мкр Солнечная ул, дом № 3) | сум: 278168.76 | проср: 278168.76 | наш долг: 0.00 | доков: 2
+2026-04-22 00:49:57 | INFO | __main__ | 07. ГЕРАНИОЛ ООО - Воротников (Дачная ул, дом № 31, корпус 1) | сум: 269669.11 | проср: 269669.11 | наш долг: 0.00 | доков: 2
+2026-04-22 00:49:57 | INFO | __main__ | 08. ГЕРАНИОЛ ООО - Воротников (Римского-Корсакова ул, дом № 28) | сум: 263676.28 | проср: 263676.28 | наш долг: 0.00 | доков: 4
+2026-04-22 00:49:57 | INFO | __main__ | 09. ГЕРАНИОЛ ООО - Воротников (Тульская ул, дом № 80) | сум: 250703.58 | проср: 250703.58 | наш долг: 0.00 | доков: 1
+2026-04-22 00:49:57 | INFO | __main__ | 10. Прокопьев Евгений Викторович ИП - Воротников (Демакова ул, дом № 11) | сум: 234636.00 | проср: 213888.00 | наш долг: 0.00 | доков: 5
+2026-04-22 00:49:58 | INFO | aiogram.dispatcher | Start polling
+2026-04-22 00:49:58 | INFO | telegram_bot | Daily fetch: next run in 34862 sec (now 2026-04-22 00:49:58, tz Asia/Novosibirsk)
+2026-04-22 00:49:58 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-22 00:50:00 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 460, 'req': '69d30ec0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4414, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 00:50:00 | INFO | aiogram.event | Update id=104058674 is handled. Duration 468 ms by bot id=8304099970
+2026-04-22 00:50:06 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 505, 'req': 'ee4cc545', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4416, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Арракис', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-22 00:50:06 | INFO | aiogram.event | Update id=104058675 is handled. Duration 515 ms by bot id=8304099970
+2026-04-22 00:58:06 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 236, 'req': '34068182', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4420, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 00:58:06 | INFO | aiogram.event | Update id=104058676 is handled. Duration 250 ms by bot id=8304099970
+2026-04-22 00:58:09 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 606, 'req': '04d1fbf1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4422, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Гензе', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-22 00:58:09 | INFO | aiogram.event | Update id=104058677 is handled. Duration 625 ms by bot id=8304099970
+2026-04-22 01:23:56 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-22 01:24:00 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 01:24:00 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 01:24:00 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 01:24:01 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)': шапка=5400.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Паруйрян Эдгар Мишаи ИП - Воротников (Дениса Давыдова ул, дом № 4) (У)': шапка=0.30, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Текутьев Николай Сергеевич ИП- Воротников (Шоссейная, 2)': шапка=676.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Маджента ООО - Воротников ГОЛОВНОЙ': шапка=761.80, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Петрова Вероника Сергеевна ИП - Воротников': шапка=2300.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Баранова Юлия Николаевна ИП - Воротников': шапка=2555.10, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Савина А.И. ИП - Воротников ГОЛОВНОЙ': шапка=2930.78, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Блинкова Анна Павловна  ИП - Воротников': шапка=8583.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-22 01:24:01 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=177281.54, по строкам=0.00
+2026-04-22 01:24:01 | INFO | root | Собрано клиентов: 306
+2026-04-22 01:24:01 | INFO | __main__ | Отчёт на 21.04.2026 | клиентов: 306
+2026-04-22 01:24:01 | INFO | __main__ | 01. nan | сум: 10233732.35 | проср: 9717956.99 | наш долг: 177281.54 | доков: 0
+2026-04-22 01:24:01 | INFO | __main__ | 02. ГЕРАНИОЛ ООО - Воротников (НСТ СТроитель, д 3/1а) | сум: 325361.78 | проср: 325361.78 | наш долг: 0.00 | доков: 2
+2026-04-22 01:24:01 | INFO | __main__ | 03. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 13) | сум: 301250.16 | проср: 301250.16 | наш долг: 0.00 | доков: 2
+2026-04-22 01:24:01 | INFO | __main__ | 04. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 7а) | сум: 300624.40 | проср: 300624.40 | наш долг: 0.00 | доков: 1
+2026-04-22 01:24:01 | INFO | __main__ | 05. ГЕРАНИОЛ ООО - Воротников (Журналист тер. СНТ, Межозерная ул, дом № 34) | сум: 292233.96 | проср: 292233.96 | наш долг: 0.00 | доков: 4
+2026-04-22 01:24:01 | INFO | __main__ | 06. ГЕРАНИОЛ ООО - Воротников (Благое мкр Солнечная ул, дом № 3) | сум: 278168.76 | проср: 278168.76 | наш долг: 0.00 | доков: 2
+2026-04-22 01:24:01 | INFO | __main__ | 07. ГЕРАНИОЛ ООО - Воротников (Дачная ул, дом № 31, корпус 1) | сум: 269669.11 | проср: 269669.11 | наш долг: 0.00 | доков: 2
+2026-04-22 01:24:01 | INFO | __main__ | 08. ГЕРАНИОЛ ООО - Воротников (Римского-Корсакова ул, дом № 28) | сум: 263676.28 | проср: 263676.28 | наш долг: 0.00 | доков: 4
+2026-04-22 01:24:01 | INFO | __main__ | 09. ГЕРАНИОЛ ООО - Воротников (Тульская ул, дом № 80) | сум: 250703.58 | проср: 250703.58 | наш долг: 0.00 | доков: 1
+2026-04-22 01:24:01 | INFO | __main__ | 10. Прокопьев Евгений Викторович ИП - Воротников (Демакова ул, дом № 11) | сум: 234636.00 | проср: 213888.00 | наш долг: 0.00 | доков: 5
+2026-04-22 01:24:02 | INFO | aiogram.dispatcher | Start polling
+2026-04-22 01:24:02 | INFO | telegram_bot | Daily fetch: next run in 32818 sec (now 2026-04-22 01:24:02, tz Asia/Novosibirsk)
+2026-04-22 01:24:02 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-22 01:24:07 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1614, 'req': '986ac6a9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4426, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-22 01:24:07 | INFO | aiogram.event | Update id=104058678 is handled. Duration 1625 ms by bot id=8304099970
+2026-04-22 01:24:18 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 205, 'req': 'c1d4629f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4428, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:24:18 | INFO | aiogram.event | Update id=104058679 is handled. Duration 203 ms by bot id=8304099970
+2026-04-22 01:24:25 | ERROR | telegram_bot | Unhandled exception (req_id=35a1d78f)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 975, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6440, in search_tara_flow
+    await render_tara_search(m, keywords)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6194, in render_tara_search
+    await _send_tara_interactive_group(chat, base, groups[base])
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 1374, in _send_tara_interactive_group
+    build_tara_group_text(base_name, entries, filters=filters),
+TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'
+2026-04-22 01:24:25 | INFO | audit | {'t': 'msg', 'ok': False, 'ms': 426, 'req': '35a1d78f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4430, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Арракис', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:24:25 | INFO | audit | {'t': 'error', 'req': '35a1d78f', 'exc': "TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'"}
+2026-04-22 01:24:25 | INFO | aiogram.event | Update id=104058680 is not handled. Duration 437 ms by bot id=8304099970
+2026-04-22 01:24:25 | ERROR | aiogram.event | Cause exception while process update id=104058680 by bot id=8304099970
+TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 911, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 942, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 975, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6440, in search_tara_flow
+    await render_tara_search(m, keywords)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6194, in render_tara_search
+    await _send_tara_interactive_group(chat, base, groups[base])
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 1374, in _send_tara_interactive_group
+    build_tara_group_text(base_name, entries, filters=filters),
+TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'
+2026-04-22 01:24:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 286, 'req': 'f295a910', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731799692157', 'msg_id': 4432, 'data': 'tara:rules:open', 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:24:33 | INFO | aiogram.event | Update id=104058681 is handled. Duration 281 ms by bot id=8304099970
+2026-04-22 01:25:02 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 355, 'req': '1ece1cd1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730575088573', 'msg_id': 4432, 'data': 'tara:rules:edit:equipment', 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:25:02 | INFO | aiogram.event | Update id=104058682 is handled. Duration 375 ms by bot id=8304099970
+2026-04-22 01:25:09 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 480, 'req': 'be631f18', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729202871034', 'msg_id': 4432, 'data': 'tara:rules:open', 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:25:09 | INFO | aiogram.event | Update id=104058683 is handled. Duration 484 ms by bot id=8304099970
+2026-04-22 01:25:11 | ERROR | telegram_bot | Unhandled exception (req_id=f85a183c)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 975, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6339, in cb_tara_rules_open
+    await cq.message.edit_text(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-04-22 01:25:11 | INFO | audit | {'t': 'cb', 'ok': False, 'ms': 150, 'req': 'f85a183c', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728990041106', 'msg_id': 4432, 'data': 'tara:rules:open', 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:25:11 | INFO | audit | {'t': 'error', 'req': 'f85a183c', 'exc': 'TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message'}
+2026-04-22 01:25:11 | INFO | aiogram.event | Update id=104058684 is not handled. Duration 155 ms by bot id=8304099970
+2026-04-22 01:25:11 | ERROR | aiogram.event | Cause exception while process update id=104058684 by bot id=8304099970
+TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 911, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 942, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 975, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6339, in cb_tara_rules_open
+    await cq.message.edit_text(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\client\session\base.py", line 120, in check_response
+    raise TelegramBadRequest(method=method, message=description)
+aiogram.exceptions.TelegramBadRequest: Telegram server says - Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-04-22 01:25:21 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 173, 'req': '25f18376', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4433, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:25:21 | INFO | aiogram.event | Update id=104058685 is handled. Duration 187 ms by bot id=8304099970
+2026-04-22 01:25:26 | ERROR | telegram_bot | Unhandled exception (req_id=e6acf0e3)
+Traceback (most recent call last):
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 975, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6440, in search_tara_flow
+    await render_tara_search(m, keywords)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6194, in render_tara_search
+    await _send_tara_interactive_group(chat, base, groups[base])
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 1374, in _send_tara_interactive_group
+    build_tara_group_text(base_name, entries, filters=filters),
+TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'
+2026-04-22 01:25:26 | INFO | audit | {'t': 'msg', 'ok': False, 'ms': 412, 'req': 'e6acf0e3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4435, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Арракис', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:25:26 | INFO | audit | {'t': 'error', 'req': 'e6acf0e3', 'exc': "TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'"}
+2026-04-22 01:25:26 | INFO | aiogram.event | Update id=104058686 is not handled. Duration 421 ms by bot id=8304099970
+2026-04-22 01:25:26 | ERROR | aiogram.event | Cause exception while process update id=104058686 by bot id=8304099970
+TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 911, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 942, in __call__
+    return await handler(event, data)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 975, in __call__
+    return await handler(event, data)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6440, in search_tara_flow
+    await render_tara_search(m, keywords)
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 6194, in render_tara_search
+    await _send_tara_interactive_group(chat, base, groups[base])
+  File "E:\Work\BeerMarkenBot\BeerMarketMiniAppBot v0.98.3\pythonProject\telegram_bot.py", line 1374, in _send_tara_interactive_group
+    build_tara_group_text(base_name, entries, filters=filters),
+TypeError: build_tara_group_text() got an unexpected keyword argument 'filters'
+2026-04-22 01:25:46 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-22 01:25:46 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-22 01:26:35 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-22 01:26:39 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 01:26:39 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 01:26:39 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-22 01:26:40 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)': шапка=5400.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Паруйрян Эдгар Мишаи ИП - Воротников (Дениса Давыдова ул, дом № 4) (У)': шапка=0.30, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Текутьев Николай Сергеевич ИП- Воротников (Шоссейная, 2)': шапка=676.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Маджента ООО - Воротников ГОЛОВНОЙ': шапка=761.80, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Петрова Вероника Сергеевна ИП - Воротников': шапка=2300.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Баранова Юлия Николаевна ИП - Воротников': шапка=2555.10, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Савина А.И. ИП - Воротников ГОЛОВНОЙ': шапка=2930.78, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Блинкова Анна Павловна  ИП - Воротников': шапка=8583.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-22 01:26:40 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=177281.54, по строкам=0.00
+2026-04-22 01:26:40 | INFO | root | Собрано клиентов: 306
+2026-04-22 01:26:40 | INFO | __main__ | Отчёт на 21.04.2026 | клиентов: 306
+2026-04-22 01:26:40 | INFO | __main__ | 01. nan | сум: 10233732.35 | проср: 9717956.99 | наш долг: 177281.54 | доков: 0
+2026-04-22 01:26:40 | INFO | __main__ | 02. ГЕРАНИОЛ ООО - Воротников (НСТ СТроитель, д 3/1а) | сум: 325361.78 | проср: 325361.78 | наш долг: 0.00 | доков: 2
+2026-04-22 01:26:40 | INFO | __main__ | 03. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 13) | сум: 301250.16 | проср: 301250.16 | наш долг: 0.00 | доков: 2
+2026-04-22 01:26:40 | INFO | __main__ | 04. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 7а) | сум: 300624.40 | проср: 300624.40 | наш долг: 0.00 | доков: 1
+2026-04-22 01:26:40 | INFO | __main__ | 05. ГЕРАНИОЛ ООО - Воротников (Журналист тер. СНТ, Межозерная ул, дом № 34) | сум: 292233.96 | проср: 292233.96 | наш долг: 0.00 | доков: 4
+2026-04-22 01:26:40 | INFO | __main__ | 06. ГЕРАНИОЛ ООО - Воротников (Благое мкр Солнечная ул, дом № 3) | сум: 278168.76 | проср: 278168.76 | наш долг: 0.00 | доков: 2
+2026-04-22 01:26:40 | INFO | __main__ | 07. ГЕРАНИОЛ ООО - Воротников (Дачная ул, дом № 31, корпус 1) | сум: 269669.11 | проср: 269669.11 | наш долг: 0.00 | доков: 2
+2026-04-22 01:26:40 | INFO | __main__ | 08. ГЕРАНИОЛ ООО - Воротников (Римского-Корсакова ул, дом № 28) | сум: 263676.28 | проср: 263676.28 | наш долг: 0.00 | доков: 4
+2026-04-22 01:26:40 | INFO | __main__ | 09. ГЕРАНИОЛ ООО - Воротников (Тульская ул, дом № 80) | сум: 250703.58 | проср: 250703.58 | наш долг: 0.00 | доков: 1
+2026-04-22 01:26:40 | INFO | __main__ | 10. Прокопьев Евгений Викторович ИП - Воротников (Демакова ул, дом № 11) | сум: 234636.00 | проср: 213888.00 | наш долг: 0.00 | доков: 5
+2026-04-22 01:26:41 | INFO | aiogram.dispatcher | Start polling
+2026-04-22 01:26:41 | INFO | telegram_bot | Daily fetch: next run in 32659 sec (now 2026-04-22 01:26:41, tz Asia/Novosibirsk)
+2026-04-22 01:26:41 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-22 01:26:44 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 1020, 'req': '8903c4d9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4438, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-22 01:26:44 | INFO | aiogram.event | Update id=104058687 is handled. Duration 1030 ms by bot id=8304099970
+2026-04-22 01:26:48 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 602, 'req': '0e2f2840', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 4440, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Арракис', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-22 01:26:48 | INFO | aiogram.event | Update id=104058688 is handled. Duration 609 ms by bot id=8304099970
+2026-04-22 01:26:57 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-22 01:26:57 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
