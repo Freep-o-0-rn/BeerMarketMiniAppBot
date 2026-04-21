@@ -1245,10 +1245,15 @@ def _tara_filter_kb(token: str, filters: Dict[str, bool]) -> InlineKeyboardMarku
     ])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def build_tara_group_text(base_name: str, entries: list, filters: Optional[Dict[str, bool]] = None) -> str:
+def build_tara_group_text(
+    base_name: str,
+    entries: list,
+    filters: Optional[Dict[str, bool]] = None,
+    user_id: Optional[int] = None,
+) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
     normalized_filters = _tara_normalize_filters(filters)
-    merge_kegs = get_merge_kegs_50l_type_s()
+    merge_kegs = get_merge_kegs_50l_type_s(user_id)
 
     def _key_addr(e):
         a = _tara_client_parts(e).get("address", "")
@@ -1288,11 +1293,15 @@ def build_tara_group_text(base_name: str, entries: list, filters: Optional[Dict[
             lines.append(f"{prefix}{esc(name)} — {fmt_qty_units(qty)}")
     return "\n".join(lines)
 
-def build_tara_groups_text(groups: Dict[str, List[Dict[str, Any]]], filters: Optional[Dict[str, bool]] = None) -> str:
+def build_tara_groups_text(
+    groups: Dict[str, List[Dict[str, Any]]],
+    filters: Optional[Dict[str, bool]] = None,
+    user_id: Optional[int] = None,
+) -> str:
     lines: List[str] = []
     ordered = sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е"))
     for idx, (base_name, entries) in enumerate(ordered):
-        lines.append(build_tara_group_text(base_name, entries, filters=filters))
+        lines.append(build_tara_group_text(base_name, entries, filters=filters, user_id=user_id))
         if idx != len(ordered) - 1:
             lines.append("")
     return "\n".join(lines)
@@ -1304,14 +1313,16 @@ def esc(s: Optional[str]) -> str:
 
 async def _send_tara_group_with_filters(chat: Message, base_name: str, entries: List[Dict[str, Any]]) -> None:
     token = uuid4().hex[:12]
+    user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
     filters = _tara_default_filters()
     _TARA_FILTER_VIEW_CACHE[token] = {
         "mode": "single",
         "base_name": base_name,
         "entries": entries,
         "filters": filters,
+        "user_id": user_id,
     }
-    text = build_tara_group_text(base_name, entries, filters=filters)
+    text = build_tara_group_text(base_name, entries, filters=filters, user_id=user_id)
     kb = _tara_filter_kb(token, filters)
     chunks = _split_long_text(text)
     chunk_ids: List[int] = []
@@ -1329,13 +1340,15 @@ async def _send_tara_group_with_filters(chat: Message, base_name: str, entries: 
 
 async def _send_tara_groups_with_filters(chat: Message, groups: Dict[str, List[Dict[str, Any]]]) -> None:
     token = uuid4().hex[:12]
+    user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
     filters = _tara_default_filters()
     _TARA_FILTER_VIEW_CACHE[token] = {
         "mode": "groups",
         "groups": groups,
         "filters": filters,
+        "user_id": user_id,
     }
-    text = build_tara_groups_text(groups, filters=filters)
+    text = build_tara_groups_text(groups, filters=filters, user_id=user_id)
     kb = _tara_filter_kb(token, filters)
     chunks = _split_long_text(text)
     chunk_ids: List[int] = []
@@ -2333,15 +2346,47 @@ DEFAULT_FILTERS = {
     "merge_kegs_50l_type_s": False,  # суммировать «Бочка 50л S RU» + «Бочка 50л тип S»
 }
 
+def _normalize_filter_user_id(user_id: Optional[int]) -> Optional[str]:
+    try:
+        uid = int(user_id or 0)
+    except Exception:
+        return None
+    return str(uid) if uid > 0 else None
+
+
+def _normalize_filters_schema(raw_cfg: Any) -> Dict[str, Any]:
+    cfg = raw_cfg if isinstance(raw_cfg, dict) else {}
+    defaults: Dict[str, Any] = {}
+    users: Dict[str, Dict[str, Any]] = {}
+    raw_defaults = cfg.get("defaults")
+    if isinstance(raw_defaults, dict):
+        defaults = dict(raw_defaults)
+    else:
+        for key in DEFAULT_FILTERS.keys():
+            if key in cfg:
+                defaults[key] = cfg.get(key)
+
+    raw_users = cfg.get("users")
+    if isinstance(raw_users, dict):
+        for uid, user_cfg in raw_users.items():
+            if not isinstance(user_cfg, dict):
+                continue
+            normalized_uid = _normalize_filter_user_id(uid)
+            if not normalized_uid:
+                continue
+            users[normalized_uid] = dict(user_cfg)
+    return {"defaults": defaults, "users": users}
+
 def load_filters() -> dict:
     try:
         with open(FILTERS_PATH, "r", encoding="utf-8") as f:
-            cfg = json.load(f) or {}
+            raw_cfg = json.load(f) or {}
     except FileNotFoundError:
-        cfg = {}
+        raw_cfg = {}
+    cfg = _normalize_filters_schema(raw_cfg)
     # подставим дефолты, если ключей нет
     for k, v in DEFAULT_FILTERS.items():
-        cfg.setdefault(k, v)
+        cfg["defaults"].setdefault(k, v)
     return cfg
 
 def save_filters(cfg: dict) -> None:
@@ -2350,42 +2395,67 @@ def save_filters(cfg: dict) -> None:
     if d and not os.path.exists(d):
         os.makedirs(d, exist_ok=True)
     tmp = FILTERS_PATH + ".tmp"
+    normalized = _normalize_filters_schema(cfg)
+    for k, v in DEFAULT_FILTERS.items():
+        normalized["defaults"].setdefault(k, v)
     with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(cfg, f, ensure_ascii=False, indent=2)
+        json.dump(normalized, f, ensure_ascii=False, indent=2)
     os.replace(tmp, FILTERS_PATH)
 
 FILTERS = load_filters()
 
-def get_min_debt() -> float:
+def _get_user_filters(user_id: Optional[int]) -> Dict[str, Any]:
+    merged = dict(FILTERS.get("defaults") or {})
+    uid = _normalize_filter_user_id(user_id)
+    if uid:
+        user_overrides = (FILTERS.get("users") or {}).get(uid) or {}
+        if isinstance(user_overrides, dict):
+            merged.update(user_overrides)
+    return merged
+
+
+def _set_user_filter_value(user_id: Optional[int], key: str, value: Any) -> None:
+    uid = _normalize_filter_user_id(user_id)
+    if not uid:
+        FILTERS.setdefault("defaults", {})[key] = value
+        save_filters(FILTERS)
+        return
+    users = FILTERS.setdefault("users", {})
+    current = users.get(uid)
+    if not isinstance(current, dict):
+        current = {}
+    current[key] = value
+    users[uid] = current
+    save_filters(FILTERS)
+    logger.info("filters: user=%s updated %s=%s", uid, key, value)
+
+def get_min_debt(user_id: Optional[int] = None) -> float:
     try:
-        return float(FILTERS.get("min_debt", DEFAULT_FILTERS["min_debt"]))
+        return float(_get_user_filters(user_id).get("min_debt", DEFAULT_FILTERS["min_debt"]))
     except Exception:
         return float(DEFAULT_FILTERS["min_debt"])
 
-def set_min_debt(val: float) -> None:
-    FILTERS["min_debt"] = float(max(0.0, val))
-    save_filters(FILTERS)
+def set_min_debt(val: float, user_id: Optional[int] = None) -> None:
+    _set_user_filter_value(user_id, "min_debt", float(max(0.0, val)))
 
-def get_min_overdue_days() -> int:
+def get_min_overdue_days(user_id: Optional[int] = None) -> int:
     try:
-        return int(FILTERS.get("min_overdue_days", DEFAULT_FILTERS["min_overdue_days"]))
+        return int(_get_user_filters(user_id).get("min_overdue_days", DEFAULT_FILTERS["min_overdue_days"]))
     except Exception:
         return int(DEFAULT_FILTERS["min_overdue_days"])
 
-def set_min_overdue_days(n: int) -> None:
-    FILTERS["min_overdue_days"] = int(max(0, n))
-    save_filters(FILTERS)
+def set_min_overdue_days(n: int, user_id: Optional[int] = None) -> None:
+    _set_user_filter_value(user_id, "min_overdue_days", int(max(0, n)))
 
-def get_merge_kegs_50l_type_s() -> bool:
+def get_merge_kegs_50l_type_s(user_id: Optional[int] = None) -> bool:
     try:
-        return bool(FILTERS.get("merge_kegs_50l_type_s", DEFAULT_FILTERS["merge_kegs_50l_type_s"]))
+        return bool(_get_user_filters(user_id).get("merge_kegs_50l_type_s", DEFAULT_FILTERS["merge_kegs_50l_type_s"]))
     except Exception:
         return bool(DEFAULT_FILTERS["merge_kegs_50l_type_s"])
 
 
-def set_merge_kegs_50l_type_s(enabled: bool) -> None:
-    FILTERS["merge_kegs_50l_type_s"] = bool(enabled)
-    save_filters(FILTERS)
+def set_merge_kegs_50l_type_s(enabled: bool, user_id: Optional[int] = None) -> None:
+    _set_user_filter_value(user_id, "merge_kegs_50l_type_s", bool(enabled))
 
 
 def _tara_item_key(name: Any) -> str:
@@ -2420,8 +2490,8 @@ FILTER_PAGES = [
         "title": "Порог долга",
         "units": "₽",
         "desc": "Показывать клиентов, если нетто-долг ≥ этому порогу.",
-        "get": get_min_debt,
-        "set": set_min_debt,
+        "get": lambda user_id: get_min_debt(user_id),
+        "set": lambda value, user_id: set_min_debt(value, user_id),
         "default": DEFAULT_FILTERS["min_debt"],
         "parse": lambda s: float((s or "").replace(",", ".").strip() or "0"),
         "validate": lambda v: (0.0 <= v <= 1e9, "Число 0..1e9"),
@@ -2432,8 +2502,8 @@ FILTER_PAGES = [
         "title": "Мин. дней просрочки",
         "units": "дн.",
         "desc": "В «⏰ Просрочено»: скрывать строки моложе этого возраста.",
-        "get": get_min_overdue_days,
-        "set": set_min_overdue_days,
+        "get": lambda user_id: get_min_overdue_days(user_id),
+        "set": lambda value, user_id: set_min_overdue_days(value, user_id),
         "default": DEFAULT_FILTERS["min_overdue_days"],
         "parse": lambda s: int((s or "0").strip() or "0"),
         "validate": lambda v: (0 <= v <= 365, "Целое 0..365"),
@@ -2447,8 +2517,8 @@ FILTER_PAGES = [
             "Да: позиции «Бочка 50л S RU» и «Бочка 50л тип S» суммируются "
             "в одну строку «Бочка 50л тип S»."
         ),
-        "get": get_merge_kegs_50l_type_s,
-        "set": set_merge_kegs_50l_type_s,
+        "get": lambda user_id: get_merge_kegs_50l_type_s(user_id),
+        "set": lambda value, user_id: set_merge_kegs_50l_type_s(value, user_id),
         "default": DEFAULT_FILTERS["merge_kegs_50l_type_s"],
         "parse": lambda s: str(s or "").strip().casefold() in {"1", "да", "yes", "true", "on", "вкл"},
         "validate": lambda v: (isinstance(v, bool), "Используйте Да или Нет"),
@@ -2456,9 +2526,9 @@ FILTER_PAGES = [
     },
 ]
 
-def _filters_page_text(idx: int) -> str:
+def _filters_page_text(idx: int, user_id: Optional[int]) -> str:
     page = FILTER_PAGES[idx]
-    cur = page["get"]()
+    cur = page["get"](user_id)
     total = len(FILTER_PAGES)
     return (
         f"<b>Фильтры отображения</b> — страница {idx+1}/{total}\n"
@@ -2467,7 +2537,7 @@ def _filters_page_text(idx: int) -> str:
         f"{page['desc']}"
     )
 
-def _filters_page_kb(idx: int) -> InlineKeyboardMarkup:
+def _filters_page_kb(idx: int, user_id: Optional[int]) -> InlineKeyboardMarkup:
     total = len(FILTER_PAGES)
     prev_idx = (idx - 1) % total
     next_idx = (idx + 1) % total
@@ -2479,7 +2549,7 @@ def _filters_page_kb(idx: int) -> InlineKeyboardMarkup:
          InlineKeyboardButton(text="Вперёд ➡️",  callback_data=f"flt:nav:{next_idx}")],
     ]
     if page.get("key") == "merge_kegs_50l_type_s":
-        current = bool(page["get"]())
+        current = bool(page["get"](user_id))
         rows.insert(1, [
             InlineKeyboardButton(
                 text=f"{'✅ ' if current else ''}Да",
@@ -4587,11 +4657,11 @@ def _visible_overdue(days: Optional[int], personal: int, min_days: int) -> bool:
 
 
 
-def client_has_overdue(item: Dict[str, Any], report_date: Optional[str]) -> bool:
+def client_has_overdue(item: Dict[str, Any], report_date: Optional[str], user_id: Optional[int] = None) -> bool:
     raw = item.get("client") or ""
     base = _base_client_name_for_debt(raw)  # если есть такая функция; иначе raw
     threshold = get_overdue_days_for_client(base)
-    min_days = get_min_overdue_days()
+    min_days = get_min_overdue_days(user_id)
 
     for d in (item.get("docs") or []):
         amt = float(d.get("amount") or 0.0)
@@ -4963,7 +5033,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
     if role == "sales_rep":
         filtered = [it for it in filtered if _is_sales_rep_item_visible_for_user(it, user_id)]
     if mode == "overdue":
-        filtered = [it for it in filtered if client_has_overdue(it, report_date) and not client_is_overpaid(it)]
+        filtered = [it for it in filtered if client_has_overdue(it, report_date, user_id=user_id) and not client_is_overpaid(it)]
     elif mode == "overpaid":
         filtered = [it for it in filtered if client_is_overpaid(it)]
 
@@ -4972,7 +5042,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
         our = float(it.get("our_debt") or 0.0)
         return max(total - our, 0.0)
 
-    eff_min = get_min_debt() if min_debt is None else max(0.0, float(min_debt))
+    eff_min = get_min_debt(user_id) if min_debt is None else max(0.0, float(min_debt))
     if mode in ("all", "overdue") and eff_min > 0.0:
         filtered = [it for it in filtered if (net_debt(it) + 0.009) >= eff_min]
 
@@ -4985,7 +5055,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
     chips = []
     if mode == "overdue":
         chips.append("только с просрочкой")
-        chips.append(f"дни ≥ {get_min_overdue_days()}")
+        chips.append(f"дни ≥ {get_min_overdue_days(user_id)}")
     elif mode == "overpaid":
         chips.append("только переплаты")
     if keywords:
@@ -5076,7 +5146,7 @@ async def render_tara_report(chat: Message):
                 groups.setdefault(base, []).append(b)
 
             for base in sorted(groups.keys(), key=lambda k: (k or '').casefold().replace('ё','е')):
-                text = build_tara_group_text(base, groups[base])
+                text = build_tara_group_text(base, groups[base], user_id=user_id)
                 await send_long(chat, text)
             return
 
@@ -6362,6 +6432,11 @@ async def cb_tara_filter_toggle(cq: CallbackQuery):
         return
     _, _, token, group_id = parts
     payload = _TARA_FILTER_VIEW_CACHE.get(token) or {}
+    actor_user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    owner_user_id = int(payload.get("user_id") or 0)
+    if owner_user_id and owner_user_id != actor_user_id:
+        await cq.answer("Этот фильтр открыт другим пользователем.", show_alert=True)
+        return
     mode = str(payload.get("mode") or "single")
     base_name = str(payload.get("base_name") or "").strip()
     entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
@@ -6387,11 +6462,12 @@ async def cb_tara_filter_toggle(cq: CallbackQuery):
         return
 
     payload["filters"] = filters
+    payload["user_id"] = actor_user_id
     _TARA_FILTER_VIEW_CACHE[token] = payload
     if mode == "groups":
-        text = build_tara_groups_text(groups, filters=filters)
+        text = build_tara_groups_text(groups, filters=filters, user_id=actor_user_id)
     else:
-        text = build_tara_group_text(base_name, entries, filters=filters)
+        text = build_tara_group_text(base_name, entries, filters=filters, user_id=actor_user_id)
     kb = _tara_filter_kb(token, filters)
     chunks = _split_long_text(text)
     chunk_message_ids = [
@@ -8223,7 +8299,8 @@ async def filters_entry(m: Message, state: FSMContext):
     logger.info("filters: entry by %s (%s)", m.from_user.id, m.from_user.username)
     await state.clear()
     idx = 0
-    await m.answer(_filters_page_text(idx), reply_markup=_filters_page_kb(idx), disable_web_page_preview=True)
+    user_id = int(getattr(m.from_user, "id", 0) or 0)
+    await m.answer(_filters_page_text(idx, user_id), reply_markup=_filters_page_kb(idx, user_id), disable_web_page_preview=True)
 
 @router.message(F.text == "📦 Проверить ТТН")
 async def btn_ttn(m: Message, state: FSMContext):
@@ -9056,14 +9133,15 @@ async def flt_set_value(m: Message, state: FSMContext):
     except Exception:
         await m.answer("Введите число от 0 до 10 000 000.")
         return
-    set_min_debt(val)
+    set_min_debt(val, getattr(m.from_user, "id", None))
     await state.clear()
     await m.answer(f"Порог сохранён: ≥ {fmt_money(val)} ₽", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
 
 @router.callback_query(F.data == "flt:reset")
 async def cb_flt_reset(cq: CallbackQuery):
-    set_min_debt(0.0)
-    await cq.message.edit_text("Порог долга сброшен до 0 ₽.", reply_markup=_filters_page_kb(0))
+    user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    set_min_debt(0.0, user_id)
+    await cq.message.edit_text("Порог долга сброшен до 0 ₽.", reply_markup=_filters_page_kb(0, user_id))
     await cq.answer()
 
 # --- Отсрочки меню/CRUD ---
@@ -9360,8 +9438,9 @@ async def flt_nav(cq: CallbackQuery, state: FSMContext):
         logger.debug("filters: NAV data=%s", cq.data)
         await state.clear()
         idx = int(cq.data.split(":")[2])
+        user_id = int(getattr(cq.from_user, "id", 0) or 0)
         logger.debug("filters: NAV idx=%s", idx)
-        await _filters_safe_edit(cq.message, _filters_page_text(idx), _filters_page_kb(idx))
+        await _filters_safe_edit(cq.message, _filters_page_text(idx, user_id), _filters_page_kb(idx, user_id))
         await cq.answer()
     except Exception as e:
         logger.exception("filters: NAV failed")
@@ -9373,10 +9452,11 @@ async def flt_reset(cq: CallbackQuery, state: FSMContext):
         logger.debug("filters: RESET data=%s", cq.data)
         await state.clear()
         idx = int(cq.data.split(":")[2])
+        user_id = int(getattr(cq.from_user, "id", 0) or 0)
         page = FILTER_PAGES[idx]
-        page["set"](page["default"])
-        logger.info("filters: %s reset to %s", page["key"], page["default"])
-        await _filters_safe_edit(cq.message, _filters_page_text(idx), _filters_page_kb(idx))
+        page["set"](page["default"], user_id)
+        logger.info("filters: user=%s %s reset to %s", user_id, page["key"], page["default"])
+        await _filters_safe_edit(cq.message, _filters_page_text(idx, user_id), _filters_page_kb(idx, user_id))
         await cq.answer("Сброшено.")
     except Exception as e:
         logger.exception("filters: RESET failed")
@@ -9387,21 +9467,22 @@ async def flt_change_start(cq: CallbackQuery, state: FSMContext):
     try:
         logger.debug("filters: CHG data=%s", cq.data)
         idx = int(cq.data.split(":")[2])
+        user_id = int(getattr(cq.from_user, "id", 0) or 0)
         page = FILTER_PAGES[idx]
-        await state.update_data(flt_idx=idx)
+        await state.update_data(flt_idx=idx, flt_uid=user_id)
         await state.set_state(FilterStates.wait_value)
         prompt = (
             f"<b>{page['title']}</b>\n"
-            f"Текущее значение: <code>{page['fmt'](page['get']())}</code>\n\n"
+            f"Текущее значение: <code>{page['fmt'](page['get'](user_id))}</code>\n\n"
             f"Введите новое значение ({page['units']})."
         )
         if page.get("key") == "merge_kegs_50l_type_s":
             prompt = (
                 f"<b>{page['title']}</b>\n"
-                f"Текущее значение: <code>{page['fmt'](page['get']())}</code>\n\n"
+                f"Текущее значение: <code>{page['fmt'](page['get'](user_id))}</code>\n\n"
                 "Введите <b>Да</b> или <b>Нет</b>, либо используйте кнопки ниже."
             )
-        await _filters_safe_edit(cq.message, prompt, _filters_page_kb(idx))
+        await _filters_safe_edit(cq.message, prompt, _filters_page_kb(idx, user_id))
         await cq.answer()
     except Exception as e:
         logger.exception("filters: CHG failed")
@@ -9411,6 +9492,12 @@ async def flt_change_start(cq: CallbackQuery, state: FSMContext):
 async def flt_change_apply(m: Message, state: FSMContext):
     data = await state.get_data()
     idx = int(data.get("flt_idx", 0))
+    owner_user_id = int(data.get("flt_uid", 0) or 0)
+    actor_user_id = int(getattr(m.from_user, "id", 0) or 0)
+    if owner_user_id and owner_user_id != actor_user_id:
+        await state.clear()
+        await m.answer("Сессия фильтров принадлежит другому пользователю. Откройте «🎛️ Фильтры» заново.")
+        return
     page = FILTER_PAGES[idx]
     raw = (m.text or "")
     logger.debug("filters: APPLY %s raw='%s'", page["key"], raw)
@@ -9419,10 +9506,10 @@ async def flt_change_apply(m: Message, state: FSMContext):
         ok, hint = page["validate"](val)
         if not ok:
             raise ValueError(hint)
-        page["set"](val)
-        logger.info("filters: %s set to %s", page["key"], val)
+        page["set"](val, actor_user_id)
+        logger.info("filters: user=%s %s set to %s", actor_user_id, page["key"], val)
         await state.clear()
-        await m.answer(_filters_page_text(idx), reply_markup=_filters_page_kb(idx), disable_web_page_preview=True)
+        await m.answer(_filters_page_text(idx, actor_user_id), reply_markup=_filters_page_kb(idx, actor_user_id), disable_web_page_preview=True)
     except Exception as e:
         logger.exception("filters: APPLY failed")
         await m.answer(f"Некорректно: <code>{esc(raw)}</code>. {e}")
@@ -9434,12 +9521,13 @@ async def flt_bool_set(cq: CallbackQuery, state: FSMContext):
         _, _, raw_idx, raw_value = cq.data.split(":", 3)
         idx = int(raw_idx)
         value = raw_value == "1"
+        user_id = int(getattr(cq.from_user, "id", 0) or 0)
         page = FILTER_PAGES[idx]
         if page.get("key") != "merge_kegs_50l_type_s":
             await cq.answer("Переключатель недоступен.", show_alert=False)
             return
-        page["set"](value)
-        await _filters_safe_edit(cq.message, _filters_page_text(idx), _filters_page_kb(idx))
+        page["set"](value, user_id)
+        await _filters_safe_edit(cq.message, _filters_page_text(idx, user_id), _filters_page_kb(idx, user_id))
         await cq.answer("Сохранено.")
     except Exception as e:
         logger.exception("filters: BOOL failed")
