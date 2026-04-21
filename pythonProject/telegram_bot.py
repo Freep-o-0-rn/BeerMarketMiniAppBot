@@ -1312,17 +1312,37 @@ def esc(s: Optional[str]) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 async def _send_tara_group_with_filters(chat: Message, base_name: str, entries: List[Dict[str, Any]]) -> None:
-    token = uuid4().hex[:12]
     user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
+    await _tara_send_filter_view(
+        chat=chat,
+        payload_seed={
+            "mode": "single",
+            "base_name": base_name,
+            "entries": entries,
+        },
+        user_id=user_id,
+    )
+
+
+async def _tara_send_filter_view(chat: Message, payload_seed: Dict[str, Any], user_id: int) -> str:
+    token = uuid4().hex[:12]
     filters = _tara_default_filters()
-    _TARA_FILTER_VIEW_CACHE[token] = {
-        "mode": "single",
-        "base_name": base_name,
-        "entries": entries,
+    payload: Dict[str, Any] = {
+        "mode": str(payload_seed.get("mode") or ""),
         "filters": filters,
-        "user_id": user_id,
+        "user_id": int(user_id or 0),
     }
-    text = build_tara_group_text(base_name, entries, filters=filters, user_id=user_id)
+    if payload["mode"] == "single":
+        payload["base_name"] = str(payload_seed.get("base_name") or "").strip()
+        payload["entries"] = payload_seed.get("entries") if isinstance(payload_seed.get("entries"), list) else []
+        text = build_tara_group_text(payload["base_name"], payload["entries"], filters=filters, user_id=user_id)
+    elif payload["mode"] == "groups":
+        payload["groups"] = payload_seed.get("groups") if isinstance(payload_seed.get("groups"), dict) else {}
+        text = build_tara_groups_text(payload["groups"], filters=filters, user_id=user_id)
+    else:
+        raise ValueError("Unknown tara filter payload mode")
+
+    _TARA_FILTER_VIEW_CACHE[token] = payload
     kb = _tara_filter_kb(token, filters)
     chunks = _split_long_text(text)
     chunk_ids: List[int] = []
@@ -1336,32 +1356,18 @@ async def _send_tara_group_with_filters(chat: Message, base_name: str, entries: 
         chunk_ids.append(int(getattr(sent, "message_id", 0) or 0))
     _TARA_FILTER_VIEW_CACHE[token]["chunk_message_ids"] = [x for x in chunk_ids if x]
     _TARA_FILTER_VIEW_CACHE[token]["chat_id"] = int(getattr(getattr(chat, "chat", None), "id", 0) or 0)
-
+    return token
 
 async def _send_tara_groups_with_filters(chat: Message, groups: Dict[str, List[Dict[str, Any]]]) -> None:
-    token = uuid4().hex[:12]
     user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
-    filters = _tara_default_filters()
-    _TARA_FILTER_VIEW_CACHE[token] = {
-        "mode": "groups",
-        "groups": groups,
-        "filters": filters,
-        "user_id": user_id,
-    }
-    text = build_tara_groups_text(groups, filters=filters, user_id=user_id)
-    kb = _tara_filter_kb(token, filters)
-    chunks = _split_long_text(text)
-    chunk_ids: List[int] = []
-    for idx, chunk in enumerate(chunks):
-        is_last = idx == (len(chunks) - 1)
-        sent = await chat.answer(
-            chunk,
-            disable_web_page_preview=True,
-            reply_markup=kb if is_last else None,
-        )
-        chunk_ids.append(int(getattr(sent, "message_id", 0) or 0))
-    _TARA_FILTER_VIEW_CACHE[token]["chunk_message_ids"] = [x for x in chunk_ids if x]
-    _TARA_FILTER_VIEW_CACHE[token]["chat_id"] = int(getattr(getattr(chat, "chat", None), "id", 0) or 0)
+    await _tara_send_filter_view(
+        chat=chat,
+        payload_seed={
+            "mode": "groups",
+            "groups": groups,
+        },
+        user_id=user_id,
+    )
 
 def parse_date(d: Optional[str]) -> Optional[date]:
     if not d:
@@ -6435,7 +6441,26 @@ async def cb_tara_filter_toggle(cq: CallbackQuery):
     actor_user_id = int(getattr(cq.from_user, "id", 0) or 0)
     owner_user_id = int(payload.get("user_id") or 0)
     if owner_user_id and owner_user_id != actor_user_id:
-        await cq.answer("Этот фильтр открыт другим пользователем.", show_alert=True)
+        mode = str(payload.get("mode") or "single")
+        clone_seed: Dict[str, Any]
+        if mode == "groups":
+            clone_seed = {
+                "mode": "groups",
+                "groups": payload.get("groups") if isinstance(payload.get("groups"), dict) else {},
+            }
+        else:
+            clone_seed = {
+                "mode": "single",
+                "base_name": str(payload.get("base_name") or "").strip(),
+                "entries": payload.get("entries") if isinstance(payload.get("entries"), list) else [],
+            }
+        if (clone_seed["mode"] == "single" and (not clone_seed.get("base_name") or not clone_seed.get("entries"))) or (
+                clone_seed["mode"] == "groups" and not clone_seed.get("groups")
+        ):
+            await cq.answer("Фильтр устарел. Запустите поиск заново.", show_alert=True)
+            return
+        await _tara_send_filter_view(cq.message, clone_seed, user_id=actor_user_id)
+        await cq.answer("Открыт ваш личный фильтр ниже.")
         return
     mode = str(payload.get("mode") or "single")
     base_name = str(payload.get("base_name") or "").strip()
