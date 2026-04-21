@@ -68,7 +68,11 @@ from services.media_service import MediaService
 from services.news_service import NewsService
 from services.permissions_service import extend_access_matrix
 from services.identity_matcher import IdentityMatcher
-from services.tara_service.tara_api import get_tara_client_report
+from services.tara_service.tara_api import (
+    get_tara_client_report,
+    get_tara_update_status,
+    refresh_tara_report_manual,
+)
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
@@ -2678,9 +2682,29 @@ def update_menu_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📒 Дебиторка", callback_data="upd:debt")],
         [InlineKeyboardButton(text="📦 Тара",       callback_data="upd:tara")],
+        [InlineKeyboardButton(text="🔄 синх. с базой", callback_data="upd:tara:sync")],
         [InlineKeyboardButton(text="⬅️ Назад",     callback_data="menu:back")],
     ])
 
+def _tara_last_update_text() -> str:
+    try:
+        status = get_tara_update_status() or {}
+        raw = status.get("last_processed_at")
+        if not raw:
+            return "не обновлялась"
+        dt = datetime.fromisoformat(str(raw))
+        return fmt_dt_local(dt)
+    except Exception:
+        return "неизвестно"
+
+
+def _sync_tara_parsed_report() -> Tuple[bool, str]:
+    try:
+        refresh_tara_report_manual()
+        return True, f"✅ tara_parsed.json синхронизирован ({_tara_last_update_text()})"
+    except Exception as e:
+        logger.exception("Tara parsed sync failed")
+        return False, f"❌ Синхронизация тары не выполнена: {e}"
 
 #график развоза
 def _ensure_parent(p: Path):
@@ -6294,7 +6318,10 @@ async def _do_mail_refresh(m: Message):
 async def btn_refresh(m: Message):
     if not await ensure_message_access(m, "updates.mail"):
         return
-    await m.answer("Что обновить?", reply_markup=update_menu_kb())
+    await m.answer(
+        f"Что обновить?\n\n📦 Тара: последнее обновление {esc(_tara_last_update_text())}",
+        reply_markup=update_menu_kb(),
+    )
 
 @router.message(F.text == "🛠 Техники")
 async def technicians_menu(m: Message):
@@ -8889,8 +8916,14 @@ async def _refresh_and_reply_cb(cq: CallbackQuery, mail_type: str):
         path = fetch_latest_file(mail_type)  # 'ДЕБИТОРКА' или 'ТАРА'
         if path:
             set_last_update("manual")
+            sync_text = ""
+            if mail_type == "ТАРА":
+                _, sync_text = _sync_tara_parsed_report()
             kb = menu_for_callback(cq)
-            await cq.message.answer(f"Готово.", reply_markup=kb)
+            msg = "Готово."
+            if sync_text:
+                msg = f"{msg}\n{sync_text}"
+            await cq.message.answer(msg, reply_markup=kb)
             #await cq.message.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=kb)
         else:
             kb = menu_for_callback(cq)
@@ -8910,7 +8943,11 @@ async def cmd_refresh_tara(m: Message):
         path = fetch_latest_file("ТАРА")
         if path:
             set_last_update("manual")
-            await m.answer(f"Готово. Файл: <code>{esc(path)}</code>", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+            _, sync_text = _sync_tara_parsed_report()
+            await m.answer(
+                f"Готово. Файл: <code>{esc(path)}</code>\n{sync_text}",
+                reply_markup=main_menu_kb(getattr(m.from_user, "id", None)),
+            )
         else:
             await m.answer("Письмо не найдено или подходящих вложений нет.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     except Exception as e:
@@ -8924,6 +8961,16 @@ async def cb_upd_debt(cq: CallbackQuery):
 @router.callback_query(F.data == "upd:tara")
 async def cb_upd_tara(cq: CallbackQuery):
     await _refresh_and_reply_cb(cq, "ТАРА")
+
+@router.callback_query(F.data == "upd:tara:sync")
+async def cb_upd_tara_sync(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "updates.mail"):
+        return
+    await cq.message.edit_text("Синхронизирую тару…")
+    ok, msg = _sync_tara_parsed_report()
+    kb = menu_for_callback(cq)
+    await cq.message.answer(msg if ok else f"⚠️ {msg}", reply_markup=kb)
+    await cq.answer()
 
 #-------Коллбэки — навигация/сброс/изменение (с логами и try/except)
 #-------Фильтры -----------------------

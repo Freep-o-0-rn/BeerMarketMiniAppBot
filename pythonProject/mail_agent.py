@@ -151,6 +151,13 @@ def fetch_latest_file(mail_type: str = "ДЕБИТОРКА") -> Optional[str]:
             fn_dec, _, payload = matched_attachments[0]
             path = _safe_write(os.path.join(SAVE_PATH, fn_dec), payload)
             logging.info("Скачан файл: %s", path)
+            if mail_type == "ТАРА":
+                try:
+                    from services.tara_service.tara_api import refresh_tara_report_manual
+                    refresh_tara_report_manual()
+                    logging.info("Синхронизация tara_parsed.json выполнена после загрузки файла тары.")
+                except Exception as e:
+                    logging.exception("Не удалось синхронизировать tara_parsed.json после загрузки тары: %s", e)
             return path
 
         logging.warning("Подходящих вложений не найдено.")
