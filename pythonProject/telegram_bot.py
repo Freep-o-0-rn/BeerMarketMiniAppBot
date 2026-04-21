@@ -98,6 +98,7 @@ TARA_GROUP_FRIENDLY_NAMES = {
 logger = logging.getLogger(__name__)
 _TARA_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 _TARA_SEARCH_GROUP_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
+_TARA_FILTER_VIEW_CACHE: Dict[str, Dict[str, Any]] = {}
 _TARA_VIEW_CACHE: Dict[str, Dict[str, Any]] = {}
 _DEBT_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 
@@ -1207,6 +1208,18 @@ def _tara_apply_filters(items: List[Tuple[str, float]], filters: Dict[str, bool]
         out.append((name, qty))
     return out
 
+def _tara_default_filters() -> Dict[str, bool]:
+    return {str(group_id): True for group_id in get_tara_groups().keys()}
+
+
+def _tara_normalize_filters(filters: Optional[Dict[str, bool]]) -> Dict[str, bool]:
+    normalized = _tara_default_filters()
+    if not isinstance(filters, dict):
+        return normalized
+    for group_id in list(normalized.keys()):
+        if group_id in filters:
+            normalized[group_id] = bool(filters.get(group_id))
+    return normalized
 
 def _tara_filter_kb(token: str, filters: Dict[str, bool]) -> InlineKeyboardMarkup:
     def mark(v: bool) -> str:
@@ -1232,26 +1245,42 @@ def _tara_filter_kb(token: str, filters: Dict[str, bool]) -> InlineKeyboardMarku
     ])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def build_tara_group_text(base_name: str, entries: list) -> str:
+def build_tara_group_text(base_name: str, entries: list, filters: Optional[Dict[str, bool]] = None) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
-    total_all = sum(float(e.get("total", 0) or 0) for e in entries)
+    normalized_filters = _tara_normalize_filters(filters)
 
     def _key_addr(e):
         a = _tara_client_parts(e).get("address", "")
         return a.casefold().replace("ё", "е")
 
     entries_sorted = sorted(entries, key=_key_addr)
+    total_all = 0.0
+    prepared_entries: List[Dict[str, Any]] = []
+    for entry in entries_sorted:
+        entry_items = entry.get("items") or []
+        filtered_items = _tara_apply_filters(entry_items, normalized_filters)
+        filtered_total = sum(float(qty or 0.0) for _, qty in filtered_items)
+        total_all += filtered_total
+        prepared_entries.append(
+            {
+                "entry": entry,
+                "items": filtered_items,
+                "total": filtered_total,
+            }
+        )
 
     lines = [f"<b>{esc(base_name)}</b> — всего: {fmt_qty_units(total_all)}"]
-    for e in entries_sorted:
+    for prepared in prepared_entries:
+        e = prepared["entry"]
         addr = _tara_client_parts(e).get("address", "")
-        entry_items = e.get("items") or []
+        entry_items = prepared["items"]
+        entry_total = prepared["total"]
         if addr:
-            lines.append(f"• <b>({esc(addr)})</b> — {fmt_qty_units(e.get('total', 0))}")
+            lines.append(f"• <b>({esc(addr)})</b> — {fmt_qty_units(entry_total)}")
             prefix = "    — "
         else:
             prefix = "— "
-        if not entry_items and abs(float(e.get("total", 0) or 0.0)) < 1e-9:
+        if not entry_items and abs(float(entry_total or 0.0)) < 1e-9:
             lines.append(f"{prefix}оборудования нет")
             continue
         for name, qty in entry_items:
@@ -1262,6 +1291,25 @@ def build_tara_group_text(base_name: str, entries: list) -> str:
 def esc(s: Optional[str]) -> str:
     s = s or ""
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+async def _send_tara_group_with_filters(chat: Message, base_name: str, entries: List[Dict[str, Any]]) -> None:
+    token = uuid4().hex[:12]
+    filters = _tara_default_filters()
+    _TARA_FILTER_VIEW_CACHE[token] = {
+        "base_name": base_name,
+        "entries": entries,
+        "filters": filters,
+    }
+    text = build_tara_group_text(base_name, entries, filters=filters)
+    if len(text) > MAX_TG:
+        _TARA_FILTER_VIEW_CACHE.pop(token, None)
+        await send_long(chat, text)
+        return
+    await chat.answer(
+        text,
+        disable_web_page_preview=True,
+        reply_markup=_tara_filter_kb(token, filters),
+    )
 
 def parse_date(d: Optional[str]) -> Optional[date]:
     if not d:
@@ -6103,8 +6151,7 @@ async def render_tara_search(chat: Message, keywords: List[str]):
             return
 
     for base in sorted(groups.keys(), key=lambda k: (k or "").casefold().replace("ё", "е")):
-        text = build_tara_group_text(base, groups[base])
-        await send_long(chat, text)
+        await _send_tara_group_with_filters(chat, base, groups[base])
 
 @router.callback_query(F.data.startswith("tara:pick:"))
 async def cb_tara_pick_address(cq: CallbackQuery):
@@ -6128,7 +6175,7 @@ async def cb_tara_pick_address(cq: CallbackQuery):
         await cq.answer("Адрес не найден.", show_alert=True)
         return
     await cq.answer()
-    await send_long(cq.message, build_tara_group_text(base, [entries[idx]]))
+    await _send_tara_group_with_filters(cq.message, base, [entries[idx]])
 
 
 @router.callback_query(F.data.startswith("tara:pickall:"))
@@ -6141,7 +6188,7 @@ async def cb_tara_pick_all(cq: CallbackQuery):
         await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
         return
     await cq.answer()
-    await send_long(cq.message, build_tara_group_text(base, entries))
+    await _send_tara_group_with_filters(cq.message, base, entries)
 
 @router.callback_query(F.data.startswith("tara:gpick:"))
 async def cb_tara_pick_group(cq: CallbackQuery):
@@ -6176,7 +6223,7 @@ async def cb_tara_pick_group(cq: CallbackQuery):
             disable_web_page_preview=True,
         )
         return
-    await send_long(cq.message, build_tara_group_text(base, entries))
+    await _send_tara_group_with_filters(cq.message, base, entries)
 
 
 @router.callback_query(F.data.startswith("tara:gpickall:"))
@@ -6189,7 +6236,51 @@ async def cb_tara_pick_group_all(cq: CallbackQuery):
         return
     await cq.answer()
     for base, entries in sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е")):
-        await send_long(cq.message, build_tara_group_text(base, entries))
+        await _send_tara_group_with_filters(cq.message, base, entries)
+
+@router.callback_query(F.data.startswith("tara:flt:"))
+async def cb_tara_filter_toggle(cq: CallbackQuery):
+    parts = (cq.data or "").split(":")
+    if len(parts) != 4:
+        await cq.answer("Некорректный фильтр.", show_alert=True)
+        return
+    _, _, token, group_id = parts
+    payload = _TARA_FILTER_VIEW_CACHE.get(token) or {}
+    base_name = str(payload.get("base_name") or "").strip()
+    entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
+    filters = _tara_normalize_filters(payload.get("filters"))
+    if not base_name or not entries:
+        await cq.answer("Фильтр устарел. Запустите поиск заново.", show_alert=True)
+        return
+
+    if group_id == "all":
+        for key in filters.keys():
+            filters[key] = True
+    elif group_id == "none":
+        for key in filters.keys():
+            filters[key] = False
+    elif group_id in filters:
+        filters[group_id] = not filters[group_id]
+    else:
+        await cq.answer("Неизвестная группа фильтра.", show_alert=True)
+        return
+
+    payload["filters"] = filters
+    _TARA_FILTER_VIEW_CACHE[token] = payload
+    text = build_tara_group_text(base_name, entries, filters=filters)
+    kb = _tara_filter_kb(token, filters)
+    try:
+        await cq.message.edit_text(text, disable_web_page_preview=True, reply_markup=kb)
+    except TelegramBadRequest as e:
+        err_text = str(e).lower()
+        if "message is not modified" in err_text:
+            await cq.answer("Фильтр не изменился.")
+            return
+        if "message is too long" in err_text:
+            await cq.answer("Слишком длинный отчёт для интерактивного фильтра.", show_alert=True)
+            return
+        raise
+    await cq.answer()
 
 @router.message(F.text == "🔎 Поиск тары")
 async def btn_search_tara(m: Message, state: FSMContext):
