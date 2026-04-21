@@ -94,14 +94,38 @@ def get_tara_update_status() -> dict:
 def refresh_tara_report_manual() -> dict:
     create_tara_scheduler = None
     process_tara_refresh = None
+    scheduler_ref_getter = None
+    import_error = None
     try:
-        from .tara_auto_update import create_tara_scheduler, process_tara_refresh
-    except Exception:
-        from tara_auto_update import create_tara_scheduler, process_tara_refresh
-    scheduler = create_tara_scheduler()
-    process_tara_refresh(scheduler, "manual_api_run")
-    scheduler.shutdown()
+        from . import tara_auto_update as _tara_auto_update
+        create_tara_scheduler = _tara_auto_update.create_tara_scheduler
+        process_tara_refresh = _tara_auto_update.process_tara_refresh
+        scheduler_ref_getter = lambda: _tara_auto_update._scheduler_ref
+    except Exception as e:
+        import_error = e
+        try:
+            import tara_auto_update as _tara_auto_update
+            create_tara_scheduler = _tara_auto_update.create_tara_scheduler
+            process_tara_refresh = _tara_auto_update.process_tara_refresh
+            scheduler_ref_getter = lambda: _tara_auto_update._scheduler_ref
+        except Exception:
+            raise import_error
 
+    scheduler = scheduler_ref_getter()
+    should_shutdown = False
+
+    if scheduler is None:
+        scheduler = create_tara_scheduler()
+        should_shutdown = True
+
+    process_tara_refresh(scheduler, "manual_api_run")
+
+    if should_shutdown:
+        # В ручном режиме scheduler может быть не запущен.
+        # Не вызываем shutdown() для остановленного экземпляра:
+        # APScheduler в этом случае поднимает "Scheduler is not running".
+        if getattr(scheduler, "running", False):
+            scheduler.shutdown(wait=False)
     return {
         "ok": True,
         "message": "Ручное обновление тары выполнено"
