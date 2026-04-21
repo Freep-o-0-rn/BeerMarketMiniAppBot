@@ -1248,6 +1248,7 @@ def _tara_filter_kb(token: str, filters: Dict[str, bool]) -> InlineKeyboardMarku
 def build_tara_group_text(base_name: str, entries: list, filters: Optional[Dict[str, bool]] = None) -> str:
     """Форматирование блока по одному клиенту с адресами и позициями."""
     normalized_filters = _tara_normalize_filters(filters)
+    merge_kegs = get_merge_kegs_50l_type_s()
 
     def _key_addr(e):
         a = _tara_client_parts(e).get("address", "")
@@ -1257,7 +1258,7 @@ def build_tara_group_text(base_name: str, entries: list, filters: Optional[Dict[
     total_all = 0.0
     prepared_entries: List[Dict[str, Any]] = []
     for entry in entries_sorted:
-        entry_items = entry.get("items") or []
+        entry_items = _tara_merge_alias_items(entry.get("items") or [], enabled=merge_kegs)
         filtered_items = _tara_apply_filters(entry_items, normalized_filters)
         filtered_total = sum(float(qty or 0.0) for _, qty in filtered_items)
         total_all += filtered_total
@@ -1376,7 +1377,7 @@ def help_text_admin(first_name: Optional[str], registered_name: Optional[str] = 
         "• 📦 <b>Проверить ТТН</b> — проверка статуса фактуры в ЕГАИС\n"
         "• 🔄 <b>Обновить</b> — скачать свежие файлы из почты\n"
         "• ⚙️ <b>Отсрочки</b> — персональные сроки для клиентов\n"
-        "• ⚙️ <b>Фильтры</b> — <i>Порог долга</i> и <i>Мин. дней просрочки</i>\n\n"
+        "• 🎛️ <b>Фильтры</b> — <i>Порог долга</i>, <i>Мин. дней просрочки</i> и объединение бочек 50л S\n\n"
         "🎨 <b>Легенда цветов по строкам</b>:\n"
         "• 🟢 младше персональной отсрочки\n"
         "• 🟡 просрочка 1-6 дней\n"
@@ -2291,6 +2292,7 @@ FILTERS_PATH = os.getenv("FILTERS_PATH", MIN_DEBT_JSON)
 DEFAULT_FILTERS = {
     "min_debt": 999.0,
     "min_overdue_days": 20,  # новый порог по дням для отчёта «Просрочка»
+    "merge_kegs_50l_type_s": False,  # суммировать «Бочка 50л S RU» + «Бочка 50л тип S»
 }
 
 def load_filters() -> dict:
@@ -2336,6 +2338,42 @@ def set_min_overdue_days(n: int) -> None:
     FILTERS["min_overdue_days"] = int(max(0, n))
     save_filters(FILTERS)
 
+def get_merge_kegs_50l_type_s() -> bool:
+    try:
+        return bool(FILTERS.get("merge_kegs_50l_type_s", DEFAULT_FILTERS["merge_kegs_50l_type_s"]))
+    except Exception:
+        return bool(DEFAULT_FILTERS["merge_kegs_50l_type_s"])
+
+
+def set_merge_kegs_50l_type_s(enabled: bool) -> None:
+    FILTERS["merge_kegs_50l_type_s"] = bool(enabled)
+    save_filters(FILTERS)
+
+
+def _tara_item_key(name: Any) -> str:
+    raw = str(name or "").strip().casefold().replace("ё", "е")
+    return re.sub(r"\s+", " ", raw)
+
+
+_TARA_MERGE_ALIASES = {
+    _tara_item_key("Бочка 50л S RU"): "Бочка 50л тип S",
+    _tara_item_key("Бочка 50л тип S"): "Бочка 50л тип S",
+}
+
+
+def _tara_merge_alias_items(items: List[Tuple[str, float]], *, enabled: bool) -> List[Tuple[str, float]]:
+    if not enabled:
+        return list(items)
+    merged: Dict[str, float] = {}
+    order: List[str] = []
+    for name, qty in items:
+        key = _tara_item_key(name)
+        display_name = _TARA_MERGE_ALIASES.get(key, name)
+        if display_name not in merged:
+            merged[display_name] = 0.0
+            order.append(display_name)
+        merged[display_name] += float(qty or 0.0)
+    return [(name, merged[name]) for name in order if abs(merged[name]) > 1e-9]
 
 # --- Pages for "Фильтры отображения" (inline) ---
 FILTER_PAGES = [
@@ -2363,6 +2401,21 @@ FILTER_PAGES = [
         "validate": lambda v: (0 <= v <= 365, "Целое 0..365"),
         "fmt": lambda v: f"{int(v)} дн.",
     },
+    {
+        "key": "merge_kegs_50l_type_s",
+        "title": "Суммировать Бочка 50л S RU",
+        "units": "Да / Нет",
+        "desc": (
+            "Да: позиции «Бочка 50л S RU» и «Бочка 50л тип S» суммируются "
+            "в одну строку «Бочка 50л тип S»."
+        ),
+        "get": get_merge_kegs_50l_type_s,
+        "set": set_merge_kegs_50l_type_s,
+        "default": DEFAULT_FILTERS["merge_kegs_50l_type_s"],
+        "parse": lambda s: str(s or "").strip().casefold() in {"1", "да", "yes", "true", "on", "вкл"},
+        "validate": lambda v: (isinstance(v, bool), "Используйте Да или Нет"),
+        "fmt": lambda v: "Да" if bool(v) else "Нет",
+    },
 ]
 
 def _filters_page_text(idx: int) -> str:
@@ -2380,12 +2433,26 @@ def _filters_page_kb(idx: int) -> InlineKeyboardMarkup:
     total = len(FILTER_PAGES)
     prev_idx = (idx - 1) % total
     next_idx = (idx + 1) % total
-    return InlineKeyboardMarkup(inline_keyboard=[
+    page = FILTER_PAGES[idx]
+    rows = [
         [InlineKeyboardButton(text="✏️ Изменить", callback_data=f"flt:chg:{idx}"),
          InlineKeyboardButton(text="↩️ Сброс",   callback_data=f"flt:reset:{idx}")],
         [InlineKeyboardButton(text="⬅️ Назад",   callback_data=f"flt:nav:{prev_idx}"),
          InlineKeyboardButton(text="Вперёд ➡️",  callback_data=f"flt:nav:{next_idx}")],
-    ])
+    ]
+    if page.get("key") == "merge_kegs_50l_type_s":
+        current = bool(page["get"]())
+        rows.insert(1, [
+            InlineKeyboardButton(
+                text=f"{'✅ ' if current else ''}Да",
+                callback_data=f"flt:bool:{idx}:1",
+            ),
+            InlineKeyboardButton(
+                text=f"{'✅ ' if not current else ''}Нет",
+                callback_data=f"flt:bool:{idx}:0",
+            ),
+        ])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 async def _filters_safe_edit(msg, text: str, reply_markup):
@@ -2692,7 +2759,7 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if user_allows_action(user_id, "settings.overdue"):
         settings_row.append(KeyboardButton(text="⚙️ Отсрочки"))
     if user_allows_action(user_id, "settings.filters"):
-        settings_row.append(KeyboardButton(text="⚙️ Фильтры"))
+        settings_row.append(KeyboardButton(text="🎛️ Фильтры"))
     if user_allows_action(user_id, "settings.tara_rules"):
         settings_row.append(KeyboardButton(text="⚙️ Управление правилами тары"))
     _append_button_row_if_any(keyboard, settings_row)
@@ -3100,7 +3167,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("users.manage", "👥 Пользователи (управление)"),
     ("notifications.manage", "🔔 Уведомления"),
     ("settings.overdue", "⚙️ Отсрочки"),
-    ("settings.filters", "⚙️ Фильтры"),
+    ("settings.filters", "🎛️ Фильтры"),
     ("settings.tara_rules", "⚙️ Управление правилами тары"),
 ]
 MANAGED_ACTIONS_BY_TOKEN: Dict[str, str] = {str(i): action for i, (action, _) in enumerate(MANAGED_ACTIONS)}
@@ -4862,7 +4929,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
     if not filtered:
         last_dt, last_kind = get_last_update()
         last_line = f"\n<i>Последнее обновление: {fmt_dt_local(last_dt)}{(' ('+last_kind+')') if last_kind else ''}</i>"
-        await chat.answer("Ничего не найдено.\nПроверьте фильтры (⚙️ Фильтры) и ключевые слова" + last_line, reply_markup=menu_kb)
+        await chat.answer("Ничего не найдено.\nПроверьте фильтры (🎛️ Фильтры и ключевые слова" + last_line, reply_markup=menu_kb)
         return
 
     chips = []
@@ -8043,7 +8110,7 @@ async def btn_overdue_menu(m: Message):
         return
     await m.answer("Меню отсрочек:", reply_markup=overdue_menu_kb())
 
-@router.message(F.text.in_({"⚙️ Фильтры", "⚙️ Фильтры отображения"}))
+@router.message(F.text.in_({"🎛️ Фильтры", "⚙️ Фильтры", "⚙️ Фильтры отображения"}))
 async def filters_entry(m: Message, state: FSMContext):
     if not await ensure_message_access(m, "settings.filters", state=state):
         return
@@ -9217,13 +9284,18 @@ async def flt_change_start(cq: CallbackQuery, state: FSMContext):
         page = FILTER_PAGES[idx]
         await state.update_data(flt_idx=idx)
         await state.set_state(FilterStates.wait_value)
-        await _filters_safe_edit(
-            cq.message,
+        prompt = (
             f"<b>{page['title']}</b>\n"
             f"Текущее значение: <code>{page['fmt'](page['get']())}</code>\n\n"
-            f"Введите новое значение ({page['units']}).",
-            _filters_page_kb(idx)
+            f"Введите новое значение ({page['units']})."
         )
+        if page.get("key") == "merge_kegs_50l_type_s":
+            prompt = (
+                f"<b>{page['title']}</b>\n"
+                f"Текущее значение: <code>{page['fmt'](page['get']())}</code>\n\n"
+                "Введите <b>Да</b> или <b>Нет</b>, либо используйте кнопки ниже."
+            )
+        await _filters_safe_edit(cq.message, prompt, _filters_page_kb(idx))
         await cq.answer()
     except Exception as e:
         logger.exception("filters: CHG failed")
@@ -9249,6 +9321,23 @@ async def flt_change_apply(m: Message, state: FSMContext):
         logger.exception("filters: APPLY failed")
         await m.answer(f"Некорректно: <code>{esc(raw)}</code>. {e}")
 
+@router.callback_query(F.data.startswith("flt:bool:"))
+async def flt_bool_set(cq: CallbackQuery, state: FSMContext):
+    try:
+        await state.clear()
+        _, _, raw_idx, raw_value = cq.data.split(":", 3)
+        idx = int(raw_idx)
+        value = raw_value == "1"
+        page = FILTER_PAGES[idx]
+        if page.get("key") != "merge_kegs_50l_type_s":
+            await cq.answer("Переключатель недоступен.", show_alert=False)
+            return
+        page["set"](value)
+        await _filters_safe_edit(cq.message, _filters_page_text(idx), _filters_page_kb(idx))
+        await cq.answer("Сохранено.")
+    except Exception as e:
+        logger.exception("filters: BOOL failed")
+        await cq.answer(f"Ошибка переключателя: {type(e).__name__}", show_alert=False)
 
 
 # --- Настройки (/settings только админам) ---
