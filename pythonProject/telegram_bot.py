@@ -68,6 +68,7 @@ from services.media_service import MediaService
 from services.news_service import NewsService
 from services.permissions_service import extend_access_matrix
 from services.identity_matcher import IdentityMatcher
+from services.tara_service.tara_api import get_tara_client_report
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
@@ -5867,133 +5868,103 @@ async def render_tara_search(chat: Message, keywords: List[str]):
     user_id = int(getattr(getattr(chat, "from_user", None), "id", 0) or 0)
     role = get_user_role(user_id)
     kb = menu_for_role(role, user_id)
-    paths = find_latest_downloads(report_type="tara", max_count=5)
-    if not paths:
-        await chat.answer(
-            "Файл по таре не найден. Обновите: 🔄 Обновить → Тара или /refresh tara",
-            reply_markup=kb
-        )
+    kws = [_norm_text_key(k) for k in (keywords or []) if _norm_text_key(k)]
+    if not kws:
+        await chat.answer("Пустой запрос. Укажите имя клиента или адрес.", reply_markup=kb)
         return
 
-    last_err = None
-    for path in paths:
-        try:
-            res = process_tara_cached(path)
-            items = (res or {}).get("items") or []
-            if items is None:
-                items = []
-            items = [_tara_item_with_resolved_client(it) for it in items]
-            report_date = (res or {}).get("report_date")
+    # В API поиск идёт по одной подстроке full client line.
+    # Для многословного запроса берём первый токен как «широкий» фильтр,
+    # а затем довыбираем локально по всем токенам (поведение близко к старому поиску).
+    primary_query = kws[0]
 
-            kws = [k for k in (keywords or []) if k]
-            def _haystack(b: dict) -> str:
-                parts = _tara_client_parts(b)
-                name = _norm_text_key(parts.get("client_name") or "")
-                addr = _norm_text_key(parts.get("address") or "")
-                registrator = _norm_text_key(str(b.get("registrator_text") or ""))
-                # В поиске тары не ищем клиентов по полю торгового.
-                return f"{name} {addr} {registrator}".strip()
+    try:
+        api_result = get_tara_client_report(primary_query)
+    except FileNotFoundError:
+        await chat.answer(
+            "Данные по таре ещё не подготовлены. Сначала выполните обновление отчёта из почты: 🔄 Обновить → Тара или /refresh tara",
+            reply_markup=kb,
+        )
+        return
+    except Exception:
+        logger.exception("Tara API search failed")
+        await chat.answer("Ошибка поиска по таре. Попробуйте позже.", reply_markup=kb)
+        return
 
-            def _classify_keyword(k: str) -> str:
-                token = _norm_text_key(k)
-                if not token:
-                    return "surname"
-                if re.fullmatch(r"[а-яёa-z]+", token):
-                    return "surname"
-                if re.fullmatch(r"[а-яёa-z]+ [а-яёa-z]+ [а-яёa-z]+", token):
-                    return "fio_full"
-                if re.fullmatch(r"[а-яёa-z]+ [а-яёa-z]\\.? ?[а-яёa-z]\\.?", token):
-                    return "fio_initials"
-                return "address"
+    clients = (api_result or {}).get("clients") or []
+    if kws:
+        clients = [
+            c for c in clients
+            if all(token in _norm_text_key(str(c.get("client") or "")) for token in kws)
+        ]
 
-            def _match_score(b: dict) -> int:
-                if not kws:
-                    return 0
-                parts = _tara_client_parts(b)
-                name = _norm_text_key(parts.get("client_name") or "")
-                addr = _norm_text_key(parts.get("address") or "")
-                score = 0
-                for k in kws:
-                    kind = _classify_keyword(k)
-                    if kind == "fio_full":
-                        if k in name:
-                            score += 14
-                    elif kind == "fio_initials":
-                        if k in name:
-                            score += 10
-                    elif kind == "surname":
-                        if k in name:
-                            score += 7
-                    else:
-                        if k in addr:
-                            score += 5
-                return score
+    items: List[Dict[str, Any]] = []
+    for client in clients:
+        client_label = str(client.get("client") or "").strip()
+        tara_items = client.get("tara_items") or []
+        entries = [
+            {
+                "client": client_label,
+                "total": float(client.get("tara_sum", 0.0) or 0.0),
+                "items": [
+                    (str(item.get("name") or ""), float(item.get("total", 0.0) or 0.0))
+                    for item in tara_items
+                ],
+            }
+        ]
+        items.extend(entries)
 
-            filtered = [b for b in items if kws and all(k in _haystack(b) for k in kws)]
-            if not filtered and kws:
-                scored = [(b, _match_score(b)) for b in items]
-                filtered.sort(key=lambda b: _match_score(b), reverse=True)
-            if role == "sales_rep":
-                filtered = [b for b in filtered if _is_sales_rep_tara_item_visible_for_user(b, user_id)]
-            if filtered:
-                chips = []
-                if kws:
-                    chips.append("ключи: " + ", ".join(f"«{esc(k)}»" for k in kws))
-                title_suffix = (" (" + "; ".join(chips) + ")") if chips else ""
 
-                last_dt, last_kind = get_last_update()
-                last_line = f"\n<i>Последнее обновление: {fmt_dt_local(last_dt)}{(' ('+last_kind+')') if last_kind else ''}</i>"
+    items = [_tara_item_with_resolved_client(it) for it in items]
+    if role == "sales_rep":
+        items = [it for it in items if _is_sales_rep_tara_item_visible_for_user(it, user_id)]
 
-                await chat.answer(
-                    f"<b>Поиск по возвратной таре</b>{(' на ' + esc(report_date)) if report_date else ''}{title_suffix}\n"
-                    f"Источник: <code>{esc(os.path.basename(path))}</code>\n"
-                    f"Клиентов: {len(filtered)}{last_line}",
-                    disable_web_page_preview=True,
-                    reply_markup=kb
-                )
-                groups = {}
-                for b in filtered:
-                    base = _tara_base_name(b)
-                    groups.setdefault(base, []).append(b)
-                if len(groups) > 3:
-                    token = uuid4().hex[:12]
-                    _TARA_SEARCH_GROUP_PICK_CACHE[token] = {"groups": groups}
-                    await chat.answer(
-                        f"Найдено клиентов: <b>{len(groups)}</b>.\n"
-                        "Выберите клиента или покажите всех:",
-                        reply_markup=_tara_group_pick_kb(token, groups),
-                        disable_web_page_preview=True,
-                    )
-                    return
-                if len(groups) == 1:
-                    base = next(iter(groups.keys()))
-                    entries = groups.get(base, [])
-                    if len(entries) > 3:
-                        token = uuid4().hex[:12]
-                        _TARA_SEARCH_PICK_CACHE[token] = {"base": base, "entries": entries}
-                        await chat.answer(
-                            f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
-                            "Выберите адрес или покажите все:",
-                            reply_markup=_tara_pick_kb(token, base, entries),
-                            disable_web_page_preview=True,
-                        )
-                        return
+    if not items:
+        await chat.answer("Ничего не найдено по заданным ключам.", reply_markup=kb)
+        return
 
-                for base in sorted(groups.keys(), key=lambda k: (k or '').casefold().replace('ё','е')):
-                    text = build_tara_group_text(base, groups[base])
-                    await send_long(chat, text)
-                return
+    chips = "ключи: " + ", ".join(f"«{esc(k)}»" for k in kws) if kws else ""
+    title_suffix = f" ({chips})" if chips else ""
 
-            # если в этом файле нет совпадений — пробуем следующий
-            continue
-        except PermissionError:
-            last_err = "Файл занят другим процессом (Excel открыт?)"
-            continue
-        except Exception as e:
-            last_err = str(e)
-            continue
+    await chat.answer(
+        f"<b>Поиск по возвратной таре</b>{title_suffix}\n"
+        f"Источник: <code>tara_parsed.json</code>\n"
+        f"Клиентов: {len(items)}",
+        disable_web_page_preview=True,
+        reply_markup=kb,
+    )
 
-    await chat.answer("Ничего не найдено по заданным ключам.", reply_markup=kb)
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for b in items:
+        base = _tara_base_name(b)
+        groups.setdefault(base, []).append(b)
+    if len(groups) > 3:
+        token = uuid4().hex[:12]
+        _TARA_SEARCH_GROUP_PICK_CACHE[token] = {"groups": groups}
+        await chat.answer(
+            f"Найдено клиентов: <b>{len(groups)}</b>.\n"
+            "Выберите клиента или покажите всех:",
+            reply_markup=_tara_group_pick_kb(token, groups),
+            disable_web_page_preview=True,
+        )
+        return
+    if len(groups) == 1:
+        base = next(iter(groups.keys()))
+        entries = groups.get(base, [])
+        if len(entries) > 3:
+            token = uuid4().hex[:12]
+            _TARA_SEARCH_PICK_CACHE[token] = {"base": base, "entries": entries}
+            await chat.answer(
+                f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
+                "Выберите адрес или покажите все:",
+                reply_markup=_tara_pick_kb(token, base, entries),
+                disable_web_page_preview=True,
+            )
+            return
+
+    for base in sorted(groups.keys(), key=lambda k: (k or "").casefold().replace("ё", "е")):
+        text = build_tara_group_text(base, groups[base])
+        await send_long(chat, text)
 
 @router.callback_query(F.data.startswith("tara:pick:"))
 async def cb_tara_pick_address(cq: CallbackQuery):

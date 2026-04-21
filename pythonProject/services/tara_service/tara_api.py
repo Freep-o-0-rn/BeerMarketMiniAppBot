@@ -1,18 +1,34 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
-from parse_tara_report import (
-    DEFAULT_PARSED_PATH,
-    DEFAULT_RULES_PATH,
-    load_rules,
-    build_client_balance_view,
-    find_clients,
-)
-from tara_auto_update import (
-    create_tara_scheduler,
-    process_tara_refresh,
-    load_update_state,
-)
+try:
+    from .parse_tara_report import (
+        DEFAULT_PARSED_PATH,
+        DEFAULT_RULES_PATH,
+        build_client_balance_view,
+        find_clients,
+        load_rules,
+    )
+except ImportError:
+    from parse_tara_report import (
+        DEFAULT_PARSED_PATH,
+        DEFAULT_RULES_PATH,
+        build_client_balance_view,
+        find_clients,
+        load_rules,
+    )
+
+
+def _load_update_state_safe() -> dict:
+    try:
+        from .tara_auto_update import load_update_state
+        return load_update_state()
+    except Exception:
+        try:
+            from tara_auto_update import load_update_state
+            return load_update_state()
+        except Exception:
+            return {}
 
 
 def load_tara_parsed_data(parsed_path: str = str(DEFAULT_PARSED_PATH)) -> dict:
@@ -30,7 +46,7 @@ def get_tara_report_data(parsed_path: str = str(DEFAULT_PARSED_PATH)) -> dict:
 
 def get_tara_report_summary(parsed_path: str = str(DEFAULT_PARSED_PATH)) -> dict:
     data = load_tara_parsed_data(parsed_path)
-    state = load_update_state()
+    state = _load_update_state_safe()
 
     return {
         "source_file": data.get("source_file"),
@@ -72,10 +88,16 @@ def get_tara_client_report(query: str, parsed_path: str = str(DEFAULT_PARSED_PAT
 
 
 def get_tara_update_status() -> dict:
-    return load_update_state()
+    return _load_update_state_safe()
 
 
 def refresh_tara_report_manual() -> dict:
+    create_tara_scheduler = None
+    process_tara_refresh = None
+    try:
+        from .tara_auto_update import create_tara_scheduler, process_tara_refresh
+    except Exception:
+        from tara_auto_update import create_tara_scheduler, process_tara_refresh
     scheduler = create_tara_scheduler()
     process_tara_refresh(scheduler, "manual_api_run")
     scheduler.shutdown()

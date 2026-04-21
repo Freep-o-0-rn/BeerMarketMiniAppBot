@@ -10,19 +10,34 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from tzlocal import get_localzone
 
-from parse_tara_report import (
-    DOWNLOADS_DIR,
-    DEFAULT_RULES_PATH,
-    DEFAULT_PARSED_PATH,
-    DEFAULT_BAD_PATH,
-    DEFAULT_SKIPPED_PATH,
-    DEFAULT_LOG_PATH,
-    SERVICE_DIR,
-    load_rules,
-    parse_report,
-    save_json,
-    setup_logger,
-)
+try:
+    from .parse_tara_report import (
+        DEFAULT_BAD_PATH,
+        DEFAULT_LOG_PATH,
+        DEFAULT_PARSED_PATH,
+        DEFAULT_RULES_PATH,
+        DEFAULT_SKIPPED_PATH,
+        DOWNLOADS_DIR,
+        SERVICE_DIR,
+        load_rules,
+        parse_report,
+        save_json,
+        setup_logger,
+    )
+except ImportError:
+    from parse_tara_report import (
+        DEFAULT_BAD_PATH,
+        DEFAULT_LOG_PATH,
+        DEFAULT_PARSED_PATH,
+        DEFAULT_RULES_PATH,
+        DEFAULT_SKIPPED_PATH,
+        DOWNLOADS_DIR,
+        SERVICE_DIR,
+        load_rules,
+        parse_report,
+        save_json,
+        setup_logger,
+    )
 
 
 REPORT_NAME_HINT = "ведомость по переданной возвратной таре"
