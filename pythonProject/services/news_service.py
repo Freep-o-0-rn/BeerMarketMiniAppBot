@@ -166,6 +166,21 @@ class NewsService:
         self._sync_static_files()
         return media_id
 
+    def get_media(self, media_id: str) -> Optional[Dict[str, Any]]:
+        with self._connect() as conn:
+            row = conn.execute("SELECT * FROM news_media WHERE id = ?", (media_id,)).fetchone()
+            return dict(row) if row else None
+
+    def delete_media(self, media_id: str) -> Optional[Dict[str, Any]]:
+        with self._connect() as conn:
+            row = conn.execute("SELECT * FROM news_media WHERE id = ?", (media_id,)).fetchone()
+            if not row:
+                return None
+            payload = dict(row)
+            conn.execute("DELETE FROM news_media WHERE id = ?", (media_id,))
+        self._sync_static_files()
+        return payload
+
     def get_news(self, news_id: str) -> Optional[Dict[str, Any]]:
         with self._connect() as conn:
             row = conn.execute("SELECT * FROM news WHERE id = ?", (news_id,)).fetchone()

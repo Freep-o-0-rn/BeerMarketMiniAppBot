@@ -3,12 +3,13 @@ from __future__ import annotations
 import logging
 from html import escape
 from datetime import datetime, timezone
+from pathlib import Path
 
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 NEWS_MANAGE_BTN_TEXT = "📰 Управление новостями"
 logger = logging.getLogger(__name__)
@@ -42,8 +43,10 @@ def _news_menu_kb() -> InlineKeyboardMarkup:
 def _news_item_kb(news_id: str, status: str, page: int, list_status: str) -> InlineKeyboardMarkup:
     publish_text = "✅ Опубликовать" if status != "published" else "📝 В черновик"
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="✏️ Изменить заголовок/текст", callback_data=f"news:edit:{news_id}")],
-        [InlineKeyboardButton(text="🖼 Добавить медиа", callback_data=f"news:addmedia:{news_id}")],
+        [InlineKeyboardButton(text="✏️ Изменить заголовок", callback_data=f"news:edittitle:{news_id}:{page}:{list_status}")],
+        [InlineKeyboardButton(text="📝 Изменить текст", callback_data=f"news:edittext:{news_id}:{page}:{list_status}")],
+        [InlineKeyboardButton(text="🖼 Редактор медиа", callback_data=f"news:mediaeditor:{news_id}:{page}:{list_status}")],
+        [InlineKeyboardButton(text="👀 Предпросмотр", callback_data=f"news:preview:{news_id}")],
         [InlineKeyboardButton(text=publish_text, callback_data=f"news:toggle:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="🕒 Сменить дату публикации", callback_data=f"news:date:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="🗑 Удалить", callback_data=f"news:delete:{news_id}:{page}:{list_status}")],
@@ -56,6 +59,22 @@ def _news_media_finish_kb(news_id: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="💾 Завершить (оставить черновик)", callback_data=f"news:finishmedia:draft:{news_id}")],
         [InlineKeyboardButton(text="❌ Отмена", callback_data="news:finishmedia:cancel")],
     ])
+
+def _news_media_editor_kb(news_id: str, page: int, list_status: str, media: list[dict]) -> InlineKeyboardMarkup:
+    rows: list[list[InlineKeyboardButton]] = [
+        [InlineKeyboardButton(text="➕ Добавить медиа", callback_data=f"news:addmedia:{news_id}")]
+    ]
+    for idx, item in enumerate(media, start=1):
+        media_type = str(item.get("media_type") or "media")
+        media_id = str(item.get("id") or "")
+        rows.append([
+            InlineKeyboardButton(
+                text=f"❌ Удалить #{idx} ({media_type})",
+                callback_data=f"news:dm:{media_id}:{page}:{list_status}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ К карточке новости", callback_data=f"news:item:{news_id}:{page}:{list_status}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def _news_item_text(row: dict) -> str:
     media_count = len(row.get("media") or [])
@@ -155,6 +174,36 @@ def register_news_manage_handlers(
             f"{text}: {len(all_rows)} шт.",
             reply_markup=InlineKeyboardMarkup(inline_keyboard=kb_rows),
         )
+
+    async def send_news_preview(m: Message, row: dict) -> None:
+        title = str(row.get("title") or "Без заголовка")
+        body = str(row.get("text") or "")
+        caption = f"{title}\n\n{body}".strip()
+        media = row.get("media") or []
+        if not media:
+            await m.answer(caption or "Пустая новость.")
+            return
+        sent_with_caption = False
+        for item in media:
+            file_path = str(item.get("file_path") or "")
+            if not file_path:
+                continue
+            path = Path(file_path)
+            if not path.exists():
+                logger.warning("Файл медиа не найден для превью: %s", file_path)
+                continue
+            media_type = str(item.get("media_type") or "")
+            input_file = FSInputFile(path)
+            current_caption = caption if not sent_with_caption else None
+            if media_type == "video":
+                await m.answer_video(video=input_file, caption=current_caption)
+            elif media_type == "gif":
+                await m.answer_animation(animation=input_file, caption=current_caption)
+            else:
+                await m.answer_photo(photo=input_file, caption=current_caption)
+            sent_with_caption = sent_with_caption or bool(current_caption)
+        if not sent_with_caption and caption:
+            await m.answer(caption)
 
     @router.message(F.text == NEWS_MANAGE_BTN_TEXT)
     async def news_manage_entry(m: Message):
@@ -353,13 +402,13 @@ def register_news_manage_handlers(
         )
         await cq.answer("Удаление завершено")
 
-    @router.callback_query(F.data.startswith("news:edit:"))
-    async def news_edit_prompt(cq: CallbackQuery, state: FSMContext):
+    @router.callback_query(F.data.startswith("news:edittitle:"))
+    async def news_edit_title_prompt(cq: CallbackQuery, state: FSMContext):
         if not await ensure_callback_access(cq, "news.manage", state=state):
             return
-        news_id = (cq.data or "").split(":", 2)[2]
+        _, _, news_id, page_raw, list_status = (cq.data or "").split(":", 4)
         await state.set_state(NewsEditStates.waiting_title)
-        await state.update_data(edit_news_id=news_id)
+        await state.update_data(edit_news_id=news_id, edit_page=page_raw, edit_status=list_status)
         await cq.message.answer("Введите новый заголовок.")
         await cq.answer()
 
@@ -367,9 +416,34 @@ def register_news_manage_handlers(
     async def news_edit_title(m: Message, state: FSMContext):
         if not await ensure_message_access(m, "news.manage", state=state):
             return
-        await state.update_data(title=(m.text or "").strip())
+        data = await state.get_data()
+        edit_news_id = data.get("edit_news_id")
+        edit_page = int(data.get("edit_page") or 0)
+        edit_status = str(data.get("edit_status") or "draft")
+        if not edit_news_id:
+            await state.clear()
+            await m.answer("Новость не найдена.")
+            return
+        news_service.update_news(edit_news_id, title=(m.text or "").strip())
+        await state.clear()
+        row = news_service.get_news(edit_news_id)
+        if not row:
+            await m.answer("Новость не найдена.")
+            return
+        await m.answer(
+            f"Заголовок обновлён:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
+            reply_markup=_news_item_kb(edit_news_id, row["status"], edit_page, edit_status),
+        )
+
+    @router.callback_query(F.data.startswith("news:edittext:"))
+    async def news_edit_text_prompt(cq: CallbackQuery, state: FSMContext):
+        if not await ensure_callback_access(cq, "news.manage", state=state):
+            return
+        _, _, news_id, page_raw, list_status = (cq.data or "").split(":", 4)
         await state.set_state(NewsEditStates.waiting_text)
-        await m.answer("Введите новый текст новости.")
+        await state.update_data(edit_news_id=news_id, edit_page=page_raw, edit_status=list_status)
+        await cq.message.answer("Введите новый текст новости.")
+        await cq.answer()
 
     @router.message(NewsEditStates.waiting_text, F.text)
     async def news_edit_text(m: Message, state: FSMContext):
@@ -377,13 +451,21 @@ def register_news_manage_handlers(
             return
         data = await state.get_data()
         edit_news_id = data.get("edit_news_id")
-        title = (data.get("title") or "").strip()
-        news_service.update_news(edit_news_id, title=title, text=(m.text or "").strip())
+        edit_page = int(data.get("edit_page") or 0)
+        edit_status = str(data.get("edit_status") or "draft")
+        if not edit_news_id:
+            await state.clear()
+            await m.answer("Новость не найдена.")
+            return
+        news_service.update_news(edit_news_id, text=(m.text or "").strip())
         await state.clear()
         row = news_service.get_news(edit_news_id)
+        if not row:
+            await m.answer("Новость не найдена.")
+            return
         await m.answer(
-            f"Новость обновлена:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
-            reply_markup=_news_item_kb(edit_news_id, row["status"], 0, row["status"])
+            f"Текст новости обновлён:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
+            reply_markup=_news_item_kb(edit_news_id, row["status"], edit_page, edit_status),
         )
 
     @router.callback_query(F.data.startswith("news:addmedia:"))
@@ -398,6 +480,66 @@ def register_news_manage_handlers(
             reply_markup=_news_media_finish_kb(news_id),
         )
         await cq.answer()
+
+    @router.callback_query(F.data.startswith("news:mediaeditor:"))
+    async def news_media_editor(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        _, _, news_id, page_raw, list_status = (cq.data or "").split(":", 4)
+        row = news_service.get_news(news_id)
+        if not row:
+            await cq.answer("Новость не найдена", show_alert=True)
+            return
+        media = row.get("media") or []
+        media_lines = "\n".join(
+            f"{idx}. {item.get('media_type', 'media')} — {Path(str(item.get('file_path') or '')).name}"
+            for idx, item in enumerate(media, start=1)
+        ) or "Медиа пока не добавлены."
+        await cq.message.edit_text(
+            f"Редактор медиа для «{row.get('title') or 'Без заголовка'}»\n\n{media_lines}",
+            reply_markup=_news_media_editor_kb(news_id, int(page_raw), list_status, media),
+        )
+        await cq.answer()
+
+    @router.callback_query(F.data.startswith("news:dm:"))
+    async def news_delete_media(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        _, _, media_id, page_raw, list_status = (cq.data or "").split(":", 4)
+        media = news_service.get_media(media_id)
+        if not media:
+            await cq.answer("Медиа уже удалено", show_alert=True)
+            return
+        news_id = str(media.get("news_id") or "")
+        file_path = str(media.get("file_path") or "")
+        news_service.delete_media(media_id)
+        media_service.delete_file_safe(file_path)
+        row = news_service.get_news(news_id)
+        if not row:
+            await cq.answer("Новость не найдена", show_alert=True)
+            return
+        media_list = row.get("media") or []
+        media_lines = "\n".join(
+            f"{idx}. {item.get('media_type', 'media')} — {Path(str(item.get('file_path') or '')).name}"
+            for idx, item in enumerate(media_list, start=1)
+        ) or "Медиа пока не добавлены."
+        await cq.message.edit_text(
+            f"Редактор медиа для «{row.get('title') or 'Без заголовка'}»\n\n{media_lines}",
+            reply_markup=_news_media_editor_kb(news_id, int(page_raw), list_status, media_list),
+        )
+        await cq.answer("Медиа удалено")
+
+    @router.callback_query(F.data.startswith("news:preview:"))
+    async def news_preview(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        news_id = (cq.data or "").split(":", 2)[2]
+        row = news_service.get_news(news_id)
+        if not row:
+            await cq.answer("Новость не найдена", show_alert=True)
+            return
+        await send_news_preview(cq.message, row)
+        await cq.answer("Предпросмотр отправлен")
 
     @router.message(F.photo)
     async def news_media_photo(m: Message, state: FSMContext):
