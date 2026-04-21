@@ -11215,11 +11215,15 @@ async def promo_add_media_ok(m: Message, state: FSMContext):
     if not is_admin_event(m):
         await state.clear(); return
 
-    ext = (_guess_promo_ext(m) or "").lower()
+    media_meta = _extract_media_id_and_ext(m)
+    ext = (media_meta[1] if media_meta else "").lower()
     if not ext or (ext not in ALLOWED_PROMO_IMG and ext not in ALLOWED_PROMO_DOC):
         await m.answer("Нужна картинка (jpg/png/webp) или PDF, либо нажмите «⏭ Пропустить файл».")
         return
-
+    file_id = media_meta[0] if media_meta else None
+    if not file_id:
+        await m.answer("Не удалось прочитать файл. Попробуйте отправить его как фото или документ заново.")
+        return
     file_id = m.photo[-1].file_id if m.photo else m.document.file_id
     await state.update_data(_media_file_id=file_id, _media_ext=ext)  # ⬅️ вот так
 
