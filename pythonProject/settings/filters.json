@@ -1,4 +1,5 @@
 {
   "min_debt": 0.0,
-  "min_overdue_days": 20
+  "min_overdue_days": 20,
+  "merge_kegs_50l_type_s": true
 }

@@ -1288,6 +1288,15 @@ def build_tara_group_text(base_name: str, entries: list, filters: Optional[Dict[
             lines.append(f"{prefix}{esc(name)} — {fmt_qty_units(qty)}")
     return "\n".join(lines)
 
+def build_tara_groups_text(groups: Dict[str, List[Dict[str, Any]]], filters: Optional[Dict[str, bool]] = None) -> str:
+    lines: List[str] = []
+    ordered = sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е"))
+    for idx, (base_name, entries) in enumerate(ordered):
+        lines.append(build_tara_group_text(base_name, entries, filters=filters))
+        if idx != len(ordered) - 1:
+            lines.append("")
+    return "\n".join(lines)
+
 
 def esc(s: Optional[str]) -> str:
     s = s or ""
@@ -1297,20 +1306,49 @@ async def _send_tara_group_with_filters(chat: Message, base_name: str, entries: 
     token = uuid4().hex[:12]
     filters = _tara_default_filters()
     _TARA_FILTER_VIEW_CACHE[token] = {
+        "mode": "single",
         "base_name": base_name,
         "entries": entries,
         "filters": filters,
     }
     text = build_tara_group_text(base_name, entries, filters=filters)
-    if len(text) > MAX_TG:
-        _TARA_FILTER_VIEW_CACHE.pop(token, None)
-        await send_long(chat, text)
-        return
-    await chat.answer(
-        text,
-        disable_web_page_preview=True,
-        reply_markup=_tara_filter_kb(token, filters),
-    )
+    kb = _tara_filter_kb(token, filters)
+    chunks = _split_long_text(text)
+    chunk_ids: List[int] = []
+    for idx, chunk in enumerate(chunks):
+        is_last = idx == (len(chunks) - 1)
+        sent = await chat.answer(
+            chunk,
+            disable_web_page_preview=True,
+            reply_markup=kb if is_last else None,
+        )
+        chunk_ids.append(int(getattr(sent, "message_id", 0) or 0))
+    _TARA_FILTER_VIEW_CACHE[token]["chunk_message_ids"] = [x for x in chunk_ids if x]
+    _TARA_FILTER_VIEW_CACHE[token]["chat_id"] = int(getattr(getattr(chat, "chat", None), "id", 0) or 0)
+
+
+async def _send_tara_groups_with_filters(chat: Message, groups: Dict[str, List[Dict[str, Any]]]) -> None:
+    token = uuid4().hex[:12]
+    filters = _tara_default_filters()
+    _TARA_FILTER_VIEW_CACHE[token] = {
+        "mode": "groups",
+        "groups": groups,
+        "filters": filters,
+    }
+    text = build_tara_groups_text(groups, filters=filters)
+    kb = _tara_filter_kb(token, filters)
+    chunks = _split_long_text(text)
+    chunk_ids: List[int] = []
+    for idx, chunk in enumerate(chunks):
+        is_last = idx == (len(chunks) - 1)
+        sent = await chat.answer(
+            chunk,
+            disable_web_page_preview=True,
+            reply_markup=kb if is_last else None,
+        )
+        chunk_ids.append(int(getattr(sent, "message_id", 0) or 0))
+    _TARA_FILTER_VIEW_CACHE[token]["chunk_message_ids"] = [x for x in chunk_ids if x]
+    _TARA_FILTER_VIEW_CACHE[token]["chat_id"] = int(getattr(getattr(chat, "chat", None), "id", 0) or 0)
 
 def parse_date(d: Optional[str]) -> Optional[date]:
     if not d:
@@ -4523,6 +4561,18 @@ def send_chunked_text_builder():
 send_long = send_chunked_text_builder()
 
 # ------------------ Логика фильтров -----------------
+def _split_long_text(text: str, max_len: int = MAX_TG) -> List[str]:
+    chunks: List[str] = []
+    s = text or ""
+    while s:
+        chunk = s[:max_len]
+        cut = chunk.rfind("\n")
+        if 1500 < cut < max_len:
+            chunk = s[:cut]
+        chunks.append(chunk)
+        s = s[len(chunk):]
+    return chunks or [""]
+
 def client_is_overpaid(item: Dict[str, Any]) -> bool:
     overpay = float(item.get("our_debt") or 0.0)
     total = float(item.get("total_amount") or 0.0)
@@ -6302,8 +6352,7 @@ async def cb_tara_pick_group_all(cq: CallbackQuery):
         await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
         return
     await cq.answer()
-    for base, entries in sorted(groups.items(), key=lambda kv: (kv[0] or "").casefold().replace("ё", "е")):
-        await _send_tara_group_with_filters(cq.message, base, entries)
+    await _send_tara_groups_with_filters(cq.message, groups)
 
 @router.callback_query(F.data.startswith("tara:flt:"))
 async def cb_tara_filter_toggle(cq: CallbackQuery):
@@ -6313,10 +6362,15 @@ async def cb_tara_filter_toggle(cq: CallbackQuery):
         return
     _, _, token, group_id = parts
     payload = _TARA_FILTER_VIEW_CACHE.get(token) or {}
+    mode = str(payload.get("mode") or "single")
     base_name = str(payload.get("base_name") or "").strip()
     entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
+    groups = payload.get("groups") if isinstance(payload.get("groups"), dict) else {}
     filters = _tara_normalize_filters(payload.get("filters"))
-    if not base_name or not entries:
+    if mode == "single" and (not base_name or not entries):
+        await cq.answer("Фильтр устарел. Запустите поиск заново.", show_alert=True)
+        return
+    if mode == "groups" and not groups:
         await cq.answer("Фильтр устарел. Запустите поиск заново.", show_alert=True)
         return
 
@@ -6334,19 +6388,71 @@ async def cb_tara_filter_toggle(cq: CallbackQuery):
 
     payload["filters"] = filters
     _TARA_FILTER_VIEW_CACHE[token] = payload
-    text = build_tara_group_text(base_name, entries, filters=filters)
+    if mode == "groups":
+        text = build_tara_groups_text(groups, filters=filters)
+    else:
+        text = build_tara_group_text(base_name, entries, filters=filters)
     kb = _tara_filter_kb(token, filters)
-    try:
-        await cq.message.edit_text(text, disable_web_page_preview=True, reply_markup=kb)
-    except TelegramBadRequest as e:
-        err_text = str(e).lower()
-        if "message is not modified" in err_text:
-            await cq.answer("Фильтр не изменился.")
+    chunks = _split_long_text(text)
+    chunk_message_ids = [
+        int(mid) for mid in (payload.get("chunk_message_ids") or [])
+        if str(mid).isdigit() and int(mid) > 0
+    ]
+    chat_id = int(payload.get("chat_id") or getattr(getattr(cq.message, "chat", None), "id", 0) or 0)
+
+    if not chat_id or not chunk_message_ids:
+        try:
+            await cq.message.edit_text(text, disable_web_page_preview=True, reply_markup=kb)
+            await cq.answer()
             return
-        if "message is too long" in err_text:
-            await cq.answer("Слишком длинный отчёт для интерактивного фильтра.", show_alert=True)
-            return
-        raise
+        except TelegramBadRequest as e:
+            err_text = str(e).lower()
+            if "message is not modified" in err_text:
+                await cq.answer("Фильтр не изменился.")
+                return
+            if "message is too long" in err_text:
+                await cq.answer("Слишком длинный отчёт для интерактивного фильтра.", show_alert=True)
+                return
+            raise
+
+    old_count = len(chunk_message_ids)
+    new_count = len(chunks)
+    overlap = min(old_count, new_count)
+
+    for idx in range(overlap):
+        is_last = idx == (new_count - 1)
+        try:
+            await bot.edit_message_text(
+                text=chunks[idx],
+                chat_id=chat_id,
+                message_id=chunk_message_ids[idx],
+                disable_web_page_preview=True,
+                reply_markup=kb if is_last else None,
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" not in str(e).lower():
+                raise
+
+    if new_count > old_count:
+        for idx in range(old_count, new_count):
+            is_last = idx == (new_count - 1)
+            sent = await bot.send_message(
+                chat_id=chat_id,
+                text=chunks[idx],
+                disable_web_page_preview=True,
+                reply_markup=kb if is_last else None,
+            )
+            chunk_message_ids.append(int(getattr(sent, "message_id", 0) or 0))
+    elif old_count > new_count:
+        extra_ids = chunk_message_ids[new_count:]
+        for mid in extra_ids:
+            with contextlib.suppress(Exception):
+                await bot.delete_message(chat_id=chat_id, message_id=mid)
+        chunk_message_ids = chunk_message_ids[:new_count]
+
+    payload["chunk_message_ids"] = [x for x in chunk_message_ids if x]
+    payload["chat_id"] = chat_id
+    _TARA_FILTER_VIEW_CACHE[token] = payload
     await cq.answer()
 
 @router.message(F.text == "🔎 Поиск тары")
