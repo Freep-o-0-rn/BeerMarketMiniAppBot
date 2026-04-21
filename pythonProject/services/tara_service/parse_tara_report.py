@@ -81,14 +81,17 @@ def load_rules(rules_path: str) -> Dict[str, Any]:
 
     item_groups = raw.get("item_groups", {})
 
+    normalized_groups = {}
+    for group, prefixes in (item_groups or {}).items():
+        normalized_groups[str(group)] = normalize_str_list(prefixes or [])
+
     rules = {
         "item_prefixes": normalize_str_list(raw.get("item_prefixes", [])),
         "service_prefixes": normalize_str_list(raw.get("service_prefixes", [])),
         "header_words": normalize_str_list(raw.get("header_words", [])),
         "org_markers": normalize_str_list(raw.get("org_markers", [])),
         "manager_markers": normalize_str_list(raw.get("manager_markers", [])),
-        "tara_prefixes": normalize_str_list(item_groups.get("tara", [])),
-        "equipment_prefixes": normalize_str_list(item_groups.get("equipment", [])),
+        "item_groups": normalized_groups,
         "force_service_contains": normalize_str_list(raw.get("force_service_contains", [])),
         "force_client_contains": normalize_str_list(raw.get("force_client_contains", [])),
         "ignore_exact": normalize_str_list(raw.get("ignore_exact", [])),
@@ -97,9 +100,17 @@ def load_rules(rules_path: str) -> Dict[str, Any]:
 
     merged_items = []
     merged_items.extend(rules["item_prefixes"])
-    merged_items.extend(rules["tara_prefixes"])
-    merged_items.extend(rules["equipment_prefixes"])
+    for prefixes in rules["item_groups"].values():
+        merged_items.extend(prefixes)
     rules["item_prefixes"] = normalize_str_list(merged_items)
+
+    # Обратная совместимость для старых участков кода
+    rules["tara_prefixes"] = rules["item_groups"].get("kegs", [])
+    rules["equipment_prefixes"] = normalize_str_list(
+        rules["item_groups"].get("equipment", [])
+        + rules["item_groups"].get("gas_cylinders", [])
+        + rules["item_groups"].get("refrigeration", [])
+    )
 
     return rules
 
@@ -311,36 +322,43 @@ def extract_total(numbers: List[float]) -> Optional[float]:
 def classify_item_group(item_name: str, rules: Dict[str, Any]) -> str:
     t = lower_text(item_name)
 
-    if t.startswith(tuple(rules["tara_prefixes"])):
-        return "tara"
-
-    if t.startswith(tuple(rules["equipment_prefixes"])):
-        return "equipment"
-
-    return "other"
+    for group, prefixes in (rules.get("item_groups") or {}).items():
+        if prefixes and t.startswith(tuple(prefixes)):
+            return str(group)
+    return "misc"
 
 
 def build_client_balance_view(client: Dict[str, Any], rules: Dict[str, Any]) -> Dict[str, Any]:
-    tara_items = []
-    equipment_items = []
-    other_items = []
+    grouped_items: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_sums: Dict[str, float] = {}
 
-    tara_sum = 0.0
-    equipment_sum = 0.0
-    other_sum = 0.0
+    for item in client["items"]:
+        group = classify_item_group(item["name"], rules)
+        grouped_items.setdefault(group, []).append(item)
+        grouped_sums[group] = grouped_sums.get(group, 0.0) + float(item.get("total", 0.0) or 0.0)
 
     for item in client["items"]:
         group = classify_item_group(item["name"], rules)
 
-        if group == "tara":
-            tara_items.append(item)
-            tara_sum += item["total"]
-        elif group == "equipment":
-            equipment_items.append(item)
-            equipment_sum += item["total"]
-        else:
-            other_items.append(item)
-            other_sum += item["total"]
+    tara_items = grouped_items.get("kegs", [])
+    tara_sum = grouped_sums.get("kegs", 0.0)
+
+    equipment_items: List[Dict[str, Any]] = []
+    equipment_sum = 0.0
+    for group_name in ("equipment", "gas_cylinders", "refrigeration"):
+        equipment_items.extend(grouped_items.get(group_name, []))
+        equipment_sum += grouped_sums.get(group_name, 0.0)
+
+    other_items = grouped_items.get("misc", [])
+    other_sum = grouped_sums.get("misc", 0.0)
+
+    business_groups = {
+        group: {
+            "items": grouped_items.get(group, []),
+            "sum": grouped_sums.get(group, 0.0),
+        }
+        for group in (rules.get("item_groups") or {}).keys()
+    }
 
     return {
         "client": client["client"],
@@ -358,6 +376,7 @@ def build_client_balance_view(client: Dict[str, Any], rules: Dict[str, Any]) -> 
         "equipment_sum": equipment_sum,
         "other_items": other_items,
         "other_sum": other_sum,
+        "business_groups": business_groups,
     }
 
 

@@ -2,14 +2,17 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from .tara_api import invalidate_tara_rules_cache
 
 
 class TaraRulesManager:
-    """Мини-сервис управления tara_rules.json."""
+    """Сервис управления tara_rules.json и группировкой номенклатуры."""
 
     def __init__(self, rules_path: Path):
         self._rules_path = Path(rules_path)
+
+    @staticmethod
+    def _normalize(value: str) -> str:
+        return str(value or "").strip().casefold().replace("ё", "е")
 
     def load(self) -> Dict:
         with open(self._rules_path, "r", encoding="utf-8") as f:
@@ -20,7 +23,15 @@ class TaraRulesManager:
         with open(tmp_path, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
         tmp_path.replace(self._rules_path)
-        invalidate_tara_rules_cache()
+        try:
+            from .tara_api import invalidate_tara_rules_cache
+            invalidate_tara_rules_cache()
+        except Exception:
+            try:
+                from tara_api import invalidate_tara_rules_cache
+                invalidate_tara_rules_cache()
+            except Exception:
+                pass
 
     def get_item_groups(self) -> Dict[str, List[str]]:
         payload = self.load()
@@ -28,6 +39,32 @@ class TaraRulesManager:
         if not isinstance(groups, dict):
             groups = {}
         return {str(k): list(v or []) for k, v in groups.items()}
+
+    def get_all_groups(self) -> Dict[str, List[str]]:
+        """Вернуть все группы номенклатуры (id -> префиксы)."""
+        return self.get_item_groups()
+
+    def get_group_for_item(self, item_name: str, default: str = "misc") -> str:
+        """Вернуть группу для одной позиции номенклатуры."""
+        text = self._normalize(item_name)
+        if not text:
+            return default
+
+        for group, prefixes in self.get_item_groups().items():
+            normalized_prefixes = [self._normalize(p) for p in prefixes if self._normalize(p)]
+            if normalized_prefixes and text.startswith(tuple(normalized_prefixes)):
+                return group
+        return default
+
+    def get_groups_for_items(self, item_names: List[str], default: str = "misc") -> Dict[str, str]:
+        """Вернуть группы сразу для нескольких номенклатур."""
+        result: Dict[str, str] = {}
+        for raw_name in item_names or []:
+            name = str(raw_name or "").strip()
+            if not name:
+                continue
+            result[name] = self.get_group_for_item(name, default=default)
+        return result
 
     def add_prefixes(self, group: str, prefixes: List[str]) -> Dict[str, List[str]]:
         payload = self.load()

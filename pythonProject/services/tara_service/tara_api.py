@@ -1,5 +1,7 @@
 import json
+from functools import lru_cache
 from pathlib import Path
+from typing import Dict, List
 
 try:
     from .parse_tara_report import (
@@ -9,6 +11,7 @@ try:
         find_clients,
         load_rules,
     )
+    from .tara_rules_manager import TaraRulesManager
 except ImportError:
     from parse_tara_report import (
         DEFAULT_PARSED_PATH,
@@ -17,7 +20,20 @@ except ImportError:
         find_clients,
         load_rules,
     )
+    from tara_rules_manager import TaraRulesManager
 
+
+@lru_cache(maxsize=1)
+def _cached_load_rules() -> dict:
+    return load_rules(str(DEFAULT_RULES_PATH))
+
+
+def invalidate_tara_rules_cache() -> None:
+    _cached_load_rules.cache_clear()
+
+
+def _rules_manager() -> TaraRulesManager:
+    return TaraRulesManager(DEFAULT_RULES_PATH)
 
 def _load_update_state_safe() -> dict:
     try:
@@ -72,7 +88,7 @@ def find_tara_clients_api(query: str, parsed_path: str = str(DEFAULT_PARSED_PATH
 
 def get_tara_client_report(query: str, parsed_path: str = str(DEFAULT_PARSED_PATH)) -> dict:
     data = load_tara_parsed_data(parsed_path)
-    rules = load_rules(str(DEFAULT_RULES_PATH))
+    rules = _cached_load_rules()
 
     found = find_clients(data, query)
     result_clients = []
@@ -86,10 +102,22 @@ def get_tara_client_report(query: str, parsed_path: str = str(DEFAULT_PARSED_PAT
         "clients": result_clients,
     }
 
+def get_tara_groups() -> Dict[str, List[str]]:
+    """Вернуть все группы номенклатуры из tara_rules.json."""
+    return _rules_manager().get_all_groups()
+
+
+def get_tara_group(item_name: str, default: str = "misc") -> str:
+    """Вернуть группу для одной позиции номенклатуры."""
+    return _rules_manager().get_group_for_item(item_name, default=default)
+
+
+def get_tara_groups_for_items(item_names: List[str], default: str = "misc") -> Dict[str, str]:
+    """Вернуть группы для списка номенклатуры."""
+    return _rules_manager().get_groups_for_items(item_names, default=default)
 
 def get_tara_update_status() -> dict:
     return _load_update_state_safe()
-
 
 def refresh_tara_report_manual() -> dict:
     create_tara_scheduler = None

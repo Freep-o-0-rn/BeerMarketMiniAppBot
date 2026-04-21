@@ -70,16 +70,30 @@ from services.permissions_service import extend_access_matrix
 from services.identity_matcher import IdentityMatcher
 from services.tara_service.tara_api import (
     get_tara_client_report,
+    get_tara_group,
+    get_tara_groups,
+    get_tara_groups_for_items,
     get_tara_report_data,
     get_tara_update_status,
     refresh_tara_report_manual,
 )
+from services.tara_service.parse_tara_report import DEFAULT_RULES_PATH
+from services.tara_service.tara_rules_manager import TaraRulesManager
 
 ROOT_DIR = Path(__file__).resolve().parent
 SETTINGS_DIR = ROOT_DIR / "settings"
 CLIENTS_DB = ClientCardsDB(SETTINGS_DIR / "clients.sqlite3")
 DEBT_IMPORT_MANUAL_QUEUE_PATH = SETTINGS_DIR / "debt_import_manual_queue.json"
 DEBT_IMPORT_MAPPINGS_PATH = SETTINGS_DIR / "debt_import_mappings.json"
+
+TARA_RULES_MANAGER = TaraRulesManager(DEFAULT_RULES_PATH)
+TARA_GROUP_FRIENDLY_NAMES = {
+    "kegs": "Кеги (бочки)",
+    "equipment": "Оборудование",
+    "gas_cylinders": "Баллоны",
+    "refrigeration": "Холодильное оборудование",
+    "misc": "Разное",
+}
 
 logger = logging.getLogger(__name__)
 _TARA_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
@@ -309,6 +323,11 @@ class AdminUserEditStates(StatesGroup):
     waiting_name = State()
     waiting_phone = State()
     waiting_delete_confirm = State()
+
+class TaraRulesStates(StatesGroup):
+    waiting_add_prefixes = State()
+    waiting_remove_prefix = State()
+    waiting_lookup_item = State()
 
 @dataclass
 class Promo:
@@ -1177,33 +1196,7 @@ def _debt_pick_kb(token: str, entries: List[Dict[str, Any]]) -> InlineKeyboardMa
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def _tara_item_group(name: str) -> str:
-    n = (name or "").strip().casefold().replace("ё", "е")
-    if n.startswith(("бочка", "кег", "кега")):
-        return "tara"
-    if n.startswith(("холодильник", "морозильник")):
-        return "fridge"
-    if n.startswith((
-        "замок",
-        "башня",
-        "пеногаситель",
-        "охладитель",
-        "редуктор",
-        "баллон",
-        "кран",
-        "каплесборник",
-        "головка",
-        "колонна",
-        "стойка",
-        "световой знак",
-        "внутренний световой знак",
-        "поддон",
-        "переключатель",
-        "медальон",
-        "витрина",
-        "шкаф",
-    )):
-        return "equipment"
-    return "equipment"
+    return get_tara_group(name)
 
 
 def _tara_apply_filters(items: List[Tuple[str, float]], filters: Dict[str, bool]) -> List[Tuple[str, float]]:
@@ -1218,19 +1211,25 @@ def _tara_apply_filters(items: List[Tuple[str, float]], filters: Dict[str, bool]
 def _tara_filter_kb(token: str, filters: Dict[str, bool]) -> InlineKeyboardMarkup:
     def mark(v: bool) -> str:
         return "✅" if v else "⬜️"
-    rows = [
-        [
-            InlineKeyboardButton(text=f"{mark(filters.get('tara', True))} Тара", callback_data=f"tara:flt:{token}:tara"),
-            InlineKeyboardButton(text=f"{mark(filters.get('equipment', True))} Оборудование", callback_data=f"tara:flt:{token}:equipment"),
-        ],
-        [
-            InlineKeyboardButton(text=f"{mark(filters.get('fridge', True))} Холодильники", callback_data=f"tara:flt:{token}:fridge"),
-        ],
-        [
-            InlineKeyboardButton(text="Включить всё", callback_data=f"tara:flt:{token}:all"),
-            InlineKeyboardButton(text="Скрыть всё", callback_data=f"tara:flt:{token}:none"),
-        ],
-    ]
+    rows: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for group_id in get_tara_groups().keys():
+        row.append(
+            InlineKeyboardButton(
+                text=f"{mark(filters.get(group_id, True))} {_tara_group_label(group_id)}",
+                callback_data=f"tara:flt:{token}:{group_id}",
+            )
+        )
+        if len(row) == 2:
+            rows.append(row)
+            row = []
+    if row:
+        rows.append(row)
+
+    rows.append([
+        InlineKeyboardButton(text="Включить всё", callback_data=f"tara:flt:{token}:all"),
+        InlineKeyboardButton(text="Скрыть всё", callback_data=f"tara:flt:{token}:none"),
+    ])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def build_tara_group_text(base_name: str, entries: list) -> str:
@@ -2646,6 +2645,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
         settings_row.append(KeyboardButton(text="⚙️ Отсрочки"))
     if user_allows_action(user_id, "settings.filters"):
         settings_row.append(KeyboardButton(text="⚙️ Фильтры"))
+    if user_allows_action(user_id, "settings.tara_rules"):
+        settings_row.append(KeyboardButton(text="⚙️ Управление правилами тары"))
     _append_button_row_if_any(keyboard, settings_row)
     management_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "users.manage") or user_allows_action(user_id, "users.view"):
@@ -3052,6 +3053,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("notifications.manage", "🔔 Уведомления"),
     ("settings.overdue", "⚙️ Отсрочки"),
     ("settings.filters", "⚙️ Фильтры"),
+    ("settings.tara_rules", "⚙️ Управление правилами тары"),
 ]
 MANAGED_ACTIONS_BY_TOKEN: Dict[str, str] = {str(i): action for i, (action, _) in enumerate(MANAGED_ACTIONS)}
 MANAGED_ACTIONS_LABELS: Dict[str, str] = {action: label for action, label in MANAGED_ACTIONS}
@@ -3244,6 +3246,51 @@ def settings_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🔐 EMAIL_PASSWORD", callback_data="cfg:pass")],
         [InlineKeyboardButton(text="⬅️ Назад",          callback_data="menu:back")]
     ])
+
+
+def _tara_group_label(group_id: str) -> str:
+    return TARA_GROUP_FRIENDLY_NAMES.get(group_id, group_id)
+
+
+def _tara_rules_groups_text() -> str:
+    payload = TARA_RULES_MANAGER.load()
+    groups = payload.get("item_groups") or {}
+    labels = payload.get("group_labels") or {}
+
+    lines = ["<b>Группы номенклатуры тары</b>"]
+    for group_id, prefixes in groups.items():
+        group_name = labels.get(group_id) or _tara_group_label(group_id)
+        values = [str(v).strip() for v in (prefixes or []) if str(v).strip()]
+        lines.append(f"\n• <b>{esc(group_name)}</b> <code>({esc(str(group_id))})</code>")
+        lines.append(f"Префиксов: <b>{len(values)}</b>")
+        if values:
+            lines.append(f"{esc(', '.join(values))}")
+    return "\n".join(lines)
+
+
+def tara_rules_menu_kb() -> InlineKeyboardMarkup:
+    rows = [
+        [InlineKeyboardButton(text="📚 Показать группы", callback_data="tararules:show")],
+        [InlineKeyboardButton(text="➕ Добавить префиксы", callback_data="tararules:add")],
+        [InlineKeyboardButton(text="➖ Удалить префикс", callback_data="tararules:remove")],
+        [InlineKeyboardButton(text="🔎 Определить группу номенклатуры", callback_data="tararules:lookup")],
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def tara_rules_group_pick_kb(prefix: str) -> InlineKeyboardMarkup:
+    groups = get_tara_groups()
+    rows: List[List[InlineKeyboardButton]] = []
+    for group_id in groups.keys():
+        rows.append([
+            InlineKeyboardButton(
+                text=_tara_group_label(group_id),
+                callback_data=f"tararules:{prefix}:grp:{group_id}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="tararules:menu")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 #карточка клиента ----------------------
 #ТЕХНИКИ--------------------------------
@@ -5038,6 +5085,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "news.manage": {"admin", "moderator"},
     "settings.overdue": {"admin", "sales_rep"},
     "settings.filters": {"admin", "sales_rep"},
+    "settings.tara_rules": {"admin"},
 }
 
 ACCESS_LABELS: Dict[str, str] = {
@@ -5065,6 +5113,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "news.manage": "управление новостями Mini App",
     "settings.overdue": "настройка отсрочек",
     "settings.filters": "настройка фильтров",
+    "settings.tara_rules": "управление правилами тары",
 }
 
 extend_access_matrix(ACCESS_MATRIX, ACCESS_LABELS, MANAGED_ACTIONS)
@@ -9118,6 +9167,154 @@ async def on_settings(m: Message):
         await m.answer("Недостаточно прав.", reply_markup=menu_for_message(m))
         return
     await m.answer("⚙️ Настройки (хранятся в settings/config.json):", reply_markup=settings_menu_kb())
+
+@router.message(F.text == "⚙️ Управление правилами тары")
+async def btn_tara_rules_manage(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "settings.tara_rules", state=state):
+        return
+    await state.clear()
+    await m.answer("⚙️ Управление правилами тары:", reply_markup=tara_rules_menu_kb())
+
+
+@router.callback_query(F.data == "tararules:menu")
+async def cb_tara_rules_menu(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "settings.tara_rules", state=state):
+        return
+    await state.clear()
+    await cq.message.edit_text("⚙️ Управление правилами тары:", reply_markup=tara_rules_menu_kb())
+    await cq.answer()
+
+
+@router.callback_query(F.data == "tararules:show")
+async def cb_tara_rules_show(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "settings.tara_rules"):
+        return
+    await cq.message.edit_text(_tara_rules_groups_text(), reply_markup=tara_rules_menu_kb())
+    await cq.answer()
+
+
+@router.callback_query(F.data == "tararules:add")
+async def cb_tara_rules_add_start(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "settings.tara_rules", state=state):
+        return
+    await state.set_state(TaraRulesStates.waiting_add_prefixes)
+    await cq.message.edit_text("Выберите группу, в которую нужно добавить префиксы:", reply_markup=tara_rules_group_pick_kb("add"))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("tararules:add:grp:"))
+async def cb_tara_rules_add_group(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "settings.tara_rules", state=state):
+        return
+    group_id = (cq.data or "").split(":", 3)[-1]
+    await state.set_state(TaraRulesStates.waiting_add_prefixes)
+    await state.update_data(tara_rules_group=group_id)
+    await cq.message.edit_text(
+        f"Группа: <b>{esc(_tara_group_label(group_id))}</b>\n"
+        "Отправьте префиксы через запятую или с новой строки.",
+        reply_markup=back_only_kb(),
+    )
+    await cq.answer()
+
+
+@router.message(TaraRulesStates.waiting_add_prefixes)
+async def tara_rules_add_prefixes_apply(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "settings.tara_rules", state=state):
+        return
+    data = await state.get_data()
+    group_id = str(data.get("tara_rules_group") or "").strip()
+    if not group_id:
+        await state.clear()
+        await m.answer("Группа не выбрана.", reply_markup=tara_rules_menu_kb())
+        return
+
+    raw = (m.text or "").replace("\n", ",")
+    prefixes = [x.strip() for x in raw.split(",") if x.strip()]
+    if not prefixes:
+        await m.answer("Не нашли префиксы. Отправьте список ещё раз.")
+        return
+
+    TARA_RULES_MANAGER.add_prefixes(group_id, prefixes)
+    await state.clear()
+    await m.answer(
+        f"✅ В группу <b>{esc(_tara_group_label(group_id))}</b> добавлено: <code>{esc(', '.join(prefixes))}</code>",
+        reply_markup=tara_rules_menu_kb(),
+    )
+
+
+@router.callback_query(F.data == "tararules:remove")
+async def cb_tara_rules_remove_start(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "settings.tara_rules", state=state):
+        return
+    await state.set_state(TaraRulesStates.waiting_remove_prefix)
+    await cq.message.edit_text("Выберите группу, из которой нужно удалить префикс:", reply_markup=tara_rules_group_pick_kb("remove"))
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("tararules:remove:grp:"))
+async def cb_tara_rules_remove_group(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "settings.tara_rules", state=state):
+        return
+    group_id = (cq.data or "").split(":", 3)[-1]
+    await state.set_state(TaraRulesStates.waiting_remove_prefix)
+    await state.update_data(tara_rules_group=group_id)
+    await cq.message.edit_text(
+        f"Группа: <b>{esc(_tara_group_label(group_id))}</b>\n"
+        "Отправьте один префикс, который нужно удалить.",
+        reply_markup=back_only_kb(),
+    )
+    await cq.answer()
+
+
+@router.message(TaraRulesStates.waiting_remove_prefix)
+async def tara_rules_remove_prefix_apply(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "settings.tara_rules", state=state):
+        return
+    data = await state.get_data()
+    group_id = str(data.get("tara_rules_group") or "").strip()
+    prefix = (m.text or "").strip()
+    if not group_id or not prefix:
+        await m.answer("Нужно указать префикс для удаления.")
+        return
+
+    TARA_RULES_MANAGER.remove_prefix(group_id, prefix)
+    await state.clear()
+    await m.answer(
+        f"✅ Из группы <b>{esc(_tara_group_label(group_id))}</b> удалён префикс: <code>{esc(prefix)}</code>",
+        reply_markup=tara_rules_menu_kb(),
+    )
+
+
+@router.callback_query(F.data == "tararules:lookup")
+async def cb_tara_rules_lookup_start(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "settings.tara_rules", state=state):
+        return
+    await state.set_state(TaraRulesStates.waiting_lookup_item)
+    await cq.message.edit_text(
+        "Отправьте одну или несколько номенклатур (каждую с новой строки).\n"
+        "Я верну группы по правилам tara_rules.json.",
+        reply_markup=back_only_kb(),
+    )
+    await cq.answer()
+
+
+@router.message(TaraRulesStates.waiting_lookup_item)
+async def tara_rules_lookup_apply(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "settings.tara_rules", state=state):
+        return
+    names = [line.strip() for line in (m.text or "").splitlines() if line.strip()]
+    if not names:
+        await m.answer("Укажите хотя бы одну номенклатуру.")
+        return
+
+    grouped = get_tara_groups_for_items(names)
+    lines = ["<b>Результат определения групп</b>"]
+    for name in names:
+        group_id = grouped.get(name) or get_tara_group(name)
+        lines.append(f"• <code>{esc(name)}</code> → <b>{esc(_tara_group_label(group_id))}</b> <code>({esc(group_id)})</code>")
+
+    await state.clear()
+    await m.answer("\n".join(lines), reply_markup=tara_rules_menu_kb())
 
 # Callbacks настроек
 @router.callback_query(F.data == "cfg:bot")
