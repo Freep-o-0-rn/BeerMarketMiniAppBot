@@ -47,6 +47,7 @@ class NewsService:
     def __init__(self, db_path: Path, *, static_export_paths: Optional[List[Path]] = None):
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.media_root = (self.db_path.parent / "media").resolve()
         self.static_export_paths = [Path(p) for p in (static_export_paths or [])]
         self._init_db()
 
@@ -97,6 +98,47 @@ class NewsService:
     @staticmethod
     def _now_iso() -> str:
         return datetime.now(timezone.utc).isoformat()
+
+    def _extract_media_relative(self, raw_path: str) -> Optional[Path]:
+        value = str(raw_path or "").strip()
+        if not value:
+            return None
+        candidate = Path(value)
+        try:
+            return candidate.resolve().relative_to(self.media_root)
+        except Exception:
+            pass
+        normalized = value.replace("\\", "/").lstrip("/")
+        marker = "data/news/media/"
+        idx = normalized.lower().rfind(marker)
+        if idx >= 0:
+            relative = normalized[idx + len(marker):].lstrip("/")
+            return Path(relative) if relative else None
+        return Path(normalized) if normalized and "/" in normalized else None
+
+    def _resolve_media_path(self, raw_path: str) -> Path:
+        rel = self._extract_media_relative(raw_path)
+        if rel:
+            return (self.media_root / rel).resolve()
+        return Path(str(raw_path or "")).expanduser()
+
+    def _normalized_media_reference(self, raw_path: str) -> str:
+        rel = self._extract_media_relative(raw_path)
+        if rel:
+            return rel.as_posix()
+        return str(raw_path or "")
+
+    def _load_media_rows(self, conn: sqlite3.Connection, news_id: str, *, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        query = "SELECT * FROM news_media WHERE news_id = ? ORDER BY sort_order ASC"
+        params: List[Any] = [news_id]
+        if limit is not None:
+            query += " LIMIT ?"
+            params.append(limit)
+        rows = [dict(m) for m in conn.execute(query, params).fetchall()]
+        for item in rows:
+            item["file_path"] = str(self._resolve_media_path(item.get("file_path") or ""))
+        return rows
+
 
     def create_news(self, title: str, text: str, author_id: int, author_name: str, *, status: str = "draft") -> str:
         now = self._now_iso()
@@ -153,6 +195,7 @@ class NewsService:
     def add_media(self, news_id: str, media_type: str, file_path: str, mime_type: Optional[str] = None) -> str:
         media_id = uuid.uuid4().hex
         now = self._now_iso()
+        stored_path = self._normalized_media_reference(file_path)
         with self._connect() as conn:
             row = conn.execute("SELECT COALESCE(MAX(sort_order), -1) + 1 as next_order FROM news_media WHERE news_id = ?", (news_id,)).fetchone()
             sort_order = int(row["next_order"] if row else 0)
@@ -161,7 +204,7 @@ class NewsService:
                 INSERT INTO news_media (id, news_id, media_type, file_path, mime_type, created_at, sort_order)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (media_id, news_id, media_type, file_path, mime_type, now, sort_order),
+                (media_id, news_id, media_type, stored_path, mime_type, now, sort_order),
             )
         self._sync_static_files()
         return media_id
@@ -169,7 +212,11 @@ class NewsService:
     def get_media(self, media_id: str) -> Optional[Dict[str, Any]]:
         with self._connect() as conn:
             row = conn.execute("SELECT * FROM news_media WHERE id = ?", (media_id,)).fetchone()
-            return dict(row) if row else None
+            if not row:
+                return None
+            item = dict(row)
+            item["file_path"] = str(self._resolve_media_path(item.get("file_path") or ""))
+            return item
 
     def delete_media(self, media_id: str) -> Optional[Dict[str, Any]]:
         with self._connect() as conn:
@@ -177,6 +224,7 @@ class NewsService:
             if not row:
                 return None
             payload = dict(row)
+            payload["file_path"] = str(self._resolve_media_path(payload.get("file_path") or ""))
             conn.execute("DELETE FROM news_media WHERE id = ?", (media_id,))
         self._sync_static_files()
         return payload
@@ -187,7 +235,7 @@ class NewsService:
             if not row:
                 return None
             item = dict(row)
-            item["media"] = [dict(m) for m in conn.execute("SELECT * FROM news_media WHERE news_id = ? ORDER BY sort_order ASC", (news_id,)).fetchall()]
+            item["media"] = self._load_media_rows(conn, news_id)
             item["buttons"] = json.loads(item.get("buttons_json") or "[]")
             item["is_pinned"] = bool(item.get("is_pinned"))
             return item
@@ -205,9 +253,7 @@ class NewsService:
             result = []
             for row in rows:
                 item = dict(row)
-                item["media"] = [dict(m) for m in conn.execute(
-                    "SELECT * FROM news_media WHERE news_id = ? ORDER BY sort_order ASC LIMIT 5", (item["id"],)
-                ).fetchall()]
+                item["media"] = self._load_media_rows(conn, item["id"], limit=5)
                 item["buttons"] = json.loads(item.get("buttons_json") or "[]")
                 item["is_pinned"] = bool(item.get("is_pinned"))
                 result.append(item)
@@ -217,7 +263,6 @@ class NewsService:
         if not self.static_export_paths:
             return
         rows = self.list_news(status="published", limit=500, offset=0)
-        media_root = (self.db_path.parent / "media").resolve()
         payload = []
         for idx, row in enumerate(rows, start=1):
             published_at = row.get("published_at") or row.get("created_at") or ""
@@ -225,11 +270,9 @@ class NewsService:
             for media in row.get("media") or []:
                 media_item = dict(media)
                 raw_path = media_item.get("file_path") or ""
-                try:
-                    rel = Path(raw_path).resolve().relative_to(media_root)
-                    media_item["url"] = f"/media/{rel.as_posix()}"
-                except Exception:
-                    pass
+                rel = self._extract_media_relative(raw_path)
+                if rel:
+                    media_item["file_path"] = rel.as_posix()
                 media_payload.append(media_item)
             payload.append({
                 "id": row.get("id"),
