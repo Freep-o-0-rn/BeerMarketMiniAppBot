@@ -13,6 +13,7 @@ const feed = document.getElementById('feed');
 const statusEl = document.getElementById('status');
 const loadMoreBtn = document.getElementById('loadMore');
 const syncNowBtn = document.getElementById('syncNow');
+const categoryFiltersEl = document.getElementById('categoryFilters');
 const tpl = document.getElementById('news-card-template');
 const mediaViewer = document.getElementById('mediaViewer');
 const viewerImage = document.getElementById('viewerImage');
@@ -28,6 +29,8 @@ let resolvedApiBase = null;
 let isLoading = false;
 let cacheBust = Date.now();
 let viewerZoom = 1;
+let categories = [];
+let activeCategory = '';
 
 function joinUrl(base, path) {
   return new URL(path.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).href;
@@ -158,6 +161,7 @@ function render(items) {
       node.dataset.newsId = String(row.id);
     }
     node.querySelector('.card-meta').textContent = `${row.author_name || '—'} • ${row.published_at || row.created_at || ''}`;
+    node.querySelector('.card-category').textContent = row.category_label || row.categoryLabel || 'Новости';
     node.querySelector('.card-title').textContent = row.title || 'Без заголовка';
     node.querySelector('.card-text').textContent = row.text || '';
     const carousel = node.querySelector('.carousel');
@@ -172,7 +176,11 @@ function render(items) {
 }
 
 async function tryLoadFromApiBase(base) {
-  const response = await fetch(withCacheBust(joinUrl(base, `api/news?status=published&limit=${limit}&offset=${offset}`)), { cache: 'no-store' });
+  const categoryQuery = activeCategory ? `&category=${encodeURIComponent(activeCategory)}` : '';
+  const response = await fetch(
+    withCacheBust(joinUrl(base, `api/news?status=published&limit=${limit}&offset=${offset}${categoryQuery}`)),
+    { cache: 'no-store' },
+  );
   if (!response.ok) {
     throw new Error(`API returned ${response.status}`);
   }
@@ -217,7 +225,11 @@ async function fetchLatestNewsId() {
   const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
   for (const base of apiCandidates) {
     try {
-      const response = await fetch(withCacheBust(joinUrl(base, 'api/news?status=published&limit=1&offset=0')), { cache: 'no-store' });
+      const categoryQuery = activeCategory ? `&category=${encodeURIComponent(activeCategory)}` : '';
+      const response = await fetch(
+        withCacheBust(joinUrl(base, `api/news?status=published&limit=1&offset=0${categoryQuery}`)),
+        { cache: 'no-store' },
+      );
       if (!response.ok) continue;
       const data = await response.json();
       resolvedApiBase = base;
@@ -239,6 +251,49 @@ async function refreshFeedIfNeeded() {
   offset = 0;
   loadMoreBtn.style.display = '';
   await loadNews();
+}
+
+function applyCategoryFilter(nextCategory) {
+  activeCategory = nextCategory || '';
+  feed.innerHTML = '';
+  offset = 0;
+  loadMoreBtn.style.display = '';
+  renderCategoryFilters();
+  loadNews().catch((err) => console.warn('Category load failed:', err));
+}
+
+function renderCategoryFilters() {
+  if (!categoryFiltersEl) return;
+  categoryFiltersEl.innerHTML = '';
+  const all = [{ key: '', label: 'Все' }, ...categories];
+  for (const item of all) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'category-filter-btn';
+    if ((item.key || '') === activeCategory) {
+      btn.classList.add('is-active');
+    }
+    btn.textContent = item.label;
+    btn.addEventListener('click', () => applyCategoryFilter(item.key));
+    categoryFiltersEl.append(btn);
+  }
+}
+
+async function loadCategories() {
+  const apiCandidates = resolvedApiBase ? [resolvedApiBase] : buildApiCandidates();
+  for (const base of apiCandidates) {
+    try {
+      const response = await fetch(withCacheBust(joinUrl(base, 'api/news/categories')), { cache: 'no-store' });
+      if (!response.ok) continue;
+      const data = await response.json();
+      categories = Array.isArray(data.items) ? data.items : [];
+      resolvedApiBase = base;
+      renderCategoryFilters();
+      return;
+    } catch (error) {
+      console.warn('Category catalog request failed for base:', base, error);
+    }
+  }
 }
 
 loadMoreBtn.addEventListener('click', loadNews);
@@ -273,10 +328,12 @@ if (mediaViewer) {
   });
 }
 
-loadNews().catch((err) => {
+loadCategories()
+  .catch((err) => console.warn('Categories loading skipped:', err))
+  .finally(() => loadNews().catch((err) => {
   console.error(err);
   statusEl.textContent = 'Откройте Новости через кнопку на клавиатуре "Открыть Mini App"';
-});
+  }));
 setInterval(() => {
   refreshFeedIfNeeded().catch((err) => console.warn('Auto refresh failed:', err));
 }, refreshIntervalMs);

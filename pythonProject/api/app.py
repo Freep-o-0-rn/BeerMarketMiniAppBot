@@ -13,6 +13,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from pythonProject.services.news_service import NewsService
+from pythonProject.services.news_categories import category_catalog, normalize_news_category
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "news"
@@ -112,14 +113,22 @@ async def health(_: web.Request) -> web.Response:
 
 async def list_news(request: web.Request) -> web.Response:
     status = request.query.get("status", "published")
+    category = request.query.get("category")
     limit = int(request.query.get("limit", "20"))
     offset = int(request.query.get("offset", "0"))
-    rows = NEWS.list_news(status=status, limit=max(1, min(limit, 100)), offset=max(0, offset))
+    rows = NEWS.list_news(
+        status=status,
+        category=normalize_news_category(category) if category else None,
+        limit=max(1, min(limit, 100)),
+        offset=max(0, offset),
+    )
     for row in rows:
         for media in row.get("media") or []:
             media["url"] = _build_media_url(media.get("file_path", ""))
     return web.json_response({"items": rows, "count": len(rows)})
 
+async def list_news_categories(_: web.Request) -> web.Response:
+    return web.json_response({"items": category_catalog()})
 
 async def get_news(request: web.Request) -> web.Response:
     news_id = request.match_info["news_id"]
@@ -137,6 +146,7 @@ def build_app() -> web.Application:
         web.get("/health", health),
         web.get("/healthz", health),
         web.get("/api/news", list_news),
+        web.get("/api/news/categories", list_news_categories),
         web.get("/api/news/{news_id}", get_news),
     ])
     MEDIA_DIR.mkdir(parents=True, exist_ok=True)

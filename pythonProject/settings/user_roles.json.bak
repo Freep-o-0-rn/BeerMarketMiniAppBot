@@ -195,7 +195,7 @@
   },
   "role_requests": {},
   "1188061961": {
-    "role": "admin",
+    "role": "guest",
     "access_overrides": {},
     "notification_settings": {},
     "auth_status": "approved",

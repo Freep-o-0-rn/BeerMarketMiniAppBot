@@ -10,6 +10,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from services.news_categories import category_catalog, category_label, normalize_news_category
 
 NEWS_MANAGE_BTN_TEXT = "📰 Управление новостями"
 logger = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ def _news_item_kb(news_id: str, status: str, page: int, list_status: str) -> Inl
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="✏️ Изменить заголовок", callback_data=f"news:edittitle:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="📝 Изменить текст", callback_data=f"news:edittext:{news_id}:{page}:{list_status}")],
+        [InlineKeyboardButton(text="🏷 Категория", callback_data=f"news:category:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="🖼 Редактор медиа", callback_data=f"news:mediaeditor:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="👀 Предпросмотр", callback_data=f"news:preview:{news_id}")],
         [InlineKeyboardButton(text=publish_text, callback_data=f"news:toggle:{news_id}:{page}:{list_status}")],
@@ -82,15 +84,29 @@ def _news_item_text(row: dict) -> str:
     status = str(row.get("status") or "—")
     published_at = str(row.get("published_at") or "—")
     author_name = str(row.get("author_name") or "—")
+    category = category_label(row.get("category"))
     body = str(row.get("text") or "")
     return (
         f"{title}\n"
         f"Статус: {status}\n"
+        f"Категория: {category}\n"
         f"Дата публикации: {published_at}\n"
         f"Автор: {author_name}\n"
         f"Медиа: {media_count}\n\n"
         f"{body}"
     )
+
+def _news_category_kb(news_id: str, page: int, list_status: str) -> InlineKeyboardMarkup:
+    rows: list[list[InlineKeyboardButton]] = []
+    for item in category_catalog():
+        rows.append([
+            InlineKeyboardButton(
+                text=item["label"],
+                callback_data=f"news:setcategory:{news_id}:{item['key']}:{page}:{list_status}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=f"news:item:{news_id}:{page}:{list_status}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 async def _safe_edit_text(message: Message, text: str, reply_markup: InlineKeyboardMarkup) -> bool:
     try:
@@ -265,6 +281,7 @@ def register_news_manage_handlers(
             author_id=getattr(m.from_user, "id", 0),
             author_name=(getattr(m.from_user, "full_name", None) or "Unknown"),
             status="draft",
+            category="news",
         )
         await state.clear()
         item = news_service.get_news(news_id)
@@ -444,6 +461,44 @@ def register_news_manage_handlers(
         await state.update_data(edit_news_id=news_id, edit_page=page_raw, edit_status=list_status)
         await cq.message.answer("Введите новый текст новости.")
         await cq.answer()
+
+    @router.callback_query(F.data.startswith("news:category:"))
+    async def news_edit_category_prompt(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        _, _, news_id, page_raw, list_status = (cq.data or "").split(":", 4)
+        row = news_service.get_news(news_id)
+        if not row:
+            await cq.answer("Новость не найдена", show_alert=True)
+            return
+        await cq.message.edit_text(
+            f"Выберите категорию для «{row.get('title') or 'Без заголовка'}».\n"
+            f"Текущая: {category_label(row.get('category'))}",
+            reply_markup=_news_category_kb(news_id, int(page_raw), list_status),
+        )
+        await cq.answer()
+
+    @router.callback_query(F.data.startswith("news:setcategory:"))
+    async def news_edit_category_value(cq: CallbackQuery):
+        if not await ensure_callback_access(cq, "news.manage"):
+            return
+        _, _, news_id, category_key, page_raw, list_status = (cq.data or "").split(":", 5)
+        row = news_service.get_news(news_id)
+        if not row:
+            await cq.answer("Новость не найдена", show_alert=True)
+            return
+        normalized = normalize_news_category(category_key)
+        news_service.update_news(news_id, category=normalized)
+        updated = news_service.get_news(news_id) or row
+        rendered = await _render_news_item_card(
+            cq,
+            _news_item_text(updated),
+            _news_item_kb(news_id, updated["status"], int(page_raw), list_status),
+        )
+        await cq.answer(
+            f"Категория: {category_label(normalized)}" if rendered else "Категория обновлена",
+            show_alert=not rendered,
+        )
 
     @router.message(NewsEditStates.waiting_text, F.text)
     async def news_edit_text(m: Message, state: FSMContext):

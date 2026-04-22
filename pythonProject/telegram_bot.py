@@ -67,6 +67,7 @@ from handlers.news_manage import NEWS_MANAGE_BTN_TEXT, register_news_manage_hand
 from services.media_service import MediaService
 from services.news_service import NewsService
 from services.permissions_service import extend_access_matrix
+from services.news_categories import NEWS_CATEGORY_LABELS
 from services.identity_matcher import IdentityMatcher
 from services.tara_service.tara_api import (
     get_tara_client_report,
@@ -112,7 +113,7 @@ PROMO_PAGE_SIZE = 8
 ALLOWED_PROMO_IMG = {"jpg","jpeg","png","webp"}
 ALLOWED_PROMO_DOC = {"pdf"}  # документ (отправим как файл)
 NEWS_INDEX = ROOT_DIR / "news.json"
-NEWS_CATEGORIES = {"Новость", "Обновление", "Акция", "Сервис"}
+NEWS_CATEGORIES = set(NEWS_CATEGORY_LABELS.values())
 #календарь
 _RU_MONTHS = ["", "Январь","Февраль","Март","Апрель","Май","Июнь",
               "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]
@@ -10990,6 +10991,7 @@ def _promo_to_news(promo: Dict[str, Any], author_id: int, author_name: str) -> O
         author_id=author_id,
         author_name=author_name or "Unknown",
         status="draft",
+        category="promo",
     )
 
     image_name = (promo.get("image") or "").strip()
