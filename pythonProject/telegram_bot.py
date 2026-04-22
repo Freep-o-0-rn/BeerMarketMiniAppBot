@@ -2317,6 +2317,9 @@ def pending_role_requests() -> List[Dict[str, Any]]:
     items.sort(key=lambda it: it.get("created_at") or "", reverse=True)
     return items
 
+def role_requests_menu_button_text() -> str:
+    return f"📥 Заявки на роли({len(pending_role_requests())})"
+
 def is_user_blocked(user_id: Optional[int]) -> bool:
     if not user_id:
         return False
@@ -2880,6 +2883,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     management_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "users.manage") or user_allows_action(user_id, "users.view"):
         management_row.append(KeyboardButton(text="👥 Пользователи"))
+    if user_allows_action(user_id, "role_requests.view"):
+        management_row.append(KeyboardButton(text=role_requests_menu_button_text()))
     if user_allows_action(user_id, "client_cards.view"):
         management_row.append(KeyboardButton(text=_management_button_text(role)))
     if user_allows_action(user_id, "technicians.manage"):
@@ -3210,7 +3215,6 @@ def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
         nav.append(InlineKeyboardButton(text="➡️", callback_data=f"usr:list:{page+1}"))
     if nav:
         rows.append(nav)
-    rows.append([InlineKeyboardButton(text="📥 Заявки на роли", callback_data="req:list:0")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -3279,6 +3283,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("technicians.manage", "🛠 Техники"),
     ("users.view", "👥 Пользователи (просмотр)"),
     ("users.manage", "👥 Пользователи (управление)"),
+    ("role_requests.view", "📥 Заявки на роли"),
     ("notifications.manage", "🔔 Уведомления"),
     ("settings.overdue", "⚙️ Отсрочки"),
     ("settings.filters", "🎛️ Фильтры"),
@@ -5316,16 +5321,17 @@ ACCESS_MATRIX: Dict[str, set] = {
     "updates.mail": {"admin"},
     "ttn.lookup": {"admin", "sales_rep", "moderator"},
     "client_cards.view": {"admin", "sales_rep", "moderator", "client"},
-    "client_cards.manage": {"admin", "sales_rep"},
+    "client_cards.manage": {"admin", "moderator", "sales_rep"},
     "client_cards.view_other_sales_bases": {"admin", "moderator"},
-    "technicians.manage": {"admin"},
+    "technicians.manage": {"admin", "moderator"},
     "users.view": {"admin", "moderator"},
     "users.manage": {"admin"},
+    "role_requests.view": {"admin", "moderator"},
     "notifications.manage": {"admin", "moderator"},
     "role_requests.manage": {"admin", "moderator"},
     "news.manage": {"admin", "moderator"},
-    "settings.overdue": {"admin", "sales_rep"},
-    "settings.filters": {"admin", "sales_rep"},
+    "settings.overdue": {"admin", "moderator", "sales_rep"},
+    "settings.filters": {"admin", "moderator", "sales_rep"},
     "settings.tara_rules": {"admin"},
 }
 
@@ -5350,6 +5356,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
     "notifications.manage": "управление уведомлениями",
+    "role_requests.view": "просмотр заявок на роли",
     "role_requests.manage": "обработка заявок на роли",
     "news.manage": "управление новостями Mini App",
     "settings.overdue": "настройка отсрочек",
@@ -9911,16 +9918,16 @@ async def _sync_role_request_notification_messages(req: Dict[str, Any]) -> None:
     req["notification_messages"] = alive_refs
     _save_role_request(req)
 
-@router.message(F.text == "📥 Заявки на роли")
+@router.message(F.text.startswith("📥 Заявки на роли"))
 async def requests_menu_button(m: Message):
-    if not await ensure_message_access(m, "users.view"):
+    if not await ensure_message_access(m, "role_requests.view"):
         return
     await m.answer("Заявки на роли:", reply_markup=role_requests_list_kb())
 
 
 @router.callback_query(F.data.startswith("req:list:"))
 async def requests_list(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.view"):
+    if not await ensure_callback_access(cq, "role_requests.view"):
         return
     parts = (cq.data or "").split(":")
     page = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 0
@@ -9930,7 +9937,7 @@ async def requests_list(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("req:view:"))
 async def requests_view(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.view"):
+    if not await ensure_callback_access(cq, "role_requests.view"):
         return
     parts = (cq.data or "").split(":")
     request_id = parts[2] if len(parts) > 2 else ""
@@ -9961,7 +9968,7 @@ async def requests_view(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("req:approve:"))
 async def requests_approve(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.view"):
+    if not await ensure_callback_access(cq, "role_requests.view"):
         return
     parts = (cq.data or "").split(":")
     request_id = parts[2] if len(parts) > 2 else ""
@@ -10003,7 +10010,7 @@ async def requests_approve(cq: CallbackQuery):
 
 @router.callback_query(F.data.startswith("req:reject:"))
 async def requests_reject(cq: CallbackQuery):
-    if not await ensure_callback_access(cq, "users.view"):
+    if not await ensure_callback_access(cq, "role_requests.view"):
         return
     parts = (cq.data or "").split(":")
     request_id = parts[2] if len(parts) > 2 else ""
