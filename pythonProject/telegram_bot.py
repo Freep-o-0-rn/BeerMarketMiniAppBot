@@ -2106,6 +2106,24 @@ def _request_recipients() -> List[int]:
             recipients.add(int(uid))
     return sorted(recipients)
 
+def _role_request_counter_recipients() -> List[int]:
+    data = _roles_load()
+    recipients = {int(uid) for uid in _ADMIN_IDS if isinstance(uid, int)}
+    for uid, rec in data.items():
+        uid_s = str(uid)
+        if uid_s in {"client_phones", ROLE_REQUESTS_KEY} or not isinstance(rec, dict) or not uid_s.isdigit():
+            continue
+        if user_allows_action(int(uid_s), "role_requests.view"):
+            recipients.add(int(uid_s))
+    return sorted(recipients)
+
+
+async def refresh_role_requests_menu_counters(skip_user_id: Optional[int] = None) -> None:
+    for recipient in _role_request_counter_recipients():
+        if skip_user_id and int(skip_user_id) == recipient:
+            continue
+        await push_user_menu_refresh(recipient, "📥 Счётчик заявок на роли обновлён.")
+
 
 async def notify_role_request_created(req: Dict[str, Any]) -> None:
     user_id = int(req.get("user_id") or 0)
@@ -2151,6 +2169,7 @@ async def request_sales_rep_role(m: Message) -> None:
     update_user_record(user_id, {"auth_status": "pending", "auth_source": "self_declared", "onboard_completed": True})
     await m.answer("📨 Заявка на роль торгового отправлена администратору.", reply_markup=guest_menu_kb(user_id))
     await notify_role_request_created(req)
+    await refresh_role_requests_menu_counters()
 
 def delete_user_record(user_id: Any) -> bool:
     uid = str(user_id)
@@ -5759,6 +5778,7 @@ async def ob_client_name(m: Message, state: FSMContext):
             reply_markup=guest_menu_kb(getattr(m.from_user, "id", None)),
         )
         await notify_role_request_created(req)
+        await refresh_role_requests_menu_counters()
         await on_start(m, state)
         return
     name = normalize_client_name(raw_name)
@@ -5858,6 +5878,7 @@ async def ob_client_name(m: Message, state: FSMContext):
     )
 
     await notify_role_request_created(req)
+    await refresh_role_requests_menu_counters()
     await on_start(m, state)
 
 @router.message(F.text == "🧑‍💼 Запросить роль торгового", StateFilter(None))
@@ -6655,6 +6676,7 @@ async def role_request_create_callback(cq: CallbackQuery):
     if user_record_exists(uid):
         update_user_record(uid, {"auth_status": "pending", "auth_source": "self_declared", "onboard_completed": True})
     await notify_role_request_created(request)
+    await refresh_role_requests_menu_counters()
     message = "Заявка отправлена. Мы уведомили администраторов и модераторов."
     await cq.message.edit_text(
         f"✅ {esc(message)}\n"
@@ -6754,6 +6776,7 @@ async def role_request_decide_callback(cq: CallbackQuery):
                 "source": "inline_notification",
             }
         )
+    await refresh_role_requests_menu_counters(skip_user_id=target_user_id)
     await cq.answer("Заявка обработана.")
 
 
@@ -10004,6 +10027,7 @@ async def requests_approve(cq: CallbackQuery):
     await _sync_role_request_notification_messages(req)
     AUDIT.info({"event": "role_request_approved", "request_id": request_id, "decider": decider_id, "target_user": user_id, "target_role": target_role})
     await push_user_menu_refresh(str(user_id), "✅ Ваша заявка одобрена. Меню обновлено.")
+    await refresh_role_requests_menu_counters(skip_user_id=user_id)
     await notify_about_role_change(actor_id=decider_id, target_user_id=user_id, old_role=old_role, new_role=target_role)
     await cq.answer("Заявка подтверждена.")
     await requests_list(cq)
@@ -10046,6 +10070,7 @@ async def requests_reject(cq: CallbackQuery):
     _save_role_request(req)
     await _sync_role_request_notification_messages(req)
     AUDIT.info({"event": "role_request_rejected", "request_id": request_id, "decider": decider_id, "target_user": user_id, "target_role": target_role})
+    await refresh_role_requests_menu_counters(skip_user_id=user_id)
     try:
         await bot.send_message(
             user_id,
