@@ -3240,17 +3240,6 @@ def user_detail_kb(
     if can_manage:
         rows.extend([
             [
-                InlineKeyboardButton(text="✅ Сделать админом", callback_data=f"usr:setrole:{uid}:admin"),
-                InlineKeyboardButton(text="👤 Сделать клиентом", callback_data=f"usr:setrole:{uid}:client"),
-            ],
-            [
-                InlineKeyboardButton(text="🧑‍💼 Сделать торговым представителем", callback_data=f"usr:setrole:{uid}:sales_rep"),
-                InlineKeyboardButton(text="👋 Сделать гостем", callback_data=f"usr:setrole:{uid}:guest"),
-            ],
-            [
-                InlineKeyboardButton(text="🛡 Сделать модератором", callback_data=f"usr:setrole:{uid}:moderator"),
-            ],
-            [
                 InlineKeyboardButton(text="🗑 Удалить пользователя", callback_data=f"usr:del:{uid}:{page}"),
                 InlineKeyboardButton(text=auth_btn_text, callback_data=f"usr:auth:{uid}:{page}"),
             ],
