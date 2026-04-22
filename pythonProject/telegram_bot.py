@@ -2880,16 +2880,19 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     if user_allows_action(user_id, "settings.tara_rules"):
         settings_row.append(KeyboardButton(text="⚙️ Управление правилами тары"))
     _append_button_row_if_any(keyboard, settings_row)
+    if user_allows_action(user_id, "role_requests.view"):
+        # Делаем отдельную строку, чтобы счётчик заявок всегда был полностью виден.
+        keyboard.append([KeyboardButton(text=role_requests_menu_button_text())])
     management_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "users.manage") or user_allows_action(user_id, "users.view"):
         management_row.append(KeyboardButton(text="👥 Пользователи"))
-    if user_allows_action(user_id, "role_requests.view"):
-        management_row.append(KeyboardButton(text=role_requests_menu_button_text()))
     if user_allows_action(user_id, "client_cards.view"):
         management_row.append(KeyboardButton(text=_management_button_text(role)))
-    if user_allows_action(user_id, "technicians.manage"):
-        management_row.append(KeyboardButton(text="🛠 Техники"))
     _append_button_row_if_any(keyboard, management_row)
+    technicians_row: List[KeyboardButton] = []
+    if user_allows_action(user_id, "technicians.manage"):
+        technicians_row.append(KeyboardButton(text="🛠 Техники"))
+    _append_button_row_if_any(keyboard, technicians_row)
     if role in {"guest", "client", "sales_rep"}:
         keyboard.append([KeyboardButton(text="📝 Заявка на роль")])
     if user_allows_action(user_id, "notifications.manage"):
@@ -3392,7 +3395,6 @@ def role_requests_list_kb(page: int = 0, page_size: int = 8) -> InlineKeyboardMa
         nav.append(InlineKeyboardButton(text="➡️", callback_data=f"req:list:{page+1}"))
     if nav:
         rows.append(nav)
-    rows.append([InlineKeyboardButton(text="⬅️ К пользователям", callback_data="usr:list:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 

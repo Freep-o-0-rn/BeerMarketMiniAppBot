@@ -168,5 +168,25 @@
         "message_id": 3575
       }
     ]
+  },
+  {
+    "id": "51f9e27a-a2f3-49a7-8df8-ea9c0ecb501e",
+    "user_id": 1188061961,
+    "target_role": "sales_rep",
+    "status": "pending",
+    "reason": "surname=Десятов; matcher_reason=sales_rep_ratio=0.533; confidence=0.1",
+    "created_at": "2026-04-22T08:28:06Z",
+    "updated_at": "2026-04-22T08:28:06Z",
+    "decided_by": null,
+    "notification_messages": [
+      {
+        "chat_id": 237087423,
+        "message_id": 4656
+      },
+      {
+        "chat_id": 288807506,
+        "message_id": 4657
+      }
+    ]
   }
 ]
