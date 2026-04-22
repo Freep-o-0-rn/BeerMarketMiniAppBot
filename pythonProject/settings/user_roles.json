@@ -195,13 +195,13 @@
   },
   "role_requests": {},
   "1188061961": {
-    "role": "guest",
+    "role": "admin",
     "access_overrides": {},
     "notification_settings": {},
-    "auth_status": "pending",
-    "auth_source": "self_declared",
-    "auth_confidence": 0.1,
-    "last_role_request_at": "2026-04-22T08:28:06Z",
+    "auth_status": "approved",
+    "auth_source": "manual_admin",
+    "auth_confidence": 0.51,
+    "last_role_request_at": "2026-04-22T08:44:31Z",
     "request_cooldown_until": "",
     "rejection_count": 0,
     "phone": "+79965440806",
@@ -210,7 +210,7 @@
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "name": "Десятов",
+    "name": "Морозова",
     "onboard_completed": true
   }
 }

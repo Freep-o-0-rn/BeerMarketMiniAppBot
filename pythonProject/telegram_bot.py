@@ -3200,8 +3200,14 @@ def _iter_known_users() -> List[Tuple[str, Dict[str, Any]]]:
             rec["phone_verified"] = bool(db_user.get("phone_verified"))
     return sorted(users.items(), key=_user_sort_key)
 
-def users_list_kb(page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+def users_list_kb(page: int = 0, page_size: int = 10, current_user_id: Optional[int] = None) -> InlineKeyboardMarkup:
     items = _iter_known_users()
+    if current_user_id is not None:
+        current_uid = str(int(current_user_id))
+        current_idx = next((idx for idx, (uid, _) in enumerate(items) if uid == current_uid), None)
+        if current_idx is not None and current_idx > 0:
+            current_item = items[current_idx]
+            items = [current_item, *items[:current_idx], *items[current_idx + 1:]]
     total = len(items)
     page = max(0, page)
     start = page * page_size
@@ -9835,7 +9841,10 @@ async def reset_role_cmd(m: Message, state: FSMContext):
 async def admin_users_list(m: Message):
     if not await ensure_message_access(m, "users.view"):
         return
-    await m.answer("Список пользователей:", reply_markup=users_list_kb())
+    await m.answer(
+        "Список пользователей:",
+        reply_markup=users_list_kb(current_user_id=getattr(m.from_user, "id", None)),
+    )
 
 def _get_role_request(request_id: str) -> Optional[Dict[str, Any]]:
     for req in _role_requests_load():
@@ -10157,7 +10166,10 @@ async def admin_users_list_page(cq: CallbackQuery):
         page = int(cq.data.split(":")[2])
     except Exception:
         page = 0
-    await cq.message.edit_text("Список пользователей:", reply_markup=users_list_kb(page=page))
+    await cq.message.edit_text(
+        "Список пользователей:",
+        reply_markup=users_list_kb(page=page, current_user_id=getattr(cq.from_user, "id", None)),
+    )
     await cq.answer()
 
 @router.callback_query(F.data.startswith("usr:sel:"))
@@ -10449,7 +10461,10 @@ async def admin_users_delete_confirm(cq: CallbackQuery, state: FSMContext):
         await cq.message.answer("⚠️ Пользователь не найден.")
         await cq.answer()
         return
-    await cq.message.answer("✅ Пользователь удалён.", reply_markup=users_list_kb(page=page))
+    await cq.message.answer(
+        "✅ Пользователь удалён.",
+        reply_markup=users_list_kb(page=page, current_user_id=getattr(cq.from_user, "id", None)),
+    )
     await cq.answer()
 
 @router.callback_query(F.data.startswith("usr:editname:"))
