@@ -5725,6 +5725,10 @@ async def ob_phone_contact_text(m: Message, state: FSMContext):
 @router.message(OnboardStates.waiting_admin_password)
 async def ob_admin_pwd(m: Message, state: FSMContext):
     if (m.text or "").strip() == ADMIN_ONBOARD_PASSWORD:
+        try:
+            await m.delete()  # скрыть корректно введённый пароль
+        except Exception:
+            pass
         set_user_role(m.from_user.id, "admin")
         await state.clear()
         await m.answer("✅ Админ доступ выдан.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
