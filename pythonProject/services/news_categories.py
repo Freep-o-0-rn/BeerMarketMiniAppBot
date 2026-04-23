@@ -4,9 +4,9 @@ from typing import Dict, List, Optional
 
 DEFAULT_NEWS_CATEGORY = "other"
 NEWS_CATEGORY_LABELS: Dict[str, str] = {
-    "system": "Системные",
-    "promo": "Акции",
     "news": "Новости",
+    "promo": "Акции",
+    "system": "Системные",
     "other": "Другое",
 }
 
