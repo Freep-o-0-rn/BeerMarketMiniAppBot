@@ -327,7 +327,7 @@ class NewsService:
                 "id": row.get("id"),
                 "seq": idx,
                 "title": row.get("title") or "Без заголовка",
-                "category": row.get("category") or "Новость",
+                "category": category_label(row.get("category")),
                 "date": str(published_at)[:10] if published_at else "",
                 "text": row.get("text") or "",
                 "publishState": "published",

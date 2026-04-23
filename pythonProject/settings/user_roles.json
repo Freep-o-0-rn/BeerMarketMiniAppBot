@@ -30,6 +30,24 @@
     "request_cooldown_until": "",
     "rejection_count": 0
   },
+  "237087423": {
+    "role": "admin",
+    "phone": "+79994680011",
+    "phone_verified": true,
+    "username": "Freep_o_0_rn",
+    "first_name": "Freep_o_0_rn",
+    "language_code": "ru",
+    "access_overrides": {},
+    "notification_settings": {
+      "new_users": true
+    },
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
+  },
   "405433712": {
     "role": "client",
     "name": "Демидов",
@@ -113,9 +131,12 @@
     "language_code": "ru",
     "role": "moderator",
     "access_overrides": {},
-    "notification_settings": {},
+    "notification_settings": {
+      "new_users": true
+    },
     "phone": "+79232235848",
     "phone_verified": true,
+    "name": "Заечка",
     "auth_status": "approved",
     "auth_source": "self_declared",
     "auth_confidence": 0.0,
@@ -177,36 +198,112 @@
     "request_cooldown_until": "",
     "rejection_count": 0
   },
-  "237087423": {
-    "role": "admin",
-    "access_overrides": {},
-    "notification_settings": {},
-    "auth_status": "approved",
-    "auth_source": "self_declared",
-    "auth_confidence": 0.0,
-    "last_role_request_at": "",
-    "request_cooldown_until": "",
-    "rejection_count": 0,
-    "username": "Freep_o_0_rn",
-    "first_name": "Freep_o_0_rn",
+  "887940364": {
+    "first_name": "Дима",
+    "last_name": "Didi",
     "language_code": "ru",
-    "phone": "+79994680011",
-    "phone_verified": true
-  },
-  "role_requests": {},
-  "1188061961": {
-    "role": "admin",
+    "role": "sales_rep",
     "access_overrides": {},
     "notification_settings": {},
+    "phone": "+79139206823",
+    "phone_verified": true,
+    "name": "Ганиев",
     "auth_status": "approved",
     "auth_source": "self_declared",
     "auth_confidence": 0.0,
     "last_role_request_at": "",
     "request_cooldown_until": "",
-    "rejection_count": 0,
+    "rejection_count": 0
+  },
+  "1786997544": {
+    "first_name": "Алексей",
+    "language_code": "ru",
+    "role": "sales_rep",
+    "access_overrides": {},
+    "notification_settings": {},
+    "phone": "+79231578099",
+    "phone_verified": true,
+    "name": "Щербатов",
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
+  },
+  "1541701393": {
+    "first_name": "Евгений",
+    "language_code": "ru",
+    "role": "sales_rep",
+    "access_overrides": {
+      "reports.overdue": false,
+      "reports.overpaid": false
+    },
+    "notification_settings": {},
+    "phone": "+79139071919",
+    "phone_verified": true,
+    "name": "Токарев",
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
+  },
+  "1188061961": {
+    "role": "moderator",
+    "access_overrides": {
+      "updates.mail": true,
+      "settings.filters": true,
+      "settings.overdue": true
+    },
+    "notification_settings": {},
     "username": "Re1ze_r",
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
-    "is_premium": true
+    "is_premium": true,
+    "phone": "+79965440806",
+    "phone_verified": true,
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0
+  },
+  "role_requests": {},
+  "5255352159": {
+    "role": "sales_rep",
+    "access_overrides": {},
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "debt_import",
+    "auth_confidence": 0.85,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "phone": "+79139253880",
+    "phone_verified": true,
+    "first_name": "Николай",
+    "language_code": "ru",
+    "name": "Воротников Н",
+    "onboard_completed": true
+  },
+  "694160365": {
+    "username": "petruuuuha",
+    "first_name": "Никита",
+    "language_code": "ru",
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "role": "guest",
+    "access_overrides": {},
+    "notification_settings": {},
+    "phone": "+79134503708",
+    "phone_verified": true,
+    "onboard_completed": true
   }
 }

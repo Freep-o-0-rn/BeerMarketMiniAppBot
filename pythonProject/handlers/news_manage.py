@@ -10,7 +10,12 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message
-from services.news_categories import category_catalog, category_label, normalize_news_category
+from services.news_categories import (
+    DEFAULT_NEWS_CATEGORY,
+    category_catalog,
+    category_label,
+    normalize_news_category,
+)
 
 NEWS_MANAGE_BTN_TEXT = "📰 Управление новостями"
 logger = logging.getLogger(__name__)
@@ -43,10 +48,11 @@ def _news_menu_kb() -> InlineKeyboardMarkup:
 
 def _news_item_kb(news_id: str, status: str, page: int, list_status: str) -> InlineKeyboardMarkup:
     publish_text = "✅ Опубликовать" if status != "published" else "📝 В черновик"
+    list_status_token = "p" if list_status == "published" else "d"
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="✏️ Изменить заголовок", callback_data=f"news:edittitle:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="📝 Изменить текст", callback_data=f"news:edittext:{news_id}:{page}:{list_status}")],
-        [InlineKeyboardButton(text="🏷 Категория", callback_data=f"news:category:{news_id}:{page}:{list_status}")],
+        [InlineKeyboardButton(text="🏷 Категория", callback_data=f"news:cat:{news_id}:{page}:{list_status_token}")],
         [InlineKeyboardButton(text="🖼 Редактор медиа", callback_data=f"news:mediaeditor:{news_id}:{page}:{list_status}")],
         [InlineKeyboardButton(text="👀 Предпросмотр", callback_data=f"news:preview:{news_id}")],
         [InlineKeyboardButton(text=publish_text, callback_data=f"news:toggle:{news_id}:{page}:{list_status}")],
@@ -97,12 +103,13 @@ def _news_item_text(row: dict) -> str:
     )
 
 def _news_category_kb(news_id: str, page: int, list_status: str) -> InlineKeyboardMarkup:
+    list_status_token = "p" if list_status == "published" else "d"
     rows: list[list[InlineKeyboardButton]] = []
     for item in category_catalog():
         rows.append([
             InlineKeyboardButton(
                 text=item["label"],
-                callback_data=f"news:setcategory:{news_id}:{item['key']}:{page}:{list_status}",
+                callback_data=f"news:setcat:{news_id}:{item['key']}:{page}:{list_status_token}",
             )
         ])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=f"news:item:{news_id}:{page}:{list_status}")])
@@ -281,7 +288,7 @@ def register_news_manage_handlers(
             author_id=getattr(m.from_user, "id", 0),
             author_name=(getattr(m.from_user, "full_name", None) or "Unknown"),
             status="draft",
-            category="news",
+            category=DEFAULT_NEWS_CATEGORY,
         )
         await state.clear()
         item = news_service.get_news(news_id)
@@ -462,11 +469,12 @@ def register_news_manage_handlers(
         await cq.message.answer("Введите новый текст новости.")
         await cq.answer()
 
-    @router.callback_query(F.data.startswith("news:category:"))
+    @router.callback_query(F.data.startswith("news:cat:"))
     async def news_edit_category_prompt(cq: CallbackQuery):
         if not await ensure_callback_access(cq, "news.manage"):
             return
-        _, _, news_id, page_raw, list_status = (cq.data or "").split(":", 4)
+        _, _, news_id, page_raw, status_token = (cq.data or "").split(":", 4)
+        list_status = "published" if status_token == "p" else "draft"
         row = news_service.get_news(news_id)
         if not row:
             await cq.answer("Новость не найдена", show_alert=True)
@@ -478,11 +486,12 @@ def register_news_manage_handlers(
         )
         await cq.answer()
 
-    @router.callback_query(F.data.startswith("news:setcategory:"))
+    @router.callback_query(F.data.startswith("news:setcat:"))
     async def news_edit_category_value(cq: CallbackQuery):
         if not await ensure_callback_access(cq, "news.manage"):
             return
-        _, _, news_id, category_key, page_raw, list_status = (cq.data or "").split(":", 5)
+        _, _, news_id, category_key, page_raw, status_token = (cq.data or "").split(":", 5)
+        list_status = "published" if status_token == "p" else "draft"
         row = news_service.get_news(news_id)
         if not row:
             await cq.answer("Новость не найдена", show_alert=True)

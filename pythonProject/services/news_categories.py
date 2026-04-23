@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-DEFAULT_NEWS_CATEGORY = "news"
+DEFAULT_NEWS_CATEGORY = "other"
 NEWS_CATEGORY_LABELS: Dict[str, str] = {
     "system": "Системные",
     "promo": "Акции",
     "news": "Новости",
+    "other": "Другое",
 }
 
 _LEGACY_LABEL_TO_KEY = {
@@ -17,6 +18,7 @@ _LEGACY_LABEL_TO_KEY = {
     "системные": "system",
     "акция": "promo",
     "акции": "promo",
+    "другое": "other",
 }
 
 
