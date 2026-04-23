@@ -8,6 +8,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from pythonProject.services.news_categories import (
+    DEFAULT_NEWS_CATEGORY,
+    category_label,
+    normalize_news_category,
+)
 
 @dataclass
 class NewsItem:
@@ -94,6 +99,16 @@ class NewsService:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_news_status ON news(status)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_news_published ON news(published_at DESC)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_media_news ON news_media(news_id, sort_order)")
+            columns = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(news)").fetchall()
+            }
+            if "category" not in columns:
+                conn.execute("ALTER TABLE news ADD COLUMN category TEXT")
+            if "is_pinned" not in columns:
+                conn.execute("ALTER TABLE news ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0")
+            if "buttons_json" not in columns:
+                conn.execute("ALTER TABLE news ADD COLUMN buttons_json TEXT NOT NULL DEFAULT '[]'")
 
     @staticmethod
     def _now_iso() -> str:
@@ -140,16 +155,35 @@ class NewsService:
         return rows
 
 
-    def create_news(self, title: str, text: str, author_id: int, author_name: str, *, status: str = "draft") -> str:
+    def create_news(
+        self,
+        title: str,
+        text: str,
+        author_id: int,
+        author_name: str,
+        *,
+        status: str = "draft",
+        category: Optional[str] = None,
+    ) -> str:
         now = self._now_iso()
         news_id = uuid.uuid4().hex
         with self._connect() as conn:
             conn.execute(
                 """
-                INSERT INTO news (id, title, text, author_id, author_name, status, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO news (id, title, text, author_id, author_name, status, created_at, updated_at, category)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (news_id, title.strip(), text.strip(), author_id, author_name.strip() or "Unknown", status, now, now),
+                (
+                    news_id,
+                    title.strip(),
+                    text.strip(),
+                    author_id,
+                    author_name.strip() or "Unknown",
+                    status,
+                    now,
+                    now,
+                    normalize_news_category(category, default=DEFAULT_NEWS_CATEGORY),
+                ),
             )
         self._sync_static_files()
         return news_id
@@ -240,12 +274,25 @@ class NewsService:
             item["is_pinned"] = bool(item.get("is_pinned"))
             return item
 
-    def list_news(self, *, status: Optional[str] = None, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
+    def list_news(
+        self,
+        *,
+        status: Optional[str] = None,
+        category: Optional[str] = None,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> List[Dict[str, Any]]:
         query = "SELECT * FROM news"
         params: List[Any] = []
+        where_clauses: List[str] = []
         if status:
-            query += " WHERE status = ?"
+            where_clauses.append("status = ?")
             params.append(status)
+        if category:
+            where_clauses.append("category = ?")
+            params.append(normalize_news_category(category, default=DEFAULT_NEWS_CATEGORY))
+        if where_clauses:
+            query += f" WHERE {' AND '.join(where_clauses)}"
         query += " ORDER BY is_pinned DESC, COALESCE(published_at, created_at) DESC, display_order DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         with self._connect() as conn:
@@ -256,6 +303,8 @@ class NewsService:
                 item["media"] = self._load_media_rows(conn, item["id"], limit=5)
                 item["buttons"] = json.loads(item.get("buttons_json") or "[]")
                 item["is_pinned"] = bool(item.get("is_pinned"))
+                item["category"] = normalize_news_category(item.get("category"), default=DEFAULT_NEWS_CATEGORY)
+                item["category_label"] = category_label(item.get("category"))
                 result.append(item)
             return result
 
