@@ -2372,6 +2372,7 @@ FILTERS_PATH = os.getenv("FILTERS_PATH", MIN_DEBT_JSON)
 DEFAULT_FILTERS = {
     "min_debt": 999.0,
     "min_overdue_days": 20,  # новый порог по дням для отчёта «Просрочка»
+    "hide_zero_debt_docs_older_than_days": 7,  # скрывать старые нулевые фактуры в карточке клиента
     "merge_kegs_50l_type_s": False,  # суммировать «Бочка 50л S RU» + «Бочка 50л тип S»
 }
 
@@ -2476,6 +2477,20 @@ def get_min_overdue_days(user_id: Optional[int] = None) -> int:
 def set_min_overdue_days(n: int, user_id: Optional[int] = None) -> None:
     _set_user_filter_value(user_id, "min_overdue_days", int(max(0, n)))
 
+def get_hide_zero_debt_docs_older_than_days(user_id: Optional[int] = None) -> int:
+    try:
+        return int(
+            _get_user_filters(user_id).get(
+                "hide_zero_debt_docs_older_than_days",
+                DEFAULT_FILTERS["hide_zero_debt_docs_older_than_days"],
+            )
+        )
+    except Exception:
+        return int(DEFAULT_FILTERS["hide_zero_debt_docs_older_than_days"])
+
+def set_hide_zero_debt_docs_older_than_days(n: int, user_id: Optional[int] = None) -> None:
+    _set_user_filter_value(user_id, "hide_zero_debt_docs_older_than_days", int(max(0, n)))
+
 def get_merge_kegs_50l_type_s(user_id: Optional[int] = None) -> bool:
     try:
         return bool(_get_user_filters(user_id).get("merge_kegs_50l_type_s", DEFAULT_FILTERS["merge_kegs_50l_type_s"]))
@@ -2536,6 +2551,18 @@ FILTER_PAGES = [
         "default": DEFAULT_FILTERS["min_overdue_days"],
         "parse": lambda s: int((s or "0").strip() or "0"),
         "validate": lambda v: (0 <= v <= 365, "Целое 0..365"),
+        "fmt": lambda v: f"{int(v)} дн.",
+    },
+    {
+        "key": "hide_zero_debt_docs_older_than_days",
+        "title": "Скрывать нулевые фактуры старше",
+        "units": "дн.",
+        "desc": "В дебиторке скрывать строки с суммой 0 ₽, если их возраст больше N дней.",
+        "get": lambda user_id: get_hide_zero_debt_docs_older_than_days(user_id),
+        "set": lambda value, user_id: set_hide_zero_debt_docs_older_than_days(value, user_id),
+        "default": DEFAULT_FILTERS["hide_zero_debt_docs_older_than_days"],
+        "parse": lambda s: int((s or "0").strip() or "0"),
+        "validate": lambda v: (0 <= v <= 3650, "Целое 0..3650"),
         "fmt": lambda v: f"{int(v)} дн.",
     },
     {
@@ -4705,8 +4732,9 @@ def client_has_overdue(item: Dict[str, Any], report_date: Optional[str], user_id
 
 # ----------------- Карточка клиента ------------------
 # ----------------- Карточка клиента ------------------
-def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str]) -> str:
+def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str], user_id: Optional[int] = None) -> str:
     threshold = get_overdue_days_for_client(item.get('client') or '')
+    hide_zero_after_days = get_hide_zero_debt_docs_older_than_days(user_id)
     docs: List[Dict[str, Any]] = item.get("docs") or []
 
     # суммы/флаги для статуса
@@ -4765,13 +4793,26 @@ def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str]
     if item.get("our_debt_hdr") is not None:
         hdr  = fmt_money(item.get("our_debt_hdr"))
         rows = fmt_money(item.get("our_debt_sum_rows"))
-        if hdr != rows:
-            head += f"<i>Примечание: шапка {hdr}, по строкам {rows}</i>\n"
 
-    # строки реализаций (добавили badge у каждой строки)
-    if prepared_docs:
+    # строки реализаций: опционально скрываем «нулевые» старые фактуры
+    visible_docs: List[Dict[str, Any]] = []
+    hidden_zero_docs = 0
+    for d in prepared_docs:
+        days_calc = d.get("__days_calc")
+        is_zero = bool(d.get("__is_zero_paid"))
+        should_hide_zero_doc = (
+            is_zero
+            and days_calc is not None
+            and int(days_calc) > hide_zero_after_days
+        )
+        if should_hide_zero_doc:
+            hidden_zero_docs += 1
+            continue
+        visible_docs.append(d)
+
+    if visible_docs:
         head += "\n<b>Реализации:</b>\n"
-        for n, d in enumerate(prepared_docs, 1):
+        for n, d in enumerate(visible_docs, 1):
             nums         = ", ".join(d.get("doc_numbers") or []) or "—"
             doc_date_str = d.get("doc_date") or "—"
             days_txt     = str(d["__days_calc"]) if d["__days_calc"] is not None else "—"
@@ -4788,14 +4829,16 @@ def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str]
             overdue_for_text = False if is_zero_with_overpay else bool(d["__overdue_real"])
 
             line = (
-                f"{row_badge} {prefix}{n}. \tРеализация товаров и услуг <code>{esc(nums)}</code> "
-                f"от {esc(doc_date_str)}\tCумма долга <b>{fmt_money(d['__amt'])}</b> ₽\t|\tДней <b>{days_txt}</b>\t |\t"
-                f"Просрочена — {'да' if overdue_for_text else 'нет'}"
+                f"{row_badge} {prefix}<b>{n}.</b> Реализация <code>{esc(nums)}</code> от {esc(doc_date_str)}\n"
+                f"   • Долг: <b>{fmt_money(d['__amt'])}</b> ₽ | Дней: <b>{days_txt}</b> | Просрочена: {'да' if overdue_for_text else 'нет'}"
             )
             head += line + "\n"
     else:
         head += "\n<i>Нет строк реализаций</i>\n"
-
+    if hidden_zero_docs > 0:
+        head += (
+            f"<tg-spoiler><i>Скрыто: {hidden_zero_docs}.🎛️ Фильтр {hide_zero_after_days} дн.</i></tg-spoiler>"
+        )
     if report_date:
         head += f"\n<i>Отчёт на {esc(report_date)}</i>"
     return head
@@ -5125,7 +5168,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
                 return
     # Внутри render_report(...) в конце, в цикле по filtered:
     for i, it in enumerate(filtered, 1):
-        text = build_client_text(it, i, report_date)
+        text = build_client_text(it, i, report_date, user_id=user_id)
         kb = client_card_kb(it, report_date)
         await send_long(chat, text, reply_markup=kb)
 

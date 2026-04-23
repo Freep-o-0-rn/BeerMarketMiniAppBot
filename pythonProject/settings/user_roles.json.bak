@@ -195,22 +195,6 @@
   },
   "role_requests": {},
   "1188061961": {
-    "role": "guest",
-    "access_overrides": {},
-    "notification_settings": {},
-    "auth_status": "approved",
-    "auth_source": "manual_admin",
-    "auth_confidence": 0.51,
-    "last_role_request_at": "2026-04-22T08:44:31Z",
-    "request_cooldown_until": "",
-    "rejection_count": 0,
-    "phone": "+79965440806",
-    "phone_verified": true,
-    "username": "Re1ze_r",
-    "first_name": "Vadim BeerMarket",
-    "language_code": "ru",
-    "is_premium": true,
-    "name": "Морозова",
-    "onboard_completed": true
+    "role": "admin"
   }
 }
