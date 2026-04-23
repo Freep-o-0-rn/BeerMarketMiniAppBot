@@ -8,8 +8,10 @@
   },
   "users": {
     "1188061961": {
-      "min_debt": 100.0,
-      "hide_zero_debt_docs_enabled": false
+      "min_debt": 100.0
+    },
+    "237087423": {
+      "hide_zero_debt_docs_older_than_days": 10
     }
   }
 }

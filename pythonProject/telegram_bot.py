@@ -2485,6 +2485,7 @@ def _set_user_filter_value(user_id: Optional[int], key: str, value: Any) -> None
         current = {}
     current[key] = value
     users[uid] = current
+
     default_value = defaults.get(key, DEFAULT_FILTERS.get(key))
     if value == default_value:
         logger.info("filters: user=%s requested %s=%s (default value)", uid, key, value)
@@ -10688,6 +10689,8 @@ async def run_client_search(m: Message, raw_query: str):
     if not q:
         await m.answer("Пустой запрос.", reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
         return
+    user_id = int(getattr(getattr(m, "from_user", None), "id", 0) or 0)
+    role = get_user_role(user_id)
 
     path = find_latest_download()
     if not path:
@@ -10702,6 +10705,8 @@ async def run_client_search(m: Message, raw_query: str):
         return
 
     items: List[Dict[str, Any]] = (res or {}).get("items") or []
+    if role == "sales_rep":
+        items = [it for it in items if _is_sales_rep_item_visible_for_user(it, user_id)]
     report_date = (res or {}).get("report_date")
 
     def _match(it: Dict[str, Any]) -> bool:
@@ -10731,7 +10736,12 @@ async def run_client_search(m: Message, raw_query: str):
         entries = groups.get(base, [])
         if len(entries) > 3:
             token = uuid4().hex[:12]
-            _DEBT_SEARCH_PICK_CACHE[token] = {"base": base, "entries": entries, "report_date": report_date}
+            _DEBT_SEARCH_PICK_CACHE[token] = {
+                "base": base,
+                "entries": entries,
+                "report_date": report_date,
+                "user_id": user_id,
+            }
             await m.answer(
                 f"Найдено адресов: <b>{len(entries)}</b> для клиента <b>{esc(base)}</b>.\n"
                 "Выберите адрес или покажите все:",
@@ -10740,7 +10750,7 @@ async def run_client_search(m: Message, raw_query: str):
             )
             return
     for i, it in enumerate(filtered, 1):
-        text = build_client_text(it, i, report_date)
+        text = build_client_text(it, i, report_date, user_id=user_id)
         await send_long(m, text)
 
 @router.callback_query(F.data.startswith("debt:pick:"))
@@ -10753,6 +10763,11 @@ async def cb_debt_pick_address(cq: CallbackQuery):
     payload = _DEBT_SEARCH_PICK_CACHE.get(token) or {}
     entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
     report_date = payload.get("report_date")
+    owner_user_id = int(payload.get("user_id") or 0)
+    actor_user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    if owner_user_id and owner_user_id != actor_user_id:
+        await cq.answer("Это результаты другого пользователя. Запустите поиск заново.", show_alert=True)
+        return
     if not entries:
         await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
         return
@@ -10766,7 +10781,7 @@ async def cb_debt_pick_address(cq: CallbackQuery):
         return
 
     await cq.answer()
-    text = build_client_text(entries[idx], idx + 1, report_date)
+    text = build_client_text(entries[idx], idx + 1, report_date, user_id=actor_user_id)
     await send_long(cq.message, text)
 
 
@@ -10776,12 +10791,17 @@ async def cb_debt_pick_all(cq: CallbackQuery):
     payload = _DEBT_SEARCH_PICK_CACHE.get(token) or {}
     entries = payload.get("entries") if isinstance(payload.get("entries"), list) else []
     report_date = payload.get("report_date")
+    owner_user_id = int(payload.get("user_id") or 0)
+    actor_user_id = int(getattr(cq.from_user, "id", 0) or 0)
+    if owner_user_id and owner_user_id != actor_user_id:
+        await cq.answer("Это результаты другого пользователя. Запустите поиск заново.", show_alert=True)
+        return
     if not entries:
         await cq.answer("Список устарел. Запустите поиск заново.", show_alert=True)
         return
     await cq.answer()
     for i, it in enumerate(entries, 1):
-        text = build_client_text(it, i, report_date)
+        text = build_client_text(it, i, report_date, user_id=actor_user_id)
         await send_long(cq.message, text)
 
 #акции ------------------------------------------------------------------------------------------
