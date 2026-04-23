@@ -251,7 +251,7 @@
     "rejection_count": 0
   },
   "1188061961": {
-    "role": "moderator",
+    "role": "client",
     "access_overrides": {
       "updates.mail": true,
       "settings.filters": true,
@@ -269,7 +269,8 @@
     "auth_confidence": 0.0,
     "last_role_request_at": "",
     "request_cooldown_until": "",
-    "rejection_count": 0
+    "rejection_count": 0,
+    "name": "Анохина"
   },
   "role_requests": {},
   "5255352159": {

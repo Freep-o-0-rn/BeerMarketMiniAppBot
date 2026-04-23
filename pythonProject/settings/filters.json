@@ -2,12 +2,14 @@
   "defaults": {
     "min_debt": 0.0,
     "min_overdue_days": 20,
-    "merge_kegs_50l_type_s": true
+    "merge_kegs_50l_type_s": true,
+    "hide_zero_debt_docs_enabled": true,
+    "hide_zero_debt_docs_older_than_days": 7
   },
   "users": {
     "1188061961": {
       "min_debt": 100.0,
-      "merge_kegs_50l_type_s": true
+      "hide_zero_debt_docs_enabled": false
     }
   }
 }

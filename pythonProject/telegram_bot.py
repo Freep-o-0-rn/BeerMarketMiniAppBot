@@ -2372,6 +2372,7 @@ FILTERS_PATH = os.getenv("FILTERS_PATH", MIN_DEBT_JSON)
 DEFAULT_FILTERS = {
     "min_debt": 999.0,
     "min_overdue_days": 20,  # новый порог по дням для отчёта «Просрочка»
+    "hide_zero_debt_docs_enabled": True,  # применять фильтр скрытия нулевых фактур в карточке клиента
     "hide_zero_debt_docs_older_than_days": 7,  # скрывать старые нулевые фактуры в карточке клиента
     "merge_kegs_50l_type_s": False,  # суммировать «Бочка 50л S RU» + «Бочка 50л тип S»
 }
@@ -2407,6 +2408,31 @@ def _normalize_filters_schema(raw_cfg: Any) -> Dict[str, Any]:
             users[normalized_uid] = dict(user_cfg)
     return {"defaults": defaults, "users": users}
 
+def _compact_filters_overrides(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Удаляет из users значения, равные defaults, по всем известным ключам фильтров.
+    Пустые профили пользователей удаляются целиком.
+    """
+    defaults = (cfg.get("defaults") or {}) if isinstance(cfg, dict) else {}
+    users = (cfg.get("users") or {}) if isinstance(cfg, dict) else {}
+    if not isinstance(defaults, dict) or not isinstance(users, dict):
+        return cfg
+
+    known_filter_keys = set(DEFAULT_FILTERS.keys())
+    compact_users: Dict[str, Dict[str, Any]] = {}
+    for uid, raw_user_cfg in users.items():
+        if not isinstance(raw_user_cfg, dict):
+            continue
+        user_cfg = dict(raw_user_cfg)
+        for key in known_filter_keys:
+            if key in user_cfg and user_cfg.get(key) == defaults.get(key, DEFAULT_FILTERS.get(key)):
+                user_cfg.pop(key, None)
+        if user_cfg:
+            compact_users[str(uid)] = user_cfg
+
+    cfg["users"] = compact_users
+    return cfg
+
 def load_filters() -> dict:
     try:
         with open(FILTERS_PATH, "r", encoding="utf-8") as f:
@@ -2417,6 +2443,7 @@ def load_filters() -> dict:
     # подставим дефолты, если ключей нет
     for k, v in DEFAULT_FILTERS.items():
         cfg["defaults"].setdefault(k, v)
+    cfg = _compact_filters_overrides(cfg)
     return cfg
 
 def save_filters(cfg: dict) -> None:
@@ -2428,6 +2455,7 @@ def save_filters(cfg: dict) -> None:
     normalized = _normalize_filters_schema(cfg)
     for k, v in DEFAULT_FILTERS.items():
         normalized["defaults"].setdefault(k, v)
+    normalized = _compact_filters_overrides(normalized)
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(normalized, f, ensure_ascii=False, indent=2)
     os.replace(tmp, FILTERS_PATH)
@@ -2450,14 +2478,21 @@ def _set_user_filter_value(user_id: Optional[int], key: str, value: Any) -> None
         FILTERS.setdefault("defaults", {})[key] = value
         save_filters(FILTERS)
         return
+    defaults = FILTERS.setdefault("defaults", {})
     users = FILTERS.setdefault("users", {})
     current = users.get(uid)
     if not isinstance(current, dict):
         current = {}
     current[key] = value
     users[uid] = current
+    default_value = defaults.get(key, DEFAULT_FILTERS.get(key))
+    if value == default_value:
+        logger.info("filters: user=%s requested %s=%s (default value)", uid, key, value)
+    else:
+        logger.info("filters: user=%s updated %s=%s", uid, key, value)
+
+    _compact_filters_overrides(FILTERS)
     save_filters(FILTERS)
-    logger.info("filters: user=%s updated %s=%s", uid, key, value)
 
 def get_min_debt(user_id: Optional[int] = None) -> float:
     try:
@@ -2490,6 +2525,21 @@ def get_hide_zero_debt_docs_older_than_days(user_id: Optional[int] = None) -> in
 
 def set_hide_zero_debt_docs_older_than_days(n: int, user_id: Optional[int] = None) -> None:
     _set_user_filter_value(user_id, "hide_zero_debt_docs_older_than_days", int(max(0, n)))
+
+def get_hide_zero_debt_docs_enabled(user_id: Optional[int] = None) -> bool:
+    try:
+        return bool(
+            _get_user_filters(user_id).get(
+                "hide_zero_debt_docs_enabled",
+                DEFAULT_FILTERS["hide_zero_debt_docs_enabled"],
+            )
+        )
+    except Exception:
+        return bool(DEFAULT_FILTERS["hide_zero_debt_docs_enabled"])
+
+
+def set_hide_zero_debt_docs_enabled(enabled: bool, user_id: Optional[int] = None) -> None:
+    _set_user_filter_value(user_id, "hide_zero_debt_docs_enabled", bool(enabled))
 
 def get_merge_kegs_50l_type_s(user_id: Optional[int] = None) -> bool:
     try:
@@ -2564,6 +2614,12 @@ FILTER_PAGES = [
         "parse": lambda s: int((s or "0").strip() or "0"),
         "validate": lambda v: (0 <= v <= 3650, "Целое 0..3650"),
         "fmt": lambda v: f"{int(v)} дн.",
+        "inline_toggle": {
+            "get": lambda user_id: get_hide_zero_debt_docs_enabled(user_id),
+            "set": lambda enabled, user_id: set_hide_zero_debt_docs_enabled(enabled, user_id),
+            "labels": ("Показать фактуры", "Скрывать фактуры"),
+            "callbacks": ("show", "hide"),
+        },
     },
     {
         "key": "merge_kegs_50l_type_s",
@@ -2586,10 +2642,16 @@ def _filters_page_text(idx: int, user_id: Optional[int]) -> str:
     page = FILTER_PAGES[idx]
     cur = page["get"](user_id)
     total = len(FILTER_PAGES)
+    extra = ""
+    inline_toggle = page.get("inline_toggle")
+    if isinstance(inline_toggle, dict):
+        enabled = bool(inline_toggle["get"](user_id))
+        extra = f"\nРежим: <code>{'Скрывать нулевые фактуры' if enabled else 'Показывать все фактуры'}</code>"
     return (
         f"<b>Фильтры отображения</b> — страница {idx+1}/{total}\n"
         f"<b>{page['title']}</b>\n"
         f"Текущее значение: <code>{page['fmt'](cur)}</code>\n"
+        f"{extra}\n"
         f"{page['desc']}"
     )
 
@@ -2604,7 +2666,22 @@ def _filters_page_kb(idx: int, user_id: Optional[int]) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⬅️ Назад",   callback_data=f"flt:nav:{prev_idx}"),
          InlineKeyboardButton(text="Вперёд ➡️",  callback_data=f"flt:nav:{next_idx}")],
     ]
-    if page.get("key") == "merge_kegs_50l_type_s":
+    inline_toggle = page.get("inline_toggle")
+    if isinstance(inline_toggle, dict):
+        is_enabled = bool(inline_toggle["get"](user_id))
+        show_label, hide_label = inline_toggle.get("labels", ("Показывать", "Скрывать"))
+        show_code, hide_code = inline_toggle.get("callbacks", ("show", "hide"))
+        rows.insert(1, [
+            InlineKeyboardButton(
+                text=f"{'✅ ' if not is_enabled else ''}{show_label}",
+                callback_data=f"flt:toggle:{idx}:{show_code}",
+            ),
+            InlineKeyboardButton(
+                text=f"{'✅ ' if is_enabled else ''}{hide_label}",
+                callback_data=f"flt:toggle:{idx}:{hide_code}",
+            ),
+        ])
+    elif page.get("key") == "merge_kegs_50l_type_s":
         current = bool(page["get"](user_id))
         rows.insert(1, [
             InlineKeyboardButton(
@@ -4734,6 +4811,7 @@ def client_has_overdue(item: Dict[str, Any], report_date: Optional[str], user_id
 # ----------------- Карточка клиента ------------------
 def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str], user_id: Optional[int] = None) -> str:
     threshold = get_overdue_days_for_client(item.get('client') or '')
+    hide_zero_docs_enabled = get_hide_zero_debt_docs_enabled(user_id)
     hide_zero_after_days = get_hide_zero_debt_docs_older_than_days(user_id)
     docs: List[Dict[str, Any]] = item.get("docs") or []
 
@@ -4801,6 +4879,8 @@ def build_client_text(item: Dict[str, Any], idx: int, report_date: Optional[str]
         days_calc = d.get("__days_calc")
         is_zero = bool(d.get("__is_zero_paid"))
         should_hide_zero_doc = (
+            hide_zero_docs_enabled
+            and
             is_zero
             and days_calc is not None
             and int(days_calc) > hide_zero_after_days
@@ -9633,6 +9713,31 @@ async def flt_bool_set(cq: CallbackQuery, state: FSMContext):
         logger.exception("filters: BOOL failed")
         await cq.answer(f"Ошибка переключателя: {type(e).__name__}", show_alert=False)
 
+@router.callback_query(F.data.startswith("flt:toggle:"))
+async def flt_toggle_set(cq: CallbackQuery, state: FSMContext):
+    try:
+        await state.clear()
+        _, _, raw_idx, raw_code = cq.data.split(":", 3)
+        idx = int(raw_idx)
+        user_id = int(getattr(cq.from_user, "id", 0) or 0)
+        page = FILTER_PAGES[idx]
+        inline_toggle = page.get("inline_toggle")
+        if not isinstance(inline_toggle, dict):
+            await cq.answer("Переключатель недоступен.", show_alert=False)
+            return
+        show_code, hide_code = inline_toggle.get("callbacks", ("show", "hide"))
+        if raw_code == show_code:
+            inline_toggle["set"](False, user_id)
+        elif raw_code == hide_code:
+            inline_toggle["set"](True, user_id)
+        else:
+            await cq.answer("Неизвестная команда.", show_alert=False)
+            return
+        await _filters_safe_edit(cq.message, _filters_page_text(idx, user_id), _filters_page_kb(idx, user_id))
+        await cq.answer("Сохранено.")
+    except Exception as e:
+        logger.exception("filters: TOGGLE failed")
+        await cq.answer(f"Ошибка переключателя: {type(e).__name__}", show_alert=False)
 
 # --- Настройки (/settings только админам) ---
 @router.message(Command("settings"))
