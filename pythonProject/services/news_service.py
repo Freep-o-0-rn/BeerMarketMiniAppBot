@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from pythonProject.services.news_categories import (
+from .news_categories import (
     DEFAULT_NEWS_CATEGORY,
     category_label,
     normalize_news_category,
