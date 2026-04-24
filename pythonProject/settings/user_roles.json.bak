@@ -232,28 +232,6 @@
     "request_cooldown_until": "",
     "rejection_count": 0
   },
-  "1188061961": {
-    "role": "sales_rep",
-    "access_overrides": {
-      "updates.mail": true,
-      "settings.filters": true,
-      "settings.overdue": true
-    },
-    "notification_settings": {},
-    "username": "Re1ze_r",
-    "first_name": "Vadim BeerMarket",
-    "language_code": "ru",
-    "is_premium": true,
-    "phone": "+79965440806",
-    "phone_verified": true,
-    "auth_status": "approved",
-    "auth_source": "self_declared",
-    "auth_confidence": 0.0,
-    "last_role_request_at": "",
-    "request_cooldown_until": "",
-    "rejection_count": 0,
-    "name": "Воротников Николай"
-  },
   "role_requests": {},
   "5255352159": {
     "role": "sales_rep",
@@ -290,6 +268,37 @@
     "onboard_completed": true
   },
   "237087423": {
-    "role": "admin"
+    "role": "admin",
+    "access_overrides": {},
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "username": "Freep_o_0_rn",
+    "first_name": "Freep_o_0_rn",
+    "language_code": "ru"
+  },
+  "1188061961": {
+    "username": "Re1ze_r",
+    "first_name": "Vadim BeerMarket",
+    "language_code": "ru",
+    "is_premium": true,
+    "auth_status": "approved",
+    "auth_source": "manual_admin",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "role": "moderator",
+    "access_overrides": {},
+    "notification_settings": {},
+    "authorized_by_admin": true,
+    "onboard_completed": true,
+    "name": "Петруша",
+    "phone": "+79965440806",
+    "phone_verified": true
   }
 }

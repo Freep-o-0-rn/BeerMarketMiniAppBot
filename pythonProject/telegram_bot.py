@@ -230,6 +230,8 @@ NEWS_SERVICE = NewsService(
 )
 MEDIA_SERVICE = MediaService(NEWS_MEDIA_DIR)
 IDENTITY_MATCHER = IdentityMatcher(download_dir="downloads", client_cards_db=CLIENTS_DB)
+INVITE_SERVICE = InviteService(Path(INVITES_JSON))
+INVITES_MANAGER = InvitesManager(bot=bot, invite_service=INVITE_SERVICE, shortener_timeout=float(os.getenv("INVITE_SHORTENER_TIMEOUT", "4.5")))
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
 
@@ -3016,6 +3018,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
     management_row: List[KeyboardButton] = []
     if user_allows_action(user_id, "users.manage") or user_allows_action(user_id, "users.view"):
         management_row.append(KeyboardButton(text="👥 Пользователи"))
+    if user_allows_action(user_id, "invites.manage"):
+        management_row.append(KeyboardButton(text=INVITE_MENU_BTN_TEXT))
     if user_allows_action(user_id, "client_cards.view"):
         management_row.append(KeyboardButton(text=_management_button_text(role)))
     _append_button_row_if_any(keyboard, management_row)
@@ -3413,6 +3417,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("users.manage", "👥 Пользователи (управление)"),
     ("role_requests.view", "📥 Заявки на роли"),
     ("notifications.manage", "🔔 Уведомления"),
+    ("invites.manage", "✉️ Инвайты"),
     ("settings.overdue", "⚙️ Отсрочки"),
     ("settings.filters", "🎛️ Фильтры"),
     ("settings.tara_rules", "⚙️ Управление правилами тары"),
@@ -5474,6 +5479,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "users.manage": {"admin"},
     "role_requests.view": {"admin", "moderator"},
     "notifications.manage": {"admin", "moderator"},
+    "invites.manage": {"admin"},
     "role_requests.manage": {"admin", "moderator"},
     "news.manage": {"admin", "moderator"},
     "settings.overdue": {"admin", "moderator", "sales_rep"},
@@ -5502,6 +5508,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
     "notifications.manage": "управление уведомлениями",
+    "invites.manage": "управление приглашениями",
     "role_requests.view": "просмотр заявок на роли",
     "role_requests.manage": "обработка заявок на роли",
     "news.manage": "управление новостями Mini App",
@@ -5595,6 +5602,12 @@ register_news_manage_handlers(
     ensure_callback_access=ensure_callback_access,
     menu_for_user_id=menu_for_user_id,
 )
+INVITES_MANAGER.register_handlers(
+    router,
+    ensure_message_access=ensure_message_access,
+    ensure_callback_access=ensure_callback_access,
+    role_label=role_label,
+)
 
 def client_name_prompt_text() -> str:
     return (
@@ -5644,6 +5657,14 @@ async def _continue_after_phone(m: Message, state: FSMContext) -> None:
         return
     await m.answer(help_text_client(getattr(getattr(m, "from_user", None), "first_name", None), cname, registered_name=registered_name), reply_markup=client_menu_kb(getattr(m.from_user, "id", None)))
 
+async def _try_apply_invite_from_start(m: Message) -> Optional[str]:
+    return await INVITES_MANAGER.try_apply_from_start(
+        m,
+        update_user_record=update_user_record,
+        get_registered_name=get_registered_name,
+        role_label=role_label,
+    )
+
 # --- Хендлеры ---
 @router.message(CommandStart())
 async def on_start(m: Message, state: FSMContext):
@@ -5670,6 +5691,12 @@ async def on_start(m: Message, state: FSMContext):
             _USER_ROLES[key] = rec
             _save_user_roles(_USER_ROLES)
         role = "admin"
+    invite_result = await _try_apply_invite_from_start(m)
+    if invite_result:
+        await m.answer(invite_result)
+        _USER_ROLES = _roles_load()
+        rec = (_USER_ROLES.get(key) if key else {}) or {}
+        role = normalize_role(rec.get("role") or role or "guest")
     # Первый визит: запрос номера телефона
     if uid is not None and not is_phone_authorized(uid):
         await state.set_state(OnboardStates.waiting_phone_contact)
