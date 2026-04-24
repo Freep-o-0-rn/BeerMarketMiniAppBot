@@ -68,6 +68,8 @@ from services.media_service import MediaService
 from services.news_service import NewsService
 from services.permissions_service import extend_access_matrix
 from services.news_categories import NEWS_CATEGORY_LABELS
+from handlers.invites_manage import INVITE_MENU_BTN_TEXT, InvitesManager
+from services.invites_service import InviteService
 from services.identity_matcher import IdentityMatcher
 from services.tara_service.tara_api import (
     get_tara_client_report,
@@ -199,7 +201,10 @@ LAST_UPDATE_FILE = os.getenv("LAST_UPDATE_FILE", os.path.join("downloads", ".las
 USER_ROLES_JSON = os.getenv("USER_ROLES_JSON", "settings/user_roles.json")
 ROLE_DEFS_JSON = os.getenv("ROLE_DEFS_JSON", "settings/roles.json")
 ROLE_REQUESTS_JSON = os.getenv("ROLE_REQUESTS_JSON", "settings/role_requests.json")
-ADMIN_ONBOARD_PASSWORD = os.getenv("ADMIN_ONBOARD_PASSWORD", "99654511")
+INVITES_JSON = os.getenv("INVITES_JSON", "settings/invites.json")
+ADMIN_ONBOARD_PASSWORD = os.getenv("ADMIN_ONBOARD_PASSWORD")
+if not ADMIN_ONBOARD_PASSWORD:
+    raise RuntimeError("ADMIN_ONBOARD_PASSWORD не задан в .env")
 LEGACY_USER_ROLES_JSON = os.path.join(os.getcwd(), "user_roles.json")
 ROLE_REQUEST_COOLDOWN_HOURS = int(os.getenv("ROLE_REQUEST_COOLDOWN_HOURS", "24"))
 

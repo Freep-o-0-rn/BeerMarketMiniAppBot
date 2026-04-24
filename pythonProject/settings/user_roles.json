@@ -30,24 +30,6 @@
     "request_cooldown_until": "",
     "rejection_count": 0
   },
-  "237087423": {
-    "role": "admin",
-    "phone": "+79994680011",
-    "phone_verified": true,
-    "username": "Freep_o_0_rn",
-    "first_name": "Freep_o_0_rn",
-    "language_code": "ru",
-    "access_overrides": {},
-    "notification_settings": {
-      "new_users": true
-    },
-    "auth_status": "approved",
-    "auth_source": "self_declared",
-    "auth_confidence": 0.0,
-    "last_role_request_at": "",
-    "request_cooldown_until": "",
-    "rejection_count": 0
-  },
   "405433712": {
     "role": "client",
     "name": "Демидов",
@@ -306,5 +288,19 @@
     "phone": "+79134503708",
     "phone_verified": true,
     "onboard_completed": true
+  },
+  "237087423": {
+    "role": "admin",
+    "access_overrides": {},
+    "notification_settings": {},
+    "auth_status": "approved",
+    "auth_source": "self_declared",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "username": "Freep_o_0_rn",
+    "first_name": "Freep_o_0_rn",
+    "language_code": "ru"
   }
 }
