@@ -19,6 +19,14 @@ class UserActionView:
     details: str
 
 
+@dataclass(frozen=True)
+class UserActivityUserView:
+    uid: str
+    title: str
+    preview: str
+    total_actions: int
+
+
 class UserActivityService:
     """
     Готовит читабельную витрину действий из audit.log без тяжёлых запросов к Telegram API.
@@ -43,43 +51,103 @@ class UserActivityService:
 
     def create_snapshot(self, *, limit_items: int = 150) -> str:
         self._cleanup()
-        rows = self._load_recent_rows(limit_items=limit_items)
+        users_order, users_map = self._load_recent_rows(limit_items=limit_items)
         token = secrets.token_hex(6)
         self._snapshots[token] = {
             "created_at": time.time(),
-            "rows": rows,
+            "users_order": users_order,
+            "users_map": users_map,
         }
         return token
 
-    def get_rows(self, token: str) -> List[UserActionView]:
+    def get_users(self, token: str) -> List[UserActivityUserView]:
         payload = self._snapshots.get(token) or {}
-        rows = payload.get("rows")
+        users_order = payload.get("users_order")
+        users_map = payload.get("users_map")
+        if not isinstance(users_order, list) or not isinstance(users_map, dict):
+            return []
+        summaries: List[UserActivityUserView] = []
+        for uid in users_order:
+            bucket = users_map.get(uid)
+            if not isinstance(bucket, dict):
+                continue
+            summary = bucket.get("summary")
+            if isinstance(summary, UserActivityUserView):
+                summaries.append(summary)
+        return summaries
+
+    def get_user_rows(self, token: str, uid: str) -> List[UserActionView]:
+        bucket = self._find_user_bucket(token, uid)
+        if bucket is None:
+            return []
+        rows = bucket.get("rows")
         return rows if isinstance(rows, list) else []
 
-    def get_row(self, token: str, index: int) -> Optional[UserActionView]:
-        rows = self.get_rows(token)
+    def get_user_row(self, token: str, uid: str, index: int) -> Optional[UserActionView]:
+        rows = self.get_user_rows(token, uid)
         if index < 0 or index >= len(rows):
             return None
         return rows[index]
 
-    def _load_recent_rows(self, *, limit_items: int) -> List[UserActionView]:
+    def _find_user_bucket(self, token: str, uid: str) -> Optional[Dict[str, Any]]:
+        payload = self._snapshots.get(token) or {}
+        users_map = payload.get("users_map")
+        if not isinstance(users_map, dict):
+            return None
+        bucket = users_map.get(str(uid))
+        return bucket if isinstance(bucket, dict) else None
+
+    def _load_recent_rows(self, *, limit_items: int) -> tuple[List[str], Dict[str, Dict[str, Any]]]:
         records = self._tail_json_lines(self._max_tail_lines)
-        rows: List[UserActionView] = []
+        users_map: Dict[str, Dict[str, Any]] = {}
+        users_order: List[str] = []
+        total_rows = 0
         for rec in reversed(records):
             row = self._to_row(rec)
             if row is None:
                 continue
+
+            uid = self._normalize_uid(rec.get("uid"))
+            bucket = users_map.get(uid)
+            if bucket is None:
+                role = str(rec.get("role") or "unknown")
+                display_name = self._normalize(rec.get("name") or rec.get("user"))
+                summary = UserActivityUserView(
+                    uid=uid,
+                    title=f"👤 {display_name or uid}",
+                    preview=f"uid={uid} · роль={role}",
+                    total_actions=0,
+                )
+                bucket = {
+                    "summary": summary,
+                    "rows": [],
+                }
+                users_map[uid] = bucket
+                users_order.append(uid)
+
+            user_rows = bucket["rows"]
             row_with_index = UserActionView(
-                index=len(rows),
+                index=len(user_rows),
                 action_type=row.action_type,
                 title=row.title,
                 preview=row.preview,
                 details=row.details,
             )
-            rows.append(row_with_index)
-            if len(rows) >= limit_items:
+            user_rows.append(row_with_index)
+
+            summary: UserActivityUserView = bucket["summary"]
+            bucket["summary"] = UserActivityUserView(
+                uid=summary.uid,
+                title=summary.title,
+                preview=row.preview,
+                total_actions=summary.total_actions + 1,
+            )
+
+            total_rows += 1
+            if total_rows >= limit_items:
                 break
-        return rows
+
+        return users_order, users_map
 
     def _tail_json_lines(self, max_lines: int) -> List[Dict[str, Any]]:
         path = self._audit_log_path
@@ -104,7 +172,7 @@ class UserActivityService:
         kind = str(rec.get("t") or "").strip().lower()
         if kind not in {"msg", "cb", "event"}:
             return None
-        uid = rec.get("uid")
+        uid = self._normalize_uid(rec.get("uid"))
         role = rec.get("role") or "unknown"
         ts = self._fmt_ts(rec.get("ts"))
         if kind == "msg":
@@ -117,7 +185,7 @@ class UserActivityService:
                 f"<b>Пользователь:</b> <code>{uid}</code>\n"
                 f"<b>Роль:</b> {role}\n"
                 f"<b>Время:</b> {ts}\n"
-                f"<b>Тип:</b> {self._escape(str(media))}\n"
+                f"<b>Тип:</b> <code>{self._escape(str(media))}</code>\n"
                 f"<b>Текст:</b> <code>{self._escape(text or '—')}</code>\n"
                 f"<b>FSM state:</b> <code>{self._escape(str(rec.get('state') or '—'))}</code>"
             )
@@ -146,6 +214,11 @@ class UserActivityService:
             f"<b>Событие:</b> <code>{self._escape(action or '—')}</code>"
         )
         return UserActionView(index=0, action_type=kind, title=title, preview=preview, details=details)
+
+    @staticmethod
+    def _normalize_uid(value: Any) -> str:
+        uid = str(value or "unknown").strip()
+        return uid or "unknown"
 
     @staticmethod
     def _clip(value: str, max_len: int) -> str:
