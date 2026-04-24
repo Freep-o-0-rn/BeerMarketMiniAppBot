@@ -287,18 +287,13 @@
     "language_code": "ru",
     "is_premium": true,
     "auth_status": "approved",
-    "auth_source": "manual_admin",
+    "auth_source": "self_declared",
     "auth_confidence": 0.0,
     "last_role_request_at": "",
     "request_cooldown_until": "",
     "rejection_count": 0,
-    "role": "moderator",
+    "role": "guest",
     "access_overrides": {},
-    "notification_settings": {},
-    "authorized_by_admin": true,
-    "onboard_completed": true,
-    "name": "Петруша",
-    "phone": "+79965440806",
-    "phone_verified": true
+    "notification_settings": {}
   }
 }

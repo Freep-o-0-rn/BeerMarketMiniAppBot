@@ -2169,3 +2169,177 @@ TypeError: object FSMContext can't be used in 'await' expression
 2026-04-24 15:06:16 | INFO | aiogram.event | Update id=104059144 is handled. Duration 313 ms by bot id=8304099970
 2026-04-24 15:06:27 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 493, 'req': '608f40d3', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'moderator', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 5064, 'kind': <ContentType.CONTACT: 'contact'>, 'text': '', 'caption_len': 0, 'entities': 0, 'state': None}
 2026-04-24 15:06:27 | INFO | aiogram.event | Update id=104059145 is handled. Duration 547 ms by bot id=8304099970
+2026-04-24 16:13:50 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+2026-04-24 16:13:50 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-24 16:13:51 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-24 16:13:51 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-24 16:13:51 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-24 16:13:53 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)': шапка=5400.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Паруйрян Эдгар Мишаи ИП - Воротников (Дениса Давыдова ул, дом № 4) (У)': шапка=0.30, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Текутьев Николай Сергеевич ИП- Воротников (Шоссейная, 2)': шапка=676.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Маджента ООО - Воротников ГОЛОВНОЙ': шапка=761.80, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Петрова Вероника Сергеевна ИП - Воротников': шапка=2300.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Баранова Юлия Николаевна ИП - Воротников': шапка=2555.10, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Скороходова А. Р. ИП - Волчок (Бердск г, Морская ул, дом № 18/2)': шапка=2559.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Савина А.И. ИП - Воротников ГОЛОВНОЙ': шапка=2930.78, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Блинкова Анна Павловна  ИП - Воротников': шапка=8583.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Щербакова Марина Викторовна ИП - Волчок': шапка=10120.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'ТФ Дубрава ООО - Волчок (Бердск г, Первомайская ул, дом № 7А, корпус 1)КПП544545001': шапка=14075.43, по строкам=13579.33
+2026-04-24 16:13:53 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=168382.99, по строкам=0.00
+2026-04-24 16:13:53 | INFO | root | Собрано клиентов: 379
+2026-04-24 16:13:53 | INFO | __main__ | Отчёт на 24.04.2026 | клиентов: 379
+2026-04-24 16:13:53 | INFO | __main__ | 01. nan | сум: 11948861.64 | проср: 11262830.03 | наш долг: 168382.99 | доков: 0
+2026-04-24 16:13:53 | INFO | __main__ | 02. ГЕРАНИОЛ ООО - Воротников (НСТ СТроитель, д 3/1а) | сум: 325361.78 | проср: 325361.78 | наш долг: 0.00 | доков: 2
+2026-04-24 16:13:53 | INFO | __main__ | 03. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 13) | сум: 301250.16 | проср: 301250.16 | наш долг: 0.00 | доков: 2
+2026-04-24 16:13:53 | INFO | __main__ | 04. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 7а) | сум: 300624.40 | проср: 300624.40 | наш долг: 0.00 | доков: 1
+2026-04-24 16:13:53 | INFO | __main__ | 05. ГЕРАНИОЛ ООО - Воротников (Журналист тер. СНТ, Межозерная ул, дом № 34) | сум: 292233.96 | проср: 292233.96 | наш долг: 0.00 | доков: 4
+2026-04-24 16:13:53 | INFO | __main__ | 06. ГЕРАНИОЛ ООО - Воротников (Благое мкр Солнечная ул, дом № 3) | сум: 278168.76 | проср: 278168.76 | наш долг: 0.00 | доков: 2
+2026-04-24 16:13:53 | INFO | __main__ | 07. ГЕРАНИОЛ ООО - Воротников (Дачная ул, дом № 31, корпус 1) | сум: 269669.11 | проср: 269669.11 | наш долг: 0.00 | доков: 2
+2026-04-24 16:13:53 | INFO | __main__ | 08. ГЕРАНИОЛ ООО - Воротников (Римского-Корсакова ул, дом № 28) | сум: 263676.28 | проср: 263676.28 | наш долг: 0.00 | доков: 4
+2026-04-24 16:13:53 | INFO | __main__ | 09. ГЕРАНИОЛ ООО - Воротников (Тульская ул, дом № 80) | сум: 250703.58 | проср: 250703.58 | наш долг: 0.00 | доков: 1
+2026-04-24 16:13:53 | INFO | __main__ | 10. Прокопьев Евгений Викторович ИП - Воротников (Демакова ул, дом № 11) | сум: 233188.50 | проср: 192208.00 | наш долг: 0.00 | доков: 5
+2026-04-24 16:13:53 | INFO | aiogram.dispatcher | Start polling
+2026-04-24 16:13:53 | INFO | telegram_bot | Daily fetch: next run in 65827 sec (now 2026-04-24 16:13:53, tz Asia/Novosibirsk)
+2026-04-24 16:13:53 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-24 16:14:07 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 327, 'req': '697327c9', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'moderator', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 5067, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 16:14:07 | INFO | aiogram.event | Update id=104059146 is handled. Duration 327 ms by bot id=8304099970
+2026-04-24 16:15:26 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 210, 'req': 'b789aaaf', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731360672570', 'msg_id': 5060, 'data': 'inv:list:active:0', 'state': None}
+2026-04-24 16:15:26 | INFO | aiogram.event | Update id=104059147 is handled. Duration 203 ms by bot id=8304099970
+2026-04-24 16:15:29 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 98, 'req': 'c5615a3d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730387697402', 'msg_id': 5060, 'data': 'inv:noop', 'state': None}
+2026-04-24 16:15:29 | INFO | aiogram.event | Update id=104059148 is handled. Duration 110 ms by bot id=8304099970
+2026-04-24 16:15:31 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 212, 'req': '74ce79ab', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728432657800', 'msg_id': 5060, 'data': 'inv:menu', 'state': None}
+2026-04-24 16:15:31 | INFO | aiogram.event | Update id=104059149 is handled. Duration 218 ms by bot id=8304099970
+2026-04-24 16:15:33 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 216, 'req': 'fa3b7c94', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730543008155', 'msg_id': 5060, 'data': 'inv:list:active:0', 'state': None}
+2026-04-24 16:15:34 | INFO | aiogram.event | Update id=104059150 is handled. Duration 218 ms by bot id=8304099970
+2026-04-24 16:15:35 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 183, 'req': '1bf4db43', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730364358693', 'msg_id': 5060, 'data': 'inv:noop', 'state': None}
+2026-04-24 16:15:35 | INFO | aiogram.event | Update id=104059151 is handled. Duration 188 ms by bot id=8304099970
+2026-04-24 16:15:36 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 98, 'req': 'ad983ff0', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729200583130', 'msg_id': 5060, 'data': 'inv:noop', 'state': None}
+2026-04-24 16:15:36 | INFO | aiogram.event | Update id=104059152 is handled. Duration 94 ms by bot id=8304099970
+2026-04-24 16:15:38 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 250, 'req': 'f1db0c06', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729763848841', 'msg_id': 5060, 'data': 'inv:menu', 'state': None}
+2026-04-24 16:15:38 | INFO | aiogram.event | Update id=104059153 is handled. Duration 250 ms by bot id=8304099970
+2026-04-24 16:15:40 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 227, 'req': '9ad0f813', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731138869055', 'msg_id': 5060, 'data': 'inv:list:archive:0', 'state': None}
+2026-04-24 16:15:40 | INFO | aiogram.event | Update id=104059154 is handled. Duration 235 ms by bot id=8304099970
+2026-04-24 16:15:41 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 255, 'req': '2c6de842', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731764779197', 'msg_id': 5060, 'data': 'inv:view:2c0ce8544b594401a262e0643f6194ea:archive:0', 'state': None}
+2026-04-24 16:15:41 | INFO | aiogram.event | Update id=104059155 is handled. Duration 265 ms by bot id=8304099970
+2026-04-24 16:15:56 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 212, 'req': '60bf64c1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731759009577', 'msg_id': 5060, 'data': 'inv:list:archive:0', 'state': None}
+2026-04-24 16:15:56 | INFO | aiogram.event | Update id=104059156 is handled. Duration 218 ms by bot id=8304099970
+2026-04-24 16:15:57 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 229, 'req': '94e9635a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730778259404', 'msg_id': 5060, 'data': 'inv:menu', 'state': None}
+2026-04-24 16:15:57 | INFO | aiogram.event | Update id=104059157 is handled. Duration 234 ms by bot id=8304099970
+2026-04-24 16:15:58 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 237, 'req': 'd5a98b9a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731919576016', 'msg_id': 5060, 'data': 'inv:create', 'state': 'InviteStates:waiting_role'}
+2026-04-24 16:15:58 | INFO | aiogram.event | Update id=104059158 is handled. Duration 250 ms by bot id=8304099970
+2026-04-24 16:16:12 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 216, 'req': 'de356788', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732158600167', 'msg_id': 5060, 'data': 'inv:create:role:client', 'state': 'InviteStates:waiting_ttl'}
+2026-04-24 16:16:12 | INFO | aiogram.event | Update id=104059159 is handled. Duration 218 ms by bot id=8304099970
+2026-04-24 16:16:15 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 265, 'req': 'b9497e08', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732131939919', 'msg_id': 5060, 'data': 'inv:create:ttl:inf', 'state': 'InviteStates:waiting_max_uses'}
+2026-04-24 16:16:15 | INFO | aiogram.event | Update id=104059160 is handled. Duration 265 ms by bot id=8304099970
+2026-04-24 16:16:20 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 648, 'req': 'cc3e0d7f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730749647287', 'msg_id': 5060, 'data': 'inv:create:uses:100', 'state': None}
+2026-04-24 16:16:20 | INFO | aiogram.event | Update id=104059161 is handled. Duration 655 ms by bot id=8304099970
+2026-04-24 16:16:39 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 389, 'req': '567ae2c9', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728556161514', 'msg_id': 5060, 'data': 'menu:back', 'state': None}
+2026-04-24 16:16:39 | INFO | aiogram.event | Update id=104059162 is handled. Duration 390 ms by bot id=8304099970
+2026-04-24 16:16:42 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 198, 'req': 'd8d6a7de', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5070, 'kind': <ContentType.TEXT: 'text'>, 'text': '✉️ Инвайты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 16:16:42 | INFO | aiogram.event | Update id=104059163 is handled. Duration 203 ms by bot id=8304099970
+2026-04-24 16:16:44 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 266, 'req': '2caec940', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729189961642', 'msg_id': 5071, 'data': 'inv:list:active:0', 'state': None}
+2026-04-24 16:16:44 | INFO | aiogram.event | Update id=104059164 is handled. Duration 264 ms by bot id=8304099970
+2026-04-24 16:16:45 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 228, 'req': '5bb2848d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728759555123', 'msg_id': 5071, 'data': 'inv:view:628d724181fd4550837ebbbfbf5d2bf5:active:0', 'state': None}
+2026-04-24 16:16:45 | INFO | aiogram.event | Update id=104059165 is handled. Duration 250 ms by bot id=8304099970
+2026-04-24 16:16:55 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 217, 'req': '4c73383d', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282732270540859', 'msg_id': 5071, 'data': 'inv:archive:628d724181fd4550837ebbbfbf5d2bf5:active:0', 'state': None}
+2026-04-24 16:16:55 | INFO | aiogram.event | Update id=104059166 is handled. Duration 234 ms by bot id=8304099970
+2026-04-24 16:17:01 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 116, 'req': '6623e7ba', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5072, 'kind': <ContentType.TEXT: 'text'>, 'text': '👥 Пользователи', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 16:17:01 | INFO | aiogram.event | Update id=104059167 is handled. Duration 139 ms by bot id=8304099970
+2026-04-24 16:17:05 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 212, 'req': '16f72e38', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729377725878', 'msg_id': 5073, 'data': 'usr:list:1', 'state': None}
+2026-04-24 16:17:05 | INFO | aiogram.event | Update id=104059168 is handled. Duration 235 ms by bot id=8304099970
+2026-04-24 16:17:08 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 218, 'req': 'd74bdca3', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731604054575', 'msg_id': 5073, 'data': 'usr:sel:1188061961:1', 'state': None}
+2026-04-24 16:17:08 | INFO | aiogram.event | Update id=104059169 is handled. Duration 234 ms by bot id=8304099970
+2026-04-24 16:17:12 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 218, 'req': 'a7239c79', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282728299141181', 'msg_id': 5073, 'data': 'usr:del:1188061961:1', 'state': 'AdminUserEditStates:waiting_delete_confirm'}
+2026-04-24 16:17:12 | INFO | aiogram.event | Update id=104059170 is handled. Duration 234 ms by bot id=8304099970
+2026-04-24 16:17:13 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 229, 'req': '8f7d1b0f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731657218830', 'msg_id': 5074, 'data': 'usr:confirm_del:yes', 'state': None}
+2026-04-24 16:17:13 | INFO | aiogram.event | Update id=104059171 is handled. Duration 250 ms by bot id=8304099970
+2026-04-24 16:17:15 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 335, 'req': '289838e4', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731791365477', 'msg_id': 5075, 'data': 'menu:back', 'state': None}
+2026-04-24 16:17:15 | INFO | aiogram.event | Update id=104059172 is handled. Duration 359 ms by bot id=8304099970
+2026-04-24 16:17:29 | INFO | aiogram.event | Update id=104059173 is not handled. Duration 15 ms by bot id=8304099970
+2026-04-24 16:17:40 | INFO | aiogram.event | Update id=104059174 is not handled. Duration 31 ms by bot id=8304099970
+2026-04-24 16:17:45 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 279, 'req': '0cc09624', 'bot': 8304099970, 'uid': 1188061961, 'user': 'Re1ze_r', 'name': 'Vadim BeerMarket', 'role': 'guest', 'chat': 1188061961, 'chat_type': 'private', 'msg_id': 5079, 'kind': <ContentType.TEXT: 'text'>, 'text': '/start iv_b8c59d5ff7254b02', 'caption_len': 0, 'entities': 1, 'state': 'OnboardStates:waiting_phone_contact'}
+2026-04-24 16:17:45 | INFO | aiogram.event | Update id=104059175 is handled. Duration 297 ms by bot id=8304099970
+2026-04-24 16:19:01 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 283, 'req': 'c493e3ae', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5082, 'kind': <ContentType.TEXT: 'text'>, 'text': '/start iv_b8c59d5ff7254b02', 'caption_len': 0, 'entities': 1, 'state': None}
+2026-04-24 16:19:01 | INFO | aiogram.event | Update id=104059176 is handled. Duration 280 ms by bot id=8304099970
+2026-04-24 16:19:26 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 115, 'req': '83f99039', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5085, 'kind': <ContentType.TEXT: 'text'>, 'text': '✉️ Инвайты', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 16:19:26 | INFO | aiogram.event | Update id=104059177 is handled. Duration 125 ms by bot id=8304099970
+2026-04-24 16:19:29 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 227, 'req': '32d1bc5a', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729319627956', 'msg_id': 5086, 'data': 'inv:list:active:0', 'state': None}
+2026-04-24 16:19:29 | INFO | aiogram.event | Update id=104059178 is handled. Duration 234 ms by bot id=8304099970
+2026-04-24 16:19:31 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 226, 'req': '08955345', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730235270987', 'msg_id': 5086, 'data': 'inv:menu', 'state': None}
+2026-04-24 16:19:31 | INFO | aiogram.event | Update id=104059179 is handled. Duration 234 ms by bot id=8304099970
+2026-04-24 16:19:32 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 206, 'req': '953613a1', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730302333180', 'msg_id': 5086, 'data': 'inv:list:archive:0', 'state': None}
+2026-04-24 16:19:32 | INFO | aiogram.event | Update id=104059180 is handled. Duration 219 ms by bot id=8304099970
+2026-04-24 16:19:35 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 214, 'req': '6151f889', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282729095211454', 'msg_id': 5086, 'data': 'inv:view:628d724181fd4550837ebbbfbf5d2bf5:archive:0', 'state': None}
+2026-04-24 16:19:35 | INFO | aiogram.event | Update id=104059181 is handled. Duration 235 ms by bot id=8304099970
+2026-04-24 16:19:37 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 220, 'req': '4ae54c37', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282730075130882', 'msg_id': 5086, 'data': 'inv:list:archive:0', 'state': None}
+2026-04-24 16:19:37 | INFO | aiogram.event | Update id=104059182 is handled. Duration 219 ms by bot id=8304099970
+2026-04-24 16:20:01 | INFO | audit | {'t': 'cb', 'ok': True, 'ms': 278, 'req': '22593435', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731774704000', 'msg_id': 5086, 'data': 'inv:menu', 'state': None}
+2026-04-24 16:20:01 | INFO | aiogram.event | Update id=104059183 is handled. Duration 281 ms by bot id=8304099970
+2026-04-24 16:25:38 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 160, 'req': '87c8e039', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5087, 'kind': <ContentType.TEXT: 'text'>, 'text': '🔎 Поиск тары', 'caption_len': 0, 'entities': 0, 'state': 'SearchTaraStates:waiting_query'}
+2026-04-24 16:25:38 | INFO | aiogram.event | Update id=104059184 is handled. Duration 156 ms by bot id=8304099970
+2026-04-24 16:25:44 | INFO | audit | {'t': 'msg', 'ok': True, 'ms': 438, 'req': 'ddbf779f', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5089, 'kind': <ContentType.TEXT: 'text'>, 'text': 'Анохина', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 16:25:44 | INFO | aiogram.event | Update id=104059185 is handled. Duration 453 ms by bot id=8304099970
+2026-04-24 16:53:52 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-24 16:53:52 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-24 19:53:57 | INFO | telegram_bot | Mini App URL configured: https://app.freep0rndeveloper.website/?api_base=https://api.freep0rndeveloper.website/
+2026-04-24 19:53:58 | INFO | __main__ | BOT_TOKEN валиден.
+2026-04-24 19:53:59 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-24 19:53:59 | INFO | root | Скачан и валидирован файл дебиторки: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-24 19:53:59 | INFO | __main__ | Файл получен: downloads\Дебиторская задолженность по срокам долга - Прокопенко (XLS).xls
+2026-04-24 19:54:00 | INFO | root | Нашли заголовки детальной таблицы на строке: 21
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Полончук Алёна Николаевна ИП Воротников (Игарская ул, дом № 42)': шапка=5400.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Есинский А. Е. ИП - Колягин (Озерный п, Солнечный мкр, дом № 333)': шапка=70.38, по строкам=3.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента '_ГАРМОНИЯ ООО - Токарев (2-й Бронный пер, дом № 28/1)': шапка=552.18, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Судилкина И.О. ИП - Токарев ГОЛОВНОЙ': шапка=0.04, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Беккер Н. М. ИП - Токарев (Петухова ул, дом № 91)': шапка=0.10, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Паруйрян Эдгар Мишаи ИП - Воротников (Дениса Давыдова ул, дом № 4) (У)': шапка=0.30, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Рузибоева Феруза Нуриллаевна ИП': шапка=0.64, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Цыганкова Ирина Николаевна ИП - Колягин (Мочище дп, Обская ул, дом № 24) (У)': шапка=50.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Пронькина Марина Викторовна ИП - Колягин': шапка=60.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Балакшина О. А.  ИП - Токарев (Ленинское с, Школьная ул, дом № 3)': шапка=240.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Текутьев Николай Сергеевич ИП- Воротников (Шоссейная, 2)': шапка=676.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Маджента ООО - Воротников ГОЛОВНОЙ': шапка=761.80, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Петрова Вероника Сергеевна ИП - Воротников': шапка=2300.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Баранова Юлия Николаевна ИП - Воротников': шапка=2555.10, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Скороходова А. Р. ИП - Волчок (Бердск г, Морская ул, дом № 18/2)': шапка=2559.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Савина А.И. ИП - Воротников ГОЛОВНОЙ': шапка=2930.78, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'ВИКТОР ООО - Щербатов ГОЛОВНОЙ': шапка=4563.50, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Блинкова Анна Павловна  ИП - Воротников': шапка=8583.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Щербакова Марина Викторовна ИП - Волчок': шапка=10120.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'Воронецкий Е. Ю. ИП - Колягин': шапка=11240.00, по строкам=0.00
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'ТФ Дубрава ООО - Волчок (Бердск г, Первомайская ул, дом № 7А, корпус 1)КПП544545001': шапка=14075.43, по строкам=13579.33
+2026-04-24 19:54:00 | WARNING | root | Несовпадение 'наш долг' у клиента 'nan': шапка=168382.99, по строкам=0.00
+2026-04-24 19:54:00 | INFO | root | Собрано клиентов: 378
+2026-04-24 19:54:00 | INFO | __main__ | Отчёт на 24.04.2026 | клиентов: 378
+2026-04-24 19:54:00 | INFO | __main__ | 01. nan | сум: 11941576.18 | проср: 11262830.03 | наш долг: 168382.99 | доков: 0
+2026-04-24 19:54:00 | INFO | __main__ | 02. ГЕРАНИОЛ ООО - Воротников (НСТ СТроитель, д 3/1а) | сум: 325361.78 | проср: 325361.78 | наш долг: 0.00 | доков: 2
+2026-04-24 19:54:00 | INFO | __main__ | 03. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 13) | сум: 301250.16 | проср: 301250.16 | наш долг: 0.00 | доков: 2
+2026-04-24 19:54:00 | INFO | __main__ | 04. ГЕРАНИОЛ ООО - Воротников (Березовая ул, дом № 7а) | сум: 300624.40 | проср: 300624.40 | наш долг: 0.00 | доков: 1
+2026-04-24 19:54:00 | INFO | __main__ | 05. ГЕРАНИОЛ ООО - Воротников (Журналист тер. СНТ, Межозерная ул, дом № 34) | сум: 292233.96 | проср: 292233.96 | наш долг: 0.00 | доков: 4
+2026-04-24 19:54:00 | INFO | __main__ | 06. ГЕРАНИОЛ ООО - Воротников (Благое мкр Солнечная ул, дом № 3) | сум: 278168.76 | проср: 278168.76 | наш долг: 0.00 | доков: 2
+2026-04-24 19:54:00 | INFO | __main__ | 07. ГЕРАНИОЛ ООО - Воротников (Дачная ул, дом № 31, корпус 1) | сум: 269669.11 | проср: 269669.11 | наш долг: 0.00 | доков: 2
+2026-04-24 19:54:00 | INFO | __main__ | 08. ГЕРАНИОЛ ООО - Воротников (Римского-Корсакова ул, дом № 28) | сум: 263676.28 | проср: 263676.28 | наш долг: 0.00 | доков: 4
+2026-04-24 19:54:00 | INFO | __main__ | 09. ГЕРАНИОЛ ООО - Воротников (Тульская ул, дом № 80) | сум: 250703.58 | проср: 250703.58 | наш долг: 0.00 | доков: 1
+2026-04-24 19:54:00 | INFO | __main__ | 10. Прокопьев Евгений Викторович ИП - Воротников (Демакова ул, дом № 11) | сум: 233188.50 | проср: 192208.00 | наш долг: 0.00 | доков: 5
+2026-04-24 19:54:01 | INFO | aiogram.dispatcher | Start polling
+2026-04-24 19:54:01 | INFO | telegram_bot | Daily fetch: next run in 52619 sec (now 2026-04-24 19:54:01, tz Asia/Novosibirsk)
+2026-04-24 19:54:01 | INFO | aiogram.dispatcher | Run polling for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'
+2026-04-24 19:54:28 | INFO | audit | {'ts': '2026-04-24T12:54:28', 't': 'msg', 'ok': True, 'ms': 337, 'req': 'ab700120', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5093, 'kind': <ContentType.TEXT: 'text'>, 'text': '▶️ Старт', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 19:54:28 | INFO | aiogram.event | Update id=104059186 is handled. Duration 344 ms by bot id=8304099970
+2026-04-24 19:54:31 | INFO | audit | {'ts': '2026-04-24T12:54:31', 't': 'msg', 'ok': True, 'ms': 153, 'req': '5ed8e67b', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'chat_type': 'private', 'msg_id': 5095, 'kind': <ContentType.TEXT: 'text'>, 'text': '🕵️ Действия пользователей', 'caption_len': 0, 'entities': 0, 'state': None}
+2026-04-24 19:54:31 | INFO | aiogram.event | Update id=104059187 is handled. Duration 155 ms by bot id=8304099970
+2026-04-24 19:54:37 | INFO | audit | {'ts': '2026-04-24T12:54:37', 't': 'cb', 'ok': True, 'ms': 462, 'req': 'eb3a1780', 'bot': 8304099970, 'uid': 237087423, 'user': 'Freep_o_0_rn', 'name': 'Freep_o_0_rn', 'role': 'admin', 'chat': 237087423, 'cb_id': '1018282731762422245', 'msg_id': 5096, 'data': 'ua:open:5b02be3f0f04:0:0', 'state': None}
+2026-04-24 19:54:37 | INFO | aiogram.event | Update id=104059188 is handled. Duration 500 ms by bot id=8304099970
+2026-04-24 19:54:47 | INFO | aiogram.dispatcher | Polling stopped
+2026-04-24 19:54:47 | INFO | aiogram.dispatcher | Polling stopped for bot @BeerMarket_testbot id=8304099970 - 'BeerMarket_test🍺'

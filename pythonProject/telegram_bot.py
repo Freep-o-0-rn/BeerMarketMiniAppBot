@@ -70,6 +70,8 @@ from services.permissions_service import extend_access_matrix
 from services.news_categories import NEWS_CATEGORY_LABELS
 from handlers.invites_manage import INVITE_MENU_BTN_TEXT, InvitesManager
 from services.invites_service import InviteService
+from handlers.user_activity_manage import USER_ACTIVITY_MENU_BTN_TEXT, UserActivityHandlersDeps, register_user_activity_handlers
+from services.user_activity_service import UserActivityService
 from services.identity_matcher import IdentityMatcher
 from services.tara_service.tara_api import (
     get_tara_client_report,
@@ -168,6 +170,8 @@ setup_logging()
 logger = logging.getLogger(__name__)
 AUDIT = logging.getLogger("audit")
 # ---------------------------------------------------------------------------
+def _audit_ts() -> str:
+    return datetime.utcnow().replace(microsecond=0).isoformat()
 
 
 # --- Валидация токена при импорте ---
@@ -232,6 +236,7 @@ MEDIA_SERVICE = MediaService(NEWS_MEDIA_DIR)
 IDENTITY_MATCHER = IdentityMatcher(download_dir="downloads", client_cards_db=CLIENTS_DB)
 INVITE_SERVICE = InviteService(Path(INVITES_JSON))
 INVITES_MANAGER = InvitesManager(bot=bot, invite_service=INVITE_SERVICE, shortener_timeout=float(os.getenv("INVITE_SHORTENER_TIMEOUT", "4.5")))
+USER_ACTIVITY_SERVICE = UserActivityService(Path(LOG_DIR) / "audit.log")
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
 
@@ -1025,6 +1030,7 @@ class AuditMiddleware(BaseMiddleware):
                     kind, media = _extract_media_meta(event)
 
                     AUDIT.info({
+                        "ts": _audit_ts(),
                         "t": "msg",
                         "ok": ok,
                         "ms": dt_ms,
@@ -1054,6 +1060,7 @@ class AuditMiddleware(BaseMiddleware):
                     u = event.from_user
 
                     AUDIT.info({
+                        "ts": _audit_ts(),
                         "t": "cb",
                         "ok": ok,
                         "ms": dt_ms,
@@ -1075,7 +1082,7 @@ class AuditMiddleware(BaseMiddleware):
                     })
 
                 if exc:
-                    AUDIT.info({"t": "error", "req": req_id, "exc": exc})
+                    AUDIT.info({"ts": _audit_ts(), "t": "error", "req": req_id, "exc": exc})
 
             except Exception:
                 # аудит не должен ломать обработку никогда
@@ -1090,7 +1097,7 @@ router.message.middleware(AuditMiddleware())
 router.callback_query.middleware(AuditMiddleware())
 
 def audit_event(user_id: int, action: str, **fields):
-    AUDIT.info({"t": "event", "uid": user_id, "action": action, **fields})
+    AUDIT.info({"ts": _audit_ts(), "t": "event", "uid": user_id, "action": action, **fields})
 def _tail(path: str, n: int = 200) -> str:
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -3020,6 +3027,8 @@ def build_user_menu_kb(user_id: Optional[int] = None, role: Optional[str] = None
         management_row.append(KeyboardButton(text="👥 Пользователи"))
     if user_allows_action(user_id, "invites.manage"):
         management_row.append(KeyboardButton(text=INVITE_MENU_BTN_TEXT))
+    if user_allows_action(user_id, "audit.view"):
+        management_row.append(KeyboardButton(text=USER_ACTIVITY_MENU_BTN_TEXT))
     if user_allows_action(user_id, "client_cards.view"):
         management_row.append(KeyboardButton(text=_management_button_text(role)))
     _append_button_row_if_any(keyboard, management_row)
@@ -3415,6 +3424,7 @@ MANAGED_ACTIONS: List[Tuple[str, str]] = [
     ("technicians.manage", "🛠 Техники"),
     ("users.view", "👥 Пользователи (просмотр)"),
     ("users.manage", "👥 Пользователи (управление)"),
+    ("audit.view", "🕵️ Действия пользователей"),
     ("role_requests.view", "📥 Заявки на роли"),
     ("notifications.manage", "🔔 Уведомления"),
     ("invites.manage", "✉️ Инвайты"),
@@ -5477,6 +5487,7 @@ ACCESS_MATRIX: Dict[str, set] = {
     "technicians.manage": {"admin", "moderator"},
     "users.view": {"admin", "moderator"},
     "users.manage": {"admin"},
+    "audit.view": {"admin"},
     "role_requests.view": {"admin", "moderator"},
     "notifications.manage": {"admin", "moderator"},
     "invites.manage": {"admin"},
@@ -5507,6 +5518,7 @@ ACCESS_LABELS: Dict[str, str] = {
     "technicians.manage": "управление техниками",
     "users.view": "просмотр пользователей",
     "users.manage": "управление пользователями",
+    "audit.view": "просмотр действий пользователей",
     "notifications.manage": "управление уведомлениями",
     "invites.manage": "управление приглашениями",
     "role_requests.view": "просмотр заявок на роли",
@@ -5607,6 +5619,14 @@ INVITES_MANAGER.register_handlers(
     ensure_message_access=ensure_message_access,
     ensure_callback_access=ensure_callback_access,
     role_label=role_label,
+)
+register_user_activity_handlers(
+    router,
+    UserActivityHandlersDeps(
+        ensure_message_access=ensure_message_access,
+        ensure_callback_access=ensure_callback_access,
+        activity_service=USER_ACTIVITY_SERVICE,
+    ),
 )
 
 def client_name_prompt_text() -> str:
