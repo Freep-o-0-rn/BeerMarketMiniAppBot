@@ -3,9 +3,9 @@ import sqlite3
 import json
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from time_utils import utc_now_iso_z
 
 DB_PATH = Path(os.getenv("CLIENTS_DB_PATH", "settings/clients.sqlite3"))
 
@@ -22,7 +22,7 @@ DEFAULT_POSITIONS = [
 
 
 def _utcnow() -> str:
-    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    return utc_now_iso_z()
 
 
 def _ensure_parent(path: Path) -> None:

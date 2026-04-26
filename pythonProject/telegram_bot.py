@@ -73,6 +73,7 @@ from services.invites_service import InviteService
 from handlers.user_activity_manage import USER_ACTIVITY_MENU_BTN_TEXT, UserActivityHandlersDeps, register_user_activity_handlers
 from services.user_activity_service import UserActivityService
 from services.identity_matcher import IdentityMatcher
+from time_utils import APP_TIMEZONE, parse_iso_datetime, utc_now, utc_now_iso_z
 from services.tara_service.tara_api import (
     get_tara_client_report,
     get_tara_group,
@@ -171,7 +172,7 @@ logger = logging.getLogger(__name__)
 AUDIT = logging.getLogger("audit")
 # ---------------------------------------------------------------------------
 def _audit_ts() -> str:
-    return datetime.utcnow().replace(microsecond=0).isoformat()
+    return utc_now_iso_z()
 
 
 # --- Валидация токена при импорте ---
@@ -196,7 +197,7 @@ CLIENT_OVERDUE_JSON = os.getenv("CLIENT_OVERDUE_JSON", "settings/client_overdue_
 MIN_DEBT_JSON = os.getenv("MIN_DEBT_JSON", "settings/filters.json")
 MAX_TG = 3900
 
-TZ = pytz.timezone(os.getenv("TZ", "Europe/Berlin"))
+TZ = pytz.timezone(os.getenv("TZ", APP_TIMEZONE))
 CRON_TIMES = [(10, 31), (15, 31)]
 MAIL_SUBJECT = os.getenv("MAIL_SUBJECT", "ДЕБИТОРКА")
 LAST_UPDATE_FILE = os.getenv("LAST_UPDATE_FILE", os.path.join("downloads", ".last_update.json"))
@@ -2211,19 +2212,11 @@ ROLE_REQUESTS_PATH = Path(ROLE_REQUESTS_JSON)
 
 
 def utc_now_iso() -> str:
-    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    return utc_now_iso_z()
 
 
 def parse_iso_dt(value: Optional[str]) -> Optional[datetime]:
-    if not value:
-        return None
-    raw = str(value).strip()
-    if raw.endswith("Z"):
-        raw = raw[:-1] + "+00:00"
-    try:
-        return datetime.fromisoformat(raw)
-    except Exception:
-        return None
+    return parse_iso_datetime(value)
 
 
 def _normalize_auth_status(value: Any) -> str:
@@ -2306,7 +2299,7 @@ def active_role_request_for_user(user_id: int, target_role: Optional[str] = None
 def can_create_role_request(user_id: int) -> Tuple[bool, Optional[datetime]]:
     rec = _user_record(user_id)
     until = parse_iso_dt(rec.get("request_cooldown_until"))
-    if until and until > datetime.utcnow().replace(tzinfo=until.tzinfo):
+    if until and until > utc_now():
         return False, until
     return True, None
 
@@ -4171,7 +4164,7 @@ def _mark_manual_queue_item_status(
 ) -> bool:
     queue = _load_debt_import_manual_queue()
     items = list(queue.get("items") or [])
-    now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    now = utc_now_iso()
     for item in items:
         if str(item.get("id")) != str(item_id):
             continue
@@ -4200,7 +4193,7 @@ def _store_debt_mapping_for_item(
     if not key:
         return
     state = _load_debt_import_mappings()
-    now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    now = utc_now_iso()
     src = _normalize_source_name(source)
     if ignored:
         state["ignored"][key] = {
@@ -4234,7 +4227,7 @@ def _enqueue_debt_manual_review(
 ) -> None:
     queue = _load_debt_import_manual_queue()
     items = list(queue.get("items") or [])
-    now = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    now = utc_now_iso()
     key = _debt_import_client_key(raw_client_name)
     src = _normalize_source_name(source)
     for item in items:
@@ -6923,7 +6916,7 @@ async def role_request_decide_callback(cq: CallbackQuery):
     else:
         rec = _user_record(target_user_id)
         new_reject_count = int(rec.get("rejection_count") or 0) + 1
-        cooldown_until = datetime.utcnow() + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
+        cooldown_until = utc_now().replace(tzinfo=None) + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
         update_user_record(
             target_user_id,
             {
@@ -10258,7 +10251,7 @@ async def requests_reject(cq: CallbackQuery):
     user_id = int(req.get("user_id") or 0)
     rec = _user_record(user_id)
     new_reject_count = int(rec.get("rejection_count") or 0) + 1
-    cooldown_until = datetime.utcnow() + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
+    cooldown_until = utc_now().replace(tzinfo=None) + timedelta(hours=ROLE_REQUEST_COOLDOWN_HOURS)
     if user_record_exists(user_id):
         update_user_record(
             user_id,

@@ -4,9 +4,9 @@ import json
 import sqlite3
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from time_utils import utc_now_iso
 
 from .news_categories import (
     DEFAULT_NEWS_CATEGORY,
@@ -112,7 +112,7 @@ class NewsService:
 
     @staticmethod
     def _now_iso() -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return utc_now_iso()
 
     def _extract_media_relative(self, raw_path: str) -> Optional[Path]:
         value = str(raw_path or "").strip()

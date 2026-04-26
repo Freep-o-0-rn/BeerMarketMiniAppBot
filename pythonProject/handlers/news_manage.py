@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 from html import escape
-from datetime import datetime, timezone
 from pathlib import Path
+from time_utils import parse_iso_datetime, utc_now_iso
 
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
@@ -338,7 +338,7 @@ def register_news_manage_handlers(
             next_status = "draft"
             status_message = "Переведено в черновик"
         else:
-            news_service.set_status(news_id, "published", published_at=datetime.now(timezone.utc).isoformat())
+            news_service.set_status(news_id, "published", published_at=utc_now_iso())
             next_status = "published"
             status_message = "Опубликовано"
         updated = news_service.get_news(news_id)
@@ -666,7 +666,7 @@ def register_news_manage_handlers(
             await cq.answer("Новость не найдена", show_alert=True)
             return
         if action == "publish":
-            news_service.set_status(news_id, "published", published_at=datetime.now(timezone.utc).isoformat())
+            news_service.set_status(news_id, "published", published_at=utc_now_iso())
             row = news_service.get_news(news_id) or row
             await cq.message.edit_text(
                 f"Новость опубликована:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
@@ -708,7 +708,8 @@ def register_news_manage_handlers(
         news_id = data.get("edit_date_news_id")
         dt_text = (m.text or "").strip()
         try:
-            datetime.fromisoformat(dt_text)
+            if parse_iso_datetime(dt_text) is None:
+                raise ValueError("invalid datetime")
         except Exception:
             await m.answer("Неверный формат. Пример: 2026-03-31T12:00:00+00:00")
             return

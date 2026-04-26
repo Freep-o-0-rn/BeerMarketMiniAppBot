@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from time_utils import parse_iso_utc_naive, utc_now_naive, utc_now_iso_z
 
 INVITE_ROLE_OPTIONS: List[Tuple[str, str]] = [
     ("client", "👤 Клиент"),
@@ -41,19 +42,11 @@ class InviteService:
 
     @staticmethod
     def utc_now() -> datetime:
-        return datetime.utcnow()
+        return utc_now_naive()
 
     @staticmethod
     def parse_iso_utc(value: Optional[str]) -> Optional[datetime]:
-        if not value:
-            return None
-        raw = str(value).strip()
-        if not raw:
-            return None
-        try:
-            return datetime.fromisoformat(raw.replace("Z", "+00:00")).replace(tzinfo=None)
-        except Exception:
-            return None
+        return parse_iso_utc_naive(value)
 
     def load(self) -> List[Dict[str, Any]]:
         if not self.invites_path.exists():
@@ -99,7 +92,7 @@ class InviteService:
             if self.is_active(invite, now):
                 continue
             invite["status"] = "archived"
-            invite["archived_at"] = now.replace(microsecond=0).isoformat() + "Z"
+            invite["archived_at"] = utc_now_iso_z()
             invite["archive_reason"] = "expired" if self.is_expired(invite, now) else "exhausted"
             changed = True
         return changed
@@ -168,7 +161,7 @@ class InviteService:
         if not invite:
             return False
         invite["status"] = "archived"
-        invite["archived_at"] = self.utc_now().replace(microsecond=0).isoformat() + "Z"
+        invite["archived_at"] = utc_now_iso_z()
         invite["archive_reason"] = reason
         self.save_atomic(items)
         return True
@@ -183,12 +176,12 @@ class InviteService:
             return InviteRedeemResult(ok=False, reason="not_found")
         if not self.is_active(invite):
             invite["status"] = "archived"
-            invite["archived_at"] = self.utc_now().replace(microsecond=0).isoformat() + "Z"
+            invite["archived_at"] = utc_now_iso_z()
             invite["archive_reason"] = "expired" if self.is_expired(invite) else "exhausted"
             self.save_atomic(items)
             return InviteRedeemResult(ok=False, reason="inactive", invite=invite)
 
-        now = self.utc_now().replace(microsecond=0).isoformat() + "Z"
+        now = utc_now_iso_z()
         invite["uses_count"] = int(invite.get("uses_count") or 0) + 1
         uses = invite.get("uses") if isinstance(invite.get("uses"), list) else []
         uses.append({"user_id": user_id, "used_at": now, "display_name": (display_name or "").strip()})
