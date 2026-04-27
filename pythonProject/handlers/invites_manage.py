@@ -19,6 +19,8 @@ from services.invites_service import (
     INVITE_TTL_OPTIONS,
     InviteService,
 )
+from time_utils import format_rf_novosibirsk
+
 
 INVITE_MENU_BTN_TEXT = "✉️ Инвайты"
 
@@ -200,8 +202,8 @@ class InvitesManager:
         max_uses = int(invite.get("max_uses") or 0)
         uses_count = int(invite.get("uses_count") or 0)
         target_name = str(invite.get("target_name") or "").strip()
-        created_at = str(invite.get("created_at") or "—")
-        expires_at = str(invite.get("expires_at") or "бессрочно")
+        created_at = format_rf_novosibirsk(invite.get("created_at"))
+        expires_at = format_rf_novosibirsk(invite.get("expires_at")) if invite.get("expires_at") else "бессрочно"
         short_url = str(invite.get("short_url") or invite.get("deep_link") or "—")
         code = str(invite.get("code") or "—")
         lines = [
@@ -220,7 +222,7 @@ class InvitesManager:
             lines.extend(["", "<b>Приняли приглашение:</b>"])
             for item in uses[:10]:
                 uid = str((item or {}).get("user_id") or "—")
-                used_at = str((item or {}).get("used_at") or "—")
+                used_at = format_rf_novosibirsk((item or {}).get("used_at"))
                 uname = str((item or {}).get("display_name") or "").strip()
                 line = f"• <code>{html.escape(uid)}</code> — <code>{html.escape(used_at)}</code>"
                 if uname:

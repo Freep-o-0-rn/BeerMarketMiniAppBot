@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from time_utils import format_rf_novosibirsk
 
 
 @dataclass(frozen=True)
@@ -236,14 +237,7 @@ class UserActivityService:
 
     @staticmethod
     def _fmt_ts(value: Any) -> str:
-        if not value:
-            return "время не указано"
-        txt = str(value)
-        try:
-            parsed = datetime.fromisoformat(txt)
-            return parsed.strftime("%d.%m.%Y %H:%M:%S")
-        except ValueError:
-            return txt
+        return format_rf_novosibirsk(str(value) if value is not None else None)
 
     @staticmethod
     def _escape(value: str) -> str:

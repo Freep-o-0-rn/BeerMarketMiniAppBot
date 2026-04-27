@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from time_utils import parse_iso_utc_naive, utc_now_naive, utc_now_iso_z
+from time_utils import local_now, local_now_iso, parse_mixed_datetime
 
 INVITE_ROLE_OPTIONS: List[Tuple[str, str]] = [
     ("client", "👤 Клиент"),
@@ -42,11 +42,11 @@ class InviteService:
 
     @staticmethod
     def utc_now() -> datetime:
-        return utc_now_naive()
+        return local_now()
 
     @staticmethod
     def parse_iso_utc(value: Optional[str]) -> Optional[datetime]:
-        return parse_iso_utc_naive(value)
+        return parse_mixed_datetime(value)
 
     def load(self) -> List[Dict[str, Any]]:
         if not self.invites_path.exists():
@@ -92,7 +92,7 @@ class InviteService:
             if self.is_active(invite, now):
                 continue
             invite["status"] = "archived"
-            invite["archived_at"] = utc_now_iso_z()
+            invite["archived_at"] = local_now_iso()
             invite["archive_reason"] = "expired" if self.is_expired(invite, now) else "exhausted"
             changed = True
         return changed
@@ -114,12 +114,12 @@ class InviteService:
     ) -> Dict[str, Any]:
         created_at = self.utc_now().replace(microsecond=0)
         ttl_seconds = INVITE_TTL_MAP.get(ttl_key)
-        expires_at = (created_at + timedelta(seconds=ttl_seconds)).isoformat() + "Z" if ttl_seconds else None
+        expires_at = (created_at + timedelta(seconds=ttl_seconds)).isoformat() if ttl_seconds else None
         invite = {
             "id": uuid.uuid4().hex,
             "code": self.build_payload(),
             "status": "active",
-            "created_at": created_at.isoformat() + "Z",
+            "created_at": created_at.isoformat(),
             "created_by": created_by,
             "role": role,
             "ttl_key": ttl_key,
@@ -146,7 +146,11 @@ class InviteService:
             self.save_atomic(items)
         status = "active" if mode == "active" else "archived"
         out = [x for x in items if str(x.get("status") or "active") == status]
-        out.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
+        fallback_dt = datetime.min.replace(tzinfo=self.utc_now().tzinfo)
+        out.sort(
+            key=lambda x: self.parse_iso_utc(str(x.get("created_at") or "")) or fallback_dt,
+            reverse=True,
+        )
         return out
 
     def get_invite(self, invite_id: str) -> Optional[Dict[str, Any]]:
@@ -161,7 +165,7 @@ class InviteService:
         if not invite:
             return False
         invite["status"] = "archived"
-        invite["archived_at"] = utc_now_iso_z()
+        invite["archived_at"] = local_now_iso()
         invite["archive_reason"] = reason
         self.save_atomic(items)
         return True
@@ -176,12 +180,12 @@ class InviteService:
             return InviteRedeemResult(ok=False, reason="not_found")
         if not self.is_active(invite):
             invite["status"] = "archived"
-            invite["archived_at"] = utc_now_iso_z()
+            invite["archived_at"] = local_now_iso()
             invite["archive_reason"] = "expired" if self.is_expired(invite) else "exhausted"
             self.save_atomic(items)
             return InviteRedeemResult(ok=False, reason="inactive", invite=invite)
 
-        now = utc_now_iso_z()
+        now = local_now_iso()
         invite["uses_count"] = int(invite.get("uses_count") or 0) + 1
         uses = invite.get("uses") if isinstance(invite.get("uses"), list) else []
         uses.append({"user_id": user_id, "used_at": now, "display_name": (display_name or "").strip()})

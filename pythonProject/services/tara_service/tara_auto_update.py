@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -9,6 +9,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from tzlocal import get_localzone
+from time_utils import format_rf_novosibirsk, local_now
 
 try:
     from .parse_tara_report import (
@@ -46,7 +47,7 @@ RETRY_JOB_ID = "tara_refresh_retry"
 
 
 def now_local_str() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return format_rf_novosibirsk(local_now())
 
 
 def default_state() -> Dict[str, Any]:
@@ -150,7 +151,7 @@ def clear_retry_job(scheduler: AsyncIOScheduler, logger) -> None:
 
 
 def schedule_retry_in_5_minutes(scheduler: AsyncIOScheduler, logger, reason: str) -> None:
-    run_at = datetime.now() + timedelta(minutes=5)
+    run_at = local_now() + timedelta(minutes=5)
 
     scheduler.add_job(
         run_tara_refresh_retry_async,
@@ -163,14 +164,14 @@ def schedule_retry_in_5_minutes(scheduler: AsyncIOScheduler, logger, reason: str
     )
 
     state = load_update_state()
-    state["retry_scheduled_for"] = run_at.strftime("%Y-%m-%d %H:%M:%S")
+    state["retry_scheduled_for"] = format_rf_novosibirsk(run_at)
     state["last_missing_check_at"] = now_local_str()
     state["last_missing_reason"] = reason
     save_update_state(state)
 
     logger.warning(
         "Новый файл не найден. Повторная попытка запланирована на %s. Причина: %s",
-        run_at.strftime("%Y-%m-%d %H:%M:%S"),
+        format_rf_novosibirsk(run_at),
         reason,
     )
 
