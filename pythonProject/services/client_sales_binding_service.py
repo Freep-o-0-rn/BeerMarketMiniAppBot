@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional
 
+def _norm_text(value: str) -> str:
+    return " ".join((value or "").strip().casefold().split())
 
 def resolve_card_for_report_client(
     raw_name: str,
@@ -31,6 +33,26 @@ def resolve_card_for_report_client(
         mapped = mappings.get(key) if key else None
         if not isinstance(mapped, dict) and legacy_key:
             mapped = mappings.get(legacy_key)
+        # Фоллбек: в старых/ручных кейсах ключ маппинга может отличаться только
+        # частью с ФИО торгового (например, в отчёте торговый не распарсился).
+        # Тогда ищем по raw_client_name независимо от sales_rep сегмента ключа.
+        if not isinstance(mapped, dict):
+            raw_norm = _norm_text(raw_name)
+            matched_client_ids = []
+            for payload in mappings.values():
+                if not isinstance(payload, dict):
+                    continue
+                payload_raw = _norm_text(str(payload.get("raw_client_name") or ""))
+                if payload_raw != raw_norm:
+                    continue
+                mapped_client_id = str(payload.get("client_id") or "").strip()
+                if mapped_client_id:
+                    matched_client_ids.append(mapped_client_id)
+            unique_client_ids = list(dict.fromkeys(matched_client_ids))
+            if len(unique_client_ids) == 1:
+                card = get_client_by_id(unique_client_ids[0])
+                if card:
+                    return card
         if isinstance(mapped, dict):
             mapped_client_id = str(mapped.get("client_id") or "").strip()
             if mapped_client_id:

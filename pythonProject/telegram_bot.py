@@ -5454,7 +5454,7 @@ async def push_user_menu_refresh(user_id: Any, text: str = "🔄 Ваше мен
         return
     numeric_uid = int(uid)
     try:
-        fsm_ctx = await dp.fsm.get_context(bot=bot, chat_id=numeric_uid, user_id=numeric_uid)
+        fsm_ctx = dp.fsm.get_context(bot=bot, chat_id=numeric_uid, user_id=numeric_uid)
         await fsm_ctx.clear()
     except Exception:
         logger.exception("menu-refresh: failed to clear state for user=%s", uid)
