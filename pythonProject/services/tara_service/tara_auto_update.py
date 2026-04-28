@@ -9,7 +9,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from tzlocal import get_localzone
-from time_utils import format_rf_novosibirsk, local_now
+from services.time import format_rf_novosibirsk, local_now
 
 try:
     from .parse_tara_report import (

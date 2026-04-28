@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from time_utils import format_rf_novosibirsk
+from services.time import format_rf_novosibirsk
 
 
 @dataclass(frozen=True)

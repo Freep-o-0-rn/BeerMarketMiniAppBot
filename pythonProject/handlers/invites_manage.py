@@ -19,7 +19,7 @@ from services.invites_service import (
     INVITE_TTL_OPTIONS,
     InviteService,
 )
-from time_utils import format_rf_novosibirsk
+from services.time import format_rf_novosibirsk
 
 
 INVITE_MENU_BTN_TEXT = "✉️ Инвайты"

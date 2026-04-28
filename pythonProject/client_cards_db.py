@@ -5,7 +5,7 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from time_utils import utc_now_iso_z
+from services.time import utc_now_iso_z
 
 DB_PATH = Path(os.getenv("CLIENTS_DB_PATH", "settings/clients.sqlite3"))
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from time_utils import local_now, local_now_iso, parse_mixed_datetime
+from services.time import local_now, local_now_iso, parse_mixed_datetime
 
 INVITE_ROLE_OPTIONS: List[Tuple[str, str]] = [
     ("client", "👤 Клиент"),

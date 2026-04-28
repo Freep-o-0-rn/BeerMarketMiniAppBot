@@ -73,7 +73,7 @@ from services.invites_service import InviteService
 from handlers.user_activity_manage import USER_ACTIVITY_MENU_BTN_TEXT, UserActivityHandlersDeps, register_user_activity_handlers
 from services.user_activity_service import UserActivityService
 from services.identity_matcher import IdentityMatcher
-from time_utils import APP_TIMEZONE, parse_iso_datetime, utc_now, utc_now_iso_z
+from services.time import APP_TIMEZONE, parse_iso_datetime, utc_now, utc_now_iso_z
 from services.tara_service.tara_api import (
     get_tara_client_report,
     get_tara_group,

@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from html import escape
 from pathlib import Path
-from time_utils import parse_iso_datetime, utc_now_iso
+from services.time import format_rf_novosibirsk, local_now_iso, parse_mixed_datetime
 
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
@@ -88,7 +88,9 @@ def _news_item_text(row: dict) -> str:
     media_count = len(row.get("media") or [])
     title = str(row.get("title") or "Без заголовка")
     status = str(row.get("status") or "—")
-    published_at = str(row.get("published_at") or "—")
+    created_at = format_rf_novosibirsk(row.get("created_at"))
+    updated_at = format_rf_novosibirsk(row.get("updated_at"))
+    published_at = format_rf_novosibirsk(row.get("published_at")) if row.get("published_at") else "—"
     author_name = str(row.get("author_name") or "—")
     category = category_label(row.get("category"))
     body = str(row.get("text") or "")
@@ -96,6 +98,8 @@ def _news_item_text(row: dict) -> str:
         f"{title}\n"
         f"Статус: {status}\n"
         f"Категория: {category}\n"
+        f"Создано: {created_at}\n"
+        f"Обновлено: {updated_at}\n"
         f"Дата публикации: {published_at}\n"
         f"Автор: {author_name}\n"
         f"Медиа: {media_count}\n\n"
@@ -338,7 +342,7 @@ def register_news_manage_handlers(
             next_status = "draft"
             status_message = "Переведено в черновик"
         else:
-            news_service.set_status(news_id, "published", published_at=utc_now_iso())
+            news_service.set_status(news_id, "published", published_at=local_now_iso())
             next_status = "published"
             status_message = "Опубликовано"
         updated = news_service.get_news(news_id)
@@ -666,7 +670,7 @@ def register_news_manage_handlers(
             await cq.answer("Новость не найдена", show_alert=True)
             return
         if action == "publish":
-            news_service.set_status(news_id, "published", published_at=utc_now_iso())
+            news_service.set_status(news_id, "published", published_at=local_now_iso())
             row = news_service.get_news(news_id) or row
             await cq.message.edit_text(
                 f"Новость опубликована:\n<b>{escape(str(row.get('title') or 'Без заголовка'))}</b>",
@@ -697,7 +701,7 @@ def register_news_manage_handlers(
         _, _, news_id, page_raw, list_status = (cq.data or "").split(":", 4)
         await state.set_state(NewsEditDateStates.waiting_iso_datetime)
         await state.update_data(edit_date_news_id=news_id, edit_date_page=page_raw, edit_date_status=list_status)
-        await cq.message.answer("Введите дату публикации в формате ISO: 2026-03-31T12:00:00+00:00")
+        await cq.message.answer("Введите дату публикации (например: 2026-03-31T12:00:00+07:00 или 12-00-00 31-03-2026 Новосибирск UTC +07-00)")
         await cq.answer()
 
     @router.message(NewsEditDateStates.waiting_iso_datetime, F.text)
@@ -707,11 +711,9 @@ def register_news_manage_handlers(
         data = await state.get_data()
         news_id = data.get("edit_date_news_id")
         dt_text = (m.text or "").strip()
-        try:
-            if parse_iso_datetime(dt_text) is None:
-                raise ValueError("invalid datetime")
-        except Exception:
-            await m.answer("Неверный формат. Пример: 2026-03-31T12:00:00+00:00")
+        parsed_dt = parse_mixed_datetime(dt_text)
+        if parsed_dt is None:
+            await m.answer("Неверный формат. Пример: 2026-03-31T12:00:00+07:00")
             return
         news_service.update_news(news_id, published_at=dt_text)
         await state.clear()

@@ -6,7 +6,7 @@ from typing import Awaitable, Callable, Optional
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from pythonProject.services.user_activity_service import UserActivityService
+from services.user_activity_service import UserActivityService
 
 
 USER_ACTIVITY_MENU_BTN_TEXT = "🕵️ Действия пользователей"

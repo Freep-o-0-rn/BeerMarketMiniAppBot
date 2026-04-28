@@ -1,8 +1,11 @@
+
 from __future__ import annotations
 
 import os
+import json
 from datetime import datetime, timezone
 from typing import Optional
+from urllib.request import urlopen
 from zoneinfo import ZoneInfo
 
 
@@ -10,7 +13,7 @@ from zoneinfo import ZoneInfo
 # Может быть переопределена через переменную окружения APP_TIMEZONE.
 APP_TIMEZONE = os.getenv("APP_TIMEZONE", "Asia/Novosibirsk")
 LOCAL_TZ = ZoneInfo(APP_TIMEZONE)
-NOVOSIBIRSK_LABEL = "UTC +07-00"
+NOVOSIBIRSK_LABEL = "Новосибирск UTC +07-00"
 UNIFIED_RF_DT_FORMAT = "%H-%M-%S %d-%m-%Y"
 _LEGACY_PARSE_FORMATS = (
     "%Y-%m-%d %H:%M:%S",
@@ -18,6 +21,55 @@ _LEGACY_PARSE_FORMATS = (
     "%d.%m.%Y %H:%M",
     UNIFIED_RF_DT_FORMAT,
 )
+_INTERNET_UTC_SOURCES = (
+    "https://worldtimeapi.org/api/timezone/Etc/UTC",
+    "https://timeapi.io/api/time/current/zone?timeZone=UTC",
+)
+
+
+def _parse_utc_payload(payload: dict) -> Optional[datetime]:
+    candidates = (
+        payload.get("utc_datetime"),
+        payload.get("datetime"),
+    )
+    for value in candidates:
+        if not value:
+            continue
+        raw = str(value).strip()
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        try:
+            parsed = datetime.fromisoformat(raw)
+        except ValueError:
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    unixtime = payload.get("unixtime")
+    if unixtime is not None:
+        try:
+            return datetime.fromtimestamp(float(unixtime), tz=timezone.utc)
+        except Exception:
+            return None
+    return None
+
+
+def internet_utc_now(*, timeout_seconds: float = 2.5) -> Optional[datetime]:
+    """
+    Резервный источник UTC-времени из интернета.
+    Возвращает timezone-aware datetime в UTC либо None при недоступности источников.
+    """
+    for url in _INTERNET_UTC_SOURCES:
+        try:
+            with urlopen(url, timeout=timeout_seconds) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            parsed = _parse_utc_payload(payload)
+            if parsed is not None:
+                return parsed
+        except Exception:
+            continue
+    return None
+
 
 def utc_now() -> datetime:
     """Timezone-aware UTC datetime."""
@@ -25,8 +77,19 @@ def utc_now() -> datetime:
 
 
 def local_now() -> datetime:
-    """Timezone-aware локальное время приложения."""
-    return datetime.now(LOCAL_TZ)
+    """
+    Timezone-aware локальное время приложения.
+    Источник №1: системное локальное время.
+    Источник №2 (fallback): интернет UTC -> конвертация в локальную таймзону.
+    """
+    try:
+        return datetime.now(LOCAL_TZ)
+    except Exception:
+        internet_utc = internet_utc_now()
+        if internet_utc is not None:
+            return internet_utc.astimezone(LOCAL_TZ)
+        return utc_now().astimezone(LOCAL_TZ)
+
 
 def local_now_iso(*, trim_microseconds: bool = True) -> str:
     """ISO-8601 локального времени приложения (с timezone offset)."""
@@ -34,6 +97,7 @@ def local_now_iso(*, trim_microseconds: bool = True) -> str:
     if trim_microseconds:
         dt = dt.replace(microsecond=0)
     return dt.isoformat()
+
 
 def utc_now_naive() -> datetime:
     """Naive UTC datetime for legacy code that compares naive timestamps."""

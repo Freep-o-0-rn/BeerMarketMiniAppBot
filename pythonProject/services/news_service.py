@@ -6,7 +6,7 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from time_utils import utc_now_iso
+from services.time import local_now_iso, parse_mixed_datetime
 
 from .news_categories import (
     DEFAULT_NEWS_CATEGORY,
@@ -112,7 +112,7 @@ class NewsService:
 
     @staticmethod
     def _now_iso() -> str:
-        return utc_now_iso()
+        return local_now_iso()
 
     def _extract_media_relative(self, raw_path: str) -> Optional[Path]:
         value = str(raw_path or "").strip()
@@ -293,7 +293,7 @@ class NewsService:
             params.append(normalize_news_category(category, default=DEFAULT_NEWS_CATEGORY))
         if where_clauses:
             query += f" WHERE {' AND '.join(where_clauses)}"
-        query += " ORDER BY is_pinned DESC, COALESCE(published_at, created_at) DESC, display_order DESC LIMIT ? OFFSET ?"
+        query += " ORDER BY is_pinned DESC, display_order DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         with self._connect() as conn:
             rows = conn.execute(query, params).fetchall()
@@ -306,6 +306,13 @@ class NewsService:
                 item["category"] = normalize_news_category(item.get("category"), default=DEFAULT_NEWS_CATEGORY)
                 item["category_label"] = category_label(item.get("category"))
                 result.append(item)
+            result.sort(
+                key=lambda item: (
+                    parse_mixed_datetime(item.get("published_at") or item.get("created_at"))
+                    or parse_mixed_datetime(item.get("created_at"))
+                ),
+                reverse=True,
+            )
             return result
 
     def _sync_static_files(self) -> None:
