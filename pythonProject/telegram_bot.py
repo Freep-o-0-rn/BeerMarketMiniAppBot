@@ -73,6 +73,11 @@ from services.invites_service import InviteService
 from handlers.user_activity_manage import USER_ACTIVITY_MENU_BTN_TEXT, UserActivityHandlersDeps, register_user_activity_handlers
 from services.user_activity_service import UserActivityService
 from services.identity_matcher import IdentityMatcher
+from services.client_sales_binding_service import (
+    resolve_card_for_report_client as svc_resolve_card_for_report_client,
+    resolve_sales_rep_name_for_item as svc_resolve_sales_rep_name_for_item,
+    sync_sales_rep_in_mappings_for_client as svc_sync_sales_rep_in_mappings_for_client,
+)
 from services.time import APP_TIMEZONE, parse_iso_datetime, utc_now, utc_now_iso_z
 from services.tara_service.tara_api import (
     get_tara_client_report,
@@ -3944,6 +3949,23 @@ def debt_import_queue_sales_rep_pick_kb(
     rows.append([InlineKeyboardButton(text="⬅️ К карточке записи", callback_data=f"cc:imq:view:{item_id}")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def client_card_sales_rep_pick_kb(client_id: str, sales_reps: List[Dict[str, Any]], *, limit: int = 20) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for rep in sales_reps[:limit]:
+        user_id = int(rep.get("user_id") or 0)
+        title = str(rep.get("name") or f"Пользователь {user_id}").strip()
+        if not user_id:
+            continue
+        rows.append([
+            InlineKeyboardButton(
+                text=f"👤 {title}"[:64],
+                callback_data=f"cc:editsalespick:{client_id}:{user_id}",
+            )
+        ])
+    rows.append([InlineKeyboardButton(text="— Снять привязку", callback_data=f"cc:editsalespick:{client_id}:0")])
+    rows.append([InlineKeyboardButton(text="⬅️ К карточке", callback_data=f"cc:view:{client_id}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
 def _parse_sales_rep_input(raw: str) -> Tuple[Optional[int], str]:
     txt = (raw or "").strip()
     if not txt:
@@ -5043,51 +5065,32 @@ def _build_client_card_lookup() -> Dict[str, Dict[str, Any]]:
 
 
 def _resolve_card_for_report_client(raw_name: str, *, report_type: str) -> Optional[Dict[str, Any]]:
-    report_type = (report_type or "").strip().lower()
-    raw_name = str(raw_name or "").strip()
-    if not raw_name:
-        return None
-
-    if report_type == "debt":
-        mapping_state = _load_debt_import_mappings()
-        key = _debt_import_client_key(raw_name)
-        mapped = mapping_state.get("mappings", {}).get(key) if key else None
-        if isinstance(mapped, dict):
-            mapped_client_id = str(mapped.get("client_id") or "").strip()
-            if mapped_client_id:
-                card = CLIENTS_DB.get_client(mapped_client_id)
-                if card:
-                    return card
-
-    parsed = split_report_client_label(raw_name)
-    base_name = _norm_text_key(parsed.get("client_name") or raw_name)
-    address = _norm_text_key(parsed.get("address") or "")
     lookup = _build_client_card_lookup()
-    if base_name and address:
-        by_name_addr = lookup.get("by_name_addr", {})
-        card = by_name_addr.get(f"{base_name}|{address}")
-        if card:
-            return card
-    if base_name:
-        by_name = lookup.get("by_name", {})
-        card = by_name.get(base_name)
-        if card:
-            return card
-    return None
+    by_name = lookup.get("by_name", {})
+    by_name_addr = lookup.get("by_name_addr", {})
+    return svc_resolve_card_for_report_client(
+        raw_name,
+        report_type=report_type,
+        load_mappings=_load_debt_import_mappings,
+        split_report_client_label=split_report_client_label,
+        debt_import_mapping_key=_debt_import_mapping_key,
+        debt_import_client_key=_debt_import_client_key,
+        get_client_by_id=CLIENTS_DB.get_client,
+        lookup_by_name=lambda base_name: by_name.get(base_name),
+        lookup_by_name_and_address=lambda base_name, address: by_name_addr.get(f"{base_name}|{address}"),
+        normalize_text_key=_norm_text_key,
+    )
+
 
 
 def _resolve_sales_rep_name_for_item(item: Dict[str, Any], *, report_type: str = "debt") -> str:
-    card = _resolve_card_for_report_client(str(item.get("client") or ""), report_type=report_type)
-    if card and str(card.get("sales_rep_name") or "").strip():
-        return str(card.get("sales_rep_name") or "").strip()
-    explicit_name = str(item.get("sales_rep_name") or "").strip()
-    if explicit_name:
-        return explicit_name
-    parsed = split_report_client_label(str(item.get("client") or ""))
-    parsed_rep = str(parsed.get("sales_rep") or "").strip()
-    if parsed_rep:
-        return parsed_rep
-    return ""
+    return svc_resolve_sales_rep_name_for_item(
+        item,
+        report_type=report_type,
+        resolve_card_for_report_client_fn=lambda raw_name, rpt: _resolve_card_for_report_client(raw_name, report_type=rpt),
+        user_record_getter=_user_record,
+        split_report_client_label=split_report_client_label,
+    )
 
 
 def _is_sales_rep_tara_item_visible_for_user(item: Dict[str, Any], user_id: int) -> bool:
@@ -8227,6 +8230,7 @@ async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="Отсрочка (дни)", callback_data=f"cc:editfield:{client_id}:overdue_days")],
         [InlineKeyboardButton(text="Техник", callback_data=f"cc:edittech:{client_id}")],
         [InlineKeyboardButton(text="Торг. представитель", callback_data=f"cc:editfield:{client_id}:sales_rep_name")],
+        [InlineKeyboardButton(text="👤 Привязать к торговому (ID)", callback_data=f"cc:editsales:{client_id}")],
         [InlineKeyboardButton(text="⬅️ Отмена", callback_data=f"cc:view:{client_id}")],
     ])
     await state.clear()
@@ -8414,6 +8418,72 @@ async def cc_edit_field_pick(cq: CallbackQuery, state: FSMContext):
     await cq.message.answer(prompts[field])
     await cq.answer()
 
+@router.callback_query(F.data.startswith("cc:editsales:"))
+async def cc_edit_sales_rep_start(cq: CallbackQuery, state: FSMContext):
+    client_id = cq.data.split(":", 2)[2]
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
+        return
+    sales_reps = _sales_rep_candidates()
+    if not sales_reps:
+        await cq.answer("Список торговых представителей пуст", show_alert=True)
+        return
+    await state.clear()
+    await cq.message.answer(
+        "Выберите торгового для привязки карточки.\n"
+        "Это обновит поля sales_rep_user_id/sales_rep_name и включит клиента в поиск торгового.",
+        reply_markup=client_card_sales_rep_pick_kb(client_id, sales_reps),
+    )
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:editsalespick:"))
+async def cc_edit_sales_rep_pick(cq: CallbackQuery, state: FSMContext):
+    _, _, client_id, rep_uid_raw = (cq.data or "").split(":", 3)
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = await ensure_callback_access(cq, "client_cards.manage", state=state)
+    if not role:
+        return
+    if not _has_client_card_access(uid, role, client_id):
+        await deny_callback_access(cq, "client_cards.manage")
+        return
+    try:
+        rep_uid = int(rep_uid_raw)
+    except Exception:
+        await cq.answer("Некорректный торговый", show_alert=True)
+        return
+    patch: Dict[str, Any] = {"sales_rep_user_id": None, "sales_rep_name": ""}
+    if rep_uid > 0:
+        rec = _user_record(rep_uid)
+        rep_name = (
+            str(rec.get("name") or "").strip()
+            or " ".join([str(rec.get("first_name") or "").strip(), str(rec.get("last_name") or "").strip()]).strip()
+            or f"Пользователь {rep_uid}"
+        )
+        patch["sales_rep_user_id"] = rep_uid
+        patch["sales_rep_name"] = rep_name
+    CLIENTS_DB.update_client(client_id, patch)
+    synced_mappings = svc_sync_sales_rep_in_mappings_for_client(
+        client_id=client_id,
+        sales_rep_user_id=patch.get("sales_rep_user_id"),
+        sales_rep_name=str(patch.get("sales_rep_name") or ""),
+        actor_user_id=uid,
+        load_mappings=_load_debt_import_mappings,
+        save_mappings=_save_debt_import_mappings,
+        utc_now_iso=utc_now_iso,
+    )
+    card = CLIENTS_DB.get_client(client_id)
+    await state.clear()
+    await cq.message.answer(f"✅ Привязка к торговому обновлена. Синхронизировано маппингов: {synced_mappings}.")
+    await cq.message.answer(
+        _format_client_card_for_user(card, user_id=uid, role=role),
+        reply_markup=client_card_actions_kb(client_id, role),
+    )
+    await cq.answer()
 
 @router.message(ClientCardStates.waiting_edit_value)
 async def cc_edit_field_value(m: Message, state: FSMContext):

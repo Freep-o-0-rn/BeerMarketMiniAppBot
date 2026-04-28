@@ -442,9 +442,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 7,
+      "seen_count": 8,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-21T22:27:20Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-12T19:51:13Z",
       "moderated_by_user_id": 237087423,
@@ -802,9 +802,9 @@
       "reasons": [
         "legal_form_unknown"
       ],
-      "seen_count": 3,
+      "seen_count": 4,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-12T19:21:22Z",
+      "last_seen_at": "2026-04-28T12:07:08Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:32:58Z",
       "moderated_by_user_id": 237087423,
@@ -1113,9 +1113,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 9,
+      "seen_count": 10,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:33:21Z",
       "moderated_by_user_id": 237087423,
@@ -1135,9 +1135,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 9,
+      "seen_count": 10,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-12T20:02:53Z",
       "moderated_by_user_id": 237087423,
@@ -1184,9 +1184,9 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 9,
+      "seen_count": 10,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:34:46Z",
       "moderated_by_user_id": 237087423,
@@ -1208,9 +1208,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 9,
+      "seen_count": 10,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:35:11Z",
       "moderated_by_user_id": 237087423,
@@ -1276,9 +1276,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 7,
+      "seen_count": 8,
       "created_at": "2026-04-12T18:53:29Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-13T07:35:35Z",
       "moderated_by_user_id": 237087423,
@@ -8674,9 +8674,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:45Z",
-      "last_seen_at": "2026-04-21T22:27:20Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-15T02:57:12Z",
       "moderated_by_user_id": 1188061961,
@@ -8747,9 +8747,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-15T06:42:13Z",
       "moderated_by_user_id": 1188061961,
@@ -8773,9 +8773,9 @@
         "sales_rep_missing",
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-21T22:27:43Z",
       "moderated_by_user_id": 237087423,
@@ -8797,9 +8797,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8817,9 +8817,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8837,9 +8837,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8857,9 +8857,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8877,9 +8877,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8897,9 +8897,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8917,9 +8917,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8937,9 +8937,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8957,9 +8957,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8977,9 +8977,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:46Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -8997,9 +8997,9 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 2,
+      "seen_count": 3,
       "created_at": "2026-04-15T02:44:47Z",
-      "last_seen_at": "2026-04-21T22:27:22Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     },
     {
@@ -9813,7 +9813,7 @@
         "legal_name": "Ригель Ритейл",
         "store_name": "",
         "address": "Балтийская ул, дом № 29",
-        "sales_rep_name": "Воротников"
+        "sales_rep_name": "Воротников Н"
       },
       "reasons": [
         "resolve_not_found",
@@ -9839,7 +9839,7 @@
         "legal_name": "Сельснаб",
         "store_name": "",
         "address": "Железнодорожный п, Школьная ул, дом № 15",
-        "sales_rep_name": "Воротников"
+        "sales_rep_name": "Воротников Н"
       },
       "reasons": [
         "resolve_not_found",
@@ -9865,7 +9865,7 @@
         "legal_name": "Савина А.И.",
         "store_name": "",
         "address": "",
-        "sales_rep_name": "Воротников ГОЛОВНОЙ"
+        "sales_rep_name": "Воротников Н"
       },
       "reasons": [
         "resolve_not_found",
@@ -9891,9 +9891,454 @@
       "reasons": [
         "address_missing"
       ],
-      "seen_count": 1,
+      "seen_count": 2,
       "created_at": "2026-04-21T22:27:21Z",
-      "last_seen_at": "2026-04-21T22:27:21Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "98c27278-d569-4261-8e3e-1ee1f42251b4",
+      "status": "pending",
+      "raw_client_name": "Кожина Лилия Витальевна ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Кожина Лилия Витальевна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:05Z",
+      "last_seen_at": "2026-04-28T12:07:05Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "c94dfc88-f5f6-4bbf-a78a-284bc95d68bd",
+      "status": "pending",
+      "raw_client_name": "Деуленко И.Ю. ИП Волчок (Звездная ул, дом № 5)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Деуленко И.Ю. Волчок",
+        "store_name": "",
+        "address": "Звездная ул, дом № 5",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:05Z",
+      "last_seen_at": "2026-04-28T12:07:05Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "80a9d1d6-a9c3-4581-b778-1b6d68dfd349",
+      "status": "resolved_created",
+      "raw_client_name": "Никитина Елена Витальевна ИП (г.Бердск пересечение  Рогачева ул и Пролетарская ул.)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Никитина Елена Витальевна",
+        "store_name": "",
+        "address": "г.Бердск пересечение Рогачева ул и Пролетарская ул.",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:06Z",
+      "last_seen_at": "2026-04-28T12:07:06Z",
+      "last_imported_by_user_id": 237087423,
+      "moderated_at": "2026-04-28T12:13:15Z",
+      "moderated_by_user_id": 237087423,
+      "selected_sales_rep_name": "Волчок",
+      "selected_sales_rep_user_id": 322502810,
+      "mapped_client_id": "9c1bffe5-253b-483d-a3c5-49ca124f6253"
+    },
+    {
+      "id": "21b57e0e-cd58-4434-9ac2-92893599fd4a",
+      "status": "pending",
+      "raw_client_name": "КРИСТАЛЛ ООО - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "КРИСТАЛЛ",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:06Z",
+      "last_seen_at": "2026-04-28T12:07:06Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "24d39231-3c04-46a0-a83d-e0dd3368eb37",
+      "status": "pending",
+      "raw_client_name": "Скурыхина Наталья Игоревна ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Скурыхина Наталья Игоревна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:06Z",
+      "last_seen_at": "2026-04-28T12:07:06Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "463ead54-5df2-4a58-88ce-dbc412d6ce5f",
+      "status": "pending",
+      "raw_client_name": "Бехер Дмитрий Алексеевич ИП - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Бехер Дмитрий Алексеевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:06Z",
+      "last_seen_at": "2026-04-28T12:07:06Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "49568200-051f-4cbc-b29b-2fe8bbabd2a8",
+      "status": "pending",
+      "raw_client_name": "ХОТЕЙ ООО - Воротников",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "ХОТЕЙ",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Воротников"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:06Z",
+      "last_seen_at": "2026-04-28T12:07:06Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "f2fcf599-c860-40fb-8d55-36919d79c8ed",
+      "status": "pending",
+      "raw_client_name": "Фомина Татьяна Петровна ИП - Ганиев",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Фомина Татьяна Петровна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Ганиев"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:07Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "242d7208-06fe-4ec2-b019-48d459a31cb4",
+      "status": "pending",
+      "raw_client_name": "Лосев М.С. - Токарев (Станиславского ул, дом № 17)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Лосев М.С.",
+        "store_name": "",
+        "address": "Станиславского ул, дом № 17",
+        "sales_rep_name": "Токарев"
+      },
+      "reasons": [
+        "legal_form_unknown"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:07Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "32aa820c-f7ac-4d15-8021-623ed1db4999",
+      "status": "pending",
+      "raw_client_name": "Шевченко Илья Алексеевич ИП - Ганиев ИП Новосибирский р-н, Верх-Тула с, Советская ул, дом № 49Б",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Шевченко Илья Алексеевич - Ганиев Новосибирский р-н, Верх",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Тула с, Советская ул, дом № 49Б"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:07Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "8be5a291-59a9-494c-9313-def69b1c2ca0",
+      "status": "pending",
+      "raw_client_name": "Бервинов Александр Васильевич ИП - Щербатов",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Бервинов Александр Васильевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Щербатов"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:07Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "cd8aaa59-18d1-437f-af9a-2becec311dcd",
+      "status": "pending",
+      "raw_client_name": "Корнева Ольга Аркадьевна ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Корнева Ольга Аркадьевна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:07Z",
+      "last_seen_at": "2026-04-28T12:07:07Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "a7742a98-2ff3-4b0b-be44-57ad6f11c833",
+      "status": "pending",
+      "raw_client_name": "Баранова Екатерина Михайловна ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Баранова Екатерина Михайловна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:08Z",
+      "last_seen_at": "2026-04-28T12:07:08Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "7cb109e9-09c2-480c-b04d-e386203c0f22",
+      "status": "pending",
+      "raw_client_name": "Якубовский В.В. ИП - (Бердск г, Гранитная ул, дом № 3)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Якубовский В.В.",
+        "store_name": "",
+        "address": "Бердск г, Гранитная ул, дом № 3",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:08Z",
+      "last_seen_at": "2026-04-28T12:07:08Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "194ec8fc-d72f-4eac-bb9d-8f708f1bc79f",
+      "status": "pending",
+      "raw_client_name": "Мир вкуса ООО Волчок (Бердск г, Ясная поляна ул, дом № 16)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "Мир вкуса Волчок",
+        "store_name": "",
+        "address": "Бердск г, Ясная поляна ул, дом № 16",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:08Z",
+      "last_seen_at": "2026-04-28T12:07:08Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "ed51b52d-6339-42f5-ad15-1e65df99ced8",
+      "status": "pending",
+      "raw_client_name": "Грибанова Мария Анатольевна -Волчок (Линево рп, Листвянская ул, дом № 37, корпус 1)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "",
+        "legal_name": "Грибанова Мария Анатольевна",
+        "store_name": "",
+        "address": "Линево рп, Листвянская ул, дом № 37, корпус 1",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "legal_form_unknown"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:08Z",
+      "last_seen_at": "2026-04-28T12:07:08Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "ccb3312b-7e6b-482d-9bcb-6c4ef2d08f1e",
+      "status": "pending",
+      "raw_client_name": "Якубовский В.В. ИП - (Бердск г, М.Горького ул, дом № 4)",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Якубовский В.В.",
+        "store_name": "",
+        "address": "Бердск г, М.Горького ул, дом № 4",
+        "sales_rep_name": ""
+      },
+      "reasons": [
+        "sales_rep_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:09Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "ec55e4cc-19a9-44a9-9ff6-34b1ccd3b52c",
+      "status": "pending",
+      "raw_client_name": "Василенко Дмитрий Юрьевич ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Василенко Дмитрий Юрьевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:09Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "64853ef5-5f6c-4a4f-b086-aac2f4846918",
+      "status": "pending",
+      "raw_client_name": "Подопригора Виктор Валерьевич ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Подопригора Виктор Валерьевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:09Z",
+      "last_seen_at": "2026-04-28T12:07:09Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "1021e30c-4890-48f5-8a23-d362bdbb7379",
+      "status": "pending",
+      "raw_client_name": "Акимов Родион Васильевич ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Акимов Родион Васильевич",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:10Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "320806ab-e866-4d07-8a5d-c8da602ff16d",
+      "status": "pending",
+      "raw_client_name": "Щербакова Марина Викторовна ИП - Волчок",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ИП",
+        "legal_name": "Щербакова Марина Викторовна",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:10Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
+      "last_imported_by_user_id": 237087423
+    },
+    {
+      "id": "89ca0d4d-73ee-49ed-a2ad-f253d2b33e47",
+      "status": "pending",
+      "raw_client_name": "ТФ Дубрава ООО - Волчок (Бердск г, Первомайская ул, дом № 7А, корпус 1)КПП544545001",
+      "source": "debt",
+      "parsed_candidate": {
+        "legal_form": "ООО",
+        "legal_name": "ТФ Дубрава",
+        "store_name": "",
+        "address": "",
+        "sales_rep_name": "Волчок (Бердск г, Первомайская ул, дом № 7А, корпус 1)КПП544545001"
+      },
+      "reasons": [
+        "address_missing"
+      ],
+      "seen_count": 1,
+      "created_at": "2026-04-28T12:07:10Z",
+      "last_seen_at": "2026-04-28T12:07:10Z",
       "last_imported_by_user_id": 237087423
     }
   ]

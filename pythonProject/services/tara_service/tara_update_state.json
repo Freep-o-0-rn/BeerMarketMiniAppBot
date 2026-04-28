@@ -1,11 +1,11 @@
 {
-  "last_processed_file": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.98.8\\pythonProject\\downloads\\Ведомость по переданной возвратной таре клиент - Прокопенко (XLS).xls",
-  "last_processed_mtime": 1776933844.211807,
-  "last_processed_size": 478720,
-  "last_processed_at": "2026-04-23 15:44:04",
-  "last_check_at": "2026-04-23 15:44:08",
+  "last_processed_file": "E:\\Work\\BeerMarkenBot\\BeerMarketMiniAppBot v0.99.2\\pythonProject\\downloads\\Ведомость по переданной возвратной таре клиент - Прокопенко (XLS).xls",
+  "last_processed_mtime": 1777377977.5598705,
+  "last_processed_size": 591872,
+  "last_processed_at": "19-06-18 28-04-2026 Новосибирск UTC +07-00",
+  "last_check_at": "19-06-24 28-04-2026 Новосибирск UTC +07-00",
   "last_check_result": "no_new_file",
-  "last_missing_check_at": "2026-04-23 15:44:08",
+  "last_missing_check_at": "19-06-24 28-04-2026 Новосибирск UTC +07-00",
   "last_missing_reason": "Последний файл не изменился: Ведомость по переданной возвратной таре клиент - Прокопенко (XLS).xls",
-  "retry_scheduled_for": "2026-04-23 15:49:08"
+  "retry_scheduled_for": "19-11-24 28-04-2026 Новосибирск UTC +07-00"
 }

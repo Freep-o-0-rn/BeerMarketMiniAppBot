@@ -30,6 +30,26 @@
     "request_cooldown_until": "",
     "rejection_count": 0
   },
+  "237087423": {
+    "role": "admin",
+    "phone": "+79994680011",
+    "phone_verified": true,
+    "username": "Freep_o_0_rn",
+    "first_name": "Freep_o_0_rn",
+    "language_code": "ru",
+    "access_overrides": {},
+    "notification_settings": {
+      "new_users": true
+    },
+    "auth_status": "approved",
+    "auth_source": "manual_admin",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "authorized_by_admin": true,
+    "onboard_completed": true
+  },
   "405433712": {
     "role": "client",
     "name": "Демидов",
@@ -114,7 +134,8 @@
     "role": "moderator",
     "access_overrides": {},
     "notification_settings": {
-      "new_users": true
+      "new_users": true,
+      "role_changes": false
     },
     "phone": "+79232235848",
     "phone_verified": true,
@@ -267,8 +288,27 @@
     "phone_verified": true,
     "onboard_completed": true
   },
-  "237087423": {
-    "role": "admin",
+  "322502810": {
+    "username": "mageddon",
+    "first_name": "Сергей",
+    "language_code": "ru",
+    "auth_status": "approved",
+    "auth_source": "manual_admin",
+    "auth_confidence": 0.0,
+    "last_role_request_at": "",
+    "request_cooldown_until": "",
+    "rejection_count": 0,
+    "role": "sales_rep",
+    "access_overrides": {},
+    "notification_settings": {},
+    "authorized_by_admin": true,
+    "onboard_completed": true,
+    "name": "Волчок",
+    "phone": "+79538884158",
+    "phone_verified": true
+  },
+  "1188061961": {
+    "role": "sales_rep",
     "access_overrides": {},
     "notification_settings": {},
     "auth_status": "approved",
@@ -277,23 +317,12 @@
     "last_role_request_at": "",
     "request_cooldown_until": "",
     "rejection_count": 0,
-    "username": "Freep_o_0_rn",
-    "first_name": "Freep_o_0_rn",
-    "language_code": "ru"
-  },
-  "1188061961": {
     "username": "Re1ze_r",
     "first_name": "Vadim BeerMarket",
     "language_code": "ru",
     "is_premium": true,
-    "auth_status": "approved",
-    "auth_source": "self_declared",
-    "auth_confidence": 0.0,
-    "last_role_request_at": "",
-    "request_cooldown_until": "",
-    "rejection_count": 0,
-    "role": "guest",
-    "access_overrides": {},
-    "notification_settings": {}
+    "name": "Волчок",
+    "phone": "+79965440806",
+    "phone_verified": true
   }
 }
