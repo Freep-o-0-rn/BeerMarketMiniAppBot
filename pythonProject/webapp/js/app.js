@@ -31,6 +31,7 @@ let cacheBust = Date.now();
 let viewerZoom = 1;
 let categories = [];
 let activeCategory = '';
+const APP_TIMEZONE = 'Asia/Novosibirsk';
 
 function joinUrl(base, path) {
   return new URL(path.replace(/^\/+/, ''), base.endsWith('/') ? base : `${base}/`).href;
@@ -160,7 +161,9 @@ function render(items) {
     if (row.id) {
       node.dataset.newsId = String(row.id);
     }
-    node.querySelector('.card-meta').textContent = `${row.author_name || '—'} • ${row.published_at || row.created_at || ''}`;
+    const rawDate = row.published_at || row.created_at || '';
+    const formattedDate = formatNewsDate(rawDate);
+    node.querySelector('.card-meta').textContent = `${row.author_name || '—'} • ${formattedDate}`;
     node.querySelector('.card-category').textContent = row.category_label || row.categoryLabel || 'Новости';
     node.querySelector('.card-title').textContent = row.title || 'Без заголовка';
     node.querySelector('.card-text').textContent = row.text || '';
@@ -172,6 +175,29 @@ function render(items) {
       }
     }
     feed.append(node);
+  }
+}
+
+function formatNewsDate(value) {
+  if (!value) return '';
+  try {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return String(value);
+    const formatter = new Intl.DateTimeFormat('ru-RU', {
+      timeZone: APP_TIMEZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(parsed);
+    const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+    return `${map.day}.${map.month}.${map.year} ${map.hour}:${map.minute}:${map.second} (UTC+07:00)`;
+  } catch (_) {
+    return String(value);
   }
 }
 
