@@ -2,7 +2,7 @@
   "start_bot": {
     "entry": "main.py",
     "requirements": "requirements.txt",
-    "setup_by_default": false
+    "setup_by_default": true
   },
   "start_cloudflare_stack": {
     "api_port": 8091,
