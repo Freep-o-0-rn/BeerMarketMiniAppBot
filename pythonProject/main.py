@@ -7,10 +7,13 @@ import tempfile
 import signal
 import asyncio
 import logging
+import time
 import sys
 import openpyxl
 import subprocess
 import importlib
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import Optional
 from telegram_bot import run_bot, set_last_update
 
@@ -30,6 +33,7 @@ except ModuleNotFoundError:
 
 # ----------------- АВТО-УСТАНОВКА ЗАВИСИМОСТЕЙ -----------------
 REQ_FILE = os.path.join(os.getcwd(), "requirements.txt")
+APP_TZ = ZoneInfo(os.getenv("APP_TIMEZONE", "Asia/Novosibirsk"))
 
 def _pip_install(args):
     """Вызов pip с выводом лога."""
@@ -74,8 +78,14 @@ def setup_logging() -> None:
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     fmt = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     datefmt = "%Y-%m-%d %H:%M:%S"
-    logging.basicConfig(level=getattr(logging, log_level, logging.INFO),
-                        format=fmt, datefmt=datefmt)
+
+    class AppTZFormatter(logging.Formatter):
+        converter = lambda *args: datetime.now(APP_TZ).timetuple()
+
+    logging.basicConfig(level=getattr(logging, log_level, logging.INFO), format=fmt, datefmt=datefmt)
+    for handler in logging.getLogger().handlers:
+        handler.setFormatter(AppTZFormatter(fmt=fmt, datefmt=datefmt))
+
     # файл-лог, если указан LOG_DIR
     log_dir = os.getenv("LOG_DIR")
     if log_dir:
@@ -83,7 +93,7 @@ def setup_logging() -> None:
             os.makedirs(log_dir, exist_ok=True)
             fh = logging.FileHandler(os.path.join(log_dir, "app.log"), encoding="utf-8")
             fh.setLevel(getattr(logging, log_level, logging.INFO))
-            fh.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+            fh.setFormatter(AppTZFormatter(fmt=fmt, datefmt=datefmt))
             logging.getLogger().addHandler(fh)
         except Exception as e:
             logging.getLogger(__name__).warning("Не удалось создать файл-лог: %s", e)

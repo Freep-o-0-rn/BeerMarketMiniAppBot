@@ -158,9 +158,13 @@ def setup_logging():
     if root.handlers:  # чтобы не дублировать при повторных запусках
         return
     root.setLevel(getattr(logging, LOG_LEVEL, logging.INFO))
-
     # Тех. логи (в файл + консоль)
-    tech_fmt = logging.Formatter(
+    app_tz = pytz.timezone(os.getenv("TZ", os.getenv("APP_TIMEZONE", "Asia/Novosibirsk")))
+
+    class AppTZFormatter(logging.Formatter):
+        converter = lambda *args: datetime.now(app_tz).timetuple()
+
+    tech_fmt = AppTZFormatter(
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     file_h = RotatingFileHandler(os.path.join(LOG_DIR, "bot.log"),
@@ -7953,6 +7957,19 @@ def _mapping_entry_text(entry: Dict[str, Any]) -> str:
         f"Обновлено: <b>{esc(str(entry.get('updated_at') or '—'))}</b>\n"
     )
 
+async def _render_mapping_manager(message: Message, uid: int, page: int = 0, prefix: str = ""):
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
+    entries = svc_filter_mapping_entries(
+        _mapping_entries_sorted(),
+        source=str(filt.get("source") or "all"),
+        search_query=str(filt.get("search_query") or ""),
+        without_client_id=bool(filt.get("without_client_id")),
+        stale_days=int(filt.get("stale_days") or 0),
+    )
+    await message.edit_text(
+        f"{prefix}🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
+        reply_markup=mapping_list_kb(entries, page=page),
+    )
 
 @router.callback_query(F.data.startswith("cc:imap:list:"))
 async def cc_import_mapping_list(cq: CallbackQuery):
@@ -7965,24 +7982,19 @@ async def cc_import_mapping_list(cq: CallbackQuery):
         return
     page_raw = (cq.data or "").split(":")[-1]
     page = int(page_raw) if page_raw.isdigit() else 0
-    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
-    entries = svc_filter_mapping_entries(
-        _mapping_entries_sorted(),
-        source=str(filt.get("source") or "all"),
-        search_query=str(filt.get("search_query") or ""),
-        without_client_id=bool(filt.get("without_client_id")),
-        stale_days=int(filt.get("stale_days") or 0),
-    )
-    await cq.message.edit_text(
-        f"🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
-        reply_markup=mapping_list_kb(entries, page=page),
-    )
+    await _render_mapping_manager(cq.message, uid=uid, page=page)
     await cq.answer()
 
 
 @router.callback_query(F.data.startswith("cc:imap:filter:"))
 async def cc_import_mapping_filter(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
     uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
     current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
     parts = (cq.data or "").split(":")
     if len(parts) >= 5 and parts[3] == "source":
@@ -7994,8 +8006,8 @@ async def cc_import_mapping_filter(cq: CallbackQuery):
     elif len(parts) >= 5 and parts[3] == "search":
         current["search_query"] = parts[4].strip()
     _MAPPING_LIST_FILTERS[uid] = current
-    cq.data = "cc:imap:list:0"
-    await cc_import_mapping_list(cq)
+    await _render_mapping_manager(cq.message, uid=uid, page=0)
+    await cq.answer()
 
 @router.callback_query(F.data == "cc:imap:search")
 async def cc_import_mapping_search_start(cq: CallbackQuery, state: FSMContext):
