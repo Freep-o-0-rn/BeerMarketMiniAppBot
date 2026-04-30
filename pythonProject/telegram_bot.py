@@ -4361,9 +4361,19 @@ def _build_client_rep_lookup() -> Dict[str, str]:
             _norm_text_key(str(card.get("legal_name") or "")),
             _norm_text_key(str(card.get("store_name") or "")),
         ]
+        addresses = [
+            _norm_text_key(x)
+            for x in str(card.get("address") or "").split("\n")
+            if _norm_text_key(x)
+        ]
         for name_key in names:
             if not name_key:
                 continue
+            # Точный ключ: имя + адрес + торговый.
+            for addr_key in addresses:
+                out.setdefault(f"{name_key}|{addr_key}|{rep_key}", client_id)
+                out.setdefault(f"{name_key}|{addr_key}|", client_id)
+            # Фоллбек для исторических кейсов без адреса.
             out.setdefault(f"{name_key}|{rep_key}", client_id)
             out.setdefault(f"{name_key}|", client_id)
     return out
@@ -4404,10 +4414,22 @@ def resolve_client(raw_line: str, source: str) -> Optional[str]:
             return mapped_client_id
 
     lookup = _build_client_rep_lookup()
-    client_key = f"{_norm_text_key(parsed.get('client_name') or '')}|{_normalize_person_text(parsed_rep)}"
-    client_id = lookup.get(client_key)
-    if not client_id:
-        client_id = lookup.get(f"{_norm_text_key(parsed.get('client_name') or '')}|")
+    client_name_key = _norm_text_key(parsed.get("client_name") or "")
+    client_addr_key = _norm_text_key(parsed.get("address") or "")
+    rep_key = _normalize_person_text(parsed_rep)
+    candidates = [
+        f"{client_name_key}|{client_addr_key}|{rep_key}" if client_addr_key else "",
+        f"{client_name_key}|{client_addr_key}|" if client_addr_key else "",
+        f"{client_name_key}|{rep_key}",
+        f"{client_name_key}|",
+    ]
+    client_id = None
+    for candidate in candidates:
+        if not candidate:
+            continue
+        client_id = lookup.get(candidate)
+        if client_id:
+            break
     if client_id and CLIENTS_DB.get_client(client_id):
         _store_debt_mapping_for_item(
             item={"raw_client_name": raw},
