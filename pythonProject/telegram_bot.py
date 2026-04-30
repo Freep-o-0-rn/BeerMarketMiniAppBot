@@ -79,6 +79,12 @@ from services.client_sales_binding_service import (
     resolve_sales_rep_name_for_item as svc_resolve_sales_rep_name_for_item,
     sync_sales_rep_in_mappings_for_client as svc_sync_sales_rep_in_mappings_for_client,
 )
+from services.debt_mapping_manager import (
+    sorted_mapping_entries as svc_sorted_mapping_entries,
+    filter_mapping_entries as svc_filter_mapping_entries,
+    bulk_apply as svc_bulk_mapping_apply,
+    validate_mappings as svc_validate_mappings,
+)
 from services.time import APP_TIMEZONE, parse_iso_datetime, parse_mixed_datetime, utc_now, utc_now_iso_z
 from services.tara_service.tara_api import (
     get_tara_client_report,
@@ -113,6 +119,7 @@ _TARA_SEARCH_GROUP_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
 _TARA_FILTER_VIEW_CACHE: Dict[str, Dict[str, Any]] = {}
 _TARA_VIEW_CACHE: Dict[str, Dict[str, Any]] = {}
 _DEBT_SEARCH_PICK_CACHE: Dict[str, Dict[str, Any]] = {}
+_MAPPING_LIST_FILTERS: Dict[int, Dict[str, Any]] = {}
 
 #Прайсы: сортировка по алфавиту ---
 PRICES_SORT_ALPHA = True   # вырубить — поставьте False
@@ -342,6 +349,7 @@ class ClientCardStates(StatesGroup):
     waiting_edit_value = State()
     waiting_search_query = State()
     waiting_import_queue_sales_rep = State()
+    waiting_mapping_search_query = State()
 
 class TechnicianStates(StatesGroup):
     waiting_full_name = State()
@@ -3858,8 +3866,9 @@ def client_cards_list_kb(
         rows.append([InlineKeyboardButton(text="➕ Новая карточка", callback_data="cc:new")])
     if role in {"admin", "sales_rep"}:
         rows.append([InlineKeyboardButton(text="🔎 Поиск по клиентам", callback_data="cc:search")])
-        rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
     if role in {"admin", "moderator"}:
+        rows.append([InlineKeyboardButton(text="🗂️ Менеджер маппинга", callback_data="cc:imap:list:0")])
+        rows.append([InlineKeyboardButton(text="📥 Импорт из дебиторки", callback_data="cc:import:debt")])
         rows.append([InlineKeyboardButton(text="🧩 Очередь импорта", callback_data="cc:imq:list:0")])
     rows.append([InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:back")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -3886,6 +3895,53 @@ def debt_import_queue_list_kb(items: List[Dict[str, Any]], page: int = 0, page_s
         rows.append(nav)
     rows.append([InlineKeyboardButton(text="🚫 Список игнора", callback_data="cc:imq:ignored:list:0")])
     rows.append([InlineKeyboardButton(text="⬅️ К карточкам", callback_data="cc:list:0")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def _mapping_entries_sorted() -> List[Dict[str, Any]]:
+    state = _load_debt_import_mappings()
+    return svc_sorted_mapping_entries(state)
+
+
+def mapping_list_kb(entries: List[Dict[str, Any]], page: int = 0, page_size: int = 10) -> InlineKeyboardMarkup:
+    total = len(entries)
+    last_page = max(0, (total - 1) // page_size) if total else 0
+    page = max(0, min(page, last_page))
+    start = page * page_size
+    end = min(total, start + page_size)
+    rows: List[List[InlineKeyboardButton]] = []
+    for idx, entry in enumerate(entries[start:end], start=start):
+        src = str(entry.get("source") or "debt").upper()
+        raw_name = str(entry.get("raw_client_name") or "Без названия").strip()
+        rep = str(entry.get("sales_rep_name") or "—").strip()
+        title = f"{src}: {raw_name} → {rep}"[:62]
+        rows.append([InlineKeyboardButton(text=title, callback_data=f"cc:imap:view:{page}:{idx}")])
+    if total > page_size:
+        nav: List[InlineKeyboardButton] = []
+        if page > 0:
+            nav.append(InlineKeyboardButton(text="⬅️", callback_data=f"cc:imap:list:{page - 1}"))
+        nav.append(InlineKeyboardButton(text=f"{page + 1}/{last_page + 1}", callback_data=f"cc:imap:list:{page}"))
+        if page < last_page:
+            nav.append(InlineKeyboardButton(text="➡️", callback_data=f"cc:imap:list:{page + 1}"))
+        rows.append(nav)
+    rows.append([
+        InlineKeyboardButton(text="🔎 debt", callback_data="cc:imap:filter:source:debt"),
+        InlineKeyboardButton(text="🔎 tara", callback_data="cc:imap:filter:source:tara"),
+        InlineKeyboardButton(text="♻️ all", callback_data="cc:imap:filter:source:all"),
+    ])
+    rows.append([
+        InlineKeyboardButton(text="Без client_id", callback_data="cc:imap:filter:noclient:1"),
+        InlineKeyboardButton(text="Устаревшие", callback_data="cc:imap:filter:stale:30"),
+    ])
+    rows.append([
+        InlineKeyboardButton(text="🔍 Поиск", callback_data="cc:imap:search"),
+        InlineKeyboardButton(text="🧹 Сброс поиска", callback_data="cc:imap:filter:search:"),
+    ])
+    rows.append([
+        InlineKeyboardButton(text="Bulk remod", callback_data="cc:imap:bulk:remod"),
+        InlineKeyboardButton(text="Bulk ignore", callback_data="cc:imap:bulk:ignore"),
+        InlineKeyboardButton(text="Bulk drop", callback_data="cc:imap:bulk:drop"),
+    ])
+    rows.append([InlineKeyboardButton(text="⬅️ К очереди", callback_data="cc:imq:list:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def _ignored_entries_sorted() -> List[Dict[str, Any]]:
@@ -4361,9 +4417,19 @@ def _build_client_rep_lookup() -> Dict[str, str]:
             _norm_text_key(str(card.get("legal_name") or "")),
             _norm_text_key(str(card.get("store_name") or "")),
         ]
+        addresses = [
+            _norm_text_key(x)
+            for x in str(card.get("address") or "").split("\n")
+            if _norm_text_key(x)
+        ]
         for name_key in names:
             if not name_key:
                 continue
+            # Точный ключ: имя + адрес + торговый.
+            for addr_key in addresses:
+                out.setdefault(f"{name_key}|{addr_key}|{rep_key}", client_id)
+                out.setdefault(f"{name_key}|{addr_key}|", client_id)
+            # Фоллбек для исторических кейсов без адреса.
             out.setdefault(f"{name_key}|{rep_key}", client_id)
             out.setdefault(f"{name_key}|", client_id)
     return out
@@ -4404,10 +4470,22 @@ def resolve_client(raw_line: str, source: str) -> Optional[str]:
             return mapped_client_id
 
     lookup = _build_client_rep_lookup()
-    client_key = f"{_norm_text_key(parsed.get('client_name') or '')}|{_normalize_person_text(parsed_rep)}"
-    client_id = lookup.get(client_key)
-    if not client_id:
-        client_id = lookup.get(f"{_norm_text_key(parsed.get('client_name') or '')}|")
+    client_name_key = _norm_text_key(parsed.get("client_name") or "")
+    client_addr_key = _norm_text_key(parsed.get("address") or "")
+    rep_key = _normalize_person_text(parsed_rep)
+    candidates = [
+        f"{client_name_key}|{client_addr_key}|{rep_key}" if client_addr_key else "",
+        f"{client_name_key}|{client_addr_key}|" if client_addr_key else "",
+        f"{client_name_key}|{rep_key}",
+        f"{client_name_key}|",
+    ]
+    client_id = None
+    for candidate in candidates:
+        if not candidate:
+            continue
+        client_id = lookup.get(candidate)
+        if client_id:
+            break
     if client_id and CLIENTS_DB.get_client(client_id):
         _store_debt_mapping_for_item(
             item={"raw_client_name": raw},
@@ -5257,7 +5335,7 @@ async def render_report(chat: Message, *, mode: str, keywords: List[str], min_de
     if not filtered:
         last_dt, last_kind = get_last_update()
         last_line = f"\n<i>Последнее обновление: {fmt_dt_local(last_dt)}{(' ('+last_kind+')') if last_kind else ''}</i>"
-        await chat.answer("Ничего не найдено.\nПроверьте фильтры (🎛️ Фильтры и ключевые слова" + last_line, reply_markup=menu_kb)
+        await chat.answer("Ничего не найдено.\nПроверьте фильтры 🎛️ Фильтры и ключевые слова" + last_line, reply_markup=menu_kb)
         return
 
     chips = []
@@ -7856,6 +7934,136 @@ async def cc_import_manual_ignored_drop(cq: CallbackQuery):
     )
     await cq.answer("Игнор снят.")
 
+def _mapping_entry_text(entry: Dict[str, Any]) -> str:
+    key = str(entry.get("key") or "")
+    card = CLIENTS_DB.get_client(str(entry.get("client_id") or "")) if entry.get("client_id") else None
+    client_title = "—"
+    if card:
+        client_title = f"{card.get('legal_form') or ''} {card.get('legal_name') or ''}".strip() or str(card.get("id") or "—")
+    rep_name = str(entry.get("sales_rep_name") or "—")
+    rep_uid = entry.get("sales_rep_user_id")
+    rep_text = f"{rep_name} ({rep_uid})" if rep_uid else rep_name
+    return (
+        "🗂️ <b>Карточка маппинга импорта</b>\n"
+        f"Ключ: <code>{esc(key)}</code>\n"
+        f"Сырой клиент: <b>{esc(str(entry.get('raw_client_name') or '—'))}</b>\n"
+        f"Привязано к карточке: <b>{esc(client_title)}</b>\n"
+        f"Торговый: <b>{esc(rep_text)}</b>\n"
+        f"Источник: <b>{esc(str(entry.get('source') or 'debt').upper())}</b>\n"
+        f"Обновлено: <b>{esc(str(entry.get('updated_at') or '—'))}</b>\n"
+    )
+
+
+@router.callback_query(F.data.startswith("cc:imap:list:"))
+async def cc_import_mapping_list(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    page_raw = (cq.data or "").split(":")[-1]
+    page = int(page_raw) if page_raw.isdigit() else 0
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
+    entries = svc_filter_mapping_entries(
+        _mapping_entries_sorted(),
+        source=str(filt.get("source") or "all"),
+        search_query=str(filt.get("search_query") or ""),
+        without_client_id=bool(filt.get("without_client_id")),
+        stale_days=int(filt.get("stale_days") or 0),
+    )
+    await cq.message.edit_text(
+        f"🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
+        reply_markup=mapping_list_kb(entries, page=page),
+    )
+    await cq.answer()
+
+
+@router.callback_query(F.data.startswith("cc:imap:filter:"))
+async def cc_import_mapping_filter(cq: CallbackQuery):
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
+    parts = (cq.data or "").split(":")
+    if len(parts) >= 5 and parts[3] == "source":
+        current["source"] = parts[4]
+    elif len(parts) >= 5 and parts[3] == "noclient":
+        current["without_client_id"] = parts[4] == "1"
+    elif len(parts) >= 5 and parts[3] == "stale":
+        current["stale_days"] = int(parts[4]) if parts[4].isdigit() else 0
+    elif len(parts) >= 5 and parts[3] == "search":
+        current["search_query"] = parts[4].strip()
+    _MAPPING_LIST_FILTERS[uid] = current
+    cq.data = "cc:imap:list:0"
+    await cc_import_mapping_list(cq)
+
+@router.callback_query(F.data == "cc:imap:search")
+async def cc_import_mapping_search_start(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.view", state=state):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    await state.set_state(ClientCardStates.waiting_mapping_search_query)
+    await cq.message.answer("Введите строку поиска для менеджера маппинга (клиент / торговый / client_id / ключ).")
+    await cq.answer()
+
+
+@router.message(ClientCardStates.waiting_mapping_search_query)
+async def cc_import_mapping_search_apply(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.view", state=state):
+        return
+    uid = int(getattr(m.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await state.clear()
+        await m.answer("Недостаточно прав.")
+        return
+    search_query = (m.text or "").strip()
+    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
+    current["search_query"] = search_query
+    _MAPPING_LIST_FILTERS[uid] = current
+    await state.clear()
+    entries = svc_filter_mapping_entries(
+        _mapping_entries_sorted(),
+        source=str(current.get("source") or "all"),
+        search_query=str(current.get("search_query") or ""),
+        without_client_id=bool(current.get("without_client_id")),
+        stale_days=int(current.get("stale_days") or 0),
+    )
+    suffix = f"Поиск: <code>{esc(search_query)}</code>\n" if search_query else ""
+    await m.answer(
+        f"{suffix}🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
+        reply_markup=mapping_list_kb(entries, page=0),
+    )
+
+@router.callback_query(F.data.startswith("cc:imap:view:"))
+async def cc_import_mapping_view(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    parts = (cq.data or "").split(":")
+    if len(parts) < 5 or not parts[3].isdigit() or not parts[4].isdigit():
+        await cq.answer("Некорректная команда.", show_alert=True)
+        return
+    page = int(parts[3])
+    idx = int(parts[4])
+    entries = _mapping_entries_sorted()
+    if idx < 0 or idx >= len(entries):
+        await cq.answer("Запись не найдена.", show_alert=True)
+        return
+    entry = entries[idx]
+    key = str(entry.get("key") or "")
+    rows = [
+        [InlineKeyboardButton(text="👤 Сменить торгового", callback_data=f"cc:imap:sales:{idx}")],
+        [InlineKeyboardButton(text="♻️ На повторную модерацию", callback_data=f"cc:imap:remod:{idx}")],
+        [InlineKeyboardButton(text="🚫 Перенести в игнор", callback_data=f"cc:imap:ignore:{idx}")],
+        [InlineKeyboardButton(text="🗑 Удалить маппинг", callback_data=f"cc:imap:drop:{idx}")],
+        [InlineKeyboardButton(text="⬅️ К списку маппинга", callback_data=f"cc:imap:list:{page}")],
+    ]
+    await cq.message.edit_text(_mapping_entry_text(entry), reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+    await cq.answer(key[:10] or "ok")
 
 @router.callback_query(F.data.startswith("cc:imq:view:"))
 async def cc_import_manual_queue_view(cq: CallbackQuery):
@@ -8096,6 +8304,33 @@ async def cc_import_manual_queue_sales_prompt(cq: CallbackQuery, state: FSMConte
     )
     await cq.answer()
 
+@router.callback_query(F.data.startswith("cc:imap:sales:"))
+async def cc_import_mapping_sales_prompt(cq: CallbackQuery, state: FSMContext):
+    role = await ensure_callback_access(cq, "client_cards.view", state=state)
+    if not role:
+        return
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    idx_raw = (cq.data or "").split(":")[-1]
+    if not idx_raw.isdigit():
+        await cq.answer("Некорректная команда.", show_alert=True)
+        return
+    entries = _mapping_entries_sorted()
+    idx = int(idx_raw)
+    if idx < 0 or idx >= len(entries):
+        await cq.answer("Запись не найдена.", show_alert=True)
+        return
+    await state.update_data(mapping_entry_idx=idx)
+    await state.set_state(ClientCardStates.waiting_import_queue_sales_rep)
+    await cq.message.answer(
+        "Выберите нового торгового для маппинга или введите ФИО вручную.\n"
+        "Текущий маппинг будет сброшен и отправлен на повторную модерацию.",
+        reply_markup=debt_import_queue_sales_rep_pick_kb(f"mapping-{idx}", _sales_rep_candidates()),
+    )
+    await cq.answer()
+
+
 @router.callback_query(F.data.startswith("cc:imq:salespick:"))
 async def cc_import_manual_queue_sales_pick(cq: CallbackQuery, state: FSMContext):
     role = await ensure_callback_access(cq, "client_cards.view", state=state)
@@ -8122,6 +8357,41 @@ async def cc_import_manual_queue_sales_pick(cq: CallbackQuery, state: FSMContext
     rep_name = str(rep.get("name") or "").strip()
     if not rep_name:
         await cq.answer("Торговый не найден", show_alert=True)
+        return
+    if str(item_id).startswith("mapping-"):
+        idx_raw = str(item_id).split("-", 1)[1]
+        entries = _mapping_entries_sorted()
+        if not idx_raw.isdigit():
+            await cq.answer("Запись маппинга не найдена", show_alert=True)
+            return
+        idx = int(idx_raw)
+        if idx < 0 or idx >= len(entries):
+            await cq.answer("Запись маппинга не найдена", show_alert=True)
+            return
+        entry = entries[idx]
+        state_map = _load_debt_import_mappings()
+        mappings = state_map.get("mappings") if isinstance(state_map.get("mappings"), dict) else {}
+        key = str(entry.get("key") or "")
+        payload = mappings.get(key) if isinstance(mappings.get(key), dict) else None
+        if not payload:
+            await cq.answer("Запись маппинга не найдена", show_alert=True)
+            return
+        payload["sales_rep_name"] = rep_name
+        payload["sales_rep_user_id"] = rep_uid
+        payload["client_id"] = None
+        payload["updated_at"] = utc_now_iso()
+        payload["updated_by_user_id"] = int(getattr(cq.from_user, "id", 0) or 0)
+        _save_debt_import_mappings(state_map)
+        _enqueue_debt_manual_review(
+            raw_client_name=str(payload.get("raw_client_name") or ""),
+            parsed={"sales_rep_name": rep_name},
+            reasons=["sales_rep_changed_mapping"],
+            imported_by_user_id=int(getattr(cq.from_user, "id", 0) or 0),
+            source=str(payload.get("source") or "debt"),
+        )
+        await state.clear()
+        await cq.message.answer("✅ Торговый обновлён. Маппинг сброшен и отправлен на повторную модерацию.")
+        await cc_import_mapping_list(cq)
         return
     queue = _load_debt_import_manual_queue()
     item = next((x for x in (queue.get("items") or []) if str(x.get("id")) == str(item_id)), None)
@@ -8251,6 +8521,108 @@ async def cc_import_manual_queue_sales_apply(m: Message, state: FSMContext):
             include_unignore=str(actual_item.get("status") or "").strip() == "ignored",
         ),
     )
+
+@router.callback_query(F.data.startswith("cc:imap:drop:"))
+async def cc_import_mapping_drop(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    idx_raw = (cq.data or "").split(":")[-1]
+    entries = _mapping_entries_sorted()
+    if not idx_raw.isdigit() or int(idx_raw) >= len(entries):
+        await cq.answer("Запись не найдена.", show_alert=True)
+        return
+    key = str(entries[int(idx_raw)].get("key") or "")
+    state = _load_debt_import_mappings()
+    mappings = state.get("mappings") if isinstance(state.get("mappings"), dict) else {}
+    mappings.pop(key, None)
+    _save_debt_import_mappings(state)
+    await cq.answer("Маппинг удален.")
+    await cc_import_mapping_list(cq)
+
+
+@router.callback_query(F.data.startswith("cc:imap:ignore:"))
+async def cc_import_mapping_ignore(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    idx_raw = (cq.data or "").split(":")[-1]
+    entries = _mapping_entries_sorted()
+    if not idx_raw.isdigit() or int(idx_raw) >= len(entries):
+        await cq.answer("Запись не найдена.", show_alert=True)
+        return
+    entry = entries[int(idx_raw)]
+    key = str(entry.get("key") or "")
+    state = _load_debt_import_mappings()
+    mappings = state.get("mappings") if isinstance(state.get("mappings"), dict) else {}
+    payload = mappings.pop(key, None)
+    if isinstance(payload, dict):
+        state["ignored"][key] = {
+            "raw_client_name": str(payload.get("raw_client_name") or entry.get("raw_client_name") or ""),
+            "source": _normalize_source_name(str(payload.get("source") or entry.get("source") or "debt")),
+            "reason": "manual_ignore_mapping_manager",
+            "updated_at": utc_now_iso(),
+            "updated_by_user_id": int(getattr(cq.from_user, "id", 0) or 0),
+        }
+        _save_debt_import_mappings(state)
+    await cq.answer("Перенесено в игнор.")
+    await cc_import_mapping_list(cq)
+
+
+@router.callback_query(F.data.startswith("cc:imap:remod:"))
+async def cc_import_mapping_remoderate(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    idx_raw = (cq.data or "").split(":")[-1]
+    entries = _mapping_entries_sorted()
+    if not idx_raw.isdigit() or int(idx_raw) >= len(entries):
+        await cq.answer("Запись не найдена.", show_alert=True)
+        return
+    entry = entries[int(idx_raw)]
+    _enqueue_debt_manual_review(
+        raw_client_name=str(entry.get("raw_client_name") or ""),
+        parsed={"sales_rep_name": str(entry.get("sales_rep_name") or "")},
+        reasons=["manual_remoderation"],
+        imported_by_user_id=int(getattr(cq.from_user, "id", 0) or 0),
+        source=str(entry.get("source") or "debt"),
+    )
+    await cq.answer("Отправлено на повторную модерацию.")
+    await cc_import_mapping_list(cq)
+
+
+@router.callback_query(F.data.startswith("cc:imap:bulk:"))
+async def cc_import_mapping_bulk(cq: CallbackQuery):
+    if not await ensure_callback_access(cq, "client_cards.view"):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    action = (cq.data or "").split(":")[-1]
+    if action not in {"remod", "ignore", "drop"}:
+        await cq.answer("Некорректная операция.", show_alert=True)
+        return
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
+    entries = svc_filter_mapping_entries(
+        _mapping_entries_sorted(),
+        source=str(filt.get("source") or "all"),
+        search_query=str(filt.get("search_query") or ""),
+        without_client_id=bool(filt.get("without_client_id")),
+        stale_days=int(filt.get("stale_days") or 0),
+    )
+    state = _load_debt_import_mappings()
+    changed = svc_bulk_mapping_apply(
+        state,
+        [str(e.get("key") or "") for e in entries],
+        action=action,
+        actor_user_id=uid,
+        now_iso=utc_now_iso,
+        enqueue_review=lambda raw, parsed, reasons, imported_by_user_id, source: _enqueue_debt_manual_review(
+            raw_client_name=raw,
+            parsed=parsed,
+            reasons=reasons,
+            imported_by_user_id=imported_by_user_id,
+            source=source,
+        ),
+    )
+    _save_debt_import_mappings(state)
+    await cq.answer(f"Bulk {action}: {changed}")
+    await cc_import_mapping_list(cq)
 
 @router.callback_query(F.data.startswith("cc:edit:"))
 async def cc_edit_start(cq: CallbackQuery, state: FSMContext):
@@ -12133,6 +12505,36 @@ async def fallback_cb(cq: CallbackQuery):
     await cq.answer()
 
 
+async def debt_mapping_validation_worker():
+    tz_utc7 = pytz.FixedOffset(7 * 60)
+    last_runs: set[str] = set()
+    while True:
+        try:
+            now_local = datetime.now(tz_utc7)
+            marker = now_local.strftime("%Y-%m-%d %H:%M")
+            if now_local.hour in {11, 18} and now_local.minute == 0 and marker not in last_runs:
+                state = _load_debt_import_mappings()
+                stats = svc_validate_mappings(
+                    state,
+                    get_client=lambda cid: CLIENTS_DB.get_client(cid),
+                    enqueue_review=lambda raw, parsed, reasons, imported_by_user_id, source: _enqueue_debt_manual_review(
+                        raw_client_name=raw,
+                        parsed=parsed,
+                        reasons=reasons,
+                        imported_by_user_id=imported_by_user_id,
+                        source=source,
+                    ),
+                    now_iso=utc_now_iso,
+                )
+                _save_debt_import_mappings(state)
+                logger.info("mapping_validation_run: %s", stats)
+                last_runs.add(marker)
+            if len(last_runs) > 10:
+                last_runs = set(sorted(last_runs)[-4:])
+        except Exception:
+            logger.exception("mapping validation worker failed")
+        await asyncio.sleep(30)
+
 # --- Старт бота ---
 async def run_bot():
     try:
@@ -12140,4 +12542,5 @@ async def run_bot():
     except Exception:
         pass
     asyncio.create_task(daily_fetch_worker())
+    asyncio.create_task(debt_mapping_validation_worker())
     await dp.start_polling(bot)

@@ -4039,21 +4039,714 @@
     },
     "гончарова наталья сергеевна ип воротников закрыт!!|воротников н": {
       "raw_client_name": "Гончарова Наталья Сергеевна ИП Воротников ЗАКРЫТ!!",
-      "client_id": null,
+      "client_id": "6cb00ad4-5690-4bf4-b83e-8913aff63461",
       "sales_rep_user_id": 5255352159,
       "sales_rep_name": "Воротников Н",
       "source": "debt",
-      "updated_at": "2026-04-21T22:27:43Z",
+      "updated_at": "2026-04-23T15:30:08Z",
       "updated_by_user_id": 237087423
     },
-    "никитина елена витальевна ип (г.бердск пересечение рогачева ул и пролетарская ул.)|волчок": {
-      "raw_client_name": "Никитина Елена Витальевна ИП (г.Бердск пересечение  Рогачева ул и Пролетарская ул.)",
-      "client_id": "9c1bffe5-253b-483d-a3c5-49ca124f6253",
-      "sales_rep_user_id": 1188061961,
+    "шевченко илья алексеевич ип - ганиев ип новосибирский р-н, верх-тула с, советская ул, дом № 49б|ганиев": {
+      "raw_client_name": "Шевченко Илья Алексеевич ИП - Ганиев ИП Новосибирский р-н, Верх-Тула с, Советская ул, дом № 49Б",
+      "client_id": "8d1f9988-29cf-4b49-853d-4106bf32b67a",
+      "sales_rep_user_id": 887940364,
+      "sales_rep_name": "Ганиев",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:29:11Z",
+      "updated_by_user_id": 237087423
+    },
+    "хотей ооо - воротников|воротников н": {
+      "raw_client_name": "ХОТЕЙ ООО - Воротников",
+      "client_id": "ceadfc2f-fcaa-4633-81e2-e5db00567740",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:38:27Z",
+      "updated_by_user_id": 237087423
+    },
+    "иванова александра игоревна ип - воротников|воротников н": {
+      "raw_client_name": "Иванова Александра Игоревна ИП - Воротников",
+      "client_id": "9fb48e9e-0743-4c16-9e21-5bf151514fe3",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:30:16Z",
+      "updated_by_user_id": 237087423
+    },
+    "лукьяшко николай викторович ип - воротников ( приморская ул, дом № 26) закрыт!|воротников д": {
+      "raw_client_name": "Лукьяшко Николай Викторович ИП - Воротников ( Приморская ул, дом № 26) ЗАКРЫТ!",
+      "client_id": "30c7b9d2-b08d-4a6b-82df-375d6fca3f29",
+      "sales_rep_user_id": 727411283,
+      "sales_rep_name": "Воротников Д",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:30:30Z",
+      "updated_by_user_id": 237087423
+    },
+    "лукашов борис борисович ип - воротников|воротников д": {
+      "raw_client_name": "Лукашов Борис Борисович ИП - Воротников",
+      "client_id": "82a331a2-0fd5-4ffc-836b-5847d70a99d3",
+      "sales_rep_user_id": 727411283,
+      "sales_rep_name": "Воротников Д",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:30:33Z",
+      "updated_by_user_id": 237087423
+    },
+    "империя напитков ооо - воротников и у и б|воротников н": {
+      "raw_client_name": "Империя напитков ООО - Воротников и У и Б",
+      "client_id": "9fb48e9e-0743-4c16-9e21-5bf151514fe3",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:30:45Z",
+      "updated_by_user_id": 237087423
+    },
+    "тораев рашид султанович ип - воротников|воротников н": {
+      "raw_client_name": "Тораев Рашид Султанович ИП - Воротников",
+      "client_id": "82a03e89-4c98-41b2-9f75-86eaa2eecc2e",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:36:46Z",
+      "updated_by_user_id": 237087423
+    },
+    "довиденко андрей николаевич ип - воротников|воротников н": {
+      "raw_client_name": "Довиденко Андрей Николаевич ИП - Воротников",
+      "client_id": "cf0aecae-5ea6-4a56-9081-7adbf4f42b84",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:31:09Z",
+      "updated_by_user_id": 237087423
+    },
+    "маджента ооо - воротников головной|воротников н": {
+      "raw_client_name": "Маджента ООО - Воротников ГОЛОВНОЙ",
+      "client_id": "52c53e61-5e97-484e-b2b2-b96058b9544e",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:31:23Z",
+      "updated_by_user_id": 237087423
+    },
+    "петрова вероника сергеевна ип - воротников|воротников н": {
+      "raw_client_name": "Петрова Вероника Сергеевна ИП - Воротников",
+      "client_id": "7a125b29-3d6e-45f0-8f99-4760cdd2e20d",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:31:47Z",
+      "updated_by_user_id": 237087423
+    },
+    "баранова юлия николаевна ип - воротников|воротников н": {
+      "raw_client_name": "Баранова Юлия Николаевна ИП - Воротников",
+      "client_id": "9fb48e9e-0743-4c16-9e21-5bf151514fe3",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:31:56Z",
+      "updated_by_user_id": 237087423
+    },
+    "савина а.и. ип - воротников головной|воротников н": {
+      "raw_client_name": "Савина А.И. ИП - Воротников ГОЛОВНОЙ",
+      "client_id": "52fd95d0-e2bb-4a62-9d36-040662202984",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:38:42Z",
+      "updated_by_user_id": 237087423
+    },
+    "блинкова анна павловна ип - воротников|воротников н": {
+      "raw_client_name": "Блинкова Анна Павловна  ИП - Воротников",
+      "client_id": "8b287dcb-f5d6-45ec-bb57-977a510d6547",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:33:25Z",
+      "updated_by_user_id": 237087423
+    },
+    "кульпина т. н. ип - воротников головной|воротников н": {
+      "raw_client_name": "Кульпина Т. Н. ИП - Воротников ГОЛОВНОЙ",
+      "client_id": "02806dfd-0588-4149-b876-a02ef538decf",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:33:34Z",
+      "updated_by_user_id": 237087423
+    },
+    "ермоленко а.в. ип - щербатов головной|щербатов": {
+      "raw_client_name": "Ермоленко А.В. ИП - Щербатов ГОЛОВНОЙ",
+      "client_id": "8a3d8d29-f73e-457f-a5a8-65240c8a1d45",
+      "sales_rep_user_id": 1786997544,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:33:39Z",
+      "updated_by_user_id": 237087423
+    },
+    "лосев м.с. ип|токарев": {
+      "raw_client_name": "Лосев М.С. ИП",
+      "client_id": "6b63601a-b696-4d18-b87e-353e367bd07f",
+      "sales_rep_user_id": 1541701393,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:33:51Z",
+      "updated_by_user_id": 237087423
+    },
+    "рак евгения владимировна ип - воротников (у)(бибиха с, с.т тайга ул луговая, дом № 16)|воротников н": {
+      "raw_client_name": "Рак Евгения Владимировна ИП - Воротников (У)(Бибиха с, с.т Тайга ул Луговая, дом № 16)",
+      "client_id": "d425b0ec-cea8-45ce-90b7-8530869308e7",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:34:01Z",
+      "updated_by_user_id": 237087423
+    },
+    "город ооо - воротников (лыкова ул, дом № 2, корпус а) (у и б)|воротников н": {
+      "raw_client_name": "Город ООО - Воротников (Лыкова ул, дом № 2, корпус а) (У и Б)",
+      "client_id": "32e67b92-1b20-4147-9771-e432aec5814b",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-28T12:42:09Z",
+      "updated_by_user_id": 1188061961
+    },
+    "кошелева нэлля раисовна ип (воротников)|воротников н": {
+      "raw_client_name": "Кошелева Нэлля Раисовна ИП (Воротников)",
+      "client_id": "9b2a40b1-769a-413e-b0a6-11599d687b8e",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:34:18Z",
+      "updated_by_user_id": 237087423
+    },
+    "костенко н.д (воротников, кирова, 36)(у)|воротников н": {
+      "raw_client_name": "Костенко Н.Д (Воротников, Кирова, 36)(У)",
+      "client_id": "78792a88-cb48-4d40-9f88-fdb195a5a1d8",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:34:29Z",
+      "updated_by_user_id": 237087423
+    },
+    "быкова елена александровна ип - вороников|воротников н": {
+      "raw_client_name": "Быкова Елена Александровна ИП - Вороников",
+      "client_id": "701f7f10-f7d0-4972-8e7a-aafb8b0e2030",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:34:39Z",
+      "updated_by_user_id": 237087423
+    },
+    "филипьев а. а. ип - воротников (новосибирская ул, дом № 18/1)|воротников н": {
+      "raw_client_name": "Филипьев А. А. ИП - Воротников (Новосибирская ул, дом № 18/1)",
+      "client_id": "81a0fba3-937f-4e1b-9cf8-eb427af04750",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:34:50Z",
+      "updated_by_user_id": 237087423
+    },
+    "город ооо - воротников (краснообск рп, дом № 244/2 1 этаж)|воротников н": {
+      "raw_client_name": "Город ООО - Воротников (Краснообск рп, дом № 244/2 1 этаж)",
+      "client_id": "32e67b92-1b20-4147-9771-e432aec5814b",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-28T12:42:09Z",
+      "updated_by_user_id": 1188061961
+    },
+    "петрова галина викторовна ип - воротников (ликвидирован)|воротников н": {
+      "raw_client_name": "Петрова Галина Викторовна ИП - Воротников (ликвидирован)",
+      "client_id": "5d1a01db-cf6a-42ca-9b0f-026acf88210c",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:35:10Z",
+      "updated_by_user_id": 237087423
+    },
+    "замотаев вячеслав сергеевич ип - воротников (каинская заимка п, боровая ул, дом № 7/1)|воротников н": {
+      "raw_client_name": "Замотаев Вячеслав Сергеевич ИП - Воротников (Каинская Заимка п, Боровая ул, дом № 7/1)",
+      "client_id": "a273b756-d6e0-458c-afc3-509fd80b4d3d",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:35:17Z",
+      "updated_by_user_id": 237087423
+    },
+    "липпа мария дмитриевна ип -воротников (пролетарская ул, дом № 48/1)|воротников н": {
+      "raw_client_name": "Липпа Мария Дмитриевна ИП -Воротников  (Пролетарская ул, дом № 48/1)",
+      "client_id": "91a02a18-9c65-4978-ac3a-93fac3c0c4b9",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:35:27Z",
+      "updated_by_user_id": 237087423
+    },
+    "рассвет ооо - воротников (двор)|воротников н": {
+      "raw_client_name": "Рассвет ООО - Воротников (ДВОР)",
+      "client_id": "4eae0e34-422f-4df7-9fcc-d522c2629878",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:35:34Z",
+      "updated_by_user_id": 237087423
+    },
+    "кондор ооо - воротников (экваторная ул, дом № 2б)|воротников н": {
+      "raw_client_name": "КОНДОР ООО - Воротников (Экваторная ул, дом № 2б)",
+      "client_id": "3128cc01-b54d-4469-ae7c-bf44711ef890",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:35:42Z",
+      "updated_by_user_id": 237087423
+    },
+    "бочарова и. в. ип ( снт мелиоратор тер, дом № 7)|воротников н": {
+      "raw_client_name": "Бочарова И. В. ИП (  СНТ Мелиоратор тер, дом № 7)",
+      "client_id": "7d9d740f-8d31-4665-8078-8ad8adc0f39d",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:36:22Z",
+      "updated_by_user_id": 237087423
+    },
+    "филипьев а. а. ип - воротников (экваторная ул, дом № 2а)|воротников н": {
+      "raw_client_name": "Филипьев А. А. ИП - Воротников (Экваторная ул, дом № 2а)",
+      "client_id": "81a0fba3-937f-4e1b-9cf8-eb427af04750",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:36:30Z",
+      "updated_by_user_id": 237087423
+    },
+    "карлина е.в. ип - воротников (кудряшовский с/с, снт дзержинец ул центральная, дом № 1а)|воротников н": {
+      "raw_client_name": "Карлина Е.В. ИП - Воротников (Кудряшовский с/с, СНТ Дзержинец ул Центральная, дом № 1а)",
+      "client_id": "8469e9c2-f3c7-47cc-a33d-f85db2c8ea3e",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:36:39Z",
+      "updated_by_user_id": 237087423
+    },
+    "чапаева евгения федоровна ип - воротников (березовка с, первомайская ул, дом № 38, литера а|воротников н": {
+      "raw_client_name": "Чапаева Евгения Федоровна ИП - Воротников (Березовка с, Первомайская ул, дом № 38, литера а",
+      "client_id": "a4271552-7e7b-4ea7-96f9-fbaba6bd87e4",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:36:54Z",
+      "updated_by_user_id": 237087423
+    },
+    "сельснаб ооо-воротников (сосновка п, линейная ул, дом № 25)|воротников н": {
+      "raw_client_name": "Сельснаб ООО-Воротников (Сосновка п, Линейная ул, дом № 25)",
+      "client_id": "cc105794-94b5-44a4-8894-6ee8d6df0af4",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:37:16Z",
+      "updated_by_user_id": 237087423
+    },
+    "попереко виктория евгеньевна ип - воротников (ватутина ул, дом № 9)|воротников н": {
+      "raw_client_name": "Попереко Виктория Евгеньевна ИП - Воротников (Ватутина ул, дом № 9)",
+      "client_id": "243adfc9-08e6-4e0c-bcca-ba37791e2165",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:37:23Z",
+      "updated_by_user_id": 237087423
+    },
+    "томилин а.е. - воротников ( снт энергостроитель, ягодная 2)|воротников н": {
+      "raw_client_name": "Томилин А.Е. - Воротников ( снт Энергостроитель, Ягодная 2)",
+      "client_id": "3da7603f-9dbf-4cca-b429-935c1ecaa57b",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:37:30Z",
+      "updated_by_user_id": 237087423
+    },
+    "сиркин алексей анатольевич ип - воротников|воротников н": {
+      "raw_client_name": "Сиркин Алексей Анатольевич ИП - Воротников",
+      "client_id": "13aafa53-df3a-4794-85e3-5b3eae51a510",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:37:46Z",
+      "updated_by_user_id": 237087423
+    },
+    "бивери ооо - воротников (тюленина ул, дом № 22, офис 9)|воротников н": {
+      "raw_client_name": "БИВЕРИ ООО - Воротников (Тюленина ул, дом № 22, офис 9)",
+      "client_id": "578e1dd4-3d9d-444c-9bcc-960dfc1f2f78",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:37:55Z",
+      "updated_by_user_id": 237087423
+    },
+    "ковальчук ольга юрьевна ип - воротников (кудряшовский с/с, снт медтехника ул степная, дом № 30)|воротников н": {
+      "raw_client_name": "Ковальчук Ольга Юрьевна ИП - Воротников (Кудряшовский с/с, СНТ Медтехника ул Степная, дом № 30)",
+      "client_id": "b6893918-22da-4946-bb10-4db7479c8a72",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:38:02Z",
+      "updated_by_user_id": 237087423
+    },
+    "_графадацкая о. с. ип - щербатов (воскресная ул, дом № 54) закрыт!|щербатов": {
+      "raw_client_name": "_Графадацкая О. С. ИП - Щербатов (Воскресная ул, дом № 54) ЗАКРЫТ!",
+      "client_id": "9fb48e9e-0743-4c16-9e21-5bf151514fe3",
+      "sales_rep_user_id": 1786997544,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:38:33Z",
+      "updated_by_user_id": 237087423
+    },
+    "улантиков сергей федорович ип - воротников (бердское ш, дом № 277)|воротников н": {
+      "raw_client_name": "Улантиков Сергей Федорович ИП - Воротников (Бердское ш, дом № 277)",
+      "client_id": "8d1f9988-29cf-4b49-853d-4106bf32b67a",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:38:50Z",
+      "updated_by_user_id": 237087423
+    },
+    "бунькова и. а. ип - воротников (кедр снт малиновая ул, дом № 1) (у)|воротников н": {
+      "raw_client_name": "Бунькова И. А. ИП - Воротников (Кедр снт Малиновая ул, дом № 1) (У)",
+      "client_id": "0cebb98f-142c-4e8c-a3bd-35b05c16c45e",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-23T15:39:02Z",
+      "updated_by_user_id": 237087423
+    },
+    "сельснаб ооо-воротников (березовка с, первомайская ул, дом № 10)|воротников н": {
+      "raw_client_name": "Сельснаб ООО-Воротников (Березовка с, Первомайская ул, дом № 10)",
+      "client_id": "cc105794-94b5-44a4-8894-6ee8d6df0af4",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "tara",
+      "updated_at": "2026-04-23T15:39:10Z",
+      "updated_by_user_id": 237087423
+    },
+    "кожина лилия витальевна ип - волчок|волчок": {
+      "raw_client_name": "Кожина Лилия Витальевна ИП - Волчок",
+      "client_id": "33f5ab1a-9fbd-450d-b449-b02db0864c56",
+      "sales_rep_user_id": null,
       "sales_rep_name": "Волчок",
       "source": "debt",
-      "updated_at": "2026-04-28T12:15:40Z",
+      "updated_at": "2026-04-25T05:21:46Z",
+      "updated_by_user_id": 1188061961
+    },
+    "кристалл ооо - воротников|воротников н": {
+      "raw_client_name": "КРИСТАЛЛ ООО - Воротников",
+      "client_id": "e87b992a-d749-49ce-911d-b67cf1e5d299",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:21:59Z",
+      "updated_by_user_id": 1188061961
+    },
+    "деуленко и.ю. ип волчок (звездная ул, дом № 5)|волчок": {
+      "raw_client_name": "Деуленко И.Ю. ИП Волчок (Звездная ул, дом № 5)",
+      "client_id": "d5a50ec3-df07-4685-ae25-0bd1121f24c0",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:23:49Z",
+      "updated_by_user_id": 1188061961
+    },
+    "грибанова мария анатольевна -волчок (линево рп, листвянская ул, дом № 37, корпус 1)|волчок": {
+      "raw_client_name": "Грибанова Мария Анатольевна -Волчок (Линево рп, Листвянская ул, дом № 37, корпус 1)",
+      "client_id": "20f5b255-38fc-4813-80e6-562c41293fe8",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:08Z",
+      "updated_by_user_id": 1188061961
+    },
+    "скурыхина наталья игоревна ип - волчок|волчок": {
+      "raw_client_name": "Скурыхина Наталья Игоревна ИП - Волчок",
+      "client_id": "277d1e05-09bd-41f6-b0ff-552f440bab0b",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:12Z",
+      "updated_by_user_id": 1188061961
+    },
+    "бехер дмитрий алексеевич ип - воротников|воротников н": {
+      "raw_client_name": "Бехер Дмитрий Алексеевич ИП - Воротников",
+      "client_id": "1cad3e86-163d-49ad-b6d4-c72726d90218",
+      "sales_rep_user_id": 5255352159,
+      "sales_rep_name": "Воротников Н",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:21Z",
+      "updated_by_user_id": 1188061961
+    },
+    "фомина татьяна петровна ип - ганиев|ганиев": {
+      "raw_client_name": "Фомина Татьяна Петровна ИП - Ганиев",
+      "client_id": "49d72e96-1b9a-4546-8c40-0ae9f12d47be",
+      "sales_rep_user_id": 887940364,
+      "sales_rep_name": "Ганиев",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:27Z",
+      "updated_by_user_id": 1188061961
+    },
+    "стафиевский александр александрович ип - волчок|волчок": {
+      "raw_client_name": "Стафиевский Александр Александрович ИП - Волчок",
+      "client_id": "c9356958-2698-48d8-a454-f02ce84cdb6f",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:31Z",
+      "updated_by_user_id": 1188061961
+    },
+    "бервинов александр васильевич ип - щербатов|щербатов": {
+      "raw_client_name": "Бервинов Александр Васильевич ИП - Щербатов",
+      "client_id": "83e6ee06-ce39-47b6-b0e0-38b4ed7b0f7b",
+      "sales_rep_user_id": 1786997544,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:34Z",
+      "updated_by_user_id": 1188061961
+    },
+    "баранова екатерина михайловна ип - волчок|волчок": {
+      "raw_client_name": "Баранова Екатерина Михайловна ИП - Волчок",
+      "client_id": "bc3aa265-9c98-4d49-84e3-a7f88395f179",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:37Z",
+      "updated_by_user_id": 1188061961
+    },
+    "жукова светлана андреевна ип - волчок|волчок": {
+      "raw_client_name": "Жукова Светлана Андреевна ИП - Волчок",
+      "client_id": "9cac9e4d-9d48-4ea1-953b-434171482756",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:40Z",
+      "updated_by_user_id": 1188061961
+    },
+    "якубовский в.в. ип - (бердск г, гранитная ул, дом № 3)|волчок": {
+      "raw_client_name": "Якубовский В.В. ИП - (Бердск г, Гранитная ул, дом № 3)",
+      "client_id": "db98690e-bbf6-4f88-9a3d-c6862cd65ce8",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:24:57Z",
+      "updated_by_user_id": 1188061961
+    },
+    "тф дубрава ооо - волчок (бердск г, первомайская ул, дом № 7а, корпус 1)кпп544545001|волчок": {
+      "raw_client_name": "ТФ Дубрава ООО - Волчок (Бердск г, Первомайская ул, дом № 7А, корпус 1)КПП544545001",
+      "client_id": "20165ef9-49a0-4acb-a5fc-9d513a1ca287",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:10Z",
+      "updated_by_user_id": 1188061961
+    },
+    "щербакова марина викторовна ип - волчок|волчок": {
+      "raw_client_name": "Щербакова Марина Викторовна ИП - Волчок",
+      "client_id": "175fb9fa-864e-4bec-ad77-fb110bc1df7f",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:16Z",
+      "updated_by_user_id": 1188061961
+    },
+    "мир вкуса ооо волчок (бердск г, ясная поляна ул, дом № 16)|волчок": {
+      "raw_client_name": "Мир вкуса ООО Волчок (Бердск г, Ясная поляна ул, дом № 16)",
+      "client_id": "6553c0bc-9daf-4820-a842-b923dc17cd43",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:29Z",
+      "updated_by_user_id": 1188061961
+    },
+    "корнева ольга аркадьевна ип - волчок|волчок": {
+      "raw_client_name": "Корнева Ольга Аркадьевна ИП - Волчок",
+      "client_id": "30efef9b-5bd2-4079-b6b3-fb337377a824",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:36Z",
+      "updated_by_user_id": 1188061961
+    },
+    "якубовский в.в. ип - (бердск г, м.горького ул, дом № 4)|волчок": {
+      "raw_client_name": "Якубовский В.В. ИП - (Бердск г, М.Горького ул, дом № 4)",
+      "client_id": "db98690e-bbf6-4f88-9a3d-c6862cd65ce8",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:48Z",
+      "updated_by_user_id": 1188061961
+    },
+    "василенко дмитрий юрьевич ип - волчок|волчок": {
+      "raw_client_name": "Василенко Дмитрий Юрьевич ИП - Волчок",
+      "client_id": "3f1c1f5d-8048-4486-9135-bc215e649760",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:54Z",
+      "updated_by_user_id": 1188061961
+    },
+    "подопригора виктор валерьевич ип - волчок|волчок": {
+      "raw_client_name": "Подопригора Виктор Валерьевич ИП - Волчок",
+      "client_id": "fde47685-864b-4978-a12c-8443e6fd463f",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:25:57Z",
+      "updated_by_user_id": 1188061961
+    },
+    "акимов родион васильевич ип - волчок|волчок": {
+      "raw_client_name": "Акимов Родион Васильевич ИП - Волчок",
+      "client_id": "e13a9b74-0025-415d-86b3-d2b97fbc5a3e",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-25T05:26:02Z",
+      "updated_by_user_id": 1188061961
+    },
+    "лосев м.с. - токарев (станиславского ул, дом № 17)|токарев": {
+      "raw_client_name": "Лосев М.С. - Токарев (Станиславского ул, дом № 17)",
+      "client_id": "6b63601a-b696-4d18-b87e-353e367bd07f",
+      "sales_rep_user_id": 1541701393,
+      "sales_rep_name": "Токарев",
+      "source": "debt",
+      "updated_at": "2026-04-27T06:15:58Z",
       "updated_by_user_id": 237087423
+    },
+    "лисюко денис вячеславович ип - волчок (бердск г, микрорайон ул, дом № 34)|волчок": {
+      "raw_client_name": "Лисюко Денис Вячеславович ИП - Волчок (Бердск г, Микрорайон ул, дом № 34)",
+      "client_id": "c06c5141-8914-42be-b5d6-a3eef21276ab",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "tara",
+      "updated_at": "2026-04-28T04:04:05Z",
+      "updated_by_user_id": 0
+    },
+    "лисюко денис вячеславович ип - волчок (бердск, лелюха,7)|волчок": {
+      "raw_client_name": "Лисюко Денис Вячеславович ИП - Волчок (Бердск, Лелюха,7)",
+      "client_id": "c06c5141-8914-42be-b5d6-a3eef21276ab",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "tara",
+      "updated_at": "2026-04-28T04:04:05Z",
+      "updated_by_user_id": 0
+    },
+    "якубовский в.в. ип - (бердск г, гранитная ул, дом № 3)": {
+      "raw_client_name": "Якубовский В.В. ИП - (Бердск г, Гранитная ул, дом № 3)",
+      "client_id": "db98690e-bbf6-4f88-9a3d-c6862cd65ce8",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "",
+      "source": "tara",
+      "updated_at": "2026-04-28T04:05:01Z",
+      "updated_by_user_id": 0
+    },
+    "якубовский в.в. ип - (бердск г, м.горького ул, дом № 4)": {
+      "raw_client_name": "Якубовский В.В. ИП - (Бердск г, М.Горького ул, дом № 4)",
+      "client_id": "db98690e-bbf6-4f88-9a3d-c6862cd65ce8",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "",
+      "source": "tara",
+      "updated_at": "2026-04-28T04:05:01Z",
+      "updated_by_user_id": 0
+    },
+    "якубовский эдуард викторович ип - волчок(бердск г, ключевая ул, дом № 60)|волчок": {
+      "raw_client_name": "Якубовский Эдуард Викторович ИП - Волчок(Бердск г, Ключевая ул, дом № 60)",
+      "client_id": "f95dcf8e-c0f0-483d-a90a-dfa46d3da03c",
+      "sales_rep_user_id": null,
+      "sales_rep_name": "Волчок",
+      "source": "tara",
+      "updated_at": "2026-04-28T04:05:01Z",
+      "updated_by_user_id": 0
+    },
+    "лапистов евгений викторович ип - ганиев|ганиев": {
+      "raw_client_name": "Лапистов Евгений Викторович ИП - Ганиев",
+      "client_id": "ad910bd2-2406-4161-a2ce-c1894c2accc1",
+      "sales_rep_user_id": 887940364,
+      "sales_rep_name": "Ганиев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:13:25Z",
+      "updated_by_user_id": 1188061961
+    },
+    "корнева ольга аркадьевна ип - волчоктвардовского ул, дом № 22/6|волчок": {
+      "raw_client_name": "Корнева Ольга Аркадьевна ИП - ВолчокТвардовского ул, дом № 22/6",
+      "client_id": "30efef9b-5bd2-4079-b6b3-fb337377a824",
+      "sales_rep_user_id": 322502810,
+      "sales_rep_name": "Волчок",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:13:46Z",
+      "updated_by_user_id": 1188061961
+    },
+    "мамаева ольга александровна ип - щербатов|щербатов": {
+      "raw_client_name": "Мамаева Ольга Александровна ИП - Щербатов",
+      "client_id": "650a7651-d131-4e9d-856b-7f3b93915835",
+      "sales_rep_user_id": 1786997544,
+      "sales_rep_name": "Щербатов",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:13:58Z",
+      "updated_by_user_id": 1188061961
+    },
+    "виикманн игорь олегович ип - сергеев|сергеев": {
+      "raw_client_name": "Виикманн Игорь Олегович ИП - Сергеев",
+      "client_id": "16610b81-2a43-4210-9ae0-817581ee5937",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:28:09Z",
+      "updated_by_user_id": 1188061961
+    },
+    "жигунов вячеслав иванович ип сергеев (уиб) (гоголя ул, дом № 21)|сергеев": {
+      "raw_client_name": "Жигунов Вячеслав Иванович ИП Сергеев (УиБ) (Гоголя ул, дом № 21)",
+      "client_id": "589fbb9b-0562-4ccf-a99c-fa3084bca154",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:28:23Z",
+      "updated_by_user_id": 1188061961
+    },
+    "анисимов вячеслав александрович ип - сергеев|сергеев": {
+      "raw_client_name": "Анисимов Вячеслав Александрович ИП - Сергеев",
+      "client_id": "e4d23df9-8aab-4d57-95d8-3d771eb5e0d8",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:28:27Z",
+      "updated_by_user_id": 1188061961
+    },
+    "попугаев михаил сергеевич ип сергеев (толмачевское ш, дом № 63/2)|сергеев": {
+      "raw_client_name": "Попугаев Михаил Сергеевич ИП  Сергеев (Толмачевское ш, дом № 63/2)",
+      "client_id": "882a798f-aac4-4ad0-a534-d91248cdd4ae",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:28:41Z",
+      "updated_by_user_id": 1188061961
+    },
+    "шиляева анна сергеевна ип - сергеев|сергеев": {
+      "raw_client_name": "Шиляева Анна Сергеевна ИП - Сергеев",
+      "client_id": "4f6e24c2-b5e0-49d5-a1ef-e139105bba09",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:28:47Z",
+      "updated_by_user_id": 1188061961
+    },
+    "баландина лариса георгиевна ип - сергеев|сергеев": {
+      "raw_client_name": "Баландина Лариса Георгиевна ИП - Сергеев",
+      "client_id": "79758859-7525-4ee9-b28b-868478850900",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:28:53Z",
+      "updated_by_user_id": 1188061961
+    },
+    "шахматов константин николаевич ип -воротников д|сергеев": {
+      "raw_client_name": "Шахматов Константин Николаевич ИП -Воротников Д",
+      "client_id": "e8c931ae-4db0-4146-9dd2-c537bc12fdad",
+      "sales_rep_user_id": 8398897292,
+      "sales_rep_name": "Сергеев",
+      "source": "debt",
+      "updated_at": "2026-04-29T04:29:05Z",
+      "updated_by_user_id": 1188061961
     }
   },
   "ignored": {
@@ -4187,20 +4880,6 @@
       "source": "debt",
       "reason": "manual_ignore",
       "updated_at": "2026-04-14T13:42:14Z",
-      "updated_by_user_id": 237087423
-    },
-    "пеногаситель пегас drive duo": {
-      "raw_client_name": "Пеногаситель Пегас Drive DUO",
-      "source": "debt",
-      "reason": "manual_ignore",
-      "updated_at": "2026-04-14T13:42:17Z",
-      "updated_by_user_id": 237087423
-    },
-    "пеногаситель wintap на 2 потока": {
-      "raw_client_name": "Пеногаситель WINTAP на 2 потока",
-      "source": "debt",
-      "reason": "manual_ignore",
-      "updated_at": "2026-04-14T13:42:24Z",
       "updated_by_user_id": 237087423
     },
     "замок тип g": {
@@ -5043,13 +5722,6 @@
       "updated_at": "2026-04-14T13:51:30Z",
       "updated_by_user_id": 237087423
     },
-    "башня 3 кр. (золото)": {
-      "raw_client_name": "Башня 3 кр. (золото)",
-      "source": "debt",
-      "reason": "manual_ignore",
-      "updated_at": "2026-04-14T13:51:37Z",
-      "updated_by_user_id": 237087423
-    },
     "охладитель тайфун 90 на 2 пр. №42331": {
       "raw_client_name": "Охладитель Тайфун 90 на 2 пр. №42331",
       "source": "debt",
@@ -5272,6 +5944,55 @@
       "source": "debt",
       "reason": "manual_ignore",
       "updated_at": "2026-04-14T13:54:16Z",
+      "updated_by_user_id": 237087423
+    },
+    "баллон 25 кг. (азот)": {
+      "raw_client_name": "Баллон 25 кг. (Азот)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:06Z",
+      "updated_by_user_id": 237087423
+    },
+    "замок тип а (бм)": {
+      "raw_client_name": "Замок тип А (БМ)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:09Z",
+      "updated_by_user_id": 237087423
+    },
+    "башня 1 кр. (золото)": {
+      "raw_client_name": "Башня 1 кр. (золото)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:12Z",
+      "updated_by_user_id": 237087423
+    },
+    "кран с компенсатором (золото)": {
+      "raw_client_name": "Кран с компенсатором (золото)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:14Z",
+      "updated_by_user_id": 237087423
+    },
+    "медальон (золото)": {
+      "raw_client_name": "Медальон (золото)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:17Z",
+      "updated_by_user_id": 237087423
+    },
+    "витрина холодильная №09935 (наш)": {
+      "raw_client_name": "Витрина холодильная №09935 (наш)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:19Z",
+      "updated_by_user_id": 237087423
+    },
+    "бочка 30л лефевр тип а (бланш,флорефф)": {
+      "raw_client_name": "Бочка 30л Лефевр тип А (Бланш,Флорефф)",
+      "source": "tara",
+      "reason": "manual_ignore",
+      "updated_at": "2026-04-23T15:38:22Z",
       "updated_by_user_id": 237087423
     }
   }
