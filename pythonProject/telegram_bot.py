@@ -78,7 +78,7 @@ from services.client_sales_binding_service import (
     resolve_sales_rep_name_for_item as svc_resolve_sales_rep_name_for_item,
     sync_sales_rep_in_mappings_for_client as svc_sync_sales_rep_in_mappings_for_client,
 )
-from services.time import APP_TIMEZONE, parse_iso_datetime, utc_now, utc_now_iso_z
+from services.time import APP_TIMEZONE, parse_iso_datetime, parse_mixed_datetime, utc_now, utc_now_iso_z
 from services.tara_service.tara_api import (
     get_tara_client_report,
     get_tara_group,
@@ -3129,7 +3129,9 @@ def _tara_last_update_text() -> str:
         raw = status.get("last_processed_at")
         if not raw:
             return "не обновлялась"
-        dt = datetime.fromisoformat(str(raw))
+        dt = parse_mixed_datetime(str(raw))
+        if not dt:
+            return str(raw)
         return fmt_dt_local(dt)
     except Exception:
         return "неизвестно"
