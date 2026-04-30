@@ -73,6 +73,7 @@ from services.invites_service import InviteService
 from handlers.user_activity_manage import USER_ACTIVITY_MENU_BTN_TEXT, UserActivityHandlersDeps, register_user_activity_handlers
 from services.user_activity_service import UserActivityService
 from services.identity_matcher import IdentityMatcher
+from services.pulldata_service import build_archive
 from services.client_sales_binding_service import (
     resolve_card_for_report_client as svc_resolve_card_for_report_client,
     resolve_sales_rep_name_for_item as svc_resolve_sales_rep_name_for_item,
@@ -243,6 +244,42 @@ IDENTITY_MATCHER = IdentityMatcher(download_dir="downloads", client_cards_db=CLI
 INVITE_SERVICE = InviteService(Path(INVITES_JSON))
 INVITES_MANAGER = InvitesManager(bot=bot, invite_service=INVITE_SERVICE, shortener_timeout=float(os.getenv("INVITE_SHORTENER_TIMEOUT", "4.5")))
 USER_ACTIVITY_SERVICE = UserActivityService(Path(LOG_DIR) / "audit.log")
+
+PULLDATA_MANIFEST_PATH = SETTINGS_DIR / "pulldata_manifest.json"
+
+@router.message(Command("pulldata"))
+async def cmd_pulldata(m: Message):
+    user_id = getattr(m.from_user, "id", None)
+    if not is_admin(user_id):
+        return
+    status = await m.answer("🗂 Формирую архив данных, подождите…")
+    archive_path: Optional[Path] = None
+    try:
+        result = build_archive(ROOT_DIR, PULLDATA_MANIFEST_PATH, TZ, logger)
+        archive_path = result.archive_path
+        if result.files_count <= 0:
+            await status.edit_text("⚠️ Не удалось собрать архив: по текущему manifest нет файлов.")
+            return
+        await m.answer_document(
+            FSInputFile(str(archive_path)),
+            caption=(
+                f"✅ pulldata готов. Файлов: {result.files_count}\n"
+                f"include: {result.include_count}, exclude: {result.exclude_count}\n"
+                f"missing: {len(result.missing_paths)}"
+            ),
+        )
+        if result.missing_paths:
+            await m.answer("⚠️ Не найдено:\n" + "\n".join(f"• {esc(x)}" for x in result.missing_paths[:30]))
+        await status.delete()
+    except Exception as exc:
+        logger.exception("pulldata failed")
+        await status.edit_text(f"❌ Ошибка при сборке pulldata: {esc(str(exc))}")
+    finally:
+        if archive_path and archive_path.exists():
+            with contextlib.suppress(Exception):
+                archive_path.unlink()
+            with contextlib.suppress(Exception):
+                archive_path.parent.rmdir()
 
 _ADMIN_IDS = set(int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip().isdigit())
 
@@ -1473,6 +1510,7 @@ def help_text_admin(first_name: Optional[str], registered_name: Optional[str] = 
         "• /reset_role — сброс своей роли\n"
         "• /logs — последние строки bot.log\n"
         "• /logs audit — последние строки audit.log\n"
+        "• /pulldata — выгрузка архива актуальных данных\n"
         "• /help — эта справка\n"
     )
 

@@ -1,0 +1,17 @@
+{
+  "include": [
+    "logs",
+    "Price",
+    "settings",
+    "data",
+    "promos",
+    ".env",
+    "news.json",
+    "webapp/news.json"
+  ],
+  "exclude": [
+    "__pycache__",
+    "*.pyc",
+    "*.tmp"
+  ]
+}
