@@ -27,14 +27,31 @@ def sorted_mapping_entries(state: Dict[str, Any]) -> List[Dict[str, Any]]:
     out.sort(key=lambda x: (x.get("updated_at") or "", x.get("raw_client_name") or ""), reverse=True)
     return out
 
-
-def filter_mapping_entries(entries: Iterable[Dict[str, Any]], *, source: str = "all", sales_rep: str = "", without_client_id: bool = False, stale_days: int = 0, now_utc: Optional[datetime] = None) -> List[Dict[str, Any]]:
+def filter_mapping_entries(
+        entries: Iterable[Dict[str, Any]],
+        *,
+        source: str = "all",
+        sales_rep: str = "",
+        search_query: str = "",
+        without_client_id: bool = False,
+        stale_days: int = 0,
+        now_utc: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
     result = list(entries)
     if source in {"debt", "tara"}:
         result = [x for x in result if str(x.get("source") or "") == source]
     if sales_rep:
         needle = sales_rep.casefold().strip()
         result = [x for x in result if needle in str(x.get("sales_rep_name") or "").casefold()]
+    if search_query:
+        needle = search_query.casefold().strip()
+        result = [
+            x for x in result
+            if needle in str(x.get("raw_client_name") or "").casefold()
+            or needle in str(x.get("sales_rep_name") or "").casefold()
+            or needle in str(x.get("client_id") or "").casefold()
+            or needle in str(x.get("key") or "").casefold()
+        ]
     if without_client_id:
         result = [x for x in result if not str(x.get("client_id") or "").strip()]
     if stale_days > 0:

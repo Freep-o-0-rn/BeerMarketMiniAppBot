@@ -349,6 +349,7 @@ class ClientCardStates(StatesGroup):
     waiting_edit_value = State()
     waiting_search_query = State()
     waiting_import_queue_sales_rep = State()
+    waiting_mapping_search_query = State()
 
 class TechnicianStates(StatesGroup):
     waiting_full_name = State()
@@ -3930,6 +3931,10 @@ def mapping_list_kb(entries: List[Dict[str, Any]], page: int = 0, page_size: int
     rows.append([
         InlineKeyboardButton(text="Без client_id", callback_data="cc:imap:filter:noclient:1"),
         InlineKeyboardButton(text="Устаревшие", callback_data="cc:imap:filter:stale:30"),
+    ])
+    rows.append([
+        InlineKeyboardButton(text="🔍 Поиск", callback_data="cc:imap:search"),
+        InlineKeyboardButton(text="🧹 Сброс поиска", callback_data="cc:imap:filter:search:"),
     ])
     rows.append([
         InlineKeyboardButton(text="Bulk remod", callback_data="cc:imap:bulk:remod"),
@@ -7960,10 +7965,11 @@ async def cc_import_mapping_list(cq: CallbackQuery):
         return
     page_raw = (cq.data or "").split(":")[-1]
     page = int(page_raw) if page_raw.isdigit() else 0
-    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0})
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
     entries = svc_filter_mapping_entries(
         _mapping_entries_sorted(),
         source=str(filt.get("source") or "all"),
+        search_query=str(filt.get("search_query") or ""),
         without_client_id=bool(filt.get("without_client_id")),
         stale_days=int(filt.get("stale_days") or 0),
     )
@@ -7977,7 +7983,7 @@ async def cc_import_mapping_list(cq: CallbackQuery):
 @router.callback_query(F.data.startswith("cc:imap:filter:"))
 async def cc_import_mapping_filter(cq: CallbackQuery):
     uid = int(getattr(cq.from_user, "id", 0) or 0)
-    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0}))
+    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
     parts = (cq.data or "").split(":")
     if len(parts) >= 5 and parts[3] == "source":
         current["source"] = parts[4]
@@ -7985,10 +7991,53 @@ async def cc_import_mapping_filter(cq: CallbackQuery):
         current["without_client_id"] = parts[4] == "1"
     elif len(parts) >= 5 and parts[3] == "stale":
         current["stale_days"] = int(parts[4]) if parts[4].isdigit() else 0
+    elif len(parts) >= 5 and parts[3] == "search":
+        current["search_query"] = parts[4].strip()
     _MAPPING_LIST_FILTERS[uid] = current
     cq.data = "cc:imap:list:0"
     await cc_import_mapping_list(cq)
 
+@router.callback_query(F.data == "cc:imap:search")
+async def cc_import_mapping_search_start(cq: CallbackQuery, state: FSMContext):
+    if not await ensure_callback_access(cq, "client_cards.view", state=state):
+        return
+    uid = int(getattr(cq.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await deny_callback_access(cq, "client_cards.view")
+        return
+    await state.set_state(ClientCardStates.waiting_mapping_search_query)
+    await cq.message.answer("Введите строку поиска для менеджера маппинга (клиент / торговый / client_id / ключ).")
+    await cq.answer()
+
+
+@router.message(ClientCardStates.waiting_mapping_search_query)
+async def cc_import_mapping_search_apply(m: Message, state: FSMContext):
+    if not await ensure_message_access(m, "client_cards.view", state=state):
+        return
+    uid = int(getattr(m.from_user, "id", 0) or 0)
+    role = get_user_role(uid)
+    if role not in {"admin", "moderator"}:
+        await state.clear()
+        await m.answer("Недостаточно прав.")
+        return
+    search_query = (m.text or "").strip()
+    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
+    current["search_query"] = search_query
+    _MAPPING_LIST_FILTERS[uid] = current
+    await state.clear()
+    entries = svc_filter_mapping_entries(
+        _mapping_entries_sorted(),
+        source=str(current.get("source") or "all"),
+        search_query=str(current.get("search_query") or ""),
+        without_client_id=bool(current.get("without_client_id")),
+        stale_days=int(current.get("stale_days") or 0),
+    )
+    suffix = f"Поиск: <code>{esc(search_query)}</code>\n" if search_query else ""
+    await m.answer(
+        f"{suffix}🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
+        reply_markup=mapping_list_kb(entries, page=0),
+    )
 
 @router.callback_query(F.data.startswith("cc:imap:view:"))
 async def cc_import_mapping_view(cq: CallbackQuery):
@@ -8548,10 +8597,11 @@ async def cc_import_mapping_bulk(cq: CallbackQuery):
     if action not in {"remod", "ignore", "drop"}:
         await cq.answer("Некорректная операция.", show_alert=True)
         return
-    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0})
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
     entries = svc_filter_mapping_entries(
         _mapping_entries_sorted(),
         source=str(filt.get("source") or "all"),
+        search_query=str(filt.get("search_query") or ""),
         without_client_id=bool(filt.get("without_client_id")),
         stale_days=int(filt.get("stale_days") or 0),
     )
