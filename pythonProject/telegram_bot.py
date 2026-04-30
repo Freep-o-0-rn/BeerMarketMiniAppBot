@@ -3934,6 +3934,10 @@ def mapping_list_kb(entries: List[Dict[str, Any]], page: int = 0, page_size: int
     ])
     rows.append([
         InlineKeyboardButton(text="Без client_id", callback_data="cc:imap:filter:noclient:1"),
+        InlineKeyboardButton(text="Без торгового", callback_data="cc:imap:filter:norepuid:1"),
+    ])
+    rows.append([
+        InlineKeyboardButton(text="Нет явн. совпадения торг.", callback_data="cc:imap:filter:noexactrep:1"),
         InlineKeyboardButton(text="Устаревшие", callback_data="cc:imap:filter:stale:30"),
     ])
     rows.append([
@@ -3945,7 +3949,7 @@ def mapping_list_kb(entries: List[Dict[str, Any]], page: int = 0, page_size: int
         InlineKeyboardButton(text="Bulk ignore", callback_data="cc:imap:bulk:ignore"),
         InlineKeyboardButton(text="Bulk drop", callback_data="cc:imap:bulk:drop"),
     ])
-    rows.append([InlineKeyboardButton(text="⬅️ К очереди", callback_data="cc:imq:list:0")])
+    rows.append([InlineKeyboardButton(text="⬅️ К меню клиентов", callback_data="cc:list:0")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def _ignored_entries_sorted() -> List[Dict[str, Any]]:
@@ -7958,18 +7962,26 @@ def _mapping_entry_text(entry: Dict[str, Any]) -> str:
     )
 
 async def _render_mapping_manager(message: Message, uid: int, page: int = 0, prefix: str = ""):
-    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "without_sales_rep_user_id": False, "without_explicit_sales_rep_match": False, "stale_days": 0, "search_query": ""})
     entries = svc_filter_mapping_entries(
         _mapping_entries_sorted(),
         source=str(filt.get("source") or "all"),
         search_query=str(filt.get("search_query") or ""),
         without_client_id=bool(filt.get("without_client_id")),
+        without_sales_rep_user_id=bool(filt.get("without_sales_rep_user_id")),
+        without_explicit_sales_rep_match=bool(filt.get("without_explicit_sales_rep_match")),
         stale_days=int(filt.get("stale_days") or 0),
     )
-    await message.edit_text(
-        f"{prefix}🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
-        reply_markup=mapping_list_kb(entries, page=page),
-    )
+    try:
+        await message.edit_text(
+            f"{prefix}🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
+            reply_markup=mapping_list_kb(entries, page=page),
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e).lower():
+            await message.edit_reply_markup(reply_markup=mapping_list_kb(entries, page=page))
+            return
+        raise
 
 @router.callback_query(F.data.startswith("cc:imap:list:"))
 async def cc_import_mapping_list(cq: CallbackQuery):
@@ -7995,12 +8007,16 @@ async def cc_import_mapping_filter(cq: CallbackQuery):
     if role not in {"admin", "moderator"}:
         await deny_callback_access(cq, "client_cards.view")
         return
-    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
+    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "without_sales_rep_user_id": False, "without_explicit_sales_rep_match": False, "stale_days": 0, "search_query": ""}))
     parts = (cq.data or "").split(":")
     if len(parts) >= 5 and parts[3] == "source":
         current["source"] = parts[4]
     elif len(parts) >= 5 and parts[3] == "noclient":
         current["without_client_id"] = parts[4] == "1"
+    elif len(parts) >= 5 and parts[3] == "norepuid":
+        current["without_sales_rep_user_id"] = parts[4] == "1"
+    elif len(parts) >= 5 and parts[3] == "noexactrep":
+        current["without_explicit_sales_rep_match"] = parts[4] == "1"
     elif len(parts) >= 5 and parts[3] == "stale":
         current["stale_days"] = int(parts[4]) if parts[4].isdigit() else 0
     elif len(parts) >= 5 and parts[3] == "search":
@@ -8034,7 +8050,7 @@ async def cc_import_mapping_search_apply(m: Message, state: FSMContext):
         await m.answer("Недостаточно прав.")
         return
     search_query = (m.text or "").strip()
-    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""}))
+    current = dict(_MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "without_sales_rep_user_id": False, "without_explicit_sales_rep_match": False, "stale_days": 0, "search_query": ""}))
     current["search_query"] = search_query
     _MAPPING_LIST_FILTERS[uid] = current
     await state.clear()
@@ -8043,6 +8059,8 @@ async def cc_import_mapping_search_apply(m: Message, state: FSMContext):
         source=str(current.get("source") or "all"),
         search_query=str(current.get("search_query") or ""),
         without_client_id=bool(current.get("without_client_id")),
+        without_sales_rep_user_id=bool(current.get("without_sales_rep_user_id")),
+        without_explicit_sales_rep_match=bool(current.get("without_explicit_sales_rep_match")),
         stale_days=int(current.get("stale_days") or 0),
     )
     suffix = f"Поиск: <code>{esc(search_query)}</code>\n" if search_query else ""
@@ -8609,12 +8627,14 @@ async def cc_import_mapping_bulk(cq: CallbackQuery):
     if action not in {"remod", "ignore", "drop"}:
         await cq.answer("Некорректная операция.", show_alert=True)
         return
-    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "stale_days": 0, "search_query": ""})
+    filt = _MAPPING_LIST_FILTERS.get(uid, {"source": "all", "without_client_id": False, "without_sales_rep_user_id": False, "without_explicit_sales_rep_match": False, "stale_days": 0, "search_query": ""})
     entries = svc_filter_mapping_entries(
         _mapping_entries_sorted(),
         source=str(filt.get("source") or "all"),
         search_query=str(filt.get("search_query") or ""),
         without_client_id=bool(filt.get("without_client_id")),
+        without_sales_rep_user_id=bool(filt.get("without_sales_rep_user_id")),
+        without_explicit_sales_rep_match=bool(filt.get("without_explicit_sales_rep_match")),
         stale_days=int(filt.get("stale_days") or 0),
     )
     state = _load_debt_import_mappings()

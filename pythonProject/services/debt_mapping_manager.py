@@ -34,6 +34,8 @@ def filter_mapping_entries(
         sales_rep: str = "",
         search_query: str = "",
         without_client_id: bool = False,
+        without_sales_rep_user_id: bool = False,
+        without_explicit_sales_rep_match: bool = False,
         stale_days: int = 0,
         now_utc: Optional[datetime] = None,
 ) -> List[Dict[str, Any]]:
@@ -54,6 +56,13 @@ def filter_mapping_entries(
         ]
     if without_client_id:
         result = [x for x in result if not str(x.get("client_id") or "").strip()]
+    if without_sales_rep_user_id:
+        result = [x for x in result if not int(x.get("sales_rep_user_id") or 0)]
+    if without_explicit_sales_rep_match:
+        result = [
+            x for x in result
+            if bool(str(x.get("sales_rep_name") or "").strip()) and not int(x.get("sales_rep_user_id") or 0)
+        ]
     if stale_days > 0:
         now = now_utc or datetime.now(timezone.utc)
         cutoff = now - timedelta(days=stale_days)
