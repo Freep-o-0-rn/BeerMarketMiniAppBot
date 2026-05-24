@@ -4741,12 +4741,12 @@
     },
     "шахматов константин николаевич ип -воротников д|сергеев": {
       "raw_client_name": "Шахматов Константин Николаевич ИП -Воротников Д",
-      "client_id": "e8c931ae-4db0-4146-9dd2-c537bc12fdad",
+      "client_id": null,
       "sales_rep_user_id": 8398897292,
       "sales_rep_name": "Сергеев",
       "source": "debt",
-      "updated_at": "2026-04-29T04:29:05Z",
-      "updated_by_user_id": 1188061961
+      "updated_at": "2026-04-30T12:48:00Z",
+      "updated_by_user_id": 237087423
     }
   },
   "ignored": {

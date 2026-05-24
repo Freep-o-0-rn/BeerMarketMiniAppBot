@@ -10883,11 +10883,11 @@
         "sales_rep_name": "Воротников Д"
       },
       "reasons": [
-        "bulk_manual_remoderation"
+        "sales_rep_changed_mapping"
       ],
-      "seen_count": 3,
+      "seen_count": 4,
       "created_at": "2026-04-29T04:27:51Z",
-      "last_seen_at": "2026-04-30T12:17:10Z",
+      "last_seen_at": "2026-04-30T12:48:00Z",
       "last_imported_by_user_id": 237087423,
       "moderated_at": "2026-04-29T04:29:05Z",
       "moderated_by_user_id": 1188061961,

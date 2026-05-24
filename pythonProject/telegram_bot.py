@@ -218,6 +218,7 @@ TZ = pytz.timezone(os.getenv("TZ", APP_TIMEZONE))
 CRON_TIMES = [(10, 31), (15, 31)]
 MAIL_SUBJECT = os.getenv("MAIL_SUBJECT", "ДЕБИТОРКА")
 LAST_UPDATE_FILE = os.getenv("LAST_UPDATE_FILE", os.path.join("downloads", ".last_update.json"))
+TARA_AUTO_SYNC_TIME = (12, 0)
 
 # Роли/онбординг
 USER_ROLES_JSON = os.getenv("USER_ROLES_JSON", "settings/user_roles.json")
@@ -3195,6 +3196,37 @@ def _sync_tara_parsed_report() -> Tuple[bool, str]:
         logger.exception("Tara parsed sync failed")
         return False, f"❌ Синхронизация тары не выполнена: {e}"
 
+
+_tara_sync_lock = asyncio.Lock()
+
+
+def sync_tara_from_mail(trigger_name: str = "manual") -> Tuple[bool, str]:
+    logger.info("Tara sync start: trigger=%s", trigger_name)
+    try:
+        mail_path = fetch_latest_file("ТАРА")
+    except Exception as e:
+        logger.exception("Tara sync mail error: trigger=%s", trigger_name)
+        return False, f"❌ Ошибка почты при синхронизации тары: {e}"
+
+    if not mail_path:
+        logger.warning("Tara sync: file from mail not found, trigger=%s", trigger_name)
+        return False, "⚠️ Файл тары с почты не найден"
+
+    logger.info("Tara sync: file from mail downloaded: %s", mail_path)
+    ok, msg = _sync_tara_parsed_report()
+    if ok:
+        logger.info("Tara sync done: trigger=%s; %s", trigger_name, msg)
+        return True, f"{msg}\nФайл: <code>{esc(mail_path)}</code>"
+    logger.warning("Tara sync failed: trigger=%s; %s", trigger_name, msg)
+    return False, msg
+
+
+async def _sync_tara_with_lock(trigger_name: str = "manual") -> Tuple[bool, str]:
+    if _tara_sync_lock.locked():
+        logger.warning("Tara sync skipped: already running, trigger=%s", trigger_name)
+        return False, "⚠️ Синхронизация уже выполняется"
+    async with _tara_sync_lock:
+        return await asyncio.to_thread(sync_tara_from_mail, trigger_name)
 #график развоза
 def _ensure_parent(p: Path):
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -5297,6 +5329,33 @@ async def daily_fetch_worker():
                 set_last_update("auto")
         except Exception as e:
             logger.exception("Daily fetch failed: %s", e)
+        await asyncio.sleep(2.0)
+
+def seconds_until_daily_run(now: datetime, hour: int, minute: int) -> float:
+    target = _today_dt(hour, minute)
+    if now < target:
+        return (target - now).total_seconds()
+    next_day = now + timedelta(days=1)
+    target_next = TZ.localize(datetime(next_day.year, next_day.month, next_day.day, hour, minute, 0))
+    return (target_next - now).total_seconds()
+
+
+async def tara_daily_sync_worker():
+    hour, minute = TARA_AUTO_SYNC_TIME
+    while True:
+        now = datetime.now(TZ)
+        wait_s = max(1.0, seconds_until_daily_run(now, hour, minute))
+        logger.info(
+            "Tara daily sync: next run in %.0f sec (now %s, tz %s)",
+            wait_s, now.strftime("%Y-%m-%d %H:%M:%S"), TZ
+        )
+        await asyncio.sleep(wait_s)
+        ok, msg = await _sync_tara_with_lock("auto_daily_12_00")
+        if ok:
+            set_last_update("auto")
+            logger.info("Tara daily sync success: %s", msg)
+        else:
+            logger.warning("Tara daily sync skipped/failed: %s", msg)
         await asyncio.sleep(2.0)
 
 # --- Универсальный рендер отчёта ---
@@ -7972,14 +8031,20 @@ async def _render_mapping_manager(message: Message, uid: int, page: int = 0, pre
         without_explicit_sales_rep_match=bool(filt.get("without_explicit_sales_rep_match")),
         stale_days=int(filt.get("stale_days") or 0),
     )
+    kb = mapping_list_kb(entries, page=page)
     try:
         await message.edit_text(
             f"{prefix}🗂️ Менеджер маппинга импорта.\nАктивных правил: <b>{len(entries)}</b>.",
-            reply_markup=mapping_list_kb(entries, page=page),
+            reply_markup=kb,
         )
     except TelegramBadRequest as e:
         if "message is not modified" in str(e).lower():
-            await message.edit_reply_markup(reply_markup=mapping_list_kb(entries, page=page))
+            try:
+                await message.edit_reply_markup(reply_markup=kb)
+            except TelegramBadRequest as inner_e:
+                if "message is not modified" in str(inner_e).lower():
+                    return
+                raise
             return
         raise
 
@@ -10116,7 +10181,7 @@ async def _refresh_and_reply_cb(cq: CallbackQuery, mail_type: str):
             set_last_update("manual")
             sync_text = ""
             if mail_type == "ТАРА":
-                _, sync_text = _sync_tara_parsed_report()
+                _, sync_text = await _sync_tara_with_lock("manual_refresh_cb")
             kb = menu_for_callback(cq)
             msg = "Готово."
             if sync_text:
@@ -10138,16 +10203,10 @@ async def cmd_refresh_tara(m: Message):
         return
     await m.answer("Обновляю отчёт из почты (Тара)…")
     try:
-        path = fetch_latest_file("ТАРА")
-        if path:
+        ok, sync_text = await _sync_tara_with_lock("manual_command")
+        if ok:
             set_last_update("manual")
-            _, sync_text = _sync_tara_parsed_report()
-            await m.answer(
-                f"Готово. Файл: <code>{esc(path)}</code>\n{sync_text}",
-                reply_markup=main_menu_kb(getattr(m.from_user, "id", None)),
-            )
-        else:
-            await m.answer("Письмо не найдено или подходящих вложений нет.", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
+        await m.answer(sync_text, reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
     except Exception as e:
         logger.exception("Manual refresh (tara) failed")
         await m.answer(f"Не удалось обновить: {e}", reply_markup=main_menu_kb(getattr(m.from_user, "id", None)))
@@ -10165,7 +10224,7 @@ async def cb_upd_tara_sync(cq: CallbackQuery):
     if not await ensure_callback_access(cq, "updates.mail"):
         return
     await cq.message.edit_text("Синхронизирую тару…")
-    ok, msg = _sync_tara_parsed_report()
+    ok, msg = await _sync_tara_with_lock("manual_button")
     kb = menu_for_callback(cq)
     await cq.message.answer(msg if ok else f"⚠️ {msg}", reply_markup=kb)
     await cq.answer()
@@ -12574,5 +12633,6 @@ async def run_bot():
     except Exception:
         pass
     asyncio.create_task(daily_fetch_worker())
+    asyncio.create_task(tara_daily_sync_worker())
     asyncio.create_task(debt_mapping_validation_worker())
     await dp.start_polling(bot)
